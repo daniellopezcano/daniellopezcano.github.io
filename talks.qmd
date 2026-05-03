@@ -1,0 +1,9 @@
+---
+title: "Talks"
+---
+
+## Talks
+
+This page will later include invited talks, seminars, lectures, and presentation material.
+
+For now, this is a placeholder page used to test navigation and deployment.

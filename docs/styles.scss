@@ -1,0 +1,22 @@
+/* Minimal custom styling for the first test deployment */
+
+body {
+  line-height: 1.65;
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+.quarto-about-trestles .about-entity .about-links {
+  justify-content: center;
+}
+
+h2 {
+  margin-top: 2rem;
+}
+
+main.content {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}

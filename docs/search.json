@@ -1,0 +1,100 @@
+[
+  {
+    "objectID": "contact.html",
+    "href": "contact.html",
+    "title": "Contact",
+    "section": "",
+    "text": "For now, please use GitHub to reach my public profile:\n\nGitHub profile\n\nA more complete contact section will be added later."
+  },
+  {
+    "objectID": "contact.html#contact",
+    "href": "contact.html#contact",
+    "title": "Contact",
+    "section": "",
+    "text": "For now, please use GitHub to reach my public profile:\n\nGitHub profile\n\nA more complete contact section will be added later."
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "This page will later showcase scientific software, repositories, and ongoing research projects.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "projects.html#projects",
+    "href": "projects.html#projects",
+    "title": "Projects",
+    "section": "",
+    "text": "This page will later showcase scientific software, repositories, and ongoing research projects.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "talks.html",
+    "href": "talks.html",
+    "title": "Talks",
+    "section": "",
+    "text": "This page will later include invited talks, seminars, lectures, and presentation material.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "talks.html#talks",
+    "href": "talks.html#talks",
+    "title": "Talks",
+    "section": "",
+    "text": "This page will later include invited talks, seminars, lectures, and presentation material.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Daniel López Cano",
+    "section": "",
+    "text": "Postdoctoral researcher in computational cosmology.\nWelcome to my personal website. This is the first minimal Quarto version, created to test the full workflow from local development to GitHub Pages deployment."
+  },
+  {
+    "objectID": "index.html#about-this-website",
+    "href": "index.html#about-this-website",
+    "title": "Daniel López Cano",
+    "section": "About this website",
+    "text": "About this website\nThis is a first test deployment of my personal website.\nThe goal of this version is simply to verify that:\n\nthe Quarto project builds correctly,\nthe website can be previewed locally,\nthe rendered files are generated inside docs/,\nGitHub Pages publishes the site successfully."
+  },
+  {
+    "objectID": "index.html#research-interests",
+    "href": "index.html#research-interests",
+    "title": "Daniel López Cano",
+    "section": "Research interests",
+    "text": "Research interests\nMy research focuses on computational cosmology, large-scale structure, and machine learning applications in astrophysics."
+  },
+  {
+    "objectID": "index.html#next-steps",
+    "href": "index.html#next-steps",
+    "title": "Daniel López Cano",
+    "section": "Next steps",
+    "text": "Next steps\nFuture versions of this site will include:\n\nselected publications,\ntalks and presentations,\nsoftware and scientific projects,\na CV page,\ntechnical notes and resources."
+  },
+  {
+    "objectID": "publications.html",
+    "href": "publications.html",
+    "title": "Publications",
+    "section": "",
+    "text": "This page will later contain selected and full publication lists.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "publications.html#publications",
+    "href": "publications.html#publications",
+    "title": "Publications",
+    "section": "",
+    "text": "This page will later contain selected and full publication lists.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "cv.html",
+    "href": "cv.html",
+    "title": "CV",
+    "section": "",
+    "text": "A downloadable CV and a short academic summary will be added here.\nFor now, this is a placeholder page used to test navigation and deployment."
+  },
+  {
+    "objectID": "cv.html#curriculum-vitae",
+    "href": "cv.html#curriculum-vitae",
+    "title": "CV",
+    "section": "",
+    "text": "A downloadable CV and a short academic summary will be added here.\nFor now, this is a placeholder page used to test navigation and deployment."
+  }
+]

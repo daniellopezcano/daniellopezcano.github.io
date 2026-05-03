@@ -1,0 +1,9 @@
+---
+title: "CV"
+---
+
+## Curriculum Vitae
+
+A downloadable CV and a short academic summary will be added here.
+
+For now, this is a placeholder page used to test navigation and deployment.

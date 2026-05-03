@@ -1,0 +1,11 @@
+---
+title: "Contact"
+---
+
+## Contact
+
+For now, please use GitHub to reach my public profile:
+
+- [GitHub profile](https://github.com/daniellopezcano)
+
+A more complete contact section will be added later.

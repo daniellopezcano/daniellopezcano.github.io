@@ -1,0 +1,39 @@
+---
+title: "Daniel López Cano"
+about:
+  template: trestles
+  links:
+    - icon: github
+      text: GitHub
+      href: https://github.com/daniellopezcano
+---
+
+Postdoctoral researcher in computational cosmology.
+
+Welcome to my personal website. This is the first minimal Quarto version,
+created to test the full workflow from local development to GitHub Pages deployment.
+
+## About this website
+
+This is a first test deployment of my personal website.
+
+The goal of this version is simply to verify that:
+
+- the Quarto project builds correctly,
+- the website can be previewed locally,
+- the rendered files are generated inside `docs/`,
+- GitHub Pages publishes the site successfully.
+
+## Research interests
+
+My research focuses on computational cosmology, large-scale structure, and machine learning applications in astrophysics.
+
+## Next steps
+
+Future versions of this site will include:
+
+- selected publications,
+- talks and presentations,
+- software and scientific projects,
+- a CV page,
+- technical notes and resources.
