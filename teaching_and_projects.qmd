@@ -6,116 +6,123 @@ page-layout: full
 
 ## Lecture Notes
 
-::: {.doc-grid}
+::: {.doc-grid .doc-grid-compact}
+
 ::: {.doc-card}
-[![](assets/img/docs/diffgeom_notes_preview.jpg){.doc-thumb fig-alt="Preview of differential geometry notes"}](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf)
+[![](assets/img/docs/diffgeom_notes_preview.jpg){.doc-thumb .doc-thumb-compact fig-alt="Preview of differential geometry notes"}](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf)
 
 ::: {.doc-body}
 ### From Differential Geometry to General Relativity
 
-Graduate-level lecture notes combining formal derivations, worked examples, visual intuition, and accompanying Python-based resources.
+Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.
 
 ::: {.media-actions}
-[Lecture Notes PDF](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf){.btn .btn-outline-info .btn-sm}
-[GitHub repository](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
+[PDF](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
 
 ::: {.doc-card}
-[![](assets/img/docs/lya_notes_preview.jpg){.doc-thumb fig-alt="Preview of Ly-alpha notes"}](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations)
+[![](assets/img/docs/lya_notes_preview.jpg){.doc-thumb .doc-thumb-compact fig-alt="Preview of Ly-alpha notes"}](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations)
 
 ::: {.doc-body}
 ### Notes on Ly$\alpha$ Forest and Absorption Processes in Cosmology
 
-Pedagogical material on Ly$\alpha$ skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling, together with code and derivations.
+Pedagogical notes on Ly$\alpha$ skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.
 
 ::: {.media-actions}
-[Lecture Notes PDF](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations){.btn .btn-outline-info .btn-sm}
-[GitHub repository](https://github.com/daniellopezcano/SkewerJAX){.btn .btn-outline-info .btn-sm}
-:::
+[PDF](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/SkewerJAX){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
 
-## Slides
-
-::: {.slide-grid}
-::: {.slide-card}
-[![](assets/img/slides/projects/cosmo_perturbation_theory.png){.slide-thumb fig-alt="Preview of cosmological perturbation theory slides"}](assets/files/slides/projects/cosmo_perturbation_theory.pdf)
-
-::: {.slide-body}
-### Cosmological Perturbation Theory
-
-Slide presentation for teaching or didactic use.
-
-::: {.media-actions}
-[Download PDF](assets/files/slides/projects/cosmo_perturbation_theory.pdf){.btn .btn-outline-info .btn-sm}
 :::
-:::
-:::
-:::
+
 
 ## Other Projects & Open Source Software
 
-::: {.media-entry}
-[![](assets/img/projects/sbi_baccoemu.png){.media-thumb .project-thumb fig-alt="Thumbnail for SBI and BACCO workflows"}](https://github.com/daniellopezcano/SBI-baccoemu/tree/main)
+::: {.project-grid}
 
-::: {.media-body}
+::: {.project-card}
+[![](assets/img/projects/sbi_baccoemu.png){.project-card-thumb fig-alt="Thumbnail for SBI and BACCO workflows"}](https://github.com/daniellopezcano/SBI-baccoemu/tree/main)
+
+::: {.project-card-body}
 ::: {.media-meta}
 Inference · emulation · numerical cosmology
 :::
 
 ### Simulation-Based Inference and Emulation Workflows
 
-Tools and experiments related to emulator-assisted inference and numerical cosmology pipelines, including work connected to BACCO-style workflows and ML-assisted cosmological analyses.
+Simulation-based inference workflows built around emulated power spectra from `baccoemu`, with notebooks and analysis code for numerical-cosmology applications.
 
 ::: {.media-actions}
-[GitHub repository](https://github.com/daniellopezcano/SBI-baccoemu/tree/main){.btn .btn-outline-info .btn-sm}
-[BACCO project](https://bacco.dipc.org/index.html){.btn .btn-outline-info .btn-sm}
-[Google Slides](https://docs.google.com/presentation/d/1vQhXZipVcYLyRwnM6juNGSE5zor7rbg0Dnh6oNUBW_k/edit?usp=sharing){.btn .btn-outline-info .btn-sm}
-[Slides PDF](assets/files/projects/towards_robust_inference_in_the_presence_of_model_misspecification.pdf){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/SBI-baccoemu/tree/main){.btn .btn-outline-info .btn-sm}
+[BACCO](https://bacco.dipc.org/index.html){.btn .btn-outline-info .btn-sm}
+[Slides](https://docs.google.com/presentation/d/1vQhXZipVcYLyRwnM6juNGSE5zor7rbg0Dnh6oNUBW_k/edit?usp=sharing){.btn .btn-outline-info .btn-sm}
+[PDF](assets/files/projects/towards_robust_inference_in_the_presence_of_model_misspecification.pdf){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
 
+::: {.project-card}
+[![](assets/img/projects/da_thumbnail.png){.project-card-thumb fig-alt="Thumbnail for Domain Adaptation"}](https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main)
 
-::: {.media-entry}
-[![](assets/img/projects/da_thumbnail.png){.media-thumb .project-thumb fig-alt="Thumbnail for Domain Adaptation"}](https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main)
-
-::: {.media-body}
+::: {.project-card-body}
 ::: {.media-meta}
-Machine learning · survey classification
+Machine learning · contrastive learning · survey classification
 :::
 
 ### Contrastive Learning & Domain Adaptation
 
-This needs to be elaborated based on the contents of the associatted repos.
+Compact set of contrastive-learning and sim-to-obs adaptation experiments, including the J-PAS domain-adaptation pipeline and related inference/configuration repos.
 
 ::: {.media-actions}
-[GitHub repository](https://github.com/daniellopezcano/CL_mini){.btn .btn-outline-info .btn-sm}
-[GitHub repository](https://github.com/daniellopezcano/CL_inference){.btn .btn-outline-info .btn-sm}
-[GitHub repository](https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main){.btn .btn-outline-info .btn-sm}
+[CL mini](https://github.com/daniellopezcano/CL_mini){.btn .btn-outline-info .btn-sm}
+[CL inference](https://github.com/daniellopezcano/CL_inference){.btn .btn-outline-info .btn-sm}
+[JPAS DA](https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
 
+::: {.project-card}
+[![](assets/img/projects/infectious_disease_model.png){.project-card-thumb fig-alt="Thumbnail for infectious disease model"}](https://github.com/daniellopezcano/infectious_disease_model/tree/main)
 
-::: {.media-entry}
-[![](assets/img/projects/infectious_disease_model.png){.media-thumb .project-thumb fig-alt="Thumbnail for infectious disease model"}](https://github.com/daniellopezcano/infectious_disease_model/tree/main)
-
-::: {.media-body}
+::: {.project-card-body}
 ::: {.media-meta}
 Modelling · simulation · scientific computing
 :::
 
 ### Infectious Disease Model
 
-A modelling project focused on infectious-disease dynamics, combining scientific computation, mathematical modelling, and reproducible workflows.
+Small modelling project on infectious-disease dynamics, centered on simulation-based exploration and supporting presentation material.
 
 ::: {.media-actions}
-[GitHub repository](https://github.com/daniellopezcano/infectious_disease_model/tree/main){.btn .btn-outline-info .btn-sm}
-[PDF material](assets/files/projects/infectious_disease_model.pdf){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/infectious_disease_model/tree/main){.btn .btn-outline-info .btn-sm}
+[PDF](assets/files/projects/infectious_disease_model.pdf){.btn .btn-outline-info .btn-sm}
 :::
 :::
+:::
+
+:::
+
+## Slides
+
+::: {.slide-grid .slide-grid-compact}
+
+::: {.slide-card}
+[![](assets/img/slides/projects/cosmo_perturbation_theory.png){.slide-thumb .slide-thumb-compact fig-alt="Preview of cosmological perturbation theory slides"}](assets/files/slides/projects/cosmo_perturbation_theory.pdf)
+
+::: {.slide-body}
+### Cosmological Perturbation Theory
+
+Compact teaching slide deck for lecture or tutorial use.
+
+::: {.media-actions}
+[Download PDF](assets/files/slides/projects/cosmo_perturbation_theory.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
 :::

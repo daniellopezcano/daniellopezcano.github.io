@@ -30,7 +30,7 @@ website:
 
   page-footer:
     left: "© Daniel López Cano"
-    right: "[Home](index.qmd) · [CV](cv.qmd) · [Publications](publications.qmd)"
+    right: "[Home](index.qmd)"
 
 format:
   html:

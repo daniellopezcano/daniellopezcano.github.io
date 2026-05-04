@@ -1,13 +1,7 @@
 ---
 title: "CV"
-description: "Curriculum vitae, professional summary, and downloadable CV PDF."
+description: "I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My research combines cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. I am also interested in the creation of pedagogical resources that leverage computational tools to produce interactive materials and exercises, with the aim of facilitating the learning of complex topics in theoretical physics and astrophysics."
 ---
-
-## Professional summary
-
-I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My research combines cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. I am also interested in the creation of pedagogical resources that leverage computational tools to produce interactive materials and exercises, with the aim of facilitating the learning of complex topics in theoretical physics and astrophysics.
-
-## Curriculum Vitae
 
 ::: {.cv-doc-wrap}
 ::: {.doc-card .cv-doc-card}
@@ -15,8 +9,6 @@ I am a postdoctoral researcher in computational cosmology at the Institute of Ph
 
 ::: {.doc-body}
 ### Daniel López-Cano — CV
-
-Formatted CV including appointments, education, grants, teaching, technical skills, outreach, and publications.
 
 ::: {.media-actions}
 [Download PDF](assets/files/DLC_CV.pdf){.btn .btn-primary .btn-sm}

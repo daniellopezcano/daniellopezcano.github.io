@@ -18,111 +18,97 @@
     "href": "research_and_publications.html#full-publication-list",
     "title": "Research Projects & Publications",
     "section": "Full Publication List",
-    "text": "Full Publication List\n\n\n\n2026 · First author\n\n\nJ-PAS: Semi-Supervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification\nDaniel López-Cano, L. Raul Abramo, L. Nakazono, I. Pérez-Ràfols, et al.\narXiv preprint, arXiv:2602.13902, doi:10.48550/arXiv.2602.13902\nSemi-supervised domain adaptation for robust star–galaxy–quasar classification, designed to transfer effectively from simulated to observational data in the J-PAS setting.\n\n\narXiv GitHub repository Google Slides Slides PDF\n\n\n\n\n\n\n\n2026 · Collaboration\n\n\nOJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis. A foundation model for the SED of galaxies, QSOs and stars\nG. Martínez-Solaeche, R. M. González Delgado, R. García-Benito, …, D. López-Cano, et al.\narXiv preprint, arXiv:2604.00661, doi:10.48550/arXiv.2604.00661\nA collaboration paper developing a foundation-model approach for spectral energy distributions of galaxies, QSOs, and stars in the J-PAS context.\n\n\narXiv\n\n\n\n\n\n\n\n2024 · First author\n\n\nCharacterizing structure formation through instance segmentation\nDaniel López-Cano, Jens Stüker, Marcos Pellejero Ibáñez, Raúl E. Angulo, Daniel Franco-Barranco\nAstronomy & Astrophysics, 685, A37\nThis work explores structure formation in cosmological simulations through instance segmentation, connecting modern computer-vision techniques with questions in numerical cosmology.\n\n\nJournal GitHub repository Google Slides Slides PDF\n\n\n\n\n\n\n\n2024 · Co-author\n\n\nAn improved halo occupation distribution prescription from UNITsim Hα emission-line galaxies: conformity and modified radial profile\nGuillermo Reyes-Peraza, Santiago Avila, Violeta Gonzalez-Perez, Daniel López-Cano, Alexander Knebe, Sujatha Ramakrishnan, Gustavo Yepes\nMonthly Notices of the Royal Astronomical Society, 529, 3877–3893\nA study of improved halo-occupation prescriptions for Hα emission-line galaxies, with attention to conformity and modified radial profiles.\n\n\nJournal\n\n\n\n\n\n\n\n2022 · First author\n\n\nThe cosmology dependence of the concentration–mass–redshift relation\nDaniel López-Cano, Raúl E. Angulo, Aaron D. Ludlow, M. Zennaro, S. Contreras, Jonás Chaves-Montero, G. Aricò\nMonthly Notices of the Royal Astronomical Society, 517, 2000–2011\nA study of how halo concentrations vary across cosmologies, masses, and redshifts, contributing to the theoretical characterization of halo structure.\n\n\nJournal Google Slides Slides PDF\n\n\n\n\n\n\n\n2022 · Second author\n\n\nUNITSIM-Galaxies: data release and clustering of emission-line galaxies\nAlexander Knebe, Daniel López-Cano, Santiago Avila, Ginevra Favole, Adam R. H. Stevens, Violeta Gonzalez-Perez, Guillermo Reyes-Peraza, Gustavo Yepes, Chia-Hsun Chuang, Francisco-Shu Kitaura\nMonthly Notices of the Royal Astronomical Society, 510, 5392–5407\nA data-release and clustering analysis paper for emission-line galaxies in the UNITsim-Galaxies framework.\n\n\nJournal"
+    "text": "Full Publication List\n\n\n\n\n\n\n\n2026 · First author\n\n\nJ-PAS: Semi-Supervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification\nDaniel López-Cano, L. Raul Abramo, L. Nakazono, I. Pérez-Ràfols, et al.\narXiv preprint, arXiv:2602.13902\nSemi-supervised domain adaptation for robust star–galaxy–quasar classification in the J-PAS setting.\n\narXiv GitHub Slides PDF\n\n\n\n\n\n\n\n\n\n\n2026 · Collaboration\n\n\nOJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis\nG. Martínez-Solaeche, R. M. González Delgado, R. García-Benito, …, D. López-Cano, et al.\narXiv preprint, arXiv:2604.00661\nFoundation-model approach to the SEDs of galaxies, QSOs, and stars in the J-PAS context.\n\narXiv\n\n\n\n\n\n\n\n\n\n\n2024 · First author\n\n\nCharacterizing structure formation through instance segmentation\nDaniel López-Cano, Jens Stüker, Marcos Pellejero Ibáñez, Raúl E. Angulo, Daniel Franco-Barranco\nAstronomy & Astrophysics, 685, A37\nInstance segmentation for structure formation analysis in cosmological simulations.\n\nJournal GitHub Slides PDF\n\n\n\n\n\n\n\n\n\n\n2024 · Co-author\n\n\nAn improved halo occupation distribution prescription from UNITsim Hα emission-line galaxies\nGuillermo Reyes-Peraza, Santiago Avila, Violeta Gonzalez-Perez, Daniel López-Cano, Alexander Knebe, Sujatha Ramakrishnan, Gustavo Yepes\nMNRAS, 529, 3877–3893\nImproved HOD modelling for Hα emission-line galaxies, including conformity and radial-profile effects.\n\nJournal\n\n\n\n\n\n\n\n\n\n\n2022 · First author\n\n\nThe cosmology dependence of the concentration–mass–redshift relation\nDaniel López-Cano, Raúl E. Angulo, Aaron D. Ludlow, M. Zennaro, S. Contreras, Jonás Chaves-Montero, G. Aricò\nMNRAS, 517, 2000–2011\nStudy of halo concentration trends across cosmology, mass, and redshift.\n\nJournal Slides PDF\n\n\n\n\n\n\n\n\n\n\n2022 · Second author\n\n\nUNITSIM-Galaxies: data release and clustering of emission-line galaxies\nAlexander Knebe, Daniel López-Cano, Santiago Avila, Ginevra Favole, Adam R. H. Stevens, Violeta Gonzalez-Perez, Guillermo Reyes-Peraza, Gustavo Yepes, Chia-Hsun Chuang, Francisco-Shu Kitaura\nMNRAS, 510, 5392–5407\nData release and clustering analysis for emission-line galaxies in the UNITsim-Galaxies framework.\n\nJournal"
   },
   {
     "objectID": "cv.html",
     "href": "cv.html",
     "title": "CV",
     "section": "",
-    "text": "I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My research combines cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. I am also interested in the creation of pedagogical resources that leverage computational tools to produce interactive materials and exercises, with the aim of facilitating the learning of complex topics in theoretical physics and astrophysics."
-  },
-  {
-    "objectID": "cv.html#professional-summary",
-    "href": "cv.html#professional-summary",
-    "title": "CV",
-    "section": "",
-    "text": "I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My research combines cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. I am also interested in the creation of pedagogical resources that leverage computational tools to produce interactive materials and exercises, with the aim of facilitating the learning of complex topics in theoretical physics and astrophysics."
-  },
-  {
-    "objectID": "cv.html#curriculum-vitae",
-    "href": "cv.html#curriculum-vitae",
-    "title": "CV",
-    "section": "Curriculum Vitae",
-    "text": "Curriculum Vitae\n\n\n\n\nDaniel López-Cano — CV\nFormatted CV including appointments, education, grants, teaching, technical skills, outreach, and publications.\n\nDownload PDF"
+    "text": "Daniel López-Cano — CV\n\nDownload PDF"
   },
   {
     "objectID": "outreach.html",
     "href": "outreach.html",
     "title": "Outreach",
     "section": "",
-    "text": "2022 · Outreach\n\n\n\n12/11/2022 · Zientzia Astea UPV/EHU, Spain\n\nYouTube Slides PDF\n\n\n\n\n\n\n\n\nVideo\n\n\n\nA public-facing video presentation on machine-learning applications in cosmology.\n\nYouTube\n\n\n\n\n\n\n\n\n2023 · Guide\n\n\n\n04/10/2023–31/10/2023 · Tabakalera, Donostia / San Sebastián, Spain\n\nProject page\n\n\n\n\n\n\n\n\n2021–2024 · Outreach\n\n\n\n25/10/2021, 08/11/2022, 17/10/2022 & 24/10/2024 · Eureka! Zientzia Museoa, Spain\n\nYouTube"
+    "text": "2022 · Outreach\n\n\n\n12/11/2022 · Zientzia Astea UPV/EHU, Spain\nA public outreach talk on galaxies, cosmic scales, and the limits imposed by the expanding universe.\n\nYouTube Slides PDF\n\n\n\n\n\n\n\n\n2024 · Talk\n\n\n\n08/11/2024 · IFT-UNESP / Instituto Principia, São Paulo, Brazil\nPublic-facing video presentation introducing machine-learning applications in cosmology and their scientific impact.\n\nYouTube\n\n\n\n\n\n\n\n\n2023 · Guide\n\n\n\n04/10/2023–31/10/2023 · Tabakalera, Donostia / San Sebastián, Spain\nParticipation as an exhibition guide in an outreach initiative focused on inclusive astronomy.\n\nProject page\n\n\n\n\n\n\n\n\n2024 · Outreach\n\n\n\n24/10/2024 · Eureka! Zientzia Museoa, Spain\nRecurring public-engagement activity aimed at bringing scientific careers and research closer to high-school students.\n\nYouTube"
   },
   {
     "objectID": "outreach.html#talks-events",
     "href": "outreach.html#talks-events",
     "title": "Outreach",
     "section": "",
-    "text": "2022 · Outreach\n\n\n\n12/11/2022 · Zientzia Astea UPV/EHU, Spain\n\nYouTube Slides PDF\n\n\n\n\n\n\n\n\nVideo\n\n\n\nA public-facing video presentation on machine-learning applications in cosmology.\n\nYouTube\n\n\n\n\n\n\n\n\n2023 · Guide\n\n\n\n04/10/2023–31/10/2023 · Tabakalera, Donostia / San Sebastián, Spain\n\nProject page\n\n\n\n\n\n\n\n\n2021–2024 · Outreach\n\n\n\n25/10/2021, 08/11/2022, 17/10/2022 & 24/10/2024 · Eureka! Zientzia Museoa, Spain\n\nYouTube"
+    "text": "2022 · Outreach\n\n\n\n12/11/2022 · Zientzia Astea UPV/EHU, Spain\nA public outreach talk on galaxies, cosmic scales, and the limits imposed by the expanding universe.\n\nYouTube Slides PDF\n\n\n\n\n\n\n\n\n2024 · Talk\n\n\n\n08/11/2024 · IFT-UNESP / Instituto Principia, São Paulo, Brazil\nPublic-facing video presentation introducing machine-learning applications in cosmology and their scientific impact.\n\nYouTube\n\n\n\n\n\n\n\n\n2023 · Guide\n\n\n\n04/10/2023–31/10/2023 · Tabakalera, Donostia / San Sebastián, Spain\nParticipation as an exhibition guide in an outreach initiative focused on inclusive astronomy.\n\nProject page\n\n\n\n\n\n\n\n\n2024 · Outreach\n\n\n\n24/10/2024 · Eureka! Zientzia Museoa, Spain\nRecurring public-engagement activity aimed at bringing scientific careers and research closer to high-school students.\n\nYouTube"
   },
   {
     "objectID": "outreach.html#posters",
     "href": "outreach.html#posters",
     "title": "Outreach",
     "section": "Posters",
-    "text": "Posters\n\n\n\n\nTelescopes and Detectors\nPoster material in PDF format.\n\nDownload PDF\n\n\n\n\n\n\nComputational Cosmology\nPoster material in PDF format.\n\nDownload PDF\n\n\n\n\n\n\nInstance Segmentation\nPoster material in PDF format.\n\nDownload PDF"
+    "text": "Posters\n\n\n\n\nTelescopes and Detectors\n\nDownload PDF\n\n\n\n\n\n\nComputational Cosmology\n\nDownload PDF\n\n\n\n\n\n\nInstance Segmentation\n\nDownload PDF"
   },
   {
     "objectID": "outreach.html#slides",
     "href": "outreach.html#slides",
     "title": "Outreach",
     "section": "Slides",
-    "text": "Slides\n\n\n\n\nBestiario Estelar\nSlide deck associated with the scientific monologue.\n\nDownload PDF\n\n\n\n\n\n\nLas galaxias que vemos y que nunca alcanzaremos\nSlide deck associated with the scientific monologue.\n\nDownload PDF"
+    "text": "Slides\n\n\n\n\nBestiario Estelar\nSlides for the scientific monologue presented on 12/11/2022 at Zientzia Club, Okendo Kultur Etxea, Spain.\n\nDownload PDF\n\n\n\n\n\n\nLas galaxias que vemos y que nunca alcanzaremos\nSlides for the scientific monologue presented on 12/11/2022 at Zientzia Astea UPV/EHU, Spain.\n\nDownload PDF"
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Daniel López Cano",
     "section": "",
-    "text": "Daniel López Cano\n\n\nPostdoctoral Researcher in Computational Cosmology\n\n\nInstitute of Physics, University of São Paulo (IFUSP) · São Paulo, Brazil\ndlopez@usp.br · daniellopezcano13@gmail.com"
+    "text": "Daniel López Cano\n\n\nPostdoctoral Researcher in Computational Cosmology\n\n\nInstitute of Physics, University of São Paulo (IFUSP) · São Paulo, Brazil\ndaniellopezcano13@gmail.com"
   },
   {
     "objectID": "index.html#research-interests",
     "href": "index.html#research-interests",
     "title": "Daniel López Cano",
     "section": "Research interests",
-    "text": "Research interests\n\nComputational cosmology · machine learning for astrophysics · cosmological simulations · Ly\\(\\alpha\\) forest and absorption processes · galaxy–halo connection · simulation-to-observation transfer· pedagogical resources for theoretical physics and astrophysics"
+    "text": "Research interests\n\nComputational cosmology · machine learning for astrophysics · cosmological simulations · Ly\\(\\alpha\\) forest and absorption processes · galaxy–halo connection · simulation-to-observation transfer · pedagogical resources for theoretical physics and astrophysics"
   },
   {
     "objectID": "index.html#about",
     "href": "index.html#about",
     "title": "Daniel López Cano",
     "section": "About",
-    "text": "About\nHello! I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My work brings together cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. More recently, I have also been working on Ly\\(\\alpha\\) absorption processes, fast skewer generation, and pedagogical resources that use computational tools to support the learning of theoretical physics and astrophysics.\nI am currently a FAPESP Postdoctoral Fellow at IFUSP, and in 2026 I am also undertaking a FAPESP-BEPE visiting research stay at the Institut de Física d’Altes Energies (IFAE) in Barcelona. Before moving to São Paulo, I completed my PhD in Astrophysics at the Donostia International Physics Center (DIPC), after previous training in physics and theoretical physics at the Autonomous University of Madrid (UAM). Across these stages, I developed a broad interest in combining theoretical ideas, numerical methods, and data-driven techniques to study complex problems in cosmology and astrophysics."
+    "text": "About\nHello! I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My work brings together cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. More recently, I have also been working on Ly\\(\\alpha\\) absorption processes, fast skewer generation, and pedagogical resources that use computational tools to support the learning of theoretical physics and astrophysics.\nI am currently a FAPESP Postdoctoral Fellow at IFUSP, and in 2026 I am also undertaking a FAPESP-BEPE visiting research stay at the Institut de Física d’Altes Energies (IFAE) in Barcelona. Before moving to São Paulo, I completed my PhD in Astrophysics at the Donostia International Physics Center (DIPC) after completing my BSc in physics and MSc in theoretical physics at the Autonomous University of Madrid (UAM) / Institute of Theoretical Physics (IFT). Across these stages, I developed a broad interest in combining theoretical ideas, numerical methods, and data-driven techniques to study complex problems in cosmology and astrophysics."
   },
   {
     "objectID": "index.html#trajectory",
     "href": "index.html#trajectory",
     "title": "Daniel López Cano",
     "section": "Trajectory",
-    "text": "Trajectory\n\n\n\nFAPESP Postdoctoral Research Fellow\nInstitute of Physics, University of São Paulo (IFUSP) · São Paulo, Brazil\n11/2024 – Present\nSupervisor: Prof. Luis Raul Weber Abramo. Topics include cosmological simulations, semi-supervised machine learning techniques, Ly\\(\\alpha\\) processes, and differential geometry.\n\nIFUSP profile JPAS Domain Adaptation\n\n\n\n\n\n\nFAPESP-BEPE Visiting Postdoctoral Research Fellow\nInstitut de Física d’Altes Energies (IFAE) · Barcelona area, Spain\n02/2026 – 06/2026\nHost supervisor: Prof. Andreu Font-Ribera. Co-mentor: Dr. Jonás Chaves-Montero. Project: SkewerJAX: fast Ly\\(\\alpha\\) skewers and a survey-ready metal-contamination model.\n\nFAPESP researcher page SkewerJAX\n\n\n\n\n\n\nPhD in Astrophysics\nDonostia International Physics Center (DIPC) / Universidad Autónoma de Madrid (UAM) · Donostia-San Sebastián / Madrid, Spain\n09/2020 – 09/2024\nSupervisor: Prof. Raúl E. Angulo. Thesis: Improving cosmological simulations: semi-analytic models, the internal structure of haloes, and machine learning techniques.\n\nThesis page Instance segmentation work SBI / BACCO workflows BACCO\n\n\n\n\n\n\nMSc in Theoretical Physics\nInstitute of Theoretical Physics IFT UAM-CSIC · Madrid, Spain\n09/2019 – 07/2020\nSpecialisation in Astrophysics and Physics of the Cosmos. Supervisor: Prof. Alexander Knebe.\n\n\n\n\n\nBSc in Physics\nUniversidad Autónoma de Madrid · Madrid, Spain\n09/2015 – 07/2019\nTraining in theoretical and experimental physics, including thesis work on galaxy statistics in cosmological simulations and tight-binding / evolutionary methods."
+    "text": "Trajectory\n\n\n\nFAPESP Postdoctoral Research Fellow\nInstitute of Physics, University of São Paulo (IFUSP) · São Paulo, Brazil – 11/2024 – Present\nSupervisor: Prof. Dr. Luis Raul Weber Abramo.\n\nIFUSP profile\n\n\n\n\n\n\nFAPESP-BEPE Visiting Postdoctoral Research Fellow\nInstitut de Física d’Altes Energies (IFAE) · Barcelona area, Spain – 02/2026 – 06/2026\nHost supervisor: Prof. Dr. Andreu Font-Ribera. Co-mentor: Dr. Jonás Chaves-Montero.\n\nFAPESP researcher page\n\n\n\n\n\n\nPhD in Astrophysics\nDonostia International Physics Center (DIPC) / Universidad Autónoma de Madrid (UAM) · Donostia-San Sebastián / Madrid, Spain – 09/2020 – 09/2024\nSupervisor: Prof. Dr. Raúl E. Angulo de la Fuente.\nThesis: Improving cosmological simulations: semi-analytic models, the internal structure of haloes, and ML techniques.\n\nDIPC PhD defense page UAM thesis repository BACCO people Astrophysics doctoral theses\n\n\n\n\n\n\nMSc in Theoretical Physics\nInstitute of Theoretical Physics (IFT) / Universidad Autónoma de Madrid (UAM) · Madrid, Spain – 09/2019 – 07/2020\nSupervisor: Prof. Dr. Alexander Knebe.\nThesis: UNITSIM-Galaxies: data release and clustering of emission-line galaxies.\n\nIFT UAM-CSIC\n\n\n\n\n\n\nBSc in Physics\nUniversidad Autónoma de Madrid (UAM) · Madrid, Spain – 09/2015 – 07/2019\nSupervisor (Theory thesis): Prof. Dr. Alexander Knebe.\nTheory Thesis: UNIT-SAGE galaxies: studying galaxy statistics using cosmological simulations.\nSupervisor (Applied thesis): Prof. Dr. Juan José Palacios Burgos.\nApplied Thesis: Tight-binding method and evolutionary algorithms.\n\nUAM Theoretical Physics Department"
   },
   {
     "objectID": "teaching_and_projects.html",
     "href": "teaching_and_projects.html",
     "title": "Teaching & Projects",
     "section": "",
-    "text": "Graduate-level lecture notes combining formal derivations, worked examples, visual intuition, and accompanying Python-based resources.\n\nLecture Notes PDF GitHub repository\n\n\n\n\n\n\n\nPedagogical material on Ly\\(\\alpha\\) skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling, together with code and derivations.\n\nLecture Notes PDF GitHub repository"
+    "text": "Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.\n\nPDF GitHub\n\n\n\n\n\n\n\nPedagogical notes on Ly\\(\\alpha\\) skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.\n\nPDF GitHub"
   },
   {
     "objectID": "teaching_and_projects.html#lecture-notes",
     "href": "teaching_and_projects.html#lecture-notes",
     "title": "Teaching & Projects",
     "section": "",
-    "text": "Graduate-level lecture notes combining formal derivations, worked examples, visual intuition, and accompanying Python-based resources.\n\nLecture Notes PDF GitHub repository\n\n\n\n\n\n\n\nPedagogical material on Ly\\(\\alpha\\) skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling, together with code and derivations.\n\nLecture Notes PDF GitHub repository"
-  },
-  {
-    "objectID": "teaching_and_projects.html#slides",
-    "href": "teaching_and_projects.html#slides",
-    "title": "Teaching & Projects",
-    "section": "Slides",
-    "text": "Slides\n\n\n\n\nCosmological Perturbation Theory\nSlide presentation for teaching or didactic use.\n\nDownload PDF"
+    "text": "Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.\n\nPDF GitHub\n\n\n\n\n\n\n\nPedagogical notes on Ly\\(\\alpha\\) skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.\n\nPDF GitHub"
   },
   {
     "objectID": "teaching_and_projects.html#other-projects-open-source-software",
     "href": "teaching_and_projects.html#other-projects-open-source-software",
     "title": "Teaching & Projects",
     "section": "Other Projects & Open Source Software",
-    "text": "Other Projects & Open Source Software\n\n\n\n\nInference · emulation · numerical cosmology\n\n\nSimulation-Based Inference and Emulation Workflows\nTools and experiments related to emulator-assisted inference and numerical cosmology pipelines, including work connected to BACCO-style workflows and ML-assisted cosmological analyses.\n\nGitHub repository BACCO project Google Slides Slides PDF\n\n\n\n\n\n\n\n\nMachine learning · survey classification\n\n\nContrastive Learning & Domain Adaptation\nThis needs to be elaborated based on the contents of the associatted repos.\n\nGitHub repository GitHub repository GitHub repository\n\n\n\n\n\n\n\n\nModelling · simulation · scientific computing\n\n\nInfectious Disease Model\nA modelling project focused on infectious-disease dynamics, combining scientific computation, mathematical modelling, and reproducible workflows.\n\nGitHub repository PDF material"
+    "text": "Other Projects & Open Source Software\n\n\n\n\n\nInference · emulation · numerical cosmology\n\n\nSimulation-Based Inference and Emulation Workflows\nSimulation-based inference workflows built around emulated power spectra from baccoemu, with notebooks and analysis code for numerical-cosmology applications.\n\nGitHub BACCO Slides PDF\n\n\n\n\n\n\n\n\nMachine learning · contrastive learning · survey classification\n\n\nContrastive Learning & Domain Adaptation\nCompact set of contrastive-learning and sim-to-obs adaptation experiments, including the J-PAS domain-adaptation pipeline and related inference/configuration repos.\n\nCL mini CL inference JPAS DA\n\n\n\n\n\n\n\n\nModelling · simulation · scientific computing\n\n\nInfectious Disease Model\nSmall modelling project on infectious-disease dynamics, centered on simulation-based exploration and supporting presentation material.\n\nGitHub PDF"
+  },
+  {
+    "objectID": "teaching_and_projects.html#slides",
+    "href": "teaching_and_projects.html#slides",
+    "title": "Teaching & Projects",
+    "section": "Slides",
+    "text": "Slides\n\n\n\n\nCosmological Perturbation Theory\nCompact teaching slide deck for lecture or tutorial use.\n\nDownload PDF"
   }
 ]
