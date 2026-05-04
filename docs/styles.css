@@ -34,7 +34,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background-image: url("/assets/img/background/background.gif");
+  background-image: url("assets/img/background/background.gif");
   background-position: center;
   background-repeat: no-repeat;
   background-size: min(1880px, 100vw) auto;

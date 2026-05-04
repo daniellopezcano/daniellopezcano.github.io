@@ -1,2 +1,33 @@
+# Quarto cache and temporary files
 /.quarto/
 **/*.quarto_ipynb
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS / filesystem junk
+.DS_Store
+Thumbs.db
+
+# Backup / temporary files
+*~
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Quarto temp/session leftovers
+.quarto-session*
