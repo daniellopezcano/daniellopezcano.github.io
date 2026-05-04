@@ -1,37 +1,48 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - assets/img/background/background.gif
 
 website:
   title: "Daniel López Cano"
   site-url: "https://daniellopezcano.github.io"
+
+  # Uncomment when available
+  # favicon: assets/icons/site-mark.png
+
   navbar:
+    background: dark
+    title: false
+    logo: false
     left:
       - href: index.qmd
         text: Home
-      - href: publications.qmd
-        text: Publications
-      - href: talks.qmd
-        text: Talks
-      - href: projects.qmd
-        text: Projects
+      - href: research_and_publications.qmd
+        text: Research & Publications
+      - href: teaching_and_projects.qmd
+        text: Teaching & Projects
+      - href: outreach.qmd
+        text: Outreach
       - href: cv.qmd
         text: CV
-      - href: contact.qmd
-        text: Contact
-    right:
-      - icon: github
-        href: https://github.com/daniellopezcano
-        aria-label: GitHub
+    search: true
+
   page-footer:
-    center: "© Daniel López Cano"
-  search: true
+    left: "© Daniel López Cano"
+    right: "[Home](index.qmd) · [CV](cv.qmd) · [Publications](publications.qmd)"
 
 format:
   html:
-    theme:
-      light: cosmo
-      dark: darkly
+    theme: darkly
     css: styles.scss
     toc: false
     smooth-scroll: true
+    code-copy: true
+    anchor-sections: true
+    link-external-icon: false
+    link-external-newwindow: true
+    grid:
+      body-width: 1080px
+      margin-width: 220px
+      sidebar-width: 220px

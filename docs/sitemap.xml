@@ -1,43 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://daniellopezcano.github.io/talks/talk-001.html</loc>
-    <lastmod>2026-05-03T12:53:11.816Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/notes/note-001.html</loc>
-    <lastmod>2026-05-03T12:53:11.820Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/contact.html</loc>
-    <lastmod>2026-05-03T13:14:46.973Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/projects.html</loc>
-    <lastmod>2026-05-03T13:14:38.486Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/projects/project-001.html</loc>
-    <lastmod>2026-05-03T12:53:11.818Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/publications/paper-001.html</loc>
-    <lastmod>2026-05-03T12:53:11.815Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/talks.html</loc>
-    <lastmod>2026-05-03T13:14:34.242Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/index.html</loc>
-    <lastmod>2026-05-03T13:22:49.578Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/publications.html</loc>
-    <lastmod>2026-05-03T13:14:29.260Z</lastmod>
+    <loc>https://daniellopezcano.github.io/research_and_publications.html</loc>
+    <lastmod>2026-05-04T09:39:39.051Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/cv.html</loc>
-    <lastmod>2026-05-03T13:14:42.726Z</lastmod>
+    <lastmod>2026-05-04T10:01:00.340Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/outreach.html</loc>
+    <lastmod>2026-05-04T09:49:16.555Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/index.html</loc>
+    <lastmod>2026-05-04T10:23:43.949Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/teaching_and_projects.html</loc>
+    <lastmod>2026-05-04T09:43:30.321Z</lastmod>
   </url>
 </urlset>

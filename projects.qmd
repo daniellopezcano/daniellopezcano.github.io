@@ -1,9 +1,0 @@
----
-title: "Projects"
----
-
-## Projects
-
-This page will later showcase scientific software, repositories, and ongoing research projects.
-
-For now, this is a placeholder page used to test navigation and deployment.

@@ -1,0 +1,157 @@
+---
+title: "Outreach"
+description: "Selected outreach activity, public talks, videos, posters, and downloadable slides."
+---
+
+## Talks & Events
+
+::: {.media-entry}
+[![](assets/img/slides/outreach/las_galaxias_que_vemos_y_que_nunca_alcanzaremos.png){.media-thumb fig-alt="Thumbnail for Las galaxias que vemos y que nunca alcanzaremos"}](https://www.youtube.com/watch?v=e7X5LF4FuOo&ab_channel=IkerketaZabalik)
+
+::: {.media-body}
+::: {.media-meta}
+2022 · Outreach
+:::
+
+### Scientific Monologue: *Las galaxias que vemos y que nunca alcanzaremos*
+
+12/11/2022 · Zientzia Astea UPV/EHU, Spain
+
+::: {.media-actions}
+[YouTube](https://www.youtube.com/watch?v=e7X5LF4FuOo&ab_channel=IkerketaZabalik){.btn .btn-outline-info .btn-sm}
+[Slides PDF](assets/files/slides/outreach/las_galaxias_que_vemos_y_que_nunca_alcanzaremos.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.media-entry}
+[![](assets/img/talks/ML_PastPresentFuture.png){.media-thumb fig-alt="Thumbnail for Machine Learning Applications in Cosmology: Past, Present, and Future"}](https://www.youtube.com/watch?v=oZOMmPZpBAs)
+
+::: {.media-body}
+::: {.media-meta}
+Video
+:::
+
+### Machine Learning Applications in Cosmology: Past, Present, and Future
+
+A public-facing video presentation on machine-learning applications in cosmology.
+
+::: {.media-actions}
+[YouTube](https://www.youtube.com/watch?v=oZOMmPZpBAs){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.media-entry}
+[![](assets/img/talks/strom.png){.media-thumb fig-alt="Thumbnail for STROM inclusive astronomy exhibition"}](https://dipc.ehu.eus/es/ciencia-sociedad/passion-for-knowledge/x)
+
+::: {.media-body}
+::: {.media-meta}
+2023 · Guide
+:::
+
+### Astronomical Exhibition Guide: STROM – Inclusive Astronomy
+
+04/10/2023–31/10/2023 · Tabakalera, Donostia / San Sebastián, Spain
+
+::: {.media-actions}
+[Project page](https://dipc.ehu.eus/es/ciencia-sociedad/passion-for-knowledge/x){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.media-entry}
+[![](assets/img/talks/meet_a_scientist.png){.media-thumb fig-alt="Thumbnail for Meet a Scientist"}](https://www.youtube.com/watch?v=kPnlDaMSb0U&ab_channel=Eureka%21ZientziaMuseoaDonostia-SanSebasti%C3%A1n)
+
+::: {.media-body}
+::: {.media-meta}
+2021–2024 · Outreach
+:::
+
+### Meet a Scientist: “Encuentro de vidas científicas”
+
+25/10/2021, 08/11/2022, 17/10/2022 & 24/10/2024 · Eureka! Zientzia Museoa, Spain
+
+::: {.media-actions}
+[YouTube](https://www.youtube.com/watch?v=kPnlDaMSb0U&ab_channel=Eureka%21ZientziaMuseoaDonostia-SanSebasti%C3%A1n){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+## Posters
+
+::: {.doc-grid}
+::: {.doc-card}
+[![](assets/img/posters/poster_telescopes_and_detectors.png){.doc-thumb fig-alt="Poster preview: Telescopes and detectors"}](assets/files/posters/poster_telescopes_and_detectors.pdf)
+
+::: {.doc-body}
+### Telescopes and Detectors
+
+Poster material in PDF format.
+
+::: {.media-actions}
+[Download PDF](assets/files/posters/poster_telescopes_and_detectors.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.doc-card}
+[![](assets/img/posters/poster_computational_cosmology.png){.doc-thumb fig-alt="Poster preview: Computational cosmology"}](assets/files/posters/poster_computational_cosmology.pdf)
+
+::: {.doc-body}
+### Computational Cosmology
+
+Poster material in PDF format.
+
+::: {.media-actions}
+[Download PDF](assets/files/posters/poster_computational_cosmology.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.doc-card}
+[![](assets/img/posters/poster_instance_segmentation.png){.doc-thumb fig-alt="Poster preview: Instance segmentation"}](assets/files/posters/poster_instance_segmentation.pdf)
+
+::: {.doc-body}
+### Instance Segmentation
+
+Poster material in PDF format.
+
+::: {.media-actions}
+[Download PDF](assets/files/posters/poster_instance_segmentation.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+:::
+
+## Slides
+
+::: {.slide-grid}
+::: {.slide-card}
+[![](assets/img/slides/outreach/Bestiario_Estelar.png){.slide-thumb fig-alt="Slide preview: Bestiario Estelar"}](assets/files/slides/outreach/Bestiario_Estelar.pdf)
+
+::: {.slide-body}
+### Bestiario Estelar
+
+Slide deck associated with the scientific monologue.
+
+::: {.media-actions}
+[Download PDF](assets/files/slides/outreach/Bestiario_Estelar.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.slide-card}
+[![](assets/img/slides/outreach/las_galaxias_que_vemos_y_que_nunca_alcanzaremos.png){.slide-thumb fig-alt="Slide preview: Las galaxias que vemos y que nunca alcanzaremos"}](assets/files/slides/outreach/las_galaxias_que_vemos_y_que_nunca_alcanzaremos.pdf)
+
+::: {.slide-body}
+### Las galaxias que vemos y que nunca alcanzaremos
+
+Slide deck associated with the scientific monologue.
+
+::: {.media-actions}
+[Download PDF](assets/files/slides/outreach/las_galaxias_que_vemos_y_que_nunca_alcanzaremos.pdf){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+:::

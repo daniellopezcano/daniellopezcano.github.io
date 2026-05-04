@@ -1,9 +1,0 @@
----
-title: "Publications"
----
-
-## Publications
-
-This page will later contain selected and full publication lists.
-
-For now, this is a placeholder page used to test navigation and deployment.

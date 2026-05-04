@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Personal academic website of Daniel López Cano.">
 
 <title>Daniel López Cano</title>
 <style>
@@ -37,15 +38,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-b86d165387ac89728e2157247b30c4ae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-c9830ae3a71e85af1f145ee4ff9bb690.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-b86d165387ac89728e2157247b30c4ae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-66afc930546bd7866403d5647c910784.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,183 +73,45 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.scss">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
-    const toggleBodyColorMode = (bsSheetEl) => {
-      const mode = bsSheetEl.getAttribute("data-mode");
-      const bodyEl = window.document.querySelector("body");
-      if (mode === "dark") {
-        bodyEl.classList.add("quarto-dark");
-        bodyEl.classList.remove("quarto-light");
-      } else {
-        bodyEl.classList.add("quarto-light");
-        bodyEl.classList.remove("quarto-dark");
-      }
-    }
-    const toggleBodyColorPrimary = () => {
-      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
-      if (bsSheetEl) {
-        toggleBodyColorMode(bsSheetEl);
-      }
-    }
-    const setColorSchemeToggle = (alternate) => {
-      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-      for (let i=0; i < toggles.length; i++) {
-        const toggle = toggles[i];
-        if (toggle) {
-          if (alternate) {
-            toggle.classList.add("alternate");
-          } else {
-            toggle.classList.remove("alternate");
-          }
-        }
-      }
-    };
-    const toggleColorMode = (alternate) => {
-      // Switch the stylesheets
-      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
-      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-      manageTransitions('#quarto-margin-sidebar .nav-link', false);
-      if (alternate) {
-        // note: dark is layered on light, we don't disable primary!
-        enableStylesheet(alternateStylesheets);
-        for (const sheetNode of alternateStylesheets) {
-          if (sheetNode.id === "quarto-bootstrap") {
-            toggleBodyColorMode(sheetNode);
-          }
-        }
-      } else {
-        disableStylesheet(alternateStylesheets);
-        enableStylesheet(primaryStylesheets)
-        toggleBodyColorPrimary();
-      }
-      manageTransitions('#quarto-margin-sidebar .nav-link', true);
-      // Switch the toggles
-      setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
-      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-        manageTransitions("body", false);
-        window.scrollTo(0, 1);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          manageTransitions("body", true);
-        }, 40);
-      }
-    }
-    const disableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        stylesheet.rel = 'disabled-stylesheet';
-      }
-    }
-    const enableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
-          stylesheet.rel = 'stylesheet';
-        }
-      }
-    }
-    const manageTransitions = (selector, allowTransitions) => {
-      const els = window.document.querySelectorAll(selector);
-      for (let i=0; i < els.length; i++) {
-        const el = els[i];
-        if (allowTransitions) {
-          el.classList.remove('notransition');
-        } else {
-          el.classList.add('notransition');
-        }
-      }
-    }
-    const isFileUrl = () => {
-      return window.location.protocol === 'file:';
-    }
-    const hasAlternateSentinel = () => {
-      let styleSentinel = getColorSchemeSentinel();
-      if (styleSentinel !== null) {
-        return styleSentinel === "alternate";
-      } else {
-        return false;
-      }
-    }
-    const setStyleSentinel = (alternate) => {
-      const value = alternate ? "alternate" : "default";
-      if (!isFileUrl()) {
-        window.localStorage.setItem("quarto-color-scheme", value);
-      } else {
-        localAlternateSentinel = value;
-      }
-    }
-    const getColorSchemeSentinel = () => {
-      if (!isFileUrl()) {
-        const storageValue = window.localStorage.getItem("quarto-color-scheme");
-        return storageValue != null ? storageValue : localAlternateSentinel;
-      } else {
-        return localAlternateSentinel;
-      }
-    }
-    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-      let newTheme = '';
-      if(authorPrefersDark) {
-        newTheme = isAlternate ? baseTheme : alternateTheme;
-      } else {
-        newTheme = isAlternate ? alternateTheme : baseTheme;
-      }
-      const changeGiscusTheme = () => {
-        // From: https://github.com/giscus/giscus/issues/336
-        const sendMessage = (message) => {
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (!iframe) return;
-          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-        }
-        sendMessage({
-          setConfig: {
-            theme: newTheme
-          }
-        });
-      }
-      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-      if (isGiscussLoaded) {
-        changeGiscusTheme();
-      }
-    };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
-      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
-      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
-    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-    // Dark / light mode switch
-    window.quartoToggleColorScheme = () => {
-      // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
-      toggleColorMode(toAlternate);
-      setStyleSentinel(toAlternate);
-      toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
-    };
-    // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
-      toggleColorMode(true);
-    } else {
-      toggleColorMode(false);
-    }
-  </script>
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Daniel López Cano</span>
-    </a>
-  </div>
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
@@ -263,112 +123,136 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./publications.html"> 
-<span class="menu-text">Publications</span></a>
+    <a class="nav-link" href="./research_and_publications.html"> 
+<span class="menu-text">Research &amp; Publications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./talks.html"> 
-<span class="menu-text">Talks</span></a>
+    <a class="nav-link" href="./teaching_and_projects.html"> 
+<span class="menu-text">Teaching &amp; Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./projects.html"> 
-<span class="menu-text">Projects</span></a>
+    <a class="nav-link" href="./outreach.html"> 
+<span class="menu-text">Outreach</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./cv.html"> 
 <span class="menu-text">CV</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./contact.html"> 
-<span class="menu-text">Contact</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/daniellopezcano"> <i class="bi bi-github" role="img" aria-label="GitHub">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<div class="quarto-about-trestles">
-  <div class="about-entity">
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Daniel López Cano</h1>
-</div>
-<div class="quarto-title-meta">
-  </div>
-</header>
-    <div class="about-links">
-  <a href="https://github.com/daniellopezcano" class="about-link" rel="" target="">
-    <i class="bi bi-github"></i>
-     <span class="about-link-text">GitHub</span>
-  </a>
-</div>
-  </div>
-  <div class="about-contents"><main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
-<p>Postdoctoral researcher in computational cosmology.</p>
-<p>Welcome to my personal website. This is the first minimal Quarto version, created to test the full workflow from local development to GitHub Pages deployment.</p>
-<section id="about-this-website" class="level2">
-<h2 data-anchor-id="about-this-website">About this website</h2>
-<p>This is a first test deployment of my personal website.</p>
-<p>The goal of this version is simply to verify that:</p>
-<ul>
-<li>the Quarto project builds correctly,</li>
-<li>the website can be previewed locally,</li>
-<li>the rendered files are generated inside <code>docs/</code>,</li>
-<li>GitHub Pages publishes the site successfully.</li>
-</ul>
-</section>
+
+
+
+<div class="home-landing">
+<p><img src="assets/img/profile.jpg" class="home-photo img-fluid" alt="Portrait of Daniel López Cano"></p>
+<div class="home-name">
+<p>Daniel López Cano</p>
+</div>
+<div class="home-role">
+<p>Postdoctoral Researcher in Computational Cosmology</p>
+</div>
+<div class="home-summary">
+<p><a href="https://portal.if.usp.br/ifusp/pt-br/users/dlopez">Institute of Physics, University of São Paulo (IFUSP)</a> · São Paulo, Brazil</p>
+<p><a href="mailto:dlopez@usp.br">dlopez@usp.br</a> · <a href="mailto:daniellopezcano13@gmail.com">daniellopezcano13@gmail.com</a></p>
+</div>
+<div class="home-links">
+<p><a href="https://scholar.google.com/citations?hl=en&amp;user=2n98u-oAAAAJ"><img src="assets/img/logos/google_scholar.png" class="logo-icon img-fluid" alt="Google Scholar logo"></a> <a href="https://orcid.org/0000-0002-0279-4874"><img src="assets/img/logos/orcid.png" class="logo-icon img-fluid" alt="ORCID logo"></a> <a href="https://github.com/daniellopezcano"><img src="assets/img/logos/github.png" class="logo-icon img-fluid" alt="GitHub logo"></a> <a href="https://arxiv.org/search/?searchtype=author&amp;query=L%C3%B3pez-Cano%2C+D"><img src="assets/img/logos/arxiv.png" class="logo-icon img-fluid" alt="arXiv logo"></a></p>
+</div>
+</div>
 <section id="research-interests" class="level2">
-<h2 data-anchor-id="research-interests">Research interests</h2>
-<p>My research focuses on computational cosmology, large-scale structure, and machine learning applications in astrophysics.</p>
-</section>
-<section id="next-steps" class="level2">
-<h2 data-anchor-id="next-steps">Next steps</h2>
-<p>Future versions of this site will include:</p>
-<ul>
-<li>selected publications,</li>
-<li>talks and presentations,</li>
-<li>software and scientific projects,</li>
-<li>a CV page,</li>
-<li>technical notes and resources.</li>
-</ul>
-
-
-</section>
-</main></div>
+<h2 class="anchored" data-anchor-id="research-interests">Research interests</h2>
+<div class="minimal-panel">
+<p>Computational cosmology · machine learning for astrophysics · cosmological simulations · Ly<span class="math inline">\(\alpha\)</span> forest and absorption processes · galaxy–halo connection · simulation-to-observation transfer· pedagogical resources for theoretical physics and astrophysics</p>
 </div>
- <!-- /main -->
+</section>
+<section id="about" class="level2">
+<h2 class="anchored" data-anchor-id="about">About</h2>
+<p>Hello! I am a postdoctoral researcher in computational cosmology at the Institute of Physics of the University of São Paulo (IFUSP). My work brings together cosmological simulations, machine learning for astrophysics, survey-oriented modelling, and scientific software development. More recently, I have also been working on Ly<span class="math inline">\(\alpha\)</span> absorption processes, fast skewer generation, and pedagogical resources that use computational tools to support the learning of theoretical physics and astrophysics.</p>
+<p>I am currently a FAPESP Postdoctoral Fellow at IFUSP, and in 2026 I am also undertaking a FAPESP-BEPE visiting research stay at the Institut de Física d’Altes Energies (IFAE) in Barcelona. Before moving to São Paulo, I completed my PhD in Astrophysics at the Donostia International Physics Center (DIPC), after previous training in physics and theoretical physics at the Autonomous University of Madrid (UAM). Across these stages, I developed a broad interest in combining theoretical ideas, numerical methods, and data-driven techniques to study complex problems in cosmology and astrophysics.</p>
+</section>
+<section id="trajectory" class="level2">
+<h2 class="anchored" data-anchor-id="trajectory">Trajectory</h2>
+<div class="trajectory-entry">
+<p><a href="https://portal.if.usp.br/ifusp/pt-br/users/dlopez"><img src="assets/img/logos/ifusp_logo.png" class="trajectory-logo img-fluid" alt="IFUSP logo"></a></p>
+<section id="fapesp-postdoctoral-research-fellow" class="level3 trajectory-body">
+<h3 class="anchored" data-anchor-id="fapesp-postdoctoral-research-fellow">FAPESP Postdoctoral Research Fellow</h3>
+<p><strong>Institute of Physics, University of São Paulo (IFUSP)</strong> · São Paulo, Brazil<br>
+<strong>11/2024 – Present</strong></p>
+<p>Supervisor: Prof.&nbsp;Luis Raul Weber Abramo. Topics include cosmological simulations, semi-supervised machine learning techniques, Ly<span class="math inline">\(\alpha\)</span> processes, and differential geometry.</p>
+<div class="media-actions">
+<p><a href="https://portal.if.usp.br/ifusp/pt-br/users/dlopez" class="btn btn-outline-info btn-sm">IFUSP profile</a> <a href="https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main" class="btn btn-outline-info btn-sm">JPAS Domain Adaptation</a></p>
+</div>
+</section>
+</div>
+<div class="trajectory-entry">
+<p><a href="https://www.ifae.es/"><img src="assets/img/logos/ifae_logo.png" class="trajectory-logo img-fluid" alt="IFAE logo"></a></p>
+<section id="fapesp-bepe-visiting-postdoctoral-research-fellow" class="level3 trajectory-body">
+<h3 class="anchored" data-anchor-id="fapesp-bepe-visiting-postdoctoral-research-fellow">FAPESP-BEPE Visiting Postdoctoral Research Fellow</h3>
+<p><strong>Institut de Física d’Altes Energies (IFAE)</strong> · Barcelona area, Spain<br>
+<strong>02/2026 – 06/2026</strong></p>
+<p>Host supervisor: Prof.&nbsp;Andreu Font-Ribera. Co-mentor: Dr.&nbsp;Jonás Chaves-Montero. Project: <em>SkewerJAX: fast Ly<span class="math inline">\(\alpha\)</span> skewers and a survey-ready metal-contamination model</em>.</p>
+<div class="media-actions">
+<p><a href="https://bv.fapesp.br/en/pesquisador/735607/daniel-lopez-cano/" class="btn btn-outline-info btn-sm">FAPESP researcher page</a> <a href="https://github.com/daniellopezcano/SkewerJAX" class="btn btn-outline-info btn-sm">SkewerJAX</a></p>
+</div>
+</section>
+</div>
+<div class="trajectory-entry">
+<p><a href="https://dipc.ehu.eus/en"><img src="assets/img/logos/dipc_logo.png" class="trajectory-logo img-fluid" alt="DIPC logo"></a></p>
+<section id="phd-in-astrophysics" class="level3 trajectory-body">
+<h3 class="anchored" data-anchor-id="phd-in-astrophysics">PhD in Astrophysics</h3>
+<p><strong>Donostia International Physics Center (DIPC) / Universidad Autónoma de Madrid (UAM)</strong> · Donostia-San Sebastián / Madrid, Spain<br>
+<strong>09/2020 – 09/2024</strong></p>
+<p>Supervisor: Prof.&nbsp;Raúl E. Angulo. Thesis: <em>Improving cosmological simulations: semi-analytic models, the internal structure of haloes, and machine learning techniques</em>.</p>
+<div class="media-actions">
+<p><a href="https://portalcientifico.uam.es/es/ipublic/item/10356678" class="btn btn-outline-info btn-sm">Thesis page</a> <a href="https://github.com/daniellopezcano/instance_halos/blob/main/notebooks/example.ipynb" class="btn btn-outline-info btn-sm">Instance segmentation work</a> <a href="https://github.com/daniellopezcano/SBI-baccoemu/tree/main" class="btn btn-outline-info btn-sm">SBI / BACCO workflows</a> <a href="https://bacco.dipc.org/index.html" class="btn btn-outline-info btn-sm">BACCO</a></p>
+</div>
+</section>
+</div>
+<div class="trajectory-entry">
+<p><a href="https://www.ift.uam-csic.es/en"><img src="assets/img/logos/ift_logo.png" class="trajectory-logo img-fluid" alt="IFT UAM-CSIC logo"></a></p>
+<section id="msc-in-theoretical-physics" class="level3 trajectory-body">
+<h3 class="anchored" data-anchor-id="msc-in-theoretical-physics">MSc in Theoretical Physics</h3>
+<p><strong>Institute of Theoretical Physics IFT UAM-CSIC</strong> · Madrid, Spain<br>
+<strong>09/2019 – 07/2020</strong></p>
+<p>Specialisation in Astrophysics and Physics of the Cosmos. Supervisor: Prof.&nbsp;Alexander Knebe.</p>
+</section>
+</div>
+<div class="trajectory-entry">
+<p><a href="https://www.uam.es/uam/inicio"><img src="assets/img/logos/uam_logo.png" class="trajectory-logo img-fluid" alt="UAM logo"></a></p>
+<section id="bsc-in-physics" class="level3 trajectory-body">
+<h3 class="anchored" data-anchor-id="bsc-in-physics">BSc in Physics</h3>
+<p><strong>Universidad Autónoma de Madrid</strong> · Madrid, Spain<br>
+<strong>09/2015 – 07/2019</strong></p>
+<p>Training in theoretical and experimental physics, including thesis work on galaxy statistics in cosmological simulations and tight-binding / evolutionary methods.</p>
+</section>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
-    // Ensure there is a toggle, if there isn't float one in the top right
-    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-      const i = window.document.createElement("i");
-      i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
-    }
-    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
         if (clz.startsWith('code-annotation-')) {                     
@@ -447,6 +331,11 @@ ul.task-list li input[type="checkbox"] {
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
         }
       }
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
@@ -764,14 +653,14 @@ ul.task-list li input[type="checkbox"] {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-      &nbsp;
-    </div>   
-    <div class="nav-footer-center">
 <p>© Daniel López Cano</p>
-</div>
-    <div class="nav-footer-right">
+</div>   
+    <div class="nav-footer-center">
       &nbsp;
     </div>
+    <div class="nav-footer-right">
+<p><a href="./index.html">Home</a> · <a href="./cv.html">CV</a> · <a href="publications.qmd">Publications</a></p>
+</div>
   </div>
 </footer>
 
