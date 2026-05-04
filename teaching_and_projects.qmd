@@ -9,7 +9,7 @@ page-layout: full
 ::: {.doc-grid .doc-grid-compact}
 
 ::: {.doc-card}
-[![](assets/img/docs/diffgeom_notes_preview.jpg){.doc-thumb .doc-thumb-compact fig-alt="Preview of differential geometry notes"}](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf)
+[![](assets/img/docs/from_differential_geometry_to_general_relativity.png){.doc-thumb .doc-thumb-compact fig-alt="Preview of From Differential Geometry to General Relativity"}](assets/files/docs/from_differential_geometry_to_general_relativity.pdf)
 
 ::: {.doc-body}
 ### From Differential Geometry to General Relativity
@@ -17,14 +17,14 @@ page-layout: full
 Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.
 
 ::: {.media-actions}
-[PDF](https://github.com/daniellopezcano/lecture_notes/blob/main/from_diff_geom_to_num_cosmo/main.pdf){.btn .btn-outline-info .btn-sm}
+[Download PDF](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
 [GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
 
 ::: {.doc-card}
-[![](assets/img/docs/lya_notes_preview.jpg){.doc-thumb .doc-thumb-compact fig-alt="Preview of Ly-alpha notes"}](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations)
+[![](assets/img/docs/absorption_lines_in_cosmological_sightlines.png){.doc-thumb .doc-thumb-compact fig-alt="Preview of Absorption Lines in Cosmological Sightlines"}](assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf)
 
 ::: {.doc-body}
 ### Notes on Ly$\alpha$ Forest and Absorption Processes in Cosmology
@@ -32,7 +32,7 @@ Graduate-level notes with formal derivations, worked examples, visual intuition,
 Pedagogical notes on Ly$\alpha$ skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.
 
 ::: {.media-actions}
-[PDF](https://github.com/daniellopezcano/SkewerJAX_Review_and_Equations){.btn .btn-outline-info .btn-sm}
+[Download PDF](assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf){.btn .btn-outline-info .btn-sm}
 [GitHub](https://github.com/daniellopezcano/SkewerJAX){.btn .btn-outline-info .btn-sm}
 :::
 :::
