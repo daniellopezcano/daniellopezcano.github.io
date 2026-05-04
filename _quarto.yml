@@ -9,7 +9,7 @@ website:
   site-url: "https://daniellopezcano.github.io"
 
   # Uncomment when available
-  # favicon: assets/icons/site-mark.png
+  favicon: assets/icons/site-mark.svg
 
   navbar:
     background: dark
@@ -36,6 +36,8 @@ format:
   html:
     theme: darkly
     css: styles.css
+    include-in-header:
+      - includes/person-schema.html
     toc: false
     smooth-scroll: true
     code-copy: true
