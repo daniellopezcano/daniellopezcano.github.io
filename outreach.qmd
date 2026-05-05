@@ -64,7 +64,7 @@ Participation as an exhibition guide in an outreach initiative focused on inclus
 :::
 
 ::: {.media-entry .media-entry-compact}
-[![](assets/img/talks/meet_a_scientist.png){.media-thumb style="width: 145px; min-width: 145px;" fig-alt="Thumbnail for Meet a Scientist"}](https://www.youtube.com/watch?v=kPnlDaMSb0U&ab_channel=Eureka%21ZientziaMuseoaDonostia-SanSebasti%C3%A1n)
+[![](assets/img/talks/meet_a_scientist.png){.media-thumb style="width: 145px; min-width: 145px;" fig-alt="Thumbnail for Meet a Scientist"}](https://www.youtube.com/watch?v=tB_Qi9vEJ-s)
 
 ::: {.media-body}
 ::: {.media-meta}
@@ -77,7 +77,7 @@ Participation as an exhibition guide in an outreach initiative focused on inclus
 Recurring public-engagement activity aimed at bringing scientific careers and research closer to high-school students.
 
 ::: {.media-actions}
-[YouTube](https://www.youtube.com/watch?v=kPnlDaMSb0U&ab_channel=Eureka%21ZientziaMuseoaDonostia-SanSebasti%C3%A1n){.btn .btn-outline-info .btn-sm}
+[YouTube](https://www.youtube.com/watch?v=tB_Qi9vEJ-s){.btn .btn-outline-info .btn-sm}
 :::
 :::
 :::
