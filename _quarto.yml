@@ -3,7 +3,7 @@ project:
   output-dir: docs
   resources:
     - assets/img/background/background.gif
-    - googlef4bcd3a2256be002.html
+    - google0edce4a177d73ddd.html
 
 website:
   title: "Daniel López Cano"
