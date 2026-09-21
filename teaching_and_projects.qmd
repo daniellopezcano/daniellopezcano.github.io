@@ -57,6 +57,23 @@ Cosmological simulations and Lyα systems.
 ::: {.project-card .activity-card}
 ::: {.project-card-body}
 ::: {.media-meta}
+Instructor · Graduate course · Sep – Oct 2026
+:::
+
+### From Differential Geometry to General Relativity
+
+Graduate course at IFUSP, University of São Paulo (3 credits; 18 h of lectures + 9 h of practical sessions), built on my open lecture notes and accompanying Python material.
+
+::: {.media-actions}
+[Lecture notes](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.project-card .activity-card}
+::: {.project-card-body}
+::: {.media-meta}
 Instructor · 1st IFUSP Winter School · July 2026
 :::
 
