@@ -7,7 +7,7 @@ page-layout: full
 ## Selected Publications
 
 ::: {.minimal-panel}
-- **2026** — [*J-PAS: Semi-Supervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification*](https://arxiv.org/abs/2602.13902)  
+- **2026** — [*J-PAS: Semisupervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification*](https://iopscience.iop.org/article/10.3847/1538-4357/ae915c)  
   **Daniel López-Cano**, L. Raul Abramo, L. Nakazono, I. Pérez-Ràfols, et al.
 
 - **2024** — [*Characterizing structure formation through instance segmentation*](https://www.aanda.org/articles/aa/full_html/2024/05/aa48965-23/aa48965-23.html)  
@@ -23,6 +23,29 @@ page-layout: full
 
 ::: {.pub-card}
 ::: {.pub-card-top}
+![](assets/img/publications/HCDs_2026_moneyplot.jpg){.pub-thumb fig-alt="Representative figure from the IllustrisTNG high column density systems paper"}
+:::
+
+::: {.pub-card-body}
+::: {.media-meta}
+2026 · Second author
+:::
+
+### Where the Forest Goes Dark: Halo-centered Characterization of High Column Density Systems with IllustrisTNG
+
+Victor R. Soares da Silva, **Daniel López-Cano**, L. Raul Abramo, J. Chaves-Montero, Francisco Maion  
+*arXiv preprint, arXiv:2609.19235*
+
+Halo-centered characterization of high column density absorbers in the Lyα forest using IllustrisTNG.
+
+::: {.media-actions}
+[arXiv](https://arxiv.org/abs/2609.19235){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.pub-card}
+::: {.pub-card-top}
 ![](assets/img/publications/jpas_2026_moneyplot.jpg){.pub-thumb fig-alt="Representative figure from the J-PAS paper"}
 :::
 
@@ -31,14 +54,15 @@ page-layout: full
 2026 · First author
 :::
 
-### J-PAS: Semi-Supervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification
+### J-PAS: Semisupervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification
 
 **Daniel López-Cano**, L. Raul Abramo, L. Nakazono, I. Pérez-Ràfols, et al.  
-*arXiv preprint, arXiv:2602.13902*
+*The Astrophysical Journal, 1008, 189*
 
 Semi-supervised domain adaptation for robust star–galaxy–quasar classification in the J-PAS setting.
 
 ::: {.media-actions}
+[Journal](https://iopscience.iop.org/article/10.3847/1538-4357/ae915c){.btn .btn-outline-info .btn-sm}
 [arXiv](https://arxiv.org/abs/2602.13902){.btn .btn-outline-info .btn-sm}
 [GitHub](https://github.com/daniellopezcano/JPAS_Domain_Adaptation/tree/main){.btn .btn-outline-info .btn-sm}
 [Slides](https://docs.google.com/presentation/d/1hwGBFQcXHGn94TY0dI_yhGfEP5Hio0FlPVSDhUs2MT4/edit?usp=drive_link){.btn .btn-outline-info .btn-sm}

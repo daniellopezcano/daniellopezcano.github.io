@@ -779,3 +779,9 @@ hr {
     grid-template-columns: 1fr;
   }
 }
+
+/* Thumbless activity cards (supervision, courses & schools) */
+
+.activity-card .project-card-body {
+  padding-top: 1rem;
+}

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://daniellopezcano.github.io/research_and_publications.html</loc>
-    <lastmod>2026-05-04T13:31:51.606Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/cv.html</loc>
-    <lastmod>2026-05-04T13:37:54.621Z</lastmod>
-  </url>
-  <url>
-    <loc>https://daniellopezcano.github.io/outreach.html</loc>
-    <lastmod>2026-05-04T14:14:09.454Z</lastmod>
+    <loc>https://daniellopezcano.github.io/teaching_and_projects.html</loc>
+    <lastmod>2026-09-21T18:26:30.401Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/index.html</loc>
-    <lastmod>2026-05-04T13:56:16.139Z</lastmod>
+    <lastmod>2026-09-21T17:55:54.733Z</lastmod>
   </url>
   <url>
-    <loc>https://daniellopezcano.github.io/teaching_and_projects.html</loc>
-    <lastmod>2026-05-04T21:52:41.501Z</lastmod>
+    <loc>https://daniellopezcano.github.io/outreach.html</loc>
+    <lastmod>2026-09-21T17:55:54.733Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/cv.html</loc>
+    <lastmod>2026-09-21T17:55:54.497Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/research_and_publications.html</loc>
+    <lastmod>2026-09-21T18:27:39.980Z</lastmod>
   </url>
 </urlset>
