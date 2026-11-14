@@ -31,3 +31,8 @@ Thumbs.db
 
 # Quarto temp/session leftovers
 .quarto-session*
+
+# Lecture-notes port: scratch build, local environments, caches
+/_port/.work/
+/_port/.env/
+/_port/node_modules/

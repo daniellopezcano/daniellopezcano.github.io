@@ -5,6 +5,11 @@ project:
     - assets/img/background/background.gif
     - google0edce4a177d73ddd.html
 
+# Sidebar of the course section "From Differential Geometry to General Relativity"
+# (generated from the table of contents of the notes by _port/convert/build.py).
+metadata-files:
+  - notes/diffgeo-gr/_sidebar.yml
+
 website:
   title: "Daniel López Cano"
   site-url: "https://daniellopezcano.github.io"
@@ -23,6 +28,8 @@ website:
         text: Research & Publications
       - href: teaching_and_projects.qmd
         text: Teaching & Projects
+      - href: notes/diffgeo-gr/index.qmd
+        text: Lecture Notes
       - href: outreach.qmd
         text: Outreach
       - href: cv.qmd

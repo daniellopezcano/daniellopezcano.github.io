@@ -1,0 +1,192 @@
+/* Hand-written: style of the course section "From Differential Geometry to General Relativity".
+ * Loaded only by the pages under notes/diffgeo-gr/ (see _metadata.yml), so nothing here
+ * can change the rest of the site. Builds on the site palette (--dlc-* in /styles.css).
+ *
+ * Class prefix dg- everywhere. Three layers:
+ *   1. reading surface and layout     2. the notes' own constructs (terms, boxes, lists, figures, footnotes)
+ *   3. the web layer (.dg-web, .dg-interactive, popovers): anything that is not in the PDF
+ */
+
+/* ---- palette ---------------------------------------------------------------------------
+ * Same colour MEANING as in the notes (\blueone ... \indigoone, color_<name>_1/2 in main.tex);
+ * the dark shades (_1) are lightened so they stay legible on the dark surface. */
+:root {
+  --dg-bg: #0b1220;
+  --dg-surface: #111b2e;
+  --dg-surface-2: #17243c;
+  --dg-rule: rgba(189, 201, 237, 0.22);
+  --dg-text: #e6edfb;
+  --dg-text-soft: #b9c7e4;
+  --dg-heading: #c9d8ff;          /* the notes' navy (color_blue_0), turned light for the dark page */
+  --dg-accent: #7aa2f7;           /* = --dlc-blue */
+
+  --dg-color-blue-0: #c9d8ff;
+  --dg-color-blue-1: #86a8ff;   --dg-color-blue-2: #bdc9ed;
+  --dg-color-green-1: #58cf58;  --dg-color-green-2: #b8e7b8;
+  --dg-color-purple-1: #d98ad9; --dg-color-purple-2: #d0aad0;
+  --dg-color-orange-1: #f2a933; --dg-color-orange-2: #f6dbaa;
+  --dg-color-red-1: #ff6b6b;    --dg-color-red-2: #f6aaaa;
+  --dg-color-yellow-1: #dcdc4a; --dg-color-yellow-2: #f6f6aa;
+  --dg-color-brown-1: #cf9a6c;  --dg-color-brown-2: #d3beaf;
+  --dg-color-teal-1: #3cc6c6;   --dg-color-teal-2: #b2dfdb;
+  --dg-color-rose-1: #f2709f;   --dg-color-rose-2: #f8bbd0;
+  --dg-color-olive-1: #b7c94a;  --dg-color-olive-2: #dde4b2;
+  --dg-color-indigo-1: #9ba8f5; --dg-color-indigo-2: #c5cae9;
+  --dg-tex-red: #ff6b6b; --dg-tex-blue: #86a8ff; --dg-tex-black: var(--dg-text);
+  --dg-tex-white: #ffffff; --dg-tex-gray: #9aa7c2;
+
+  --dg-paper: #ffffff;            /* figures keep their own (light) background, on a paper card */
+}
+
+/* ---- 1. reading surface ------------------------------------------------------------------ */
+@font-face {
+  /* the notes' own runic font (fonts/NotoSansRunic-Regular.ttf), used only for the runic block */
+  font-family: "Noto Sans Runic";
+  src: url("fonts/NotoSansRunic-Regular.ttf") format("truetype");
+  unicode-range: U+16A0-16FF;
+  font-display: block;
+}
+
+body { background-color: var(--dg-bg); }
+body::before { display: none; }                      /* no animated background behind long-form text */
+body::after { background: var(--dg-bg); }
+
+#quarto-content { max-width: none; }
+#title-block-header { display: none; }               /* the page header is rendered from the notes (.dg-head) */
+
+main.content {
+  color: var(--dg-text);
+  font-size: 1.04rem;
+  line-height: 1.7;
+  letter-spacing: 0;
+  padding-bottom: 4rem;
+}
+main.content p { margin: 0 0 0.85rem; }
+main.content a { color: var(--dg-accent); text-decoration-color: rgba(122, 162, 247, 0.45); text-underline-offset: 2px; }
+main.content a:hover { color: #a9c3ff; }
+
+.dg-head { margin: 0.4rem 0 1.6rem; }
+.dg-kicker { margin: 0 0 0.25rem !important; color: var(--dg-text-soft); font-variant: small-caps; letter-spacing: 0.04em; font-size: 1.02rem; }
+.dg-kicker a { color: inherit !important; text-decoration: none; }
+.dg-kicker a:hover { text-decoration: underline; }
+.dg-sep { opacity: 0.6; margin: 0 0.25em; }
+h1.dg-title { color: var(--dg-heading); font-weight: 700; line-height: 1.15; margin: 0; padding-bottom: 0.55rem; }
+.dg-head-chapter h1.dg-title { font-size: 2.5rem; border-bottom: 3px solid var(--dg-heading); }
+.dg-head-section h1.dg-title { font-size: 1.85rem; border-bottom: 1px solid var(--dg-color-blue-2); }
+main.content h2, main.content h3 { color: var(--dg-heading); font-weight: 700; border: 0; }
+main.content h2 { font-size: 1.4rem; margin: 2.2rem 0 0.9rem; padding: 0; }
+main.content h3 { font-size: 1.15rem; margin: 1.8rem 0 0.7rem; }
+.dg-secnum { margin-right: 0.45em; font-variant-numeric: tabular-nums; }
+
+/* sidebar and page outline */
+#quarto-sidebar, #quarto-margin-sidebar { font-size: 0.9rem; }
+#quarto-sidebar .sidebar-title { font-size: 0.98rem; font-weight: 700; line-height: 1.25; color: var(--dg-heading); }
+.sidebar-navigation .sidebar-item a, #TOC a { color: var(--dg-text-soft); }
+.sidebar-navigation .sidebar-item a.active, #TOC a.active { color: #fff; }
+.sidebar-navigation .sidebar-item .sidebar-item-text:not(a) { color: rgba(185, 199, 228, 0.45); }   /* not converted yet */
+
+/* ---- 2. the notes' constructs --------------------------------------------------------------- */
+/* defined terms: \blueone{..} etc. are bold italic in the colour of the structure they belong to */
+.dg-term { font-weight: 700; font-style: italic; }
+.dg-term mjx-container { font-style: normal; }
+.dg-term-blue { color: var(--dg-color-blue-1); }     .dg-term-blue2 { color: var(--dg-color-blue-2); }
+.dg-term-green { color: var(--dg-color-green-1); }   .dg-term-green2 { color: var(--dg-color-green-2); }
+.dg-term-purple { color: var(--dg-color-purple-1); } .dg-term-purple2 { color: var(--dg-color-purple-2); }
+.dg-term-orange { color: var(--dg-color-orange-1); } .dg-term-orange2 { color: var(--dg-color-orange-2); }
+.dg-term-red { color: var(--dg-color-red-1); }       .dg-term-red2 { color: var(--dg-color-red-2); }
+.dg-term-yellow { color: var(--dg-color-yellow-1); } .dg-term-yellow2 { color: var(--dg-color-yellow-2); }
+.dg-term-brown { color: var(--dg-color-brown-1); }   .dg-term-brown2 { color: var(--dg-color-brown-2); }
+.dg-term-teal { color: var(--dg-color-teal-1); }     .dg-term-teal2 { color: var(--dg-color-teal-2); }
+.dg-term-rose { color: var(--dg-color-rose-1); }     .dg-term-rose2 { color: var(--dg-color-rose-2); }
+.dg-term-olive { color: var(--dg-color-olive-1); }   .dg-term-olive2 { color: var(--dg-color-olive-2); }
+.dg-term-indigo { color: var(--dg-color-indigo-1); } .dg-term-indigo2 { color: var(--dg-color-indigo-2); }
+
+.dg-it { font-style: italic; } .dg-bf { font-weight: 700; } .dg-sc { font-variant: small-caps; }
+.dg-rm, .dg-up { font-style: normal; } .dg-nowrap { white-space: nowrap; }
+.dg-code { color: var(--dg-text); background: transparent; font-size: 0.92em; padding: 0; }
+.dg-sz-tiny { font-size: 0.6em; } .dg-sz-script { font-size: 0.72em; } .dg-sz-foot { font-size: 0.82em; }
+.dg-sz-small { font-size: 0.9em; } .dg-sz-large { font-size: 1.2em; } .dg-sz-Large { font-size: 1.44em; }
+.dg-sz-LARGE { font-size: 1.73em; } .dg-sz-huge { font-size: 2.07em; } .dg-sz-Huge { font-size: 2.49em; }
+.dg-center { text-align: center; }
+.dg-skip { height: 0; } .dg-smallskip { margin-top: 0.3rem; } .dg-medskip { margin-top: 0.75rem; } .dg-bigskip { margin-top: 1.3rem; }
+.dg-anchor { position: relative; top: -5rem; visibility: hidden; }
+.dg-quote { margin: 1.2rem 1.5rem; padding: 0 0 0 1.1rem; border-left: 3px solid var(--dg-rule); color: var(--dg-text); font-size: 1.06em; }
+
+/* math: wide displays scroll inside their own box instead of widening the page */
+.math.display { display: block; overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 0.9rem 0; padding: 0.15rem 0; }
+.math.display mjx-container[display="true"] { margin: 0 !important; min-width: max-content; }
+html:not(.dg-math-ready) .math { visibility: hidden; }                 /* no flash of raw TeX */
+html:not(.dg-math-ready) .math.display { min-height: 2.4em; }
+mjx-container { color: inherit; }
+
+/* lists: LaTeX's default labels (itemize: bullet, dash, asterisk, dot; enumerate: 1. (a) i. A.) */
+main.content ul.dg-itemize, main.content ol.dg-enumerate { padding-left: 1.6rem; margin: 0 0 0.9rem; }
+main.content li { margin: 0.45rem 0; }
+main.content li > p:last-child { margin-bottom: 0.3rem; }
+ul.dg-itemize.dg-depth-1 { list-style-type: disc; }
+ul.dg-itemize.dg-depth-2 { list-style-type: "\2013\00a0\00a0"; }
+ul.dg-itemize.dg-depth-3 { list-style-type: "\2217\00a0\00a0"; }
+ul.dg-itemize.dg-depth-4 { list-style-type: "\00b7\00a0\00a0"; }
+ol.dg-enumerate.dg-depth-1 { list-style-type: decimal; }
+ol.dg-enumerate.dg-depth-2 { list-style-type: dg-paren-alpha; }
+ol.dg-enumerate.dg-depth-3 { list-style-type: lower-roman; }
+ol.dg-enumerate.dg-depth-4 { list-style-type: upper-alpha; }
+@counter-style dg-paren-alpha { system: extends lower-alpha; prefix: "("; suffix: ") "; }
+li.dg-labelled { list-style: none; position: relative; }
+li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-right: 0.45rem; min-width: 1.15rem; }
+
+/* motivation box opening each chapter (tcolorbox in the notes: framed title, upper part, dashed line, lower part) */
+.dg-motivation { border: 1px solid var(--dg-color-blue-1); border-radius: 4px; margin: 0.6rem 0 1.4rem; overflow: hidden; }
+.dg-motivation-title { background: #3859bd; color: #fff; font-weight: 700; padding: 0.35rem 0.9rem; }
+.dg-motivation-upper { background: rgba(189, 201, 237, 0.07); padding: 0.85rem 0.95rem 0.2rem; }
+.dg-motivation-lower { background: rgba(189, 201, 237, 0.14); border-top: 1px dashed var(--dg-color-blue-1); padding: 0.85rem 0.95rem 0.2rem; }
+
+/* figures: the original artwork on a paper card, at the same fraction of the text width as in the PDF */
+.dg-figure, .dg-diagram { margin: 1.6rem 0; }
+.dg-paper { background: var(--dg-paper); border-radius: 8px; padding: 10px; margin: 0 auto; width: calc(var(--dg-frac, 1) * 100%); min-width: min(100%, 300px); box-sizing: border-box; cursor: zoom-in; }
+.dg-paper img, .dg-paper svg { display: block; width: 100%; height: auto; }
+.dg-figure figcaption { color: var(--dg-text-soft); font-size: 0.93rem; line-height: 1.55; margin-top: 0.7rem; }
+.dg-fignum { color: var(--dg-text); font-weight: 600; }
+
+/* footnotes: numbered as in the PDF (per chapter), listed at the foot of the page, shown on hover */
+.dg-fnref { line-height: 0; }
+.dg-fnref a { text-decoration: none; padding: 0 0.12em; font-variant-numeric: tabular-nums; }
+.dg-footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); font-size: 0.9rem; color: var(--dg-text-soft); }
+.dg-fn { display: grid; grid-template-columns: 2rem 1fr; margin: 0.5rem 0; }
+.dg-fn-num { text-decoration: none; font-variant-numeric: tabular-nums; }
+.dg-fn-body > p:last-child { margin-bottom: 0; }
+.dg-fn:target { background: rgba(122, 162, 247, 0.12); outline: 6px solid rgba(122, 162, 247, 0.12); border-radius: 2px; }
+
+/* cross-references */
+a.dg-xref, a.dg-cite { text-decoration: none; white-space: nowrap; }
+a.dg-xref:hover, a.dg-cite:hover { text-decoration: underline; }
+.dg-xref-pending { color: var(--dg-text-soft); }
+.dg-inprep { font-size: 0.82em; font-style: italic; color: var(--dg-text-soft); border: 1px dashed var(--dg-rule); border-radius: 3px; padding: 0 0.35em; white-space: nowrap; }
+:target { scroll-margin-top: 5rem; }
+
+/* ---- 3. web layer --------------------------------------------------------------------------- */
+.dg-web { font-size: 0.93rem; }
+.dg-chapter-sections { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
+.dg-chapter-sections ul { list-style: none; padding: 0; margin: 0; }
+.dg-chapter-sections li { margin: 0.3rem 0; }
+.dg-chapter-sections a { text-decoration: none; }
+.dg-chapter-sections .dg-pending { color: rgba(185, 199, 228, 0.5); }
+.dg-prevnext { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
+.dg-prevnext a { text-decoration: none; max-width: 48%; display: flex; gap: 0.5rem; }
+.dg-prevnext .dg-next { flex-direction: row-reverse; text-align: right; margin-left: auto; }
+
+.dg-pop { position: absolute; z-index: 1080; max-width: min(34rem, calc(100vw - 2rem)); max-height: 60vh; overflow: auto; background: var(--dg-surface-2); color: var(--dg-text); border: 1px solid var(--dg-rule); border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); padding: 0.75rem 0.9rem; font-size: 0.9rem; line-height: 1.55; }
+.dg-pop p:last-child { margin-bottom: 0; }
+.dg-pop .dg-paper { cursor: default; }
+
+/* phones */
+@media (max-width: 767.98px) {
+  main.content { font-size: 1rem; }
+  .dg-head-chapter h1.dg-title { font-size: 1.9rem; }
+  .dg-head-section h1.dg-title { font-size: 1.45rem; }
+  main.content ul.dg-itemize, main.content ol.dg-enumerate { padding-left: 1.15rem; }
+  .dg-quote { margin: 1rem 0.2rem; }
+  .dg-paper { width: 100%; padding: 6px; }
+  .dg-prevnext a { max-width: 100%; }
+  .dg-prevnext { flex-direction: column; }
+}

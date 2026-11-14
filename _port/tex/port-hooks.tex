@@ -1,0 +1,40 @@
+% port-hooks.tex -- hand-written, part of the web port (not of the notes).
+% Injected into a SCRATCH COPY of main.tex right before \begin{document}.
+% It changes nothing that is typeset. It writes one line per numbered object
+% to \jobname.port, in source order:
+%     <counter>|<printed number>|<current file>|<input line>
+% The converter consumes these lines so that chapter, section, equation,
+% figure, table and footnote numbers on the web are the ones LaTeX produced.
+\makeatletter
+\newwrite\port@out
+\immediate\openout\port@out=\jobname.port
+\def\port@file{\ifdefined\CurrentFile\CurrentFile\fi}
+\def\port@log#1#2{%
+  \begingroup
+    \let\protect\@unexpandable@protect
+    \immediate\write\port@out{#1|#2|\port@file|\the\inputlineno}%
+  \endgroup}
+\AtBeginDocument{%
+  % every \refstepcounter: chapter, section, ..., figure, table, equation, enumi...
+  \let\port@refstepcounter\refstepcounter
+  \def\refstepcounter#1{%
+    \port@refstepcounter{#1}%
+    \@ifundefined{ifmeasuring@}{\port@log{#1}{\csname the#1\endcsname}}%
+      {\ifmeasuring@\else\port@log{#1}{\csname the#1\endcsname}\fi}}%
+  % figure and table captions (the caption package steps the counter itself)
+  \@ifundefined{caption@@refstepcounter}{}{%
+    \let\port@caprefstep\caption@@refstepcounter
+    \def\caption@@refstepcounter#1{\port@caprefstep{#1}\port@log{#1}{\csname the#1\endcsname}}}%
+  % footnotes (also \footnotetext, also the letters used inside boxes)
+  % hyperref keeps the kernel's \@footnotetext as \H@@footnotetext and routes both
+  % \footnote and \footnotetext[n]{..} through it; without hyperref hook the kernel one
+  \@ifundefined{H@@footnotetext}{%
+    \let\port@footnotetext\@footnotetext
+    \long\def\@footnotetext#1{\port@log{footnote}{\@thefnmark}\port@footnotetext{#1}}}{%
+    \let\port@footnotetext\H@@footnotetext
+    \long\def\H@@footnotetext#1{\port@log{footnote}{\@thefnmark}\port@footnotetext{#1}}}%
+  \@ifundefined{@mpfootnotetext}{}{%
+    \let\port@mpfootnotetext\@mpfootnotetext
+    \long\def\@mpfootnotetext#1{\port@log{mpfootnote}{\@thefnmark}\port@mpfootnotetext{#1}}}%
+}
+\makeatother
