@@ -18,13 +18,13 @@ Status: `todo`, `in progress`, `done`, `blocked`. One commit per finished unit, 
 
 | Unit | What | Status | Checks passed | Commit |
 |---|---|---|---|---|
-| P1 | Scratch build of the notes with numbering hooks (`_port/tex/`) | done | 176 pages; labels identical to the notes' `main.aux`; pdftotext identical except the date; notes dir clean | (pilot commit) |
-| P2 | Converter core: `source.py`, `texparse.py`, `render.py`, `build.py`, `cover.py` | done | `build.py --status`: 72 of 76 pages convert; numbering records fully consumed on each | (pilot commit) |
-| P3 | Figure pipeline `figures.py` (PDF→SVG/WebP, TikZ→SVG with reference groups) | in progress | | |
-| P4 | Math engine comparison + `tools/math_check.mjs` + config fixes | in progress | | |
-| P5 | Course shell: `_metadata.yml`, `assets/course.css`, `_head.html`, navbar entry, sidebar | done | `quarto render notes/diffgeo-gr` completes; outline, sidebar and search index include generated pages | (pilot commit) |
-| P6 | Page script `assets/course.js`: footnote popovers, figure zoom/pan, roadmap links, interactive loader; landing page `index.qmd` | todo | | |
-| P7 | Interactive core `assets/interactive/dg.js` + pilot 2D (`maps`, §2.1) + pilot 3D (`variations`, C.6) | todo | | |
+| P1 | Scratch build of the notes with numbering hooks (`_port/tex/`) | done | 176 pages; labels identical to the notes' `main.aux`; pdftotext identical except the date; notes dir clean | 378b8b3 |
+| P2 | Converter core: `source.py`, `texparse.py`, `render.py`, `build.py`, `cover.py` | done | `build.py --status`: 72 of 76 pages convert; numbering records fully consumed on each | 378b8b3 |
+| P3 | Figure pipeline `figures.py` (PDF→SVG/WebP, TikZ→SVG with reference groups) | done | `tools/test_figures.py` passes; 31 figures built, 5.8 MB; 23 reference groups in the master roadmap | 5c792e4 |
+| P4 | Math engine comparison + `tools/math_check.mjs` + config fixes | done | 3046 of 3047 distinct expressions typeset with MathJax 3.2.2 (the one failure is the `tabular` of §4.1.2, unit B2); runic glyphs verified in browser at 3× | 5c792e4 |
+| P5 | Course shell: `_metadata.yml`, `assets/course.css`, `_head.html`, navbar entry, sidebar | done | `quarto render notes/diffgeo-gr` completes; outline, sidebar and search index include generated pages | 378b8b3 |
+| P6 | Page script `assets/course.js`: footnote popovers, reference previews, figure zoom/pan, roadmap links, interactive loader; landing page `index.qmd` | in progress (worker) | | |
+| P7 | Interactive core `assets/interactive/dg.js` + pilot 2D (`maps`, §2.1) + pilot 3D (`variations`, C.6) | in progress (worker) | | |
 | P8 | `_port/INVENTORY.md`, `PLAN.md`, `DECISIONS.md`, `REVIEW.md`, `CLAUDE.md` | in progress | | |
 | P9 | Render, checker review of the pilot pages vs the PDF (desktop + phone), fixes, commit | todo | | |
 
