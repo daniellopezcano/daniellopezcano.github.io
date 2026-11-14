@@ -15,6 +15,12 @@
  * _port/tools/math_check.mjs evaluates this file in Node and typesets every equation of
  * the pages with this tex block, so keep it a plain script that only assigns window.MathJax.
  */
+// Formulas are hidden until typeset (no flash of raw TeX), but only when scripts run, and never
+// for more than 8 s: if MathJax cannot be loaded the TeX source is shown instead of nothing.
+if (typeof document !== 'undefined') {
+  document.documentElement.classList.add('dg-js');
+  setTimeout(function () { document.documentElement.classList.add('dg-math-ready'); }, 8000);
+}
 window.MathJax = {
   tex: {
     inlineMath: [['\\(', '\\)']],
