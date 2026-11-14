@@ -10,6 +10,8 @@ See the end-of-pilot message; they are repeated in `PROGRESS.md` § "Pilot revie
 
 - **The source repository named on the copyright page is not publicly reachable**: `https://github.com/daniellopezcano/lecture_notes_differential_geometry_GR` answers HTTP 404 (checked 2026-11-14), so it is private or not created. The Python package repository `https://github.com/daniellopezcano/differential_geometry` is public (HTTP 200, MIT).
 - The scratch build reproduces your PDF: 176 pages, the labels in its `main.aux` are identical to those in the notes' `main.aux`, and the text of both PDFs differs only in the date on the cover.
+- `\coloneq` (14 uses) and `\coloneqq` both print ":=" in your PDF (mathtools 2022); the web does the same.
+- Four worked-example figures (`plots/exercises/fig_fields_*.pdf` and others) are whole A4 pages with wide white margins; the web shows them as the PDF does, margins included. Cropping the source PDFs would enlarge them in both.
 - The package repository has no `fig_variations_euler_lagrange_*` notebook (the four figures of C.6), and its `setup.py` omits `scipy` and `tol_colors`, which the code imports.
 
 ## Typos and slips found in the notes (left as they are)
@@ -22,8 +24,7 @@ See the end-of-pilot message; they are repeated in `PROGRESS.md` § "Pilot revie
 | `Chapters/Vector_Spaces.tex:133` | stray ")" after the left-distributive law |
 | `Chapters/Vector_Spaces.tex:196` | "associatted" |
 | `Chapters/Vector_Spaces.tex:237` | "are the defined as" |
-| `Chapters/Metric.tex:178` | missing full stop before "The curve $\gamma$ is a geodesic if" |
-| several files | `\coloneq` (12 uses) next to `\coloneqq` (376 uses): check they print the same sign in your PDF (see the math-engine note below) |
+| `Chapters/Metric.tex` ~l.178 (§7.2.1) | missing full stop before "The curve $\gamma$ is a geodesic if" |
 
 (Only the files read closely during the pilot so far; the chapter-by-chapter review will add to this table.)
 

@@ -69,4 +69,21 @@ The source writes `\textrm{\runic ᛊ}`. On the web `\runic` (and `\cunei`) expa
 
 ## Measured
 
-(filled in by the pilot units: math engine comparison, figure sizes; see PROGRESS.md)
+**Math engines** (`node _port/tools/math_check.mjs --engine all`, 5356 expressions, 3047 distinct; 2026-11-14):
+
+| Engine | Failures | What fails |
+|---|---|---|
+| MathJax 3.2.2 (chosen) | 1 | the `tabular` inside display math in §4.1.2 (`Coordinates_TpM.tex` ~l.299) |
+| MathJax 4.1.3 | 1 | the same `tabular` |
+| KaTeX 0.19.1 | 9 | that `tabular` + 8 arrays with `@{..}` column specs; no `\xlongrightarrow`; `\coloneq` prints ":−" |
+
+MathJax 3 is kept (Quarto's default, well known, same failure count as 4). Config-level fixes applied in `mathjax-config.js`: `\coloneq` → `\coloneqq` (TeX Live 2023 mathtools prints ":=" for both; MathJax 3 would print ":−"); `\xlongrightarrow[below]{above}` → `\xrightarrow[below]{\;above\;}` (closest arrow length to LaTeX's: within 0.1 em on typical labels). `tex-chtml-full` already contains every extension, so there is no `loader.load` (it throws in the browser). `matchFontHeight: false` keeps math at the text size.
+Known residual differences with MathJax 3, to revisit only if the author minds: in the 8 arrays with `@{\quad}` / `@{\qquad}` column specs the gap beside the vertical rule is 0.5 em instead of 1–2 em (MathJax 4 renders `@{}` exactly; switching engines is the fix, not rewriting math). The `tabular` needs the converter (unit B2): emit it as an HTML table whose cells keep their `$…$` source.
+In the browser `tex-chtml-full` enables `noerrors`/`noundefined`, so a broken expression shows as raw source or red text, not as an error node: `math_check.mjs` (Node, those two packages off) is the check that catches them.
+
+**Runic symbols** verified in the browser (screenshots at 3× of §7.2): correct glyphs from the notes' font inline, in display math, in subscripts (`L_{ᚱ^{-1}([a,b])}`, `γ_ᛊ`, `ᛊ=0` limits) and inside the TikZ figure 7.1.
+
+**Figures** (`python3 _port/tools/test_figures.py` prints the table). `pdftocairo -svg` is correct for the 5 small 2D plots (67–320 kB); `dvisvgm --pdf` drops matplotlib's text and is never used. The 14 mesh-heavy 3D plots are 0.6–4 MB as SVG and become WebP (1800 px wide, q 80: 40–470 kB each). TikZ → SVG with `dvisvgm --no-fonts --exact-bbox --optimize`: roadmaps 360–715 kB, others ~100 kB; needs `\def\pgfsysdriver{pgfsys-dvisvgm.def}` and `\NewCommandCopy` for the `\ref` wrapper (hyperref's `\ref` is robust, `\let` loops). All 31 figures of the 72 converted pages: 5.8 MB (once more in `docs/`). `RASTER_PDF_PX`, `WEBP_Q`, `SVG_MAX` in `figures.py` are the knobs; they are part of the cache key.
+The four worked-example PDFs that are whole A4 pages keep their margins, as `\includegraphics` shows them in the PDF (no cropping: it would change their relative size).
+
+**Quarto** (1.9.37): directories starting with `_` are not rendered (`_port/`, `_generated/`); raw-inline headings appear in the page outline; raw-HTML text is indexed by the site search per section; root-absolute `/notes/...` URLs in the head include are rewritten to relative ones; MathJax is added by Quarto to every page, so we only pin its URL. `quarto render notes/diffgeo-gr` takes ~1 min for 73 pages. The scratch LaTeX build takes ~4 min; the converter ~10 s with a warm figure cache (~3 min cold).

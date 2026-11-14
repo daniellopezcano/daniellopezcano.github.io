@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+"""Test driver for _port/convert/figures.py. Hand-written, part of the web port.
+
+Builds the master roadmap and the variation figure of the Metric chapter with
+Figures.tex, and every graphic in plots/ and plots/exercises/ with
+Figures.graphic, into --out (default: a scratch directory under _port/.work/,
+never notes/). Checks the outputs, prints a size table, then builds everything
+a second time to check that the cache makes it a no-op. Exit status 0 = pass.
+
+    python3 _port/tools/test_figures.py [--out DIR] [--preview] [--skip-graphics]
+
+--preview also renders each TikZ SVG to PNG (Inkscape) next to it, to look at.
+"""
+from __future__ import annotations
+import argparse
+import collections
+import glob
+import os
+import re
+import subprocess
+import sys
+import time
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(REPO, '_port', 'convert'))
+from figures import Figures  # noqa: E402
+
+SRC = os.path.join(REPO, '_port', '.work', 'tex', 'src')
+NOTES = os.path.join(REPO, 'notes')
+
+
+def balanced(s: str, i: int, op: str, cl: str) -> int:
+    """Index just past the group of s that opens with s[i] == op."""
+    assert s[i] == op
+    depth = 0
+    while i < len(s):
+        c = s[i]
+        if c == '\\':
+            i += 2
+            continue
+        if c == op:
+            depth += 1
+        elif c == cl:
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    raise ValueError('unbalanced')
+
+
+def strip_figure(body: str) -> str:
+    """Remove the figure wrapper, \\centering, \\caption[..]{..} and \\label{..}."""
+    body = re.sub(r'\\begin\{figure\}(\[[^\]]*\])?', '', body)
+    body = body.replace('\\end{figure}', '').replace('\\centering', '')
+    for cmd in ('\\caption', '\\label'):
+        while True:
+            i = body.find(cmd)
+            if i < 0:
+                break
+            j = i + len(cmd)
+            while body[j].isspace():
+                j += 1
+            if body[j] == '[':
+                j = balanced(body, j, '[', ']')
+                while body[j].isspace():
+                    j += 1
+            j = balanced(body, j, '{', '}')
+            body = body[:i] + body[j:]
+    return body
+
+
+def figure_around(text: str, label: str) -> str:
+    k = text.index('\\label{%s}' % label)
+    a = text.rindex('\\begin{figure}', 0, k)
+    b = text.index('\\end{figure}', k) + len('\\end{figure}')
+    return text[a:b]
+
+
+def expected_roadmap_refs(src: str) -> collections.Counter:
+    c = collections.Counter()
+    for line in src.splitlines():
+        if line.lstrip().startswith('\\def'):
+            continue
+        line = line.split('%')[0]
+        for m in re.finditer(r'\\(mch|msec|meq)\{([^}]+)\}', line):
+            c[m.group(2)] += 1
+        for m in re.finditer(r'\\mchs\{([^}]+)\}\{([^}]+)\}', line):
+            c[m.group(1)] += 1
+            c[m.group(2)] += 1
+        for m in re.finditer(r'\\ref\*?\{([^}]+)\}', line):
+            c[m.group(1)] += 1
+    return c
+
+
+def kb(n: int) -> str:
+    return f'{n / 1000:.0f}k'
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--out', default=os.path.join(REPO, '_port', '.work', 'test-figures'))
+    ap.add_argument('--preview', action='store_true')
+    ap.add_argument('--skip-graphics', action='store_true')
+    args = ap.parse_args()
+    out = os.path.abspath(args.out)
+    if os.path.commonpath([out, NOTES]) == NOTES and '--out' not in sys.argv:
+        print('refusing to write into notes/ without an explicit --out')
+        return 2
+
+    with open(os.path.join(SRC, 'main.tex'), encoding='utf-8') as f:
+        main_tex = f.read()
+    preamble = main_tex[:main_tex.index('\\begin{document}')]
+    aux = os.path.join(SRC, 'main.aux')
+    with open(aux, encoding='utf-8', errors='replace') as f:
+        defined = set(re.findall(r'\\newlabel\{([^}]+)\}', f.read()))
+
+    failures: list[str] = []
+
+    def check(cond: bool, msg: str):
+        if not cond:
+            failures.append(msg)
+            print('FAIL:', msg)
+
+    def run(figs: Figures, skip_graphics: bool):
+        results = {}
+        with open(os.path.join(SRC, 'plots', 'roadmap_master.tex'), encoding='utf-8') as f:
+            roadmap_src = f.read()
+        with open(os.path.join(SRC, 'Chapters', 'Metric.tex'), encoding='utf-8') as f:
+            metric_src = f.read()
+        jobs = [
+            ('roadmap_master', strip_figure(roadmap_src), 37.6, expected_roadmap_refs(strip_figure(roadmap_src))),
+            ('fig_variation_curve', strip_figure(figure_around(metric_src, 'fig_variation_curve')), 16.0,
+             collections.Counter()),
+        ]
+        for name, snippet, tw, refs in jobs:
+            t = time.time()
+            results[name] = (figs.tex(snippet, name, tw), refs, time.time() - t)
+        if not skip_graphics:
+            files = sorted(glob.glob(os.path.join(SRC, 'plots', '*.pdf'))) + \
+                sorted(glob.glob(os.path.join(SRC, 'plots', 'exercises', '*.pdf'))) + \
+                sorted(glob.glob(os.path.join(SRC, 'plots', '*.png'))) + \
+                sorted(glob.glob(os.path.join(SRC, 'plots', '*.jpg')))
+            for i, f in enumerate(files):
+                rel = os.path.relpath(f, SRC)
+                name = os.path.splitext(os.path.basename(f))[0]
+                if rel.endswith('.pdf') and i % 2:   # exercise the lookup without extension too
+                    rel = rel[:-4]
+                t = time.time()
+                results[name] = (figs.graphic(rel, name), None, time.time() - t)
+        return results
+
+    figs = Figures(REPO, preamble, aux, out_dir=out)
+    res = run(figs, args.skip_graphics)
+
+    # -- TikZ checks
+    for name in ('roadmap_master', 'fig_variation_curve'):
+        info, refs, dt = res[name]
+        path = os.path.join(out, name + '.svg')
+        check(os.path.exists(path), f'{name}: no SVG')
+        svg = open(path, encoding='utf-8').read()
+        check(svg.count('<svg') == 1 and svg.rstrip().endswith('</svg>'), f'{name}: malformed SVG')
+        groups = re.findall(r"<g class='dg-xref' data-label='([^']*)'>(.*?)</g>", svg, re.S)
+        got = collections.Counter(lbl for lbl, _ in groups)
+        check(got == refs, f'{name}: xref labels {dict(got)} != expected {dict(refs)}')
+        check(all(re.search(r'<(use|path)\b', inner) for _, inner in groups), f'{name}: empty xref group')
+        undefined = sorted(set(got) - defined)
+        check(not undefined, f'{name}: labels not in aux: {undefined}')
+        check(0 < info['width_frac'] <= 1.02, f'{name}: width_frac {info["width_frac"]}')
+        print(f'tex  {name:<28} {info["width"]}x{info["height"]}px  width_frac={info["width_frac"]}  '
+              f'{kb(os.path.getsize(path))}  xrefs={sum(got.values())}  {dt:.1f}s')
+        if args.preview:
+            subprocess.run(['inkscape', '--export-type=png', '--export-width=1600', '--export-background=white',
+                            f'--export-filename={os.path.join(out, name + ".preview.png")}', path],
+                           check=True, capture_output=True)
+
+    # -- graphics table
+    total = 0
+    if not args.skip_graphics:
+        print(f'\n{"file":<52} {"pdf":>6} {"pdftocairo":>14} {"dvisvgm --pdf":>14} {"chosen":<15} {"final":>6}  size(px)')
+        for name, (info, _, dt) in res.items():
+            if name in ('roadmap_master', 'fig_variation_curve'):
+                continue
+            path = os.path.join(out, os.path.basename(info['src']))
+            check(os.path.exists(path), f'{name}: missing output {path}')
+            n = os.path.getsize(path)
+            total += n
+            st = figs.stats.get(name, {})
+
+            def tool(t):
+                d = st.get(t)
+                if not d:
+                    return ''
+                mark = {True: '', False: '!', None: ''}[d['ok']]
+                return kb(d['bytes']) + mark + (f' ({d["mean_diff"]:.1f})' if 'mean_diff' in d else '')
+            src_b = st.get('pdf_bytes', st.get('input_bytes', 0))
+            chosen = f'{info["kind"]}' + (f' ({st["chosen_tool"]})' if 'chosen_tool' in st else '')
+            print(f'{name:<52} {kb(src_b):>6} {tool("pdftocairo"):>14} {tool("dvisvgm"):>14} {chosen:<15} '
+                  f'{kb(n):>6}  {info["width"]}x{info["height"]}')
+            check(info['kind'] != 'svg' or n <= 400_000, f'{name}: SVG over 400 kB')
+    tex_total = sum(os.path.getsize(os.path.join(out, n + '.svg')) for n in ('roadmap_master', 'fig_variation_curve'))
+    print(f'\ntotal: graphics {kb(total)}, TikZ {kb(tex_total)}, all {kb(total + tex_total)}  (out: {out})')
+
+    # -- second pass: everything from the cache, nothing rebuilt or rewritten
+    mtimes = {p: os.stat(p).st_mtime_ns for p in glob.glob(os.path.join(out, '*'))}
+    figs2 = Figures(REPO, preamble, aux, out_dir=out)
+    res2 = run(figs2, args.skip_graphics)
+    check(not figs2.log, f'cache: second pass rebuilt {figs2.log}')
+    check(all(res2[k][0] == res[k][0] for k in res), 'cache: second pass returned different results')
+    check(all(os.stat(p).st_mtime_ns == m for p, m in mtimes.items()), 'cache: second pass rewrote outputs')
+
+    print('\nPASS' if not failures else f'\n{len(failures)} FAILURE(S)')
+    return 0 if not failures else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
