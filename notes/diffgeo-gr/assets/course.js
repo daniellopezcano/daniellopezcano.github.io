@@ -1,12 +1,16 @@
-// Hand-written: behaviour of the course pages (web layer). Loaded as a module by assets/_head.html.
+// Hand-written: behaviour of the course pages (web layer). Loaded as a module by every course page
+// (the page shell is written by _port/convert/shell.py; DECISIONS D29-D33).
 // Everything here is progressive enhancement: without it the pages still show the notes in full
-// (footnotes at the foot of the page, cross-references as plain links, figures as images).
+// (footnotes at the foot of the page, cross-references as plain links, figures as images, the course
+// tree in the page on wide screens).
 //
-//   1. popovers: footnotes (D11) and cross-reference previews (D25), one shared .dg-pop
-//   2. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
-//   3. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c)
+//   1. popovers: footnotes below 1000 px (D11) and cross-reference previews (D25), one shared .dg-pop
+//   2. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c)
+//   3. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
 //   4. landing page: the master roadmap is inlined so its badges are links; cover decorations
 //   5. interactive figures (D15)
+//   6. page shell: course tree as a drawer, theme switch (D32), reading progress, outline scroll-spy,
+//      sidenotes (D33), keyboard previous/next, site navbar toggle on phones
 
 export const ROOT = new URL('..', import.meta.url);          // URL of notes/diffgeo-gr/
 
@@ -69,15 +73,19 @@ function adopt(node, base) {
 // Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">.
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
-const TRIGGER = '.dg-fnref > a[href*="#"], a.dg-xref[href]';   // Quarto makes the #fn-N hrefs absolute
+// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6).
+const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
 let lastPointer = 'mouse';
 let tapWasOpen = false;
+const H = document.documentElement;
+const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
 
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
-  return t && !t.closest('.dg-pop, .dg-viewer') ? t : null;
+  if (!t || t.closest('.dg-pop, .dg-viewer')) return null;
+  return sidenotesOn() && t.matches('.dg-fnref > a') ? null : t;
 }
 
 function popEl() {
@@ -166,7 +174,7 @@ function extract(doc, id, base) {
     for (const p of root.querySelectorAll('p')) {
       if (out.length >= n) break;
       if (after && after.contains(p)) continue;
-      if (p.closest('.dg-web, .dg-footnotes, #title-block-header, .dg-head, figure, nav, .dg-motivation-title')) continue;
+      if (p.closest('.dg-web, .dg-footnotes, .dg-head, figure, nav, .dg-motivation-title')) continue;
       if (!p.textContent.trim()) continue;
       out.push(p);
     }
@@ -185,18 +193,18 @@ function extract(doc, id, base) {
   }
   let el = doc.getElementById(id);
   if (!el) return null;
-  if (el.matches('section')) {                           // a subsection: its heading and first lines
-    const head = el.querySelector('h1, h2, h3, h4, h5, h6');
-    if (head) {
-      const h = document.createElement('p');
-      h.className = 'dg-pop-title';
-      h.append(...adopt(document.importNode(head, true), base).childNodes);
-      box.append(h);
-    }
-    firstParas(el, head, 2).forEach(add);
+  if (el.matches('.dg-anchor, a:empty, span:empty')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
+  if (el && el.matches('h2, h3, h4')) {                  // a subsection: its heading and first lines
+    const h = document.createElement('p');
+    h.className = 'dg-pop-title';
+    h.append(...adopt(document.importNode(el, true), base).childNodes);
+    box.append(h);
+    // the subsection runs until the next heading of the same or a higher level
+    const level = +el.tagName[1], part = document.createElement('div');
+    for (let n = el.nextElementSibling; n && !(/^H[1-4]$/.test(n.tagName) && +n.tagName[1] <= level); n = n.nextElementSibling) part.append(document.importNode(n, true));
+    firstParas(part, null, 2).forEach(add);
     return box;
   }
-  if (el.matches('.dg-anchor, a:empty, span:empty')) el = el.closest('figure, li, .dg-fn-body, p') || el.parentElement;
   if (el.matches('.dg-fn')) el = el.querySelector('.dg-fn-body') || el;
   if (!el || el === doc.body || el === main) return null;
   add(el);
@@ -210,7 +218,7 @@ function place() {
   const r = rects.length ? rects[0] : t.getBoundingClientRect();
   const col = (t.closest('main') || document.querySelector('main') || document.body).getBoundingClientRect();
   const vw = document.documentElement.clientWidth, vh = window.innerHeight, m = 8, gap = 6;
-  const header = document.getElementById('quarto-header');
+  const header = document.getElementById('dg-bar');                 // the sticky course bar
   const hb = header ? header.getBoundingClientRect().bottom : 0;
   const topLimit = Math.max(m, hb > 0 ? hb + m : m);
   // a lone display equation lays out its tag against the box width: give it the column's width
@@ -229,20 +237,9 @@ function place() {
   el.style.top = `${top + window.scrollY}px`;
 }
 
-/** Quarto attaches its own tippy popup to a[role="doc-noteref"] (option footnotes-hover); ours replaces it. */
-function dropQuartoFootnoteTips() {
-  for (const a of document.querySelectorAll('.dg-fnref > a')) {
-    if (a._tippy) { a._tippy.destroy(); a.removeAttribute('aria-expanded'); }
-  }
-}
-
 function initPopovers() {
-  // Quarto's handlers run on DOMContentLoaded, possibly after this module: undo them then too
-  dropQuartoFootnoteTips();
-  document.addEventListener('DOMContentLoaded', () => setTimeout(dropQuartoFootnoteTips, 0));
-  window.addEventListener('load', dropQuartoFootnoteTips);
   // footnote marks are described by their footnote (always in the page, already typeset)
-  for (const a of document.querySelectorAll('.dg-fnref > a[href*="#"]')) {
+  for (const a of document.querySelectorAll('.dg-fnref > a[href^="#"]')) {
     const body = document.getElementById(decodeURIComponent(a.hash.slice(1)))?.querySelector('.dg-fn-body');
     if (!body) continue;
     body.id ||= `dg-${a.hash.slice(1)}-body`;
@@ -717,8 +714,182 @@ function loadInteractives() {
   frames.forEach(f => io.observe(f));
 }
 
+// ---- 6. page shell ---------------------------------------------------------------------------
+const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/** Course tree: in the grid from 1360 px, a drawer below (opened by the Contents button of the course bar).
+ *  Opening moves the focus into it and keeps it there; Escape, a click outside or a link closes it and the
+ *  focus returns to the button. */
+function initDrawer() {
+  const tree = document.getElementById('dg-tree'), btn = document.querySelector('.dg-bar-menu');
+  if (!tree || !btn) return;
+  const drawer = window.matchMedia('(max-width: 1359.98px)');
+  const isOpen = () => H.classList.contains('dg-nav-open');
+  const open = () => {
+    H.classList.add('dg-nav-open');
+    btn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => (tree.querySelector('[aria-current="page"]') || tree.querySelector('a[href]'))?.focus());
+  };
+  const close = (restore = true) => {
+    if (!isOpen()) return;
+    const inside = tree.contains(document.activeElement);
+    H.classList.remove('dg-nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (restore && inside) btn.focus();
+  };
+  btn.addEventListener('click', () => (isOpen() ? close() : open()));
+  document.addEventListener('click', e => {
+    if (!isOpen() || e.target.closest('.dg-bar-menu')) return;
+    if (!tree.contains(e.target)) close(false);
+    else if (e.target.closest('a[href]')) close(false);
+  });
+  document.addEventListener('keydown', e => {
+    if (!isOpen()) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [...tree.querySelectorAll(FOCUSABLE)].filter(n => n.getClientRects().length);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1], cur = document.activeElement;
+    if (e.shiftKey && (cur === first || !tree.contains(cur))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (cur === last || !tree.contains(cur))) { e.preventDefault(); first.focus(); }
+  });
+  drawer.addEventListener('change', () => { if (!drawer.matches) close(false); });
+}
+
+/** Light or dark (D32): the head script applies the stored choice before the first paint. */
+function initTheme() {
+  for (const b of document.querySelectorAll('[data-act="theme"]')) {
+    b.addEventListener('click', () => {
+      const t = H.dataset.theme === 'dark' ? 'light' : 'dark';
+      H.dataset.theme = t;
+      try { localStorage.setItem('dg-theme', t); } catch (err) { /* private mode: the choice lasts for this page */ }
+    });
+  }
+}
+
+/** Site navbar on phones: the toggle shows and hides the links. */
+function initSiteNav() {
+  const nav = document.getElementById('dg-sitenav'), b = nav && nav.querySelector('.dg-sitenav-toggle');
+  if (!b) return;
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', String(nav.classList.toggle('dg-open'))));
+}
+
+/** Reading progress (the dark hairline of the course bar) and the outline entry of the heading being read. */
+function initScroll() {
+  const bar = document.querySelector('.dg-bar-progress b');
+  const main = document.getElementById('dg-main');
+  const links = [...document.querySelectorAll('.dg-tree-outline a')];
+  const heads = main ? [...main.querySelectorAll(':scope > h2[id], :scope > h3[id]')] : [];
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    if (bar) {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = `${(h > 0 ? Math.min(1, window.scrollY / h) : 0) * 100}%`;
+    }
+    if (!links.length || !heads.length) return;
+    const limit = (document.getElementById('dg-bar')?.getBoundingClientRect().bottom || 0) + 80;
+    let cur = null;
+    for (const h of heads) { if (h.getBoundingClientRect().top < limit) cur = h.id; else break; }
+    for (const a of links) {
+      const on = a.getAttribute('href') === `#${cur}`;
+      a.classList.toggle('dg-on', on);
+      if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    }
+  };
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  update();
+}
+
+/** Footnotes as sidenotes (D33): from 1000 px each footnote is copied into the margin at the height of
+ *  its mark (pushed down when it would overlap the previous one); the list at the foot of the page is
+ *  hidden then, and stays the form used below 1000 px, without JavaScript and in print. */
+function initSidenotes() {
+  const main = document.getElementById('dg-main');
+  const notes = main ? [...main.querySelectorAll('.dg-footnotes .dg-fn')] : [];
+  if (!notes.length || !document.body.classList.contains('dg-page-reading')) return;
+  const wide = window.matchMedia('(min-width: 1000px)');
+  let box = null;
+  const mark = id => main.querySelector(`.dg-fnref > a[href="#${CSS.escape(id)}"]`);
+  const build = () => {
+    box = document.createElement('div');
+    box.className = 'dg-sidenotes dg-web';
+    for (const fn of notes) {
+      const body = fn.querySelector('.dg-fn-body');
+      if (!body) continue;
+      const n = document.createElement('div');
+      n.className = 'dg-sidenote';
+      n.dataset.n = fn.querySelector('.dg-fn-num')?.textContent.trim() || '';
+      n.dataset.for = fn.id;
+      n.append(...adopt(body.cloneNode(true), null).childNodes);
+      box.append(n);
+    }
+    main.append(box);
+  };
+  const layout = () => {
+    if (!wide.matches) { H.classList.remove('dg-has-sidenotes'); return; }
+    if (!box) build();
+    H.classList.add('dg-has-sidenotes');
+    const top0 = main.getBoundingClientRect().top;
+    let floor = 0;
+    for (const n of box.children) {
+      const ref = mark(n.dataset.for);
+      if (!ref) continue;
+      const y = Math.max(ref.getBoundingClientRect().top - top0 - 4, floor);
+      n.style.top = `${y}px`;
+      floor = y + n.offsetHeight + 14;
+    }
+  };
+  // a footnote mark points at its sidenote: highlighted while the mark is hovered or focused
+  const note = a => box && box.querySelector(`.dg-sidenote[data-for="${CSS.escape(a.hash.slice(1))}"]`);
+  const hot = (e, on) => {
+    const a = e.target.closest && e.target.closest('.dg-fnref > a');
+    if (a && sidenotesOn()) note(a)?.classList.toggle('dg-hot', on);
+  };
+  document.addEventListener('pointerover', e => hot(e, true));
+  document.addEventListener('pointerout', e => hot(e, false));
+  document.addEventListener('focusin', e => hot(e, true));
+  document.addEventListener('focusout', e => hot(e, false));
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('.dg-fnref > a');
+    if (a && sidenotesOn()) e.preventDefault();         // the note is beside the mark: no jump to the hidden list
+  });
+  let t = 0;
+  const later = () => { clearTimeout(t); t = setTimeout(layout, 120); };
+  mathReady().then(() => {
+    layout();
+    wide.addEventListener('change', layout);
+    window.addEventListener('resize', later);
+    if (window.ResizeObserver) new ResizeObserver(later).observe(main);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  });
+}
+
+/** ← / → go to the previous / next page, unless a field, an overlay, a scrollable formula or an
+ *  interactive figure has the focus (they use the arrow keys themselves). */
+function initKeys() {
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const f = document.activeElement;
+    if (f && f !== document.body && (f.isContentEditable
+      || f.closest('input, textarea, select, dialog, .dg-pop, .dg-interactive, .math.display'))) return;
+    if (document.querySelector('dialog[open]') || H.classList.contains('dg-nav-open') || (pop.el && !pop.el.hidden)) return;
+    const a = document.querySelector(`.dg-prevnext a[rel="${e.key === 'ArrowLeft' ? 'prev' : 'next'}"]`);
+    if (a) { e.preventDefault(); window.location.href = a.href; }
+  });
+}
+
 function init() {
   const run = (name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
+  run('drawer', initDrawer);
+  run('theme', initTheme);
+  run('site navbar', initSiteNav);
+  run('scroll', initScroll);
+  run('sidenotes', initSidenotes);
+  run('keys', initKeys);
   run('decor', drawDecor);
   run('popovers', initPopovers);
   run('figures', initFigures);

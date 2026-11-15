@@ -37,6 +37,12 @@ async function open(url, width, { breakModule } = {}) {
   return { page, errors };
 }
 const ready = page => page.waitForSelector('.dg-interactive.dg-ready', { timeout: 20000 }).then(() => page.waitForTimeout(400));
+// the mounted frame must not widen the page on a phone (D27: the page never scrolls sideways)
+async function noSideScroll(page, width) {
+  if (width >= 600) return;
+  const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+  check(sw <= iw, `no horizontal page scroll (scrollWidth ${sw}, innerWidth ${iw})`);
+}
 const shot = async (page, name) => { if (shots) await page.locator('.dg-interactive').screenshot({ path: path.join(shots, name) }); };
 // mouse events outside the viewport are lost: bring the drawing area (svg / canvas) into view first
 const center = async loc => {
@@ -94,6 +100,7 @@ async function testMaps(width) {
   await fr.locator('.dg-stepper').nth(0).locator('button', { hasText: '−' }).click();
   check(await fr.locator('.dg-domain').count() === 3 && await status() === 'Only Injective', 'one element of M fewer -> 3 elements, its arrow gone');
   check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
   await page.close();
 }
 
@@ -143,6 +150,7 @@ async function testVariations(width) {
   await fr.locator('canvas').dblclick(); await page.waitForTimeout(100);
   check(await canvasHash() === h1, 'double click resets the view');
   check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
   if (width === 1280) await crossChecks(page);
   await page.close();
 }

@@ -7,17 +7,21 @@
 
 Inputs : the scratch copy of the notes compiled by _port/tex/build_scratch.sh
          (_port/.work/tex/src: sources + main.aux + main.port + main.bbl).
-Outputs: notes/diffgeo-gr/**/*.qmd (generated, do not edit), _sidebar.yml,
-         assets/labels.json, figures/, and _port/.work/report.json.
-Everything hand-written for the web (index.qmd, _metadata.yml, assets/, the
-interactive figures and _port/interactives.yml) is never touched.
+Outputs: notes/diffgeo-gr/**/*.html (complete pages, generated, do not edit; D29),
+         assets/labels.json, assets/search.json, assets/fonts/newcm-*.woff2, figures/,
+         and _port/.work/report.json.
+The page shell is shell.py, the landing page's hand-written part templates/landing.html.
+Everything hand-written for the web (assets/*.css|js, the interactive figures and
+_port/interactives.json) is never touched.
 """
 from __future__ import annotations
 import argparse, bisect, json, os, posixpath, re, sys
+from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import source                                        # noqa: E402
+import shell                                         # noqa: E402
 from texparse import Parser, ConvertError, Cmd, Text, Par   # noqa: E402
 from render import Renderer, esc, slugify            # noqa: E402
 
@@ -269,7 +273,116 @@ def kicker(p: Page) -> str:
     return f'{word} {c.number} <span class="dg-sep">•</span> {link}'
 
 
-def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set):
+HEAD_MARK = re.compile('\x01H(\\d)\\|([^|\x01]*)\\|([^\x01]*)\x01')
+
+
+def headings(html: str) -> str:
+    """In-page headings (\\subsection, \\subsubsection) as real <h2>/<h3> elements (D29)."""
+    return HEAD_MARK.sub(lambda m: f'<h{m.group(1)} id="{esc(m.group(2))}">{m.group(3)}</h{m.group(1)}>', html)
+
+
+def outline(html: str) -> list:
+    """(level, id, title) of the in-page headings, for the course tree. The title is a copy: no ids,
+    no footnote marks, cross-references as plain numbers."""
+    out = []
+    for m in HEAD_MARK.finditer(html):
+        t = re.sub(r'<sup class="dg-fnref">.*?</sup>|<span class="dg-anchor"[^>]*></span>', '', m.group(3))
+        out.append((int(m.group(1)), m.group(2), re.sub(r'\s+id="[^"]*"', '', nolinks(t))))
+    return out
+
+
+class _Text(HTMLParser):
+    """Text of an HTML fragment for the search index and the page description: web-layer elements
+    (class dg-web) are left out, math stays as its TeX source."""
+    VOID = {'area', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
+    BLOCK = {'p', 'li', 'div', 'h1', 'h2', 'h3', 'figcaption', 'blockquote', 'td', 'th', 'tr', 'header', 'footer'}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out, self.stack = [], [False]
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.BLOCK:
+            self.out.append(' ')
+        if tag in self.VOID:
+            return
+        cls = (dict(attrs).get('class') or '').split()
+        self.stack.append(self.stack[-1] or 'dg-web' in cls)
+
+    def handle_endtag(self, tag):
+        if tag not in self.VOID and len(self.stack) > 1:
+            self.stack.pop()
+        if tag in self.BLOCK:
+            self.out.append(' ')
+
+    def handle_data(self, data):
+        if not self.stack[-1]:
+            self.out.append(data)
+
+
+def text_of(html: str) -> str:
+    t = _Text()
+    t.feed(html.replace('\x01', ' '))
+    t.close()
+    return re.sub(r'\s+', ' ', ''.join(t.out)).strip()
+
+
+def search_entries(href: str, title: str, body: str) -> list:
+    """One entry per section of a page, in the shape of Quarto's docs/search.json (D36)."""
+    parts = HEAD_MARK.split(body)
+    entries = [{'objectID': href, 'href': href, 'title': title, 'section': '', 'text': text_of(parts[0])}]
+    for k in range(1, len(parts), 4):
+        _, hid, h, rest = parts[k:k + 4]
+        sec = text_of(h)
+        entries.append({'objectID': f'{href}#{hid}', 'href': f'{href}#{hid}', 'title': title, 'section': sec,
+                        'text': f'{sec}\n\n{text_of(rest)}'})
+    return entries
+
+
+def numbered(q: Page) -> str:
+    return f'<span class="dg-n">{q.number}</span> ' if q.number else ''
+
+
+def course_tree(p: Page, order: list, items: list) -> str:
+    """The course tree (web layer): every chapter and appendix in the notes' order, the current
+    chapter open, the current page marked and, under it, its outline. Pages that do not convert yet
+    are shown unlinked (D16). Titles carry placeholders: resolve() runs on the result."""
+    chap = p if p.kind == 'chapter' else p.parent
+    out_ol = ''
+    if items:
+        out_ol = '<ol class="dg-tree-outline">' + ''.join(
+            f'<li class="dg-l{lvl}"><a href="#{esc(hid)}">{t}</a></li>' for lvl, hid, t in items) + '</ol>'
+
+    def entry(q, cls=''):
+        here = q is p
+        t = f'{numbered(q)}{nolinks(q.title_html or "…")}'
+        if q.html is None:
+            link = f'<span class="dg-pending">{t}</span>'
+        else:
+            link = f'<a href="{rel(p.slug, q.slug + ".html")}"{" aria-current=\"page\"" if here else ""}>{t}</a>'
+        c = ' '.join(x for x in (cls, 'dg-here' if here else '') if x)
+        return c, link, here
+
+    lis = []
+    for c in (q for q in order if q.kind == 'chapter'):
+        cls, link, here = entry(c, 'dg-ch' + (' dg-open' if c is chap else ''))
+        subs = ''
+        if c.children:
+            kids = []
+            for q in c.children:
+                kc, kl, kh = entry(q)
+                kids.append(f'<li{f" class=\"{kc}\"" if kc else ""}>{kl}{out_ol if kh else ""}</li>')
+            subs = f'<ol>{"".join(kids)}</ol>'
+        elif here:
+            subs = out_ol
+        lis.append(f'<li class="{cls}">{link}{out_ol if here and c.children else ""}{subs}</li>')
+    home = rel(p.slug, 'index.html')
+    return (f'<nav class="dg-tree dg-web" id="dg-tree" aria-label="{shell.INTERFACE["tree"]}">'
+            f'<p class="dg-tree-title"><a href="{home}">{shell.COURSE_TITLE}</a></p>'
+            f'<ol class="dg-tree-list">{"".join(lis)}</ol></nav>')
+
+
+def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list):
     num = f'<span class="dg-secnum">{p.number}</span> ' if p.number and p.kind == 'section' else ''
     head = (f'<header class="dg-head dg-head-{p.kind}"><p class="dg-kicker">{kicker(p)}</p>'
             f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
@@ -297,62 +410,36 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set):
     body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
              f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
              f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
-    html = resolve(head + '\n' + body, p, ctx, where)
+    head, body = resolve(head, p, ctx, where), resolve(body, p, ctx, where)
 
     title = (f'{p.number} ' if p.number else '') + plain(p.title_html)
+    href = f'{COURSE}/{p.slug}.html'
+    search += search_entries(href, re.sub(r'\$(.+?)\$', r'\\(\1\\)', title), body)    # math delimited as in the text
+    chap = p if p.kind == 'chapter' else p.parent
+    home = rel(p.slug, 'index.html')
+    crumbs = [f'<a href="{home}">{esc(shell.course_label(cfg))}</a>']
+    if chap is not p:
+        crumbs.append(f'<a href="{rel(p.slug, chap.slug + ".html")}">{numbered(chap)}{nolinks(chap.title_html)}</a>')
+    crumbs.append(f'<span aria-current="page">{numbered(p)}{nolinks(p.title_html)}</span>')
+    crumbs = [resolve(c, p, ctx, where) for c in crumbs]
+    tree = resolve(course_tree(p, order, outline(p.html)), p, ctx, where)
     src_files = ', '.join(sorted({ctx.src.loc(o)[0] for o in (p.a, p.b - 1)}))
-    out = ['---', 'title: ' + json.dumps(title, ensure_ascii=False), '---', '',
-           f'{MARK} from {src_files}.', '     Do not edit this file: edit the LaTeX notes and re-run the converter. -->', '']
-    for seg in re.split('(\x01H\\d\\|[^\x01]*\x01)', html):
-        if seg.startswith('\x01H'):
-            level, hid, h = seg[2:-1].split('|', 2)
-            tick = '``' if '`' in h else '`'
-            out += ['', '#' * int(level) + f' {tick}{h}{tick}{{=html}} {{#{hid}}}', '']
-        elif seg.strip():
-            out += ['```{=html}', seg.strip('\n'), '```']
-    path = os.path.join(OUT, p.slug + '.qmd')
+    text = shell.document(cfg=cfg, slug=p.slug, source=src_files,
+                          title=f'{title.replace("$", "")} – {shell.COURSE_TITLE} – {shell.SITE_NAME}',
+                          desc=shell.description(text_of(body)), crumbs=crumbs, tree=tree,
+                          main=headings(head + '\n' + body), pos=(k + 1) / len(order))
+    write(os.path.join(OUT, p.slug + '.html'), text, files)
+
+
+def write(path: str, text: str, files: set):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    text = '\n'.join(out) + '\n'
     files.add(path)
     if not os.path.exists(path) or open(path, encoding='utf-8').read() != text:
         open(path, 'w', encoding='utf-8').write(text)
 
 
-def write_sidebar(order: list, files: set):
-    def item(p, indent):
-        t = json.dumps((f'{p.number} ' if p.number else '') + plain(p.title_html or '…'), ensure_ascii=False)
-        pad = ' ' * indent
-        if p.kind == 'chapter':
-            lines = [f'{pad}- section: {t}']
-            if p.html is not None:
-                lines.append(f'{pad}  href: {COURSE}/{p.slug}.qmd')
-            lines.append(f'{pad}  contents:')
-            kids = [l for c in p.children for l in item(c, indent + 4)]
-            return lines + (kids or [f'{pad}    []'])
-        if p.html is None:
-            return [f'{pad}- text: {t}']
-        return [f'{pad}- text: {t}', f'{pad}  href: {COURSE}/{p.slug}.qmd']
-
-    chapters = [p for p in order if p.kind == 'chapter']
-    main = [p for p in chapters if not (p.number or '?')[0].isalpha()]
-    apps = [p for p in chapters if (p.number or '?')[0].isalpha()]
-    y = ['# GENERATED by _port/convert/build.py. Do not edit: re-run the converter.',
-         'website:', '  sidebar:', '    - id: diffgeo-gr', '      title: "From Differential Geometry to General Relativity"',
-         '      style: docked', '      collapse-level: 1', '      contents:',
-         f'        - text: "Course home"', f'          href: {COURSE}/index.qmd']
-    for p in main:
-        y += item(p, 8)
-    if apps:
-        y += ['        - section: "Appendices"', '          contents:']
-        for p in apps:
-            y += item(p, 12)
-    path = os.path.join(OUT, '_sidebar.yml')
-    files.add(path)
-    open(path, 'w', encoding='utf-8').write('\n'.join(y) + '\n')
-
-
-def write_partials(front, pages, ctx, P, files):
-    """Generated fragments included by the hand-written landing page (index.qmd)."""
+def write_landing(front, pages, ctx, files, cfg: dict, search: list):
+    """The landing page: templates/landing.html (hand-written) with fragments generated from main.tex."""
     import cover
     texts = cover.extract(ctx.src.text[front.a:front.b])
     r = Renderer(ctx, front, None, {})
@@ -382,17 +469,21 @@ def write_partials(front, pages, ctx, P, files):
     a = ctx.assets.get('fig_roadmap_master')
     roadmap = ''
     if a:
-        roadmap = (f'<div class="dg-landing-map"><div class="dg-paper" data-map="1"><img src="{a["src"]}" alt="" '
+        roadmap = (f'<div class="dg-landing-map" id="dg-roadmap"><div class="dg-paper" data-map="1"><img src="{a["src"]}" alt="" '
                    f'width="{a["width"]}" height="{a["height"]}" data-kind="{a["kind"]}"></div></div>')
     index_page = Page('front', 0, 0)
     index_page.slug = 'index'
-    os.makedirs(os.path.join(OUT, '_generated'), exist_ok=True)
-    for name, html in (('cover', cover_html), ('dedication', dedication), ('contents', contents), ('roadmap', roadmap)):
-        html = resolve(html, index_page, ctx, {})
-        path = os.path.join(OUT, '_generated', name + '.qmd')
-        files.add(path)
-        open(path, 'w', encoding='utf-8').write(f'{MARK} from main.tex. Do not edit: re-run the converter. -->\n\n'
-                                                f'```{{=html}}\n{html}\n```\n')
+    frags = {name: resolve(x, index_page, ctx, {}) for name, x in
+             (('cover', cover_html), ('dedication', dedication), ('contents', contents), ('roadmap', roadmap))}
+    main = shell.landing_main(frags)
+    label = shell.course_label(cfg)
+    search.insert(0, {'objectID': f'{COURSE}/index.html', 'href': f'{COURSE}/index.html', 'title': shell.COURSE_TITLE,
+                      'section': '', 'text': text_of(frags['cover'] + frags['dedication'])})
+    text = shell.document(cfg=cfg, slug='index', source='main.tex and _port/convert/templates/landing.html',
+                          title=f'{shell.COURSE_TITLE} – {shell.SITE_NAME}', desc=shell.description(text_of(frags['cover'])),
+                          crumbs=[f'<span aria-current="page">{esc(label)}</span>'], tree='', main=main, pos=0.0,
+                          landing=True)
+    write(os.path.join(OUT, 'index.html'), text, files)
 
 
 def main():
@@ -461,11 +552,13 @@ def main():
     for p in done:
         for lab, frag in p.anchors.items():
             where[lab] = (p.slug, frag)
+    cfg = shell.site_config()
+    shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
     files: set = set()
+    search: list = []
     for p in done:
-        write_page(p, ctx, where, pages, files)
-    write_sidebar(pages, files)
-    write_partials(front, pages, ctx, P, files)
+        write_page(p, ctx, where, pages, files, cfg, search)
+    write_landing(front, pages, ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:
@@ -475,11 +568,13 @@ def main():
               for lab, (slug, frag) in where.items() if lab in aux}
     json.dump(labels, open(os.path.join(OUT, 'assets', 'labels.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, separators=(',', ':'), sort_keys=True)
+    json.dump(search, open(os.path.join(OUT, 'assets', 'search.json'), 'w', encoding='utf-8'),
+              ensure_ascii=False, separators=(',', ':'))
     # remove generated pages that no longer exist in the notes
     for root, _, names in os.walk(OUT):
         for n in names:
             path = os.path.join(root, n)
-            if n.endswith('.qmd') and path not in files and MARK in open(path, encoding='utf-8').read(400):
+            if n.endswith('.html') and path not in files and MARK in open(path, encoding='utf-8').read(400):
                 os.remove(path)
     report['math'] = [{'page': p.slug, 'tex': t} for p in done for t in p.math]
     report['review'] = ctx.review_items

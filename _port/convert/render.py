@@ -11,8 +11,8 @@ Placeholders left in the output and resolved by build.py once all pages exist:
     \\x02R|<label>|<style>\\x02   cross reference   (style: ref | eqref)
     \\x02U|<slug>#<frag>\\x02      URL of another course page, made relative
 Headings inside a page are emitted as  \\x01H<level>|<id>|<html>\\x01  so that
-build.py can write them as Markdown headings (Quarto builds the page outline
-from those).
+build.py can find them: it writes them as <h2>/<h3> elements and builds the
+page outline (course tree) and the search index (one entry per section) from them.
 """
 from __future__ import annotations
 import re

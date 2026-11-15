@@ -1,23 +1,27 @@
 // Hand-written tool: behaviour checks of the course page script (notes/diffgeo-gr/assets/course.js)
 // on the rendered site in docs/.   node _port/tools/test_page_script.mjs      (exit code 0 = all passed)
-// Checks: footnote popover, cross-reference previews (equation, figure, page), figure viewer
-// (open, zoom, Escape, focus restored), links in the inlined master roadmap of the landing page,
+// Checks: sidenotes beside their mark from 1000 px (D33) and footnote popovers below, cross-reference
+// previews (equation, figure, page, subsection), figure viewer (open, zoom, Escape, focus restored),
+// links in the inlined master roadmap of the landing page, the page shell (theme switch persisted,
+// course-tree drawer with the Contents button and Escape, outline scroll-spy, keyboard previous/next),
 // no console errors at 1280 and 390 px, no horizontal page scroll at 390 px.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
 const PAGES = ['index.html', 'introduction/roadmaps.html', 'vector-spaces/foundations-sets-maps.html',
-  'metric/length-geodesics.html', 'metric/levi-civita-connection.html'];
+  'metric/length-geodesics.html', 'metric/levi-civita-connection.html', 'examples/example-variations.html'];
 const failures = [];
 const ok = (cond, msg) => { console.log(`${cond ? 'ok  ' : 'FAIL'} ${msg}`); if (!cond) failures.push(msg); };
 
 const { server, base: base0 } = await serveDocs();
-// localhost, not 127.0.0.1: Quarto's link-external-newwindow treats only localhost and the site URL as internal
 const base = base0.replace('127.0.0.1', 'localhost');
 const browser = await chromium.launch();
 
 async function open(path, width = 1280, opts = {}) {
   const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 900 }, ...opts });
+  return load(page, path);
+}
+async function load(page, path) {
   const errors = [];
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', e => errors.push(e.message));
@@ -34,9 +38,29 @@ async function waitPop(page, pred = t => t.length > 0) {
 }
 
 try {
-  // 1. footnote popover (hover, desktop)
+  // 0. sidenotes (D33): at 1440 px footnote 1 sits in the margin level with its mark, and the mark
+  //    highlights it instead of opening a popover; the list at the foot of the page is hidden
   {
-    const { page } = await open('vector-spaces/foundations-sets-maps.html');
+    const { page } = await open('vector-spaces/foundations-sets-maps.html', 1440);
+    await page.waitForFunction(() => document.documentElement.classList.contains('dg-has-sidenotes'), null, { timeout: 8000 }).catch(() => {});
+    const pos = await page.evaluate(() => {
+      const n = document.querySelector('.dg-sidenote[data-for="fn-1"]'), m = document.querySelector('.dg-fnref a#fnref-1');
+      if (!n || !m) return null;
+      const a = n.getBoundingClientRect(), b = m.getBoundingClientRect(), main = document.getElementById('dg-main').getBoundingClientRect();
+      return { dy: Math.abs(a.top - b.top), right: a.left >= main.right - 1, visible: a.width > 0 && getComputedStyle(n).visibility !== 'hidden',
+        list: getComputedStyle(document.querySelector('.dg-footnotes')).display };
+    });
+    ok(pos && pos.visible && pos.right, 'sidenote of footnote 1 is shown in the margin, right of the text column');
+    ok(pos && pos.dy <= 30, `sidenote sits within 30 px of its mark (${pos && Math.round(pos.dy)} px)`);
+    ok(pos && pos.list === 'none', 'the footnote list at the foot of the page is hidden while sidenotes are shown');
+    await page.locator('.dg-fnref a#fnref-1').first().hover(); await page.waitForTimeout(500);
+    ok(await page.locator('.dg-sidenote[data-for="fn-1"].dg-hot').count() === 1 && (await popText(page)) === '', 'hovering the mark highlights its sidenote and opens no popover');
+    await page.close();
+  }
+  // 1. footnote popover (hover, desktop without margin)
+  {
+    const { page } = await open('vector-spaces/foundations-sets-maps.html', 900);
+    ok(await page.locator('.dg-sidenote').count() === 0 || !(await page.evaluate(() => document.documentElement.classList.contains('dg-has-sidenotes'))), 'no sidenotes below 1000 px');
     const mark = page.locator('.dg-fnref a#fnref-1').first();
     await mark.hover();
     const want = (await page.locator('#fn-1 .dg-fn-body').textContent()).trim().slice(0, 25);
@@ -50,6 +74,10 @@ try {
     ok((await waitPop(page)).includes(want.slice(0, 15)), 'footnote popover opens on keyboard focus');
     await page.keyboard.press('Escape');
     ok((await popText(page)) === '', 'Escape closes the popover');
+    await page.close();
+  }
+  {
+    const { page } = await open('vector-spaces/foundations-sets-maps.html');
     // 2a. cross-reference to a figure on another page
     await page.locator('a.dg-xref[data-label="fig_vector_spaces_roadmap"]').first().hover();
     const f = await waitPop(page, t => t.includes('Figure 1.2'));
@@ -94,7 +122,7 @@ try {
     ok((await x.getAttribute('aria-describedby')) === 'dg-pop', 'cross-reference is described by the popover while open');
     await page.mouse.move(5, 500); await page.waitForTimeout(400);
     for (const kind of ['section', 'subsection']) {
-      const y = page.locator(`a.dg-xref[data-kind="${kind}"]`).first();
+      const y = page.locator(`#dg-main a.dg-xref[data-kind="${kind}"]:visible`).first();   // not in the hidden footnote list
       ok(await y.count() === 1, `the page has a ${kind} cross-reference`);
       if (!(await y.count())) continue;
       await y.scrollIntoViewIfNeeded(); await y.hover();
@@ -112,6 +140,7 @@ try {
     const y0 = await page.evaluate(() => scrollY);
     await mark.tap();
     const t = await waitPop(page);
+    ok(!(await page.evaluate(() => document.documentElement.classList.contains('dg-has-sidenotes'))) && await page.locator('.dg-sidenote:visible').count() === 0, 'phone: no sidenotes at 390 px');
     ok(t.includes('Throughout these notes') && (await page.evaluate(() => scrollY)) === y0, 'touch: first tap opens the footnote popover without jumping');
     const pw = await page.evaluate(() => { const r = document.getElementById('dg-pop').getBoundingClientRect(); return [r.left, r.right]; });
     ok(pw[0] >= 0 && pw[1] <= 390, 'touch: popover stays inside the viewport');
@@ -148,7 +177,7 @@ try {
     const ids = await page.evaluate(() => { const s = new Set(), d = []; for (const e of document.querySelectorAll('[id]')) { if (s.has(e.id)) d.push(e.id); s.add(e.id); } return d.length; });
     ok(ids === 0, 'no duplicate ids with two inlined copies of the roadmap');
     await page.keyboard.press('Escape');
-    const btns = await page.$$eval('.dg-landing-actions a', as => as.map(a => [a.textContent.trim(), a.getAttribute('href')]));
+    const btns = await page.$$eval('.dg-landing-actions a', as => as.map(a => [a.textContent.trim(), a.href]));
     ok(btns.length === 3 && /\/introduction\/(index\.html)?$/.test(btns[0][1]), `landing buttons: ${btns.map(b => b[0]).join(' | ')}`);
     await page.close();
   }
@@ -166,11 +195,55 @@ try {
       await page.close();
     }
   }
-  // phone: the collapsed sidebar opens with its toggle
+  // phone: the course tree is a drawer, opened by the Contents button, closed by Escape
   {
     const { page } = await open('vector-spaces/foundations-sets-maps.html', 390);
-    await page.locator('.quarto-secondary-nav .quarto-btn-toggle').click(); await page.waitForTimeout(600);
-    ok(await page.locator('#quarto-sidebar').isVisible(), 'phone: the sidebar toggle opens the sidebar');
+    const btn = page.locator('.dg-bar-menu');
+    const shown = () => page.evaluate(() => { const t = document.getElementById('dg-tree'), r = t.getBoundingClientRect(); return getComputedStyle(t).visibility === 'visible' && r.right > 50; });
+    ok(await btn.isVisible() && !(await shown()), 'phone: Contents button shown, tree closed');
+    ok(await page.evaluate(() => getComputedStyle(document.getElementById('dg-tree')).boxShadow) === 'none', 'phone: the closed drawer casts no shadow');
+    await btn.click(); await page.waitForTimeout(400);
+    ok(await shown() && (await btn.getAttribute('aria-expanded')) === 'true', 'phone: the Contents button opens the course tree');
+    ok(await page.evaluate(() => document.getElementById('dg-tree').contains(document.activeElement)), 'phone: the focus moves into the open tree');
+    await page.keyboard.press('Escape'); await page.waitForTimeout(400);
+    ok(!(await shown()) && (await btn.getAttribute('aria-expanded')) === 'false', 'phone: Escape closes the course tree');
+    ok(await page.evaluate(() => document.activeElement && document.activeElement.matches('.dg-bar-menu')), 'phone: the focus returns to the Contents button');
+    await page.close();
+  }
+  // wide screen: the tree is in the page, no Contents button; the outline follows the reading position
+  {
+    const { page } = await open('metric/length-geodesics.html', 1440);
+    ok(!(await page.locator('.dg-bar-menu').isVisible()) && await page.locator('#dg-tree').isVisible(), '1440: course tree in the page, Contents button hidden');
+    await page.evaluate(() => { const h = document.querySelector('#dg-main > h2[id]'); scrollTo(0, h.getBoundingClientRect().top + scrollY - 60); });
+    await page.waitForTimeout(400);
+    const spy = await page.evaluate(() => { const h = document.querySelector('#dg-main > h2[id]'), a = document.querySelector('.dg-tree-outline a.dg-on'); return [h.id, a && a.getAttribute('href')]; });
+    ok(spy[1] === `#${spy[0]}`, `outline marks the heading being read (${spy[1]})`);
+    await page.close();
+  }
+  // theme switch: flips data-theme and the choice persists across a reload
+  {
+    const { page } = await open('vector-spaces/foundations-sets-maps.html', 1280);
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || 'light');
+    const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const t0 = await theme(), b0 = await bg();
+    await page.locator('.dg-bar [data-act="theme"]').click(); await page.waitForTimeout(200);
+    const t1 = await theme();
+    ok(t0 === 'light' && t1 === 'dark' && (await bg()) !== b0, `theme switch flips data-theme (${t0} -> ${t1}) and the page colours`);
+    await load(page, 'vector-spaces/foundations-sets-maps.html');
+    ok((await theme()) === 'dark', 'the theme choice persists across a reload');
+    await page.locator('.dg-bar [data-act="theme"]').click();
+    await page.close();
+  }
+  // keyboard: → goes to the next page, ← to the previous one
+  {
+    const { page } = await open('vector-spaces/foundations-sets-maps.html', 1280);
+    await page.keyboard.press('ArrowRight');
+    await page.waitForURL(/vectors-duals-tensors\.html$/, { timeout: 8000 }).catch(() => {});
+    ok(/vectors-duals-tensors\.html$/.test(page.url()), '→ goes to the next page (2.2)');
+    await page.waitForLoadState('networkidle');
+    await page.keyboard.press('ArrowLeft');
+    await page.waitForURL(/foundations-sets-maps\.html$/, { timeout: 8000 }).catch(() => {});
+    ok(/foundations-sets-maps\.html$/.test(page.url()), '← goes back to the previous page (2.1)');
     await page.close();
   }
 } catch (err) {

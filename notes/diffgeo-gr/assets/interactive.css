@@ -1,6 +1,6 @@
 /* Hand-written (not generated): style of the interactive figures of the course pages (web layer, D14/D15).
- * The frame (.dg-interactive, emitted by the converter after the figure it accompanies) is styled for the
- * dark page: accent border, "Interactive" badge, controls on the dark surface. The drawing areas are
+ * The frame (.dg-interactive, emitted by the converter after the figure it accompanies) takes its colours
+ * from the tokens of course.css (both themes): accent border, "Interactive" badge, controls on the surface. The drawing areas are
  * white, like the paper cards of the static figures, so that colours read the same as in the figures.
  * A frame is shown only once its module mounted (course.js adds .dg-ready): if JavaScript fails,
  * only the static figure is there. The hidden frame is collapsed rather than display:none, because
@@ -11,13 +11,8 @@
   height: 0; min-height: 0; margin: 0; padding: 0; border: 0; overflow: hidden; visibility: hidden;
 }
 
-/* the frame is a <div> (an <aside> would be moved to the margin column by Quarto); keep it in the body column */
-main.content .dg-interactive, .page-columns .dg-interactive {
-  grid-column: body-content-start / body-content-end !important;
-  float: none; width: auto; max-width: none;
-  font-size: 0.93rem;
-}
 .dg-interactive {
+  font-size: 0.93rem;
   margin: 0.4rem 0 1.8rem;
   padding: 0.55rem 0.8rem 0.8rem;
   border: 1px solid var(--dg-accent);

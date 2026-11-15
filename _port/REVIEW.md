@@ -68,7 +68,9 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | interactive after Figure 2.1 (`maps`) | instruction: "Drag from an element of 𝓜 to an element of 𝓝 to add an arrow of φ; click an arrow to remove it."; preset buttons and status line use your five panel names unchanged ("NOT a Function", "General Function", "Only Injective", "Only Surjective", "Bijective"); control labels 𝓜, 𝓝, φ⁻¹ |
 | interactive after Figure C.12 (`variations`) | instruction: "Choose a curve and a family of variations and move ᛊ; drag the surface to rotate it."; options γ, σ, "(i)", "(ii)"; legend copied from Figure C.12 ("(i) linear in 𝒳", "(ii) linear in 𝒴", "(ii), second-order expansion"); readouts L[γ_ᛊ], d/dᛊ L[·]|_{ᛊ=0}; point labels A, B, P, Q |
 
-| course bar (design prototypes; final list when milestone 1 is built) | "Lecture Notes" (first breadcrumb), "Contents", "Map", "Search", labels of icon buttons: "Course map", "Search the notes", "Light or dark", "Toggle navigation", "Skip to content" |
+| course bar and page shell (built in R4/R5) | visible: "Lecture Notes" (first breadcrumb, read from the navbar entry), "Contents", "Map", "Search", "Skip to content"; labels of icon buttons and regions (screen readers, tooltips): "Site", "Toggle navigation", "Search", "Contents", "Breadcrumb", "Course map", "Search the notes", "Light or dark", "Course contents" |
+| course tree | its title is the title of the notes and links to the landing page ("Course home" is gone) |
+| browser tab | "<number> <title> – From Differential Geometry to General Relativity – Daniel López Cano" |
 | appendix content opened in place | "open here", "Appendix B" / "Appendix C" + your number and title, "open page", "close" |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)

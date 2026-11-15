@@ -4,14 +4,11 @@ project:
   resources:
     - assets/img/background/background.gif
     - google0edce4a177d73ddd.html
-    # course section: files loaded by script at run time, which Quarto cannot discover
-    - notes/diffgeo-gr/assets/interactive/*.js
-    - notes/diffgeo-gr/assets/labels.json
-
-# Sidebar of the course section "From Differential Geometry to General Relativity"
-# (generated from the table of contents of the notes by _port/convert/build.py).
-metadata-files:
-  - notes/diffgeo-gr/_sidebar.yml
+    # course section "From Differential Geometry to General Relativity": complete HTML pages written by
+    # _port/convert/build.py, copied as they are (DECISIONS D29)
+    - notes/diffgeo-gr/**
+  # adds the course pages to search.json and sitemap.xml (Quarto does not index .html files)
+  post-render: python3 _port/tools/post_render.py
 
 website:
   title: "Daniel López Cano"
@@ -31,7 +28,7 @@ website:
         text: Research & Publications
       - href: teaching_and_projects.qmd
         text: Teaching & Projects
-      - href: notes/diffgeo-gr/index.qmd
+      - href: notes/diffgeo-gr/index.html
         text: Lecture Notes
       - href: outreach.qmd
         text: Outreach
@@ -40,7 +37,6 @@ website:
     search: true
 
   page-footer:
-    border: false   # Quarto adds a footer border on every page once a sidebar exists; keep the footer as it was
     left: "© Daniel López Cano"
     right: "[Home](index.qmd)"
 

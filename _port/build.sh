@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# One command after editing the LaTeX notes: recompile the scratch copy, regenerate the
-# course pages and render them. Hand-written, part of the web port.
-#   _port/build.sh            scratch LaTeX build + converter + quarto render of the course
-#   _port/build.sh --site     ... and render the whole site instead of only the course
+# One command after editing the LaTeX notes: recompile the scratch copy, regenerate the course pages
+# and publish them into docs/. Hand-written, part of the web port.
+#   _port/build.sh            scratch LaTeX build + converter + copy of the course into docs/ (seconds)
+#   _port/build.sh --site     ... and a full `quarto render` of the whole site instead of the copy
 #   _port/build.sh --no-tex   skip the LaTeX build (the notes did not change)
+# The course pages are complete HTML files (DECISIONS D29): Quarto only copies them (project resources),
+# and its post-render script _port/tools/post_render.py adds them to docs/search.json and docs/sitemap.xml.
+# A course-only build does the same two steps itself, without Quarto.
 set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
@@ -12,5 +15,11 @@ for a in "$@"; do case "$a" in --site) SITE=1 ;; --no-tex) TEX=0 ;; *) echo "usa
 [ "$TEX" = 1 ] && _port/tex/build_scratch.sh
 python3 _port/convert/build.py
 node _port/tools/math_check.mjs | tail -n 3 || echo "math check reported failures (see above)"
-if [ "$SITE" = 1 ]; then quarto render; else quarto render notes/diffgeo-gr; fi
+if [ "$SITE" = 1 ]; then
+  quarto render
+else
+  mkdir -p docs/notes/diffgeo-gr
+  rsync -a --delete notes/diffgeo-gr/ docs/notes/diffgeo-gr/
+  python3 _port/tools/post_render.py
+fi
 echo "done. Preview: quarto preview   (then open /notes/diffgeo-gr/)"

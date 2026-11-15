@@ -31,6 +31,8 @@ math_ok()       { node _port/tools/math_check.mjs > "$LOG/math.out" 2>&1; local 
 render_site()   { quarto render 2>&1 | tee "$LOG/render.out" | tail -n 3; [ "${PIPESTATUS[0]}" = 0 ] || return 1
                   # no warning or error that concerns the course pages
                   ! grep -nE '^(WARN|ERROR)|\[WARNING\]|Could not|Unable to' "$LOG/render.out"; }
+# every page address that existed at the pilot still resolves (REDESIGN "Definition of done"; D29)
+pilot_addresses() { local n=0 a; while read -r a; do [ -z "$a" ] && continue; [ -f "docs/$a" ] || { echo "missing: docs/$a"; n=$((n+1)); }; done < _port/pilot_addresses.txt; echo "$n missing"; [ "$n" = 0 ]; }
 no_conflicts()  { ! grep -rlE '^(<<<<<<<|>>>>>>>) ' docs --include='*.html' --include='*.json' --include='*.xml' --include='*.css' --include='*.js'; }
 
 run "on branch course-diffgeo-gr"                          on_branch
@@ -39,6 +41,7 @@ run "converter regenerates the pages"                      convert
 run "every equation typesets (math_check)"                 math_ok
 [ "$RENDER" = 1 ] && run "quarto render (whole site)"      render_site
 run "no merge-conflict markers in docs/"                   no_conflicts
+run "every pilot address still exists"                     pilot_addresses
 run "figure pipeline (test_figures)"                       python3 _port/tools/test_figures.py
 run "page script in a headless browser"                    node _port/tools/test_page_script.mjs
 run "interactives in a headless browser"                   node _port/tools/test_interactives.mjs
