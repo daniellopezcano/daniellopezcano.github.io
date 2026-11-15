@@ -98,7 +98,7 @@ Pilot units P1–P9 are in `PROGRESS.md`. After approval:
 | Unit | What | Who |
 |---|---|---|
 | B1 | Converter: remaining text handlers (`\setcounter{enumi}` inside lists, `\item` preceded by content, `\pageref`, `\renewcommand{\arraystretch}`) | worker |
-| B2 | Converter: `tabular` → HTML tables (4 tables, 2 of them inside math) | main (first of its kind) |
+| B2 | Converter: `tabular` → HTML tables (3 in the build: §4.1.2 inside `\[ \]`, B.21, the copyright page; the other `tabular`s are in files `main.tex` does not include) | main (first of its kind) |
 | B3 | Converter: Einstein–Hilbert flowchart (`custompage` + `\captionof`, own macros) → SVG figure with number and caption | main |
 | B4 | Front matter pages: copyright/licence/funding; About the Author (handlers for `\cpheading`, `\grantbadge`, `\aboutstop`; background image re-encoded small) | main, then worker |
 | B5 | List of Figures and Bibliography pages; citations link to it | worker |

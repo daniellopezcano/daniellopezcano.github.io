@@ -11,6 +11,8 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     that follows, and ends with the enclosing environment or group as in TeX.
   * lists: \\setcounter{enumi}{n} inside an item (numbers from the LaTeX records, <li value>), and
     the forms that must still stop the page.
+  * tabular (D48): column specs of the three tables in the build (incl. the copyright page's, unit B4),
+    rules, \\hline header, row spacing, \\arraystretch, display tabular as a block, refusals.
 """
 from __future__ import annotations
 import os
@@ -127,6 +129,38 @@ def main() -> int:
             ('an enumerate item with no numbering record', '\\begin{enumerate}\\item A\\end{enumerate}', {})):
         try:
             run(tex, records)
+            check(f'{name} stops the page', False, 'no error')
+        except ConvertError as e:
+            check(f"{name} stops the page ({e.msg})", True)
+
+    # -- tabular (D48) ----------------------------------------------------------------
+    import tables
+    cols = tables.columns(r'@{}l@{\hspace{10pt}}p{\dimexpr\textwidth-3.25cm\relax}@{}', 16.0, 0)
+    check('tabular spec @{}l@{\\hspace{10pt}}p{\\dimexpr..}@{}: no outer gap, 10pt between, p width = textwidth - 3.25cm',
+          [round(c['pad_l'], 2) for c in cols] == [0, 0] and [round(c['pad_r'], 2) for c in cols] == [1.0, 0]
+          and abs(cols[1]['width'] - 12.75 * tables.CM_EM) < 1e-6 and cols[1]['top'], cols)
+    cols = tables.columns(r'c@{\hspace{1.5cm}}c', 16.0, 0)
+    check('tabular spec c@{\\hspace{1.5cm}}c: the gap replaces both \\tabcolsep',
+          abs(cols[0]['pad_r'] + cols[1]['pad_l'] - 1.5 * tables.CM_EM) < 1e-6 and cols[0]['pad_l'] == tables.TABCOLSEP_EM, cols)
+    cols = tables.columns('|l|l|', 16.0, 0)
+    check('tabular spec |l|l|: outer and inner rules', [(c['rule_l'], c['rule_r']) for c in cols] == [(True, True), (False, True)], cols)
+    rr, html = run('\\begin{center}\\renewcommand{\\arraystretch}{1.3}\\begin{tabular}{l|c}\n A & $x$ \\\\ \\hline\n'
+                   ' B & {C \\& D} \\\\[10pt] E & F \\\\\n\\hline\n\\end{tabular}\\end{center}', {})
+    check('tabular: header row (followed by \\hline) as th, rules, spacing, \\arraystretch, escaped & kept in a cell',
+          '<thead><tr><th scope="col" class="dg-rule-r" style="text-align:left;white-space:nowrap">A</th>' in html
+          and '<tr class="dg-hline-above">' in html and 'dg-hline-below' in html and 'C &amp; D' in html
+          and "--dg-strut-dp:1.00em" in html and '--dg-arraystretch:1.3' in html
+          and rr.arraystretch is None, html)
+    rr, html = run('Text: \\[ \\begin{tabular}{cc} \\textbf{a} & $y$ \\end{tabular} \\] more.', {})
+    check('display tabular: a centred table that ends the paragraph, cells as text (math inline)',
+          html.startswith('<p>Text:</p>\n<div class="dg-table-wrap dg-table-display">') and '<td style="text-align:center;white-space:nowrap"><strong>a</strong></td>' in html
+          and '\\(y\\)' in html and html.endswith('<p>more.</p>'), html)
+    for name, tex in (('a column type tables.py does not know', '\\begin{tabular}{lX}a&b\\end{tabular}'),
+                      ('more cells than columns', '\\begin{tabular}{l}a&b\\end{tabular}'),
+                      ('a tabular with a position argument', '\\begin{tabular}[t]{l}a\\end{tabular}'),
+                      ('\\hline inside a row', '\\begin{tabular}{l}a \\hline b\\end{tabular}')):
+        try:
+            run(tex, {})
             check(f'{name} stops the page', False, 'no error')
         except ConvertError as e:
             check(f"{name} stops the page ({e.msg})", True)

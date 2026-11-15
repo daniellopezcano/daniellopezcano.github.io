@@ -18,6 +18,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from texparse import Parser, ConvertError, Text, Par, Math, Cmd, Env, Group
+import tables
 
 TERM_COLOURS = ('blue', 'green', 'purple', 'orange', 'red', 'yellow', 'brown', 'teal', 'rose', 'olive', 'indigo')
 
@@ -47,6 +48,12 @@ NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'
 _WS = re.compile(r'\s+')
 _REF_IN_MATH = re.compile(r'\\(eqref|ref)\*?\s*\{([^}]+)\}')
 _LABEL = re.compile(r'\\label\s*\{([^}]+)\}')
+
+
+def is_display_tabular(nd) -> bool:
+    """\\[ \\begin{tabular}..\\end{tabular} \\]: rendered as a table, not as a formula (D48)."""
+    return (isinstance(nd, Math) and nd.kind == 'display'
+            and re.fullmatch(r'\s*\\begin\{tabular\}.*\\end\{tabular\}\s*', nd.src, re.S) is not None)
 
 
 def esc(s: str) -> str:
@@ -107,6 +114,9 @@ class Renderer:
             i += 1
             if isinstance(nd, Par):
                 flush()
+            elif isinstance(nd, Math) and is_display_tabular(nd):
+                flush()                           # a table is a block: it ends the paragraph's <p> (D48)
+                out.append(self.math(nd))
             elif isinstance(nd, Env):
                 flush()
                 stretch = self.arraystretch       # a definition made inside an environment ends with it (TeX group)
@@ -166,6 +176,8 @@ class Renderer:
             return self.figure(nd)
         if name == 'tikzpicture':
             return self.diagram(nd)
+        if name == 'tabular':                       # a real HTML table (D48)
+            return tables.tabular(self, nd.pos, nd.pos + len(nd.raw), nd.pos)
         if name == 'center':
             return f'<div class="dg-center">{self.flow(nd.body)}</div>'
         if name == 'quote':
@@ -475,6 +487,14 @@ class Renderer:
         """
         src = nd.src
         ids = []
+        if is_display_tabular(nd):
+            # \[ \begin{tabular}..\end{tabular} \]: a tabular is text mode, so this is a centred table whose
+            # cells are text of the notes, not a formula (D48; not a rewrite of math, D7)
+            a = nd.pos + 2 + src.index('\\begin{tabular}')
+            b = nd.pos + 2 + src.rindex('\\end{tabular}') + len('\\end{tabular}')
+            if self.P.env_end('tabular', a + len('\\begin{tabular}'), b)[1] != b:
+                raise ConvertError('display math with more than one tabular: no handler yet', nd.pos)
+            return tables.tabular(self, a, b, nd.pos).replace('class="dg-table-wrap"', 'class="dg-table-wrap dg-table-display"', 1)
         if nd.kind == 'env' and nd.env in NUMBERED_MATH:
             src, ids = self.number_rows(src, nd)
         elif '\\label' in src:

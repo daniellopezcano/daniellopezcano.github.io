@@ -292,13 +292,27 @@ h1.dg-title { margin: 0; padding-bottom: 0.55rem; color: var(--dg-heading); font
    is not (D45 b): two covers in the box's own colour scroll with the content (attachment local) and hide the
    two shadows (attachment scroll) when an end is reached. CSS only; the shadows lie under the content, so
    an equation number at the edge stays legible. --dg-scroll-bg is the colour of the surface behind the box. */
-.math.display, mjx-container.dg-math-wide {
+.math.display, mjx-container.dg-math-wide, .dg-table-wrap {
   background:
     linear-gradient(to right, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) left center / 2rem 100% no-repeat local,
     linear-gradient(to left, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) right center / 2rem 100% no-repeat local,
     linear-gradient(to right, var(--dg-scroll-shadow), transparent) left center / 1rem 100% no-repeat scroll,
     linear-gradient(to left, var(--dg-scroll-shadow), transparent) right center / 1rem 100% no-repeat scroll;
 }
+/* tables: the notes' tabular as an HTML table (D48). Alignment, widths and the gaps of @{..} come from the
+   column spec as inline styles; the rules (| and \hline) are classes; \arraystretch scales the cell padding.
+   A table wider than the column scrolls inside its box like a wide display. */
+.dg-table-wrap { overflow-x: auto; max-width: 100%; margin: 0.9rem 0; }
+/* rows as in LaTeX: \arraystretch x the 1.2 em baselineskip (line-height 1.2 + the stretch as padding) */
+.dg-table { --dg-cell-pad: calc(0.08em + (var(--dg-arraystretch, 1) - 1) * 0.6em); border-collapse: collapse; margin: 0; line-height: 1.2; }
+.dg-center > .dg-table-wrap > .dg-table, .dg-table-display > .dg-table { margin-inline: auto; }
+.dg-table :is(td, th) { padding: var(--dg-cell-pad) 0.6em; font-weight: inherit; vertical-align: baseline; }
+/* \\[dim]: a strut 0.3 em (LaTeX's strut depth) + dim deep, no width, no ink */
+.dg-row-strut { display: inline-block; width: 0; height: calc(0.3em + var(--dg-strut-dp)); vertical-align: calc(-0.3em - var(--dg-strut-dp)); }
+.dg-table .dg-rule-l { border-left: 1px solid var(--dg-text); }
+.dg-table .dg-rule-r { border-right: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-above > * { border-top: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-below > * { border-bottom: 1px solid var(--dg-text); }
 .dg-pop { --dg-scroll-bg: var(--dg-pop-bg); }
 .dg-chapter-card { --dg-scroll-bg: var(--dg-surface); }
 .dg-motivation-upper { --dg-scroll-bg: color-mix(in srgb, #bdc9ed 7%, var(--dg-bg)); }          /* the box's tints, made opaque */

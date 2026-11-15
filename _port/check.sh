@@ -43,6 +43,7 @@ run "every equation typesets (math_check)"                 math_ok
 run "no merge-conflict markers in docs/"                   no_conflicts
 run "every pilot address still exists"                     pilot_addresses
 run "figure pipeline (test_figures)"                       python3 _port/tools/test_figures.py
+run "converter constructs (test_converter)"               python3 _port/tools/test_converter.py
 run "page script in a headless browser"                    node _port/tools/test_page_script.mjs
 run "interactives in a headless browser"                   node _port/tools/test_interactives.mjs
 # >>> further checks are appended here by later units (fidelity, all-pages browser check, a11y, weight, addresses)

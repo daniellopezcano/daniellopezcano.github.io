@@ -748,6 +748,17 @@ function fitDisplayMath(root = document.querySelector('main')) {
     if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
     else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
   }
+  for (const t of root.querySelectorAll('.dg-table-wrap')) {             // tables follow the same rule (D48)
+    const tb = t.firstElementChild;
+    tb.style.fontSize = '';
+    let scale = 1;
+    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_DISPLAY_SCALE; k++) {
+      scale = Math.max(MIN_DISPLAY_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
+      tb.style.fontSize = (scale * 100).toFixed(1) + '%';
+    }
+    if (t.scrollWidth > t.clientWidth + 1) { t.tabIndex = 0; t.dataset.dgScroll = '1'; }
+    else if (t.dataset.dgScroll) { t.removeAttribute('tabindex'); delete t.dataset.dgScroll; }
+  }
 }
 async function initWideMath() {
   await mathReady();
