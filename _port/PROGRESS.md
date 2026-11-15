@@ -48,8 +48,8 @@ Units and their order: `PLAN.md` § "Phase 2". Copy each unit here when it start
 | Unit | What | Status | Checks passed | Commit |
 |---|---|---|---|---|
 | A | Branch brought up to date with `main` (docs/ regenerated), `_port/check.sh` and `tools/site_unchanged.py` written, pilot merged into `main` and pushed (author's one-off authorisation), live site verified | done | `check.sh`: all pass except the known `math_check` failure (the `tabular` of §4.1.2, unit B2); live pages load without console errors | 50f234f, 27fb386 |
-| R1 | Reference study in a headless browser (`_port/design/refs/`: `NOTES.md`, 27 screenshots; the Feynman Lectures site refused the headless browser) | done | | (this commit) |
-| R2 | Three design directions as prototypes on six real pages (`_port/design/proto/`), screenshots at 1440 and 390 px (`_port/design/shots/`), `_port/design/preview.sh` | done | all 36 prototype pages load without console errors; the only horizontal overflow at 390 px is the pending `tabular` of §4.1 | (this commit) |
-| R3 | `DESIGN.md` (study, comparison, choice, design system, budgets), DECISIONS D29–D37, `PLAN.md` phase 2 | done | Quarto behaviour behind D29 tested in a scratch project | (this commit) |
-| R4 | Page shell in the converter, Quarto copies the pages (D29) | todo | | |
-| R5 | Design system CSS/JS, fonts (D30–D33) | todo | | |
+| R1 | Reference study in a headless browser (`_port/design/refs/`: `NOTES.md`, 27 screenshots; the Feynman Lectures site refused the headless browser) | done | | 0d809a3 |
+| R2 | Three design directions as prototypes on six real pages (`_port/design/proto/`), screenshots at 1440 and 390 px (`_port/design/shots/`), `_port/design/preview.sh` | done | all 36 prototype pages load without console errors; the only horizontal overflow at 390 px is the pending `tabular` of §4.1 | 0d809a3 |
+| R3 | `DESIGN.md` (study, comparison, choice, design system, budgets), DECISIONS D29–D37, `PLAN.md` phase 2 | done | Quarto behaviour behind D29 tested in a scratch project | 0d809a3 |
+| R4 | Page shell in the converter, Quarto copies the pages (D29) | in progress (worker started 2026-11-15; nothing committed yet: if the working tree holds a half-done R4/R5, judge it against the brief in PLAN.md and D29–D33) | | |
+| R5 | Design system CSS/JS, fonts (D30–D33) | in progress (same worker as R4) | | |
