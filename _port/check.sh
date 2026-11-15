@@ -56,6 +56,7 @@ run "every course link resolves (links_check)"             python3 _port/tools/l
 run "all pages: errors, overflow, weight (page_check)"     node _port/tools/page_check.mjs
 run "accessibility: axe-core + keyboard (a11y_check)"      node _port/tools/a11y_check.mjs
 run "navbar replica = Quarto navbar (navbar_check)"        node _port/tools/navbar_check.mjs
+run "fidelity: page text = LaTeX source (fidelity)"        python3 _port/tools/fidelity.py
 [ -x _port/tools/checks_extra.sh ] && source _port/tools/checks_extra.sh
 run "rest of the site unchanged with respect to $BASE"     python3 _port/tools/site_unchanged.py "$BASE"
 run "notes directory unchanged (after)"                    notes_clean

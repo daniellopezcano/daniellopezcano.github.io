@@ -1,0 +1,697 @@
+{
+ "_comment": "Accepted differences of _port/tools/fidelity.py (DECISIONS D24). 'source': a construct left out of the LaTeX stream, named by file + construct + key (its figure's label, else the first 60 characters of its source, ' #n' if two share one; 'line' is informative); 'diff': one difference on one page, matched by page + exact tokens ('at' is informative). Every entry must match, or the check fails as stale.",
+ "source": [
+  {
+   "file": "main.tex",
+   "construct": "tikzpicture",
+   "key": "text:[remember picture, overlay, declare function={ dent(\\x,\\y) = #1",
+   "line": 425,
+   "reason": "D19: the title page, a TikZ overlay; the landing page sets its texts (extracted by cover.py; 'diff' entry of page index)"
+  },
+  {
+   "file": "main.tex",
+   "construct": "tikzpicture",
+   "key": "text:[remember picture, overlay, declare function={ dent(\\x,\\y) = #2",
+   "line": 539,
+   "reason": "D19: the dedication page (epigraph and dedication), a TikZ overlay; the landing page sets its texts (extracted by cover.py; 'diff' entry of page index)"
+  },
+  {
+   "file": "Chapters/About_the_author.tex",
+   "construct": "tikzpicture",
+   "key": "text:[remember picture, overlay] \\coordinate (aboutSW) at ([yshif",
+   "line": 20,
+   "reason": "D51: the header and foot of About the Author, a remember-picture overlay; the page sets their texts in a web layout (extracted by frontmatter.py; 'diff' entries of page about-the-author)"
+  },
+  {
+   "file": "Chapters/About_the_author.tex",
+   "construct": "tikzpicture",
+   "key": "text:\\draw[color_blue_2, line width=2.5pt, line cap=round] (1.55,",
+   "line": 91,
+   "reason": "D51: the trajectory timeline, a TikZ picture of \\aboutstop's; the page sets it as an HTML list ('diff' entry of page about-the-author)"
+  },
+  {
+   "file": "plots/roadmap_master.tex",
+   "construct": "figure",
+   "key": "label:fig_roadmap_master",
+   "line": 1,
+   "reason": "D10: a roadmap figure; its body (the TikZ picture with the macros and saved boxes it draws) is compiled to the SVG, only the caption is page text"
+  },
+  {
+   "file": "plots/roadmap_vector_spaces.tex",
+   "construct": "figure",
+   "key": "label:fig_vector_spaces_roadmap",
+   "line": 1,
+   "reason": "D10: a roadmap figure; its body (the TikZ picture with the macros and saved boxes it draws) is compiled to the SVG, only the caption is page text"
+  },
+  {
+   "file": "plots/roadmap_from_manifolds_to_fields.tex",
+   "construct": "figure",
+   "key": "label:fig_roadmap_topology_to_fields",
+   "line": 1,
+   "reason": "D10: a roadmap figure; its body (the TikZ picture with the macros and saved boxes it draws) is compiled to the SVG, only the caption is page text"
+  },
+  {
+   "file": "plots/roadmap_connection_metric_integrals.tex",
+   "construct": "figure",
+   "key": "label:fig_roadmap_connection_metric_integrals",
+   "line": 1,
+   "reason": "D10: a roadmap figure; its body (the TikZ picture with the macros and saved boxes it draws) is compiled to the SVG, only the caption is page text"
+  },
+  {
+   "file": "Chapters/Metric.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_variation_curve",
+   "line": 186,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "plots/fig_integration_charts.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_integration_charts",
+   "line": 3,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "plots/fig_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_newtonian_spacetime",
+   "line": 3,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "plots/fig_lightcones.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_light_cones",
+   "line": 3,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "plots/fig_metric_variation.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_variation_region",
+   "line": 3,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Chapters/fig_eh_chain_rule.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_EH_chain_rule",
+   "line": 39,
+   "reason": "D50: Figure 10.3, the Einstein-Hilbert flowchart of a custompage, compiled to its SVG; its \\captionof is page text and is compared"
+  },
+  {
+   "file": "Appendices/proofs_and_comments/supports_and_compactness.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_compactness",
+   "line": 117,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_integration.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Integration",
+   "line": 104,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Worldlines",
+   "line": 44,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Rotating",
+   "line": 98,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Point_Mass #1",
+   "line": 262,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Point_Mass #2",
+   "line": 281,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Tidal",
+   "line": 402,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_newton_cartan.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Newtonian_Non_Stratified",
+   "line": 592,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_GR.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig_Example_Schwarzschild",
+   "line": 104,
+   "reason": "D10: a TikZ picture compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "Appendices/examples_and_exercises/example_vector_spaces.tex",
+   "construct": "\\DLC",
+   "key": "text:PROOF",
+   "line": 180,
+   "reason": "D18: a hidden author note (\\DLC{PROOF}); renders nothing and is listed in REVIEW.md"
+  }
+ ],
+ "diff": [
+  {
+   "page": "index",
+   "at": "main.tex:414",
+   "reason": "D19: the cover, epigraph and dedication texts, set on the landing page from the title and dedication pages' TikZ nodes (cover.py); the pictures are 'source' entries main.tex:425 and main.tex:539",
+   "latex": [],
+   "page_tokens": [
+    "FROM",
+    "DIFFERENTIAL",
+    "GEOMETRY",
+    "TO",
+    "GENERAL",
+    "RELATIVITY",
+    "Lecture",
+    "notes",
+    "for",
+    "building",
+    "a",
+    "rigorous",
+    "and",
+    "practical",
+    "mathematical",
+    "understanding",
+    "of",
+    "General",
+    "Relativity",
+    ",",
+    "with",
+    "illustrative",
+    "examples",
+    "and",
+    "hands",
+    "-",
+    "on",
+    "computational",
+    "resources",
+    ".",
+    "Daniel",
+    "López",
+    "Cano",
+    "Department",
+    "of",
+    "Mathematical",
+    "Physics",
+    ",",
+    "Institute",
+    "of",
+    "Physics",
+    ",",
+    "University",
+    "of",
+    "São",
+    "Paulo",
+    "R",
+    ".",
+    "do",
+    "Matão",
+    "1371",
+    ",",
+    "05508",
+    "-",
+    "090",
+    ",",
+    "São",
+    "Paulo",
+    ",",
+    "SP",
+    ",",
+    "Brazil",
+    "daniellopezcano97",
+    "@",
+    "proton",
+    ".",
+    "me",
+    "“",
+    "Thank",
+    "the",
+    "heavens",
+    "for",
+    "their",
+    "elasticity",
+    ".",
+    "”",
+    "Andrew",
+    "Bird",
+    "Tenuousness",
+    ",",
+    "from",
+    "Noble",
+    "Beast",
+    "(",
+    "2009",
+    ")",
+    "To",
+    "anyone",
+    "who",
+    "has",
+    "ever",
+    "felt",
+    "more",
+    "like",
+    "a",
+    "scholar",
+    "than",
+    "an",
+    "academic",
+    ",",
+    "those",
+    "who",
+    "would",
+    "gladly",
+    "“",
+    "waste",
+    "”",
+    "their",
+    "time",
+    "seeking",
+    "to",
+    "understand",
+    "the",
+    "fundamental",
+    "laws",
+    "of",
+    "nature",
+    ",",
+    "rather",
+    "than",
+    "racing",
+    "to",
+    "publish",
+    "an",
+    "inconsequential",
+    "paper",
+    "in",
+    "the",
+    "pointless",
+    "productivist",
+    "cycle",
+    "that",
+    "drives",
+    "our",
+    "academic",
+    "system",
+    ";",
+    "those",
+    "who",
+    "would",
+    "rather",
+    "dwell",
+    "a",
+    "lifetime",
+    "with",
+    "a",
+    "question",
+    "than",
+    "rush",
+    "to",
+    "claim",
+    "an",
+    "answer",
+    "."
+   ]
+  },
+  {
+   "page": "about-the-author",
+   "at": "Chapters/About_the_author.tex:76",
+   "reason": "D51: text of About the Author's overlay picture (header, foot) or timeline, set by frontmatter.py; the pictures are 'source' entries About_the_author.tex:20 and :91",
+   "latex": [],
+   "page_tokens": [
+    "About",
+    "the",
+    "Author",
+    "Daniel",
+    "López",
+    "Cano",
+    "FAPESP",
+    "Postdoctoral",
+    "Fellow",
+    "Institute",
+    "of",
+    "Physics",
+    ",",
+    "University",
+    "of",
+    "São",
+    "Paulo"
+   ]
+  },
+  {
+   "page": "about-the-author",
+   "at": "Chapters/About_the_author.tex:76",
+   "reason": "D51: text of About the Author's overlay picture (header, foot) or timeline, set by frontmatter.py; the pictures are 'source' entries About_the_author.tex:20 and :91",
+   "latex": [],
+   "page_tokens": [
+    "2015BSc",
+    "in",
+    "PhysicsUniv",
+    ".",
+    "Autónoma",
+    "de",
+    "Madrid",
+    "2019MSc",
+    "in",
+    "Theoretical",
+    "PhysicsIFT",
+    "UAM",
+    "-",
+    "CSIC",
+    ",",
+    "Madrid",
+    "2020PhD",
+    "in",
+    "AstrophysicsDIPC",
+    ",",
+    "Donostia",
+    "&",
+    "UAM",
+    "2024Postdoctoral",
+    "FellowIFUSP",
+    ",",
+    "São",
+    "Paulo"
+   ]
+  },
+  {
+   "page": "about-the-author",
+   "at": "Chapters/About_the_author.tex:113",
+   "reason": "D51: text of About the Author's overlay picture (header, foot) or timeline, set by frontmatter.py; the pictures are 'source' entries About_the_author.tex:20 and :91",
+   "latex": [],
+   "page_tokens": [
+    "daniellopezcano",
+    ".",
+    "github",
+    ".",
+    "io",
+    "$\\cdot$",
+    "github",
+    ".",
+    "com",
+    "/",
+    "daniellopezcano"
+   ]
+  },
+  {
+   "page": "introduction/index",
+   "at": "Chapters/Introduction.tex:70",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "covariant-derivative/parallel-transport-autoparallels",
+   "at": "Chapters/Covariant_Derivative.tex:290",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\boxed{\\ddot{\\gamma}^k_\\mathcal{U}(\\lambda)+\\left(\\Gamma_\\mathscr{X}\\right)^k_{ji}\\big(\\gamma(\\lambda)\\big)\\,\\dot{\\gamma}^i_\\mathcal{U}(\\lambda)\\,\\dot{\\gamma}^j_\\mathcal{U}(\\lambda)=0,}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\boxed{\\ddot{\\gamma}^k_\\mathcal{U}(\\lambda)+\\left(\\Gamma_\\mathscr{X}\\right)^k_{ji}\\big(\\gamma(\\lambda)\\big)\\,\\dot{\\gamma}^i_\\mathcal{U}(\\lambda)\\,\\dot{\\gamma}^j_\\mathcal{U}(\\lambda)=0,}\\tag{6.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "metric/length-geodesics",
+   "at": "Chapters/Metric.tex:309",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\boxed{\\ddot{\\gamma}^k_\\mathcal{U}(\\lambda)+\\frac{1}{2}\\Big((g^{-1})^{km}\\big(\\partial_ig_{mj}+\\partial_jg_{mi}-\\partial_mg_{ij}\\big)\\Big)\\big(\\gamma(\\lambda)\\big)\\,\\dot{\\gamma}^i_\\mathcal{U}(\\lambda)\\,\\dot{\\gamma}^j_\\mathcal{U}(\\lambda)=0}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\boxed{\\ddot{\\gamma}^k_\\mathcal{U}(\\lambda)+\\frac{1}{2}\\Big((g^{-1})^{km}\\big(\\partial_ig_{mj}+\\partial_jg_{mi}-\\partial_mg_{ij}\\big)\\Big)\\big(\\gamma(\\lambda)\\big)\\,\\dot{\\gamma}^i_\\mathcal{U}(\\lambda)\\,\\dot{\\gamma}^j_\\mathcal{U}(\\lambda)=0}\\tag{7.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "metric/levi-civita-connection",
+   "at": "Chapters/Metric.tex:328",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\boxed{\\big(\\Gamma^{\\text{LC}}_\\mathscr{X}\\big)^k_{ji}\\coloneqq\\frac{1}{2}(g^{-1})^{km}\\big(\\partial_ig_{mj}+\\partial_jg_{mi}-\\partial_mg_{ij}\\big)\\inC^\\infty(\\mathcal{U}).}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\boxed{\\big(\\Gamma^{\\text{LC}}_\\mathscr{X}\\big)^k_{ji}\\coloneqq\\frac{1}{2}(g^{-1})^{km}\\big(\\partial_ig_{mj}+\\partial_jg_{mi}-\\partial_mg_{ij}\\big)\\inC^\\infty(\\mathcal{U}).}\\tag{7.2}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "metric/levi-civita-connection",
+   "at": "Chapters/Metric.tex:337",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}(\\nabla_{\\partialx_k}g)_{ij}=\\partial_kg_{ij}-\\Gamma^m_{ik}\\,g_{mj}-\\Gamma^m_{jk}\\,g_{im}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}(\\nabla_{\\partialx_k}g)_{ij}=\\partial_kg_{ij}-\\Gamma^m_{ik}\\,g_{mj}-\\Gamma^m_{jk}\\,g_{im}.\\tag{7.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "integrals/index",
+   "at": "Chapters/Integrals.tex:14",
+   "reason": "D7 rewrites (3) and (4): \\hyperlink{t}{..} -> \\href{#t}{..}, and the macros \\edef'ed to a footnote number -> that number (Ch. 8's hand-placed footnote marks)",
+   "latex": [
+    "$$\\begin{align*}\\int_{\\mathscr{X}(\\mathcal{D})}&d^d\\alpha\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[\\text{outside}\\mathscr{X}(\\mathcal{D})]{\\text{extendby}0\\text{with}\\iota\\,^{\\hyperlink{fn_Integrals_Fubini}{\\fnIntegralsFubini}}}...\\\\...=&\\int_{\\mathbb{R}^d}d^d\\alpha\\,\\big((\\iotaf)\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[d^d\\alpha\\,=\\,d^d\\beta\\,|\\det(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}})(\\beta)|]{\\text{changeofvariables}\\,^{\\hyperlink{fn_Integrals_Volume}{\\fnIntegralsVolume}}}...\\\\...=&\\int_{\\mathbb{R}^d}d^d\\beta\\,\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|\\,\\big((\\iotaf)\\circ\\mathscr{Y}^{-1}\\big)(\\beta)\\xlongrightarrow[\\text{outof}\\mathscr{Y}(\\mathcal{D})]{\\iota\\circ\\mathscr{Y}^{-1}\\,=\\,0}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\underbrace{\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|}_{\\mathclap{\\text{pickedupbythechangeofchart}}}\\,\\big(f\\circ\\mathscr{Y}^{-1}\\big)(\\beta).\\end{align*}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align*}\\int_{\\mathscr{X}(\\mathcal{D})}&d^d\\alpha\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[\\text{outside}\\mathscr{X}(\\mathcal{D})]{\\text{extendby}0\\text{with}\\iota\\,^{\\href{#fn_Integrals_Fubini}{1}}}...\\\\...=&\\int_{\\mathbb{R}^d}d^d\\alpha\\,\\big((\\iotaf)\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[d^d\\alpha\\,=\\,d^d\\beta\\,|\\det(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}})(\\beta)|]{\\text{changeofvariables}\\,^{\\href{#fn_Integrals_Volume}{2}}}...\\\\...=&\\int_{\\mathbb{R}^d}d^d\\beta\\,\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|\\,\\big((\\iotaf)\\circ\\mathscr{Y}^{-1}\\big)(\\beta)\\xlongrightarrow[\\text{outof}\\mathscr{Y}(\\mathcal{D})]{\\iota\\circ\\mathscr{Y}^{-1}\\,=\\,0}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\underbrace{\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|}_{\\mathclap{\\text{pickedupbythechangeofchart}}}\\,\\big(f\\circ\\mathscr{Y}^{-1}\\big)(\\beta).\\end{align*}$$"
+   ]
+  },
+  {
+   "page": "integrals/volume-forms-orientation",
+   "at": "Chapters/Integrals.tex:96",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\omega_\\mathscr{Y}&\\coloneqq\\Omega\\big(\\partialy_1,\\dots,\\partialy_d\\big)=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\;\\Omega\\big(\\partialx_{i_1},\\dots,\\partialx_{i_d}\\big)=\\\\&=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\;(\\Omega_\\mathscr{X})_{i_1\\dotsi_d}\\,=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\,\\varepsilon_{i_1\\dotsi_d}\\,\\omega_\\mathscr{X}\\overset{(c)}{=}\\det\\left(\\frac{\\partial\\mathscr{X}^i}{\\partial\\mathscr{Y}^j}\\right)\\omega_\\mathscr{X}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\omega_\\mathscr{Y}&\\coloneqq\\Omega\\big(\\partialy_1,\\dots,\\partialy_d\\big)=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\;\\Omega\\big(\\partialx_{i_1},\\dots,\\partialx_{i_d}\\big)=\\tag{8.1}\\\\&=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\;(\\Omega_\\mathscr{X})_{i_1\\dotsi_d}\\,=\\frac{\\partial\\mathscr{X}^{i_1}}{\\partial\\mathscr{Y}^1}\\cdots\\frac{\\partial\\mathscr{X}^{i_d}}{\\partial\\mathscr{Y}^d}\\,\\varepsilon_{i_1\\dotsi_d}\\,\\omega_\\mathscr{X}\\overset{(c)}{=}\\det\\left(\\frac{\\partial\\mathscr{X}^i}{\\partial\\mathscr{Y}^j}\\right)\\omega_\\mathscr{X}.\\tag{8.2}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "integrals/integration-manifolds",
+   "at": "Chapters/Integrals.tex:165",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\begin{split}\\int_\\mathcal{D}\\Omegaf&\\coloneqq\\int_{\\mathscr{X}(\\mathcal{U})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big((\\iotaf)\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\\\&\\overset{\\substack{\\iota\\circ\\mathscr{X}^{-1}\\,=\\,1\\text{on}\\mathscr{X}(\\mathcal{D})\\\\\\text{and}0\\text{outside}}}{=}\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha),\\end{split}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\begin{split}\\int_\\mathcal{D}\\Omegaf&\\coloneqq\\int_{\\mathscr{X}(\\mathcal{U})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big((\\iotaf)\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\\\&\\overset{\\substack{\\iota\\circ\\mathscr{X}^{-1}\\,=\\,1\\text{on}\\mathscr{X}(\\mathcal{D})\\\\\\text{and}0\\text{outside}}}{=}\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha),\\end{split}\\tag{8.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "integrals/integration-manifolds",
+   "at": "Chapters/Integrals.tex:180",
+   "reason": "D7 rewrite (2): \\ref / \\eqref inside math -> the number",
+   "latex": [
+    "$$\\begin{align*}\\int_\\mathcal{D}\\Omegaf=&\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[d^d\\alpha\\,=\\,d^d\\beta\\,|\\det(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}})(\\beta)|]{\\text{changeofvariables}}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|\\,\\big(\\omega_\\mathscr{X}\\circ\\underbrace{\\mathscr{X}^{-1}\\circ\\textrm{\\runicᛖ}_{\\mathcal{V}\\mathcal{U}}}_{\\mathscr{Y}^{-1}}\\big)(\\beta)\\,\\big(f\\circ\\underbrace{\\mathscr{X}^{-1}\\circ\\textrm{\\runicᛖ}_{\\mathcal{V}\\mathcal{U}}}_{\\mathscr{Y}^{-1}}\\big)(\\beta)\\xlongrightarrow[\\text{at}p\\,=\\,\\mathscr{Y}^{-1}(\\beta)]{\\eqref{eq_scalar_density_transformation}}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\underbrace{\\frac{\\big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\big|}{\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)}}_{=\\,+1\\text{in}\\mathcal{A}^\\uparrow}\\,\\big(\\omega_\\mathscr{Y}\\circ\\mathscr{Y}^{-1}\\big)(\\beta)\\,\\big(f\\circ\\mathscr{Y}^{-1}\\big)(\\beta),\\end{align*}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align*}\\int_\\mathcal{D}\\Omegaf=&\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,\\big(\\omega_\\mathscr{X}\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\,\\big(f\\circ\\mathscr{X}^{-1}\\big)(\\alpha)\\xlongrightarrow[d^d\\alpha\\,=\\,d^d\\beta\\,|\\det(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}})(\\beta)|]{\\text{changeofvariables}}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\Big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\Big|\\,\\big(\\omega_\\mathscr{X}\\circ\\underbrace{\\mathscr{X}^{-1}\\circ\\textrm{\\runicᛖ}_{\\mathcal{V}\\mathcal{U}}}_{\\mathscr{Y}^{-1}}\\big)(\\beta)\\,\\big(f\\circ\\underbrace{\\mathscr{X}^{-1}\\circ\\textrm{\\runicᛖ}_{\\mathcal{V}\\mathcal{U}}}_{\\mathscr{Y}^{-1}}\\big)(\\beta)\\xlongrightarrow[\\text{at}p\\,=\\,\\mathscr{Y}^{-1}(\\beta)]{(8.1)}...\\\\...=&\\int_{\\mathscr{Y}(\\mathcal{D})}d^d\\beta\\,\\underbrace{\\frac{\\big|\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)\\big|}{\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)(\\beta)}}_{=\\,+1\\text{in}\\mathcal{A}^\\uparrow}\\,\\big(\\omega_\\mathscr{Y}\\circ\\mathscr{Y}^{-1}\\big)(\\beta)\\,\\big(f\\circ\\mathscr{Y}^{-1}\\big)(\\beta),\\end{align*}$$"
+   ]
+  },
+  {
+   "page": "integrals/integration-manifolds",
+   "at": "Chapters/Integrals.tex:228",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\int_\\mathcal{M}\\Omegaf\\coloneqq\\sum_n\\int_{\\mathcal{U}_n}\\Omega\\,\\textrm{\\runicᚹ}_nf.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\int_\\mathcal{M}\\Omegaf\\coloneqq\\sum_n\\int_{\\mathcal{U}_n}\\Omega\\,\\textrm{\\runicᚹ}_nf.\\tag{8.4}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "integrals/metric-volume-form",
+   "at": "Chapters/Integrals.tex:251",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\big(\\Omega^g_\\mathscr{X}\\big)_{i_1\\dotsi_d}\\coloneqq\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{i_1\\dotsi_d},\\qquad\\detg_\\mathscr{X}\\coloneqq\\det\\big((g_\\mathscr{X})_{ij}\\big)\\inC^\\infty(\\mathcal{U}),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\big(\\Omega^g_\\mathscr{X}\\big)_{i_1\\dotsi_d}\\coloneqq\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{i_1\\dotsi_d},\\qquad\\detg_\\mathscr{X}\\coloneqq\\det\\big((g_\\mathscr{X})_{ij}\\big)\\inC^\\infty(\\mathcal{U}),\\tag{8.5}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "integrals/metric-volume-form",
+   "at": "Chapters/Integrals.tex:265",
+   "reason": "D7 rewrite (2): \\ref / \\eqref inside math -> the number",
+   "latex": [
+    "$$\\begin{align*}\\big(\\Omega^g_\\mathscr{Y}\\big)_{j_1\\dotsj_d}&\\coloneqq\\sqrt{\\big|\\detg_\\mathscr{Y}\\big|}\\;\\varepsilon_{j_1\\dotsj_d}\\,\\overset{\\text{Ch.~\\ref{chapter_Metric}}}{=}\\,\\sqrt{\\Big|\\det\\Big(\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i}_{k}\\,\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{j}_{l}\\,(g_\\mathscr{X})_{ij}\\Big)\\Big|}\\;\\varepsilon_{j_1\\dotsj_d}\\xlongrightarrow[\\text{transpose:same}\\det]{\\det\\text{multiplicative}}...\\\\...=&\\sqrt{\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^2}\\,\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{j_1\\dotsj_d}=\\operatorname{sgn}\\big(\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\big)\\,\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\;\\varepsilon_{j_1\\dotsj_d}\\xlongrightarrow{\\text{(c)}}...\\\\...=&\\underbrace{\\operatorname{sgn}\\big(\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\big)}_{=\\,+1\\text{in}\\mathcal{A}^\\uparrow}\\;\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_1}_{j_1}\\cdots\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_d}_{j_d}\\,\\underbrace{\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{i_1\\dotsi_d}}_{(\\Omega^g_\\mathscr{X})_{i_1\\dotsi_d}}=\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_1}_{j_1}\\cdots\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_d}_{j_d}\\,\\big(\\Omega^g_\\mathscr{X}\\big)_{i_1\\dotsi_d}.\\end{align*}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align*}\\big(\\Omega^g_\\mathscr{Y}\\big)_{j_1\\dotsj_d}&\\coloneqq\\sqrt{\\big|\\detg_\\mathscr{Y}\\big|}\\;\\varepsilon_{j_1\\dotsj_d}\\,\\overset{\\text{Ch.~7}}{=}\\,\\sqrt{\\Big|\\det\\Big(\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i}_{k}\\,\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{j}_{l}\\,(g_\\mathscr{X})_{ij}\\Big)\\Big|}\\;\\varepsilon_{j_1\\dotsj_d}\\xlongrightarrow[\\text{transpose:same}\\det]{\\det\\text{multiplicative}}...\\\\...=&\\sqrt{\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^2}\\,\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{j_1\\dotsj_d}=\\operatorname{sgn}\\big(\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\big)\\,\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\;\\varepsilon_{j_1\\dotsj_d}\\xlongrightarrow{\\text{(c)}}...\\\\...=&\\underbrace{\\operatorname{sgn}\\big(\\det\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)\\big)}_{=\\,+1\\text{in}\\mathcal{A}^\\uparrow}\\;\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_1}_{j_1}\\cdots\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_d}_{j_d}\\,\\underbrace{\\sqrt{\\big|\\detg_\\mathscr{X}\\big|}\\;\\varepsilon_{i_1\\dotsi_d}}_{(\\Omega^g_\\mathscr{X})_{i_1\\dotsi_d}}=\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_1}_{j_1}\\cdots\\big(\\textrm{\\runicᛞ}_{\\mathcal{U}\\mathcal{V}}\\big)^{i_d}_{j_d}\\,\\big(\\Omega^g_\\mathscr{X}\\big)_{i_1\\dotsi_d}.\\end{align*}$$"
+   ]
+  },
+  {
+   "page": "gr/spacetime",
+   "at": "Chapters/GR.tex:262",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\boxed{G=\\mathrm{Ric}-\\frac{1}{2}\\,R\\,g=8\\piG_N\\,T,\\qquad\\text{i.e.}\\qquad\\mathrm{Ric}_{ab}-\\frac{1}{2}\\,R\\,g_{ab}=8\\piG_N\\,T_{ab},}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\boxed{G=\\mathrm{Ric}-\\frac{1}{2}\\,R\\,g=8\\piG_N\\,T,\\qquad\\text{i.e.}\\qquad\\mathrm{Ric}_{ab}-\\frac{1}{2}\\,R\\,g_{ab}=8\\piG_N\\,T_{ab},}\\tag{10.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "gr/spacetime",
+   "at": "plots/fig_metric_variation.tex:127",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/einstein-hilbert",
+   "at": "Chapters/GR.tex:299",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/einstein-hilbert",
+   "at": "Chapters/GR.tex:365",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/einstein-hilbert",
+   "at": "Chapters/GR.tex:415",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/einstein-hilbert",
+   "at": "Chapters/GR.tex:546",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/einstein-hilbert",
+   "at": "Chapters/GR.tex:548",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "gr/matter",
+   "at": "Chapters/GR.tex:604",
+   "reason": "D17: \\ref to a label that is not in the build: LaTeX prints ??, the page the in-preparation marker",
+   "latex": [
+    "?",
+    "?"
+   ],
+   "page_tokens": [
+    "in",
+    "preparation"
+   ]
+  },
+  {
+   "page": "proofs-and-additional-material/proof-existence-sum-prod-curves-tpm",
+   "at": "Appendices/proofs_and_comments/proof_vector_space_operations_TpM.tex:22",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\sigma_{\\mathscr{X}}(\\lambda):=\\mathscr{X}^{-1}\\big[(\\mathscr{X}\\circ\\gamma_1)(\\lambda_1+\\lambda)+(\\mathscr{X}\\circ\\gamma_2)(\\lambda_2+\\lambda)-(\\mathscr{X}\\circ\\gamma_1)(\\lambda_1)\\big]=...\\\\...=\\mathscr{X}^{-1}\\big[(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_1)(\\lambda)+(\\mathscr{X}\\circ\\gamma_2\\circ\\textrm{\\runicᚱ}_2)(\\lambda)-(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_\\varnothing)(\\lambda)\\big]=...\\\\...=\\mathscr{X}^{-1}\\big[\\big((\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_1)+(\\mathscr{X}\\circ\\gamma_2\\circ\\textrm{\\runicᚱ}_2)-(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_\\varnothing)\\big)\\big](\\lambda).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\sigma_{\\mathscr{X}}(\\lambda):=\\mathscr{X}^{-1}\\big[(\\mathscr{X}\\circ\\gamma_1)(\\lambda_1+\\lambda)+(\\mathscr{X}\\circ\\gamma_2)(\\lambda_2+\\lambda)-(\\mathscr{X}\\circ\\gamma_1)(\\lambda_1)\\big]=...\\tag{B.1}\\\\...=\\mathscr{X}^{-1}\\big[(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_1)(\\lambda)+(\\mathscr{X}\\circ\\gamma_2\\circ\\textrm{\\runicᚱ}_2)(\\lambda)-(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_\\varnothing)(\\lambda)\\big]=...\\tag{B.2}\\\\...=\\mathscr{X}^{-1}\\big[\\big((\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_1)+(\\mathscr{X}\\circ\\gamma_2\\circ\\textrm{\\runicᚱ}_2)-(\\mathscr{X}\\circ\\gamma_1\\circ\\textrm{\\runicᚱ}_\\varnothing)\\big)\\big](\\lambda).\\tag{B.3}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "proofs-and-additional-material/metric-properties",
+   "at": "Appendices/proofs_and_comments/metric_properties.tex:103",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\partial_kg_{ij}=\\Gamma^m_{ik}\\,g_{mj}+\\Gamma^m_{jk}\\,g_{im}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\partial_kg_{ij}=\\Gamma^m_{ik}\\,g_{mj}+\\Gamma^m_{jk}\\,g_{im}.\\tag{B.4}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "proofs-and-additional-material/metric-properties",
+   "at": "Appendices/proofs_and_comments/metric_properties.tex:120",
+   "reason": "D7 rewrite (2): \\ref / \\eqref inside math -> the number",
+   "latex": [
+    "$$\\begin{aligned}g\\big(\\nabla_{v_\\gamma}\\mathcal{X}_\\gamma,\\mathcal{Y}_\\gamma\\big)+g\\big(\\mathcal{X}_\\gamma,\\nabla_{v_\\gamma}\\mathcal{Y}_\\gamma\\big)&=g_{ab}\\Big(\\frac{dx^a_\\gamma}{d\\lambda}\\,y^b_\\gamma+x^a_\\gamma\\,\\frac{dy^b_\\gamma}{d\\lambda}\\Big)+\\dot{\\gamma}^i_\\mathcal{U}\\,x^j_\\gamma\\,y^b_\\gamma\\underbrace{\\big(\\Gamma^a_{ji}\\,g_{ab}+\\Gamma^a_{bi}\\,g_{ja}\\big)}_{\\partial_ig_{jb}\\text{by~\\eqref{eq_metric_prop_A}}}\\\\&=\\frac{d}{d\\lambda}\\,g\\big(\\mathcal{X}_\\gamma,\\mathcal{Y}_\\gamma\\big),\\end{aligned}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{aligned}g\\big(\\nabla_{v_\\gamma}\\mathcal{X}_\\gamma,\\mathcal{Y}_\\gamma\\big)+g\\big(\\mathcal{X}_\\gamma,\\nabla_{v_\\gamma}\\mathcal{Y}_\\gamma\\big)&=g_{ab}\\Big(\\frac{dx^a_\\gamma}{d\\lambda}\\,y^b_\\gamma+x^a_\\gamma\\,\\frac{dy^b_\\gamma}{d\\lambda}\\Big)+\\dot{\\gamma}^i_\\mathcal{U}\\,x^j_\\gamma\\,y^b_\\gamma\\underbrace{\\big(\\Gamma^a_{ji}\\,g_{ab}+\\Gamma^a_{bi}\\,g_{ja}\\big)}_{\\partial_ig_{jb}\\text{by~(B.4)}}\\\\&=\\frac{d}{d\\lambda}\\,g\\big(\\mathcal{X}_\\gamma,\\mathcal{Y}_\\gamma\\big),\\end{aligned}$$"
+   ]
+  },
+  {
+   "page": "proofs-and-additional-material/support-integrals",
+   "at": "Appendices/proofs_and_comments/supports_and_compactness.tex:66",
+   "reason": "D7 rewrite (2): \\ref / \\eqref inside math -> the number",
+   "latex": [
+    "$$\\begin{align*}\\bigg|\\int_\\mathcal{D}\\Omegaf\\bigg|&\\overset{\\eqref{eq_integral_chart}}{=}\\bigg|\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,h(\\alpha)\\bigg|\\leq\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,|h(\\alpha)|\\\\&\\overset{\\text{step2}}{\\leq}C\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\overset{\\text{step1}}{\\leq}C\\int_{[-L,L]^d}d^d\\alpha=C\\,(2L)^d<\\infty.\\end{align*}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align*}\\bigg|\\int_\\mathcal{D}\\Omegaf\\bigg|&\\overset{(8.3)}{=}\\bigg|\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,h(\\alpha)\\bigg|\\leq\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\,|h(\\alpha)|\\\\&\\overset{\\text{step2}}{\\leq}C\\int_{\\mathscr{X}(\\mathcal{D})}d^d\\alpha\\overset{\\text{step1}}{\\leq}C\\int_{[-L,L]^d}d^d\\alpha=C\\,(2L)^d<\\infty.\\end{align*}$$"
+   ]
+  }
+ ]
+}
