@@ -61,11 +61,17 @@ The source writes `\textrm{\runic ᛊ}`. On the web `\runic` (and `\cunei`) expa
 
 **D23. Generated vs hand-written.** Generated (never edit): `notes/diffgeo-gr/**/*.qmd` except `index.qmd`, `_sidebar.yml`, `_generated/`, `figures/`, `assets/labels.json`, `assets/fonts/`, `docs/`. Hand-written: `index.qmd`, `_metadata.yml`, `assets/*.css|js|html`, `assets/interactive/`, `_port/interactives.json`, all of `_port/convert`, `_port/tex`, `_port/tools`.
 
+**D26. Things Quarto does to raw HTML that the converter must avoid** (found in the pilot review). (a) `<aside>` is moved to the margin column and its ancestors (`<li>`!) get grid classes that drop list markers: web-layer frames are `<div role="group">`. (b) `<section role="doc-endnotes">` and `role="doc-noteref"` trigger Quarto's own footnote appendix and popups: footnotes are plain `<div class="dg-footnotes">`, and `_metadata.yml` sets `footnotes-hover: false`. (c) A title that contains a cross-reference must not be placed inside another link (prev/next, section lists, contents, kicker): `build.py: nolinks()` turns its references into plain numbers there. (d) A site with a sidebar gets a border above the page footer on every page: `_quarto.yml` sets `page-footer: border: false`, after which the stylesheet of the existing pages differs from `main` only by one sidebar-only rule.
+
+**D27. Wide display equations.** The notes' text block is 45 em and many displays fill it. The text column is 880 px in the grid (≈ 46 em at the 17 px base size on wide screens); on narrower windows `course.js: fitDisplayMath` sets a display that overflows slightly a little smaller (never below 80 %), and only what still overflows scrolls sideways inside its own box, with a fade at the hidden edge. Inline formulas wider than the line scroll in place (`dg-math-wide`). The page itself never scrolls sideways (asserted at 390 px by `test_page_script.mjs`).
+
+**D28. `docs/` is committed at milestones only** (end of pilot, end of each batch of bulk units, final), not with every unit: it is 11 MB of render output and every render touches all 73 pages. Source and generated `.qmd` are committed with each unit. Always stage with `git -c core.fileMode=false add <paths>` so the mode-only changes of existing files (D22) are not recorded.
+
 ## Planned (design fixed, not built yet)
 
 **D24. Fidelity check** (`_port/tools/fidelity.py`): an implementation independent of `render.py` reduces the LaTeX source to an ordered stream of (a) math strings with whitespace removed and (b) text words with commands stripped; the generated pages are reduced to the same stream from their HTML (footnote bodies spliced in at their marks, `dg-web` elements and generated numbers ignored); the two are diffed. Accepted differences are listed one by one in `_port/fidelity_allow.json` (hidden `\DLC` notes, "in preparation" markers, the four math rewrites of D7, text inside TikZ pictures, which lives in the SVG).
 
-**D25. Cross-reference previews**: on hover/focus of `a.dg-xref`, fetch the target page once, take the element with that id (equation, figure, list item, footnote, or heading + first paragraph), show it in the same popover as footnotes and typeset it.
+**D25. Cross-reference previews** (built in the pilot, `course.js`): on hover/focus of `a.dg-xref`, fetch the target page once, take the element with that id (equation, figure, list item, footnote, or heading + first paragraph), show it in the same popover as footnotes and typeset it.
 
 ## Measured
 

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10.1 Spacetime – Daniel López Cano</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../assets/icons/site-mark.svg" rel="icon" type="image/svg+xml">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-262b6f6cb119cb2e364890ef9d33df13.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "Daniel López Cano",
+    "url": "https://daniellopezcano.github.io/",
+    "image": "https://daniellopezcano.github.io/assets/img/profile.jpg",
+    "jobTitle": "Postdoctoral Researcher in Computational Cosmology",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Institute of Physics, University of São Paulo",
+      "url": "https://portal.if.usp.br/ifusp/pt-br/users/dlopez"
+    },
+    "alumniOf": [
+      {
+        "@type": "Organization",
+        "name": "Donostia International Physics Center",
+        "url": "https://dipc.ehu.eus/en"
+      },
+      {
+        "@type": "Organization",
+        "name": "Universidad Autónoma de Madrid",
+        "url": "https://www.uam.es/ciencias/facultad/departamentos/fisica-teorica"
+      }
+    ],
+    "sameAs": [
+      "https://orcid.org/0000-0002-0279-4874",
+      "https://scholar.google.com/citations?hl=en&user=2n98u-oAAAAJ",
+      "https://github.com/daniellopezcano",
+      "https://portal.if.usp.br/ifusp/pt-br/users/dlopez",
+      "https://arxiv.org/search/?searchtype=author&query=L%C3%B3pez-Cano%2C+D"
+    ]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Daniel López Cano",
+  "url": "https://daniellopezcano.github.io/"
+}
+</script>
+<!-- Hand-written: head of every course page. The math configuration must come before MathJax,
+     which Quarto loads itself (pinned in _metadata.yml, html-math-method). -->
+<link rel="preload" href="../../../notes/diffgeo-gr/assets/fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin="">
+<script src="../../../notes/diffgeo-gr/assets/mathjax-config.js"></script>
+<script type="module" src="../../../notes/diffgeo-gr/assets/course.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/interactive.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../research_and_publications.html"> 
+<span class="menu-text">Research &amp; Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../teaching_and_projects.html"> 
+<span class="menu-text">Teaching &amp; Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../notes/diffgeo-gr/index.html" aria-current="page"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../outreach.html"> 
+<span class="menu-text">Outreach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../cv.html"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/gr/index.html">10 General Relativity</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/gr/spacetime.html">10.1 Spacetime</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/introduction/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1 Introduction</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/introduction/roadmaps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1.1 Roadmaps of the Notes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/vector-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2 Vector Spaces</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.1 Foundations: Sets, Maps, and Algebraic Structures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.2 Vector Space, Dual Space, and Tensor Space</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/basis-components-transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.3 Bases, Components, and Transformation Laws</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/topological-manifolds/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3 Topological Manifolds</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/topological-spaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.1 Topological Spaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.2 Charts and Topological Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/smooth-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.3 Smooth Manifolds</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/tangent-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4 Tangent Spaces</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.1 Tangent Space <span class="math inline">\(T_p \mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/cotangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.2 Cotangent Space <span class="math inline">\(T_p^*\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tensor-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.3 Tensor Space <span class="math inline">\(T_p^{(r,s)}\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/fields/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5 Fields</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/vector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.1 Vector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.2 Covector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/tensor-fields-and-notation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.3 Tensor Fields and notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/covariant-derivative/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6 Covariant Derivative</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connections-affine-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.1 Connections and Affine Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connection-coefficient-functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.2 Connection Coefficient Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/parallel-transport-autoparallels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.3 Parallel Transport and Autoparallels</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.4 Torsion and Curvature</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/metric/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7 Metric</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.1 Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/length-geodesics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.2 Length and Geodesics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/levi-civita-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.3 The Levi-Civita Connection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/curvature-metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.4 Curvature of the Metric</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/integrals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8 Integrals</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/volume-forms-orientation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.1 Volume Forms and Orientation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/integration-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.2 Integration on Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/metric-volume-form.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.3 The Metric Volume Form</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/newtonian/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9 Newton-Cartan Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newtonian-spacetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.1 Newtonian Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newton-axioms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.2 Newton’s Axioms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/stratified-atlas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.3 Stratified Atlas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/pseudo-forces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.4 Pseudo-Forces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/gravity-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.5 Gravity in the Connection</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 General Relativity</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/spacetime.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">10.1 Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">10.2 The Einstein Equations from an Action</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/matter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10.3 Coupling to Matter</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">A Computational ressources</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B Proofs &amp; Comments</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/set-theory-foundations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.1 Set Theory Foundations (§2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/hamel-schauder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.2 Hamel and Schauder Bases (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-dual-basis-transformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.3 Change of basis for the dual basis (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-existence-sum-prod-curves-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.4 Curves realizing the vector space operations of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.5 Chart-induced basis of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tstarpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.6 Chart-induced basis of <span class="math inline">\(T_p^*\mathcal{M}\)</span> (§4.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-topology-tm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.7 The topology of the tangent bundle (§5.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/exact-covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.8 Which covector fields are differentials? (§5.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/connection-vs-covariant-derivative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.9 Connections and covariant derivatives (§6.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-torsion-tensorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.10 Tensoriality of the torsion (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/flat-connections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.11 Flat Torsion-Free Connections (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-sylvester.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.12 Sylvester’s law of inertia (§7.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-length-reparametrization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.13 Reparametrization invariance of the length (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-euler-lagrange.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.14 Euler–Lagrange equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.15 Higher-order Lagrangians (§7.2.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-geodesic-equation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.16 Derivation of the geodesic equation (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-metric-compatibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.17 The Levi-Civita theorem (§7.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/metric-properties.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.18 Properties of <span class="math inline">\(g\)</span> and of the L.C. connection (§§7.3–7.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/support-integrals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.19 Compactness and the integral over a region (§8.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/partitions-of-unity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.20 Partitions of unity, paracompactness and second countability (§8.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.21 Geometric Formulations of Newtonian Gravity (§9.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/torsion-newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.22 Torsion in Newton-Cartan Theory (§9.1)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/examples/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C Examples</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-vector-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.1 Example of Vector Spaces (§§2.2–2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-d-dim-mfld.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.2 Example of a <span class="math inline">\(d\)</span>-dimensional Smooth Manifold (§§3.2–3.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.3 Example of Tangent, Cotangent and Tensor Spaces (§§4.1–4.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.4 Example of Fields (§§5.1–5.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-connection-torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.5 Examples of Connections, Torsion and Curvature (§§6.1–6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-variations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.6 Example of Variations and Euler–Lagrange Equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.7 Example of Integration (§§8.1–8.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">C.8 Example of Newton–Cartan Theory (§§9.1–9.5)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-schwarzschild.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.9 Example: the Schwarzschild metric (§10.2.2)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#subsection_observers" id="toc-subsection_observers" class="nav-link active" data-scroll-target="#subsection_observers"><span class="dg-secnum">10.1.1</span> Observers</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/gr/index.html">10 General Relativity</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/gr/spacetime.html">10.1 Spacetime</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">10.1 Spacetime</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- GENERATED by _port/convert/build.py from Chapters/GR.tex.
+     Do not edit this file: edit the LaTeX notes and re-run the converter. -->
+<header class="dg-head dg-head-section"><p class="dg-kicker">Chapter 10 <span class="dg-sep">•</span> <a href="index.html">General Relativity</a></p><h1 class="dg-title"><span class="dg-secnum">10.1</span> Spacetime</h1></header>
+<ul class="dg-itemize dg-depth-1">
+<li><p>A <strong>spacetime</strong> is the sextuple <span class="math inline">\((\mathcal{M}, \mathcal{O}, \mathcal{A}^\uparrow, \nabla^{\text{LC}}, g, \textrm{\runic ᛏ})_4\)</span>, formed by</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p><span class="math inline">\((\mathcal{M}, \mathcal{O}, \mathcal{A}^\uparrow, g)_4\)</span>  is a 4-dimensional oriented metric manifold whose metric <span class="math inline">\(g\)</span> is Lorentzian<sup class="dg-fnref"><a href="#fn-1" id="fnref-1" aria-label="Footnote 1">1</a></sup>, and <span class="math inline">\(\nabla^{\text{LC}}\)</span> is its Levi-Civita connection, the only torsion-free connection compatible with <span class="math inline">\(g\)</span>  ;</p></li>
+<li><p><span class="math inline">\(\textrm{\runic ᛏ} \in \Gamma T\mathcal{M}\)</span> is a <strong>time orientation</strong>: a nowhere-vanishing vector field,  <span class="math inline">\(\textrm{\runic ᛏ}(p) \neq 0\)</span>, with  <span class="math inline">\(g_p\big( \textrm{\runic ᛏ}(p), \textrm{\runic ᛏ}(p) \big) &gt; 0 \, \forall p \in \mathcal{M}\)</span>.</p></li>
+</ol>
+<p>In general relativity, <span class="math inline">\(g\)</span> is moreover required to satisfy the Einstein equations, formulated later in this chapter.  Everything below holds for any spacetime.</p></li>
+<li><p>A non-zero tangent vector <span class="math inline">\(\mathcal{X}_p \in T_p\mathcal{M}\)</span> is called</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p><strong>timelike</strong> if <span class="math inline">\(g_p(\mathcal{X}_p, \mathcal{X}_p) &gt; 0\)</span>,</p></li>
+<li><p><strong>lightlike</strong> (or null) if <span class="math inline">\(g_p(\mathcal{X}_p, \mathcal{X}_p) = 0\)</span>,</p></li>
+<li><p><strong>spacelike</strong> if <span class="math inline">\(g_p(\mathcal{X}_p, \mathcal{X}_p) &lt; 0\)</span>,</p></li>
+</ol>
+<p>and <strong>causal</strong> if it is timelike or lightlike. The lightlike vectors of <span class="math inline">\(T_p\mathcal{M}\)</span> form the <strong>light cone</strong> at <span class="math inline">\(p\)</span>. For the velocity of a curve, this classification is the sign of Chapter <a class="dg-xref" href="../metric/index.html" data-kind="chapter" data-label="chapter_Metric">7</a>: a non-zero <span class="math inline">\(v_{\gamma(\lambda)}\)</span> is timelike, lightlike or spacelike if and only if <span class="math inline">\(\textrm{\runic ᛇ}_\gamma(\lambda) = +1\)</span>, <span class="math inline">\(0\)</span> or <span class="math inline">\(-1\)</span>.</p></li>
+<li><p><strong>Future and past.</strong> A causal vector <span class="math inline">\(\mathcal{X}_p\)</span> is called</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p><strong>future directed</strong> if <span class="math inline">\(g_p\big( \textrm{\runic ᛏ}(p), \mathcal{X}_p \big) &gt; 0\)</span>,</p></li>
+<li><p><strong>past directed</strong> if <span class="math inline">\(g_p\big( \textrm{\runic ᛏ}(p), \mathcal{X}_p \big) &lt; 0\)</span>,</p></li>
+</ol>
+<p>The time orientation, <span class="math inline">\(\textrm{\runic ᛏ}\)</span>, serves to declare,  from the two “sides” of the light cone,  which one contains <span class="math inline">\(\textrm{\runic ᛏ}(p)\)</span>,  which is defined as the future direction.</p></li>
+<li><p>A smooth curve <span class="math inline">\(\gamma : \mathbb{R} \to \mathcal{M}\)</span> is the <strong>worldline</strong> of</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p>a <strong>massive particle</strong> if <span class="math inline">\(v_{\gamma(\lambda)}\)</span> is timelike and future directed for all <span class="math inline">\(\lambda \in \mathbb{R}\)</span>, i.e. <span class="math inline">\(\textrm{\runic ᛇ}_\gamma \equiv +1\)</span> and <span class="math inline">\(g_{\gamma(\lambda)}\big( \textrm{\runic ᛏ}(\gamma(\lambda)), v_{\gamma(\lambda)} \big) &gt; 0\)</span>;</p></li>
+<li><p>a <strong>massless particle</strong> if <span class="math inline">\(v_{\gamma(\lambda)}\)</span> is lightlike and future directed for all <span class="math inline">\(\lambda \in \mathbb{R}\)</span>, i.e. <span class="math inline">\(\textrm{\runic ᛇ}_\gamma \equiv 0\)</span>, <span class="math inline">\(v_{\gamma(\lambda)} \neq 0\)</span>, and <span class="math inline">\(g_{\gamma(\lambda)}\big( \textrm{\runic ᛏ}(\gamma(\lambda)), v_{\gamma(\lambda)} \big) &gt; 0\)</span>.</p></li>
+</ol></li>
+<li><p>The <strong>proper time</strong> along a massive worldline <span class="math inline">\(\gamma\)</span>,  between the events <span class="math inline">\(\gamma(\lambda_1)\)</span> and  <span class="math inline">\(\gamma(\lambda_2)\)</span>, <span class="math inline">\(\lambda_1 &lt; \lambda_2\)</span>, is its length  with <span class="math inline">\(\textrm{\runic ᛇ}_\gamma \equiv +1\)</span>:  <span class="math display">\[
+            \tau_{[\lambda_1, \lambda_2]}[\gamma] \coloneqq L_{[\lambda_1, \lambda_2]}[\gamma]
+            = \int_{\lambda_1}^{\lambda_2} s_\gamma(\lambda) \, d\lambda
+            = \int_{\lambda_1}^{\lambda_2} \sqrt{ g_{\gamma(\lambda)}\big( v_{\gamma(\lambda)}, v_{\gamma(\lambda)} \big) } \, d\lambda .
+        \]</span>  It does not depend on the parametrization of <span class="math inline">\(\gamma\)</span>,  i.e. it is a property of the path traced in  <span class="math inline">\(\mathcal{M}\)</span>, and it is interpreted as the time elapsed on a clock  carried along <span class="math inline">\(\gamma\)</span>. For a massless worldline, <span class="math inline">\(s_\gamma \equiv 0\)</span>.</p></li>
+</ul>
+<section id="subsection_observers" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_observers"><span class="dg-secnum">10.1.1</span> Observers</h2>
+<ul class="dg-itemize dg-depth-1">
+<li><p>An <strong>observer</strong> is a pair <span class="math inline">\((\gamma, e)\)</span> formed by a massive worldline <span class="math inline">\(\gamma\)</span> and four smooth vector fields along  <span class="math inline">\(\gamma\)</span><sup class="dg-fnref"><a href="#fn-2" id="fnref-2" aria-label="Footnote 2">2</a></sup>  <span class="math display">\begin{align*}
+        e_a : \mathbb{R} &amp;\longrightarrow T\mathcal{M} \\
+        \lambda &amp;\longmapsto e_a(\lambda) \in T_{\gamma(\lambda)}\mathcal{M},
+        \qquad a = 0, 1, 2, 3,
+    \end{align*}</span>  such that, for all <span class="math inline">\(\lambda \in \mathbb{R}\)</span>,</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p><em>Lorentz-orthonormality:</em> <span class="math inline">\(g_{\gamma(\lambda)}\big( e_a(\lambda), e_b(\lambda) \big) = \eta_{ab}\)</span><sup class="dg-fnref"><a href="#fn-3" id="fnref-3" aria-label="Footnote 3">3</a></sup>;</p></li>
+<li><p><em>The time axis is the velocity:</em> <span class="math inline">\(e_0(\lambda) = v_{\gamma(\lambda)}\)</span>.</p></li>
+</ol>
+<p>Fixing <span class="math inline">\(\lambda\)</span> and dropping it from the notation, the covectors <span class="math inline">\(\epsilon^0 \coloneqq \flat(e_0)\)</span> and  <span class="math inline">\(\epsilon^\alpha \coloneqq - \flat(e_\alpha)\)</span>, with <span class="math inline">\(\flat_p(\mathcal{X}_p)(\mathcal{Y}_p) \coloneqq g_p(\mathcal{X}_p, \mathcal{Y}_p)\)</span>, satisfy  <span class="math display">\[
+    \epsilon^0(e_b) \overset{\text{def.\ of } \flat}{=} g(e_0, e_b) \overset{\text{cond.\ 1}}{=} \eta_{0b} = \delta^0_b,
+    \qquad
+    \epsilon^\alpha(e_b) \overset{\text{def.\ of } \flat}{=} - g(e_\alpha, e_b) \overset{\text{cond.\ 1}}{=} - \eta_{\alpha b} = \delta^\alpha_b .
+    \]</span>  Applying <span class="math inline">\(\epsilon^a\)</span> to <span class="math inline">\(c^b \, e_b = 0\)</span> gives <span class="math inline">\(c^a = 0\)</span>, so <span class="math inline">\(e\)</span> is a basis of <span class="math inline">\(T_{\gamma(\lambda)}\mathcal{M}\)</span> and  <span class="math inline">\(\epsilon \coloneqq \{ \epsilon^0, \dots, \epsilon^3 \}\)</span> its dual basis (Section <a class="dg-xref" href="../vector-spaces/basis-components-transformations.html" data-kind="section" data-label="section_Basis_Components_Transformations">2.3</a>). Every  <span class="math inline">\(\mathcal{X} \in T_{\gamma(\lambda)}\mathcal{M}\)</span> decomposes as <span class="math inline">\(\mathcal{X} = \epsilon^a(\mathcal{X}) \, e_a\)</span>, and the numbers  <span class="math inline">\(\epsilon^a(\mathcal{X})\)</span> are its components <strong>measured by the observer</strong>, with time component  <span class="math inline">\(\epsilon^0(\mathcal{X}) \overset{\text{cond.\ 2}}{=} g(v_\gamma, \mathcal{X})\)</span>. For <span class="math inline">\(\mathcal{X} = v_\gamma\)</span> itself,  <span class="math display">\[
+    g(v_\gamma, v_\gamma) \overset{\text{cond.\ 2}}{=} g(e_0, e_0) \overset{\text{cond.\ 1}}{=} \eta_{00} = 1
+    \quad \longrightarrow \quad
+    s_\gamma \equiv 1,
+    \quad
+    \tau_{[\lambda_1, \lambda_2]}[\gamma] = \lambda_2 - \lambda_1 :
+    \]</span>  an observer is parametrized by its own proper time.</p>
+<p>Let <span class="math inline">\(\delta\)</span> be the worldline of a massive or massless particle through <span class="math inline">\(p = \gamma(\lambda_1) = \delta(\lambda_2)\)</span>, with  <span class="math inline">\(v_\delta \coloneqq v_{\delta(\lambda_2)}\)</span>, and <span class="math inline">\(\epsilon^a\)</span>, <span class="math inline">\(e_a\)</span> taken at <span class="math inline">\(\lambda_1\)</span>. Its measured time component is  <span class="math inline">\(\epsilon^0(v_\delta) = g_p\big( v_{\gamma(\lambda_1)}, v_\delta \big) &gt; 0\)</span> by <span class="math inline">\((\dagger)\)</span>, and its <strong>3-velocity</strong>, the spatial  displacement per unit of the observer’s time, is  <span class="math display">\[
+    u_\delta \coloneqq u^\alpha \, e_\alpha,
+    \qquad
+    u^\alpha \coloneqq \frac{\epsilon^\alpha(v_\delta)}{\epsilon^0(v_\delta)} .
+    \]</span>  A reparametrization of <span class="math inline">\(\delta\)</span> multiplies <span class="math inline">\(v_\delta\)</span> by a positive factor, hence numerator and denominator alike, so  <span class="math inline">\(u_\delta\)</span> depends only on the path of <span class="math inline">\(\delta\)</span>. Moreover,  <span class="math display">\[
+    g_p(v_\delta, v_\delta)
+    \overset{\substack{v_\delta \, = \, \epsilon^a(v_\delta) \, e_a \\ \text{cond.\ 1}}}{=}
+    \big( \epsilon^0(v_\delta) \big)^2 - \sum_\alpha \big( \epsilon^\alpha(v_\delta) \big)^2
+    = \underbrace{\big( \epsilon^0(v_\delta) \big)^2}_{&gt; \, 0} \Big( 1 - \sum_\alpha \big( u^\alpha \big)^2 \Big),
+    \]</span>  so <span class="math inline">\(\sum_\alpha (u^\alpha)^2 &lt; 1\)</span> for massive particles and <span class="math inline">\(= 1\)</span> for massless ones: every observer measures light at speed <span class="math inline">\(1\)</span>,  and nothing faster.</p></li>
+<li><p><strong>Lorentz transformations.</strong> Let <span class="math inline">\((\gamma, e)\)</span> and <span class="math inline">\((\tilde{\gamma}, \tilde{e})\)</span> be two observers meeting at the event <span class="math inline">\(p = \gamma(\lambda_1) = \tilde{\gamma}(\lambda_2)\)</span>, and drop <span class="math inline">\(\lambda_1\)</span>, <span class="math inline">\(\lambda_2\)</span> from the notation. Both frames are bases of <span class="math inline">\(T_p\mathcal{M}\)</span>, so <span class="math inline">\(\tilde{e}_a = \Lambda^b_a \, e_b\)</span> with <span class="math inline">\(\Lambda^b_a \coloneqq \epsilon^b(\tilde{e}_a) \in \mathbb{R}\)</span>. Since both are Lorentz-orthonormal,  <span class="math display">\[
+            \eta_{ab}
+            \overset{\text{cond.\ 1 for } \tilde{e}}{=} g_p(\tilde{e}_a, \tilde{e}_b)
+            \overset{\text{bilinearity}}{=} \Lambda^m_a \, \Lambda^n_b \, g_p(e_m, e_n)
+            \overset{\text{cond.\ 1 for } e}{=} \Lambda^m_a \, \Lambda^n_b \, \eta_{mn},
+        \]</span>  and taking determinants, <span class="math inline">\((\det \Lambda)^2 = 1\)</span>, so <span class="math inline">\(\Lambda\)</span> is invertible. Since both time axes are future directed,  <span class="math display">\[
+            \Lambda^0_0 = \epsilon^0(\tilde{e}_0)
+            \overset{\epsilon^0 = \flat_p(v_\gamma), \; \text{cond.\ 2}}{=} g_p(v_\gamma, v_{\tilde{\gamma}})
+            \overset{(\dagger)}{&gt;} 0,
+            \qquad
+            \big( \Lambda^0_0 \big)^2 \overset{(a, b) = (0, 0)}{=} 1 + \sum_\alpha \big( \Lambda^\alpha_0 \big)^2 \geq 1,
+        \]</span>  so <span class="math inline">\(\Lambda^0_0 \geq 1\)</span>. Hence <span class="math inline">\(\Lambda\)</span> belongs to the <strong>orthochronous Lorentz group</strong> <span class="math inline">\(O^{\uparrow}(1,3)\)</span>, inside the <strong>Lorentz group</strong> <span class="math inline">\(O(1,3)\)</span>,  <span class="math display">\[
+            O(1,3) \coloneqq \big\{ \Lambda \in \mathbb{R}^{4 \times 4} \;\big|\; \Lambda^m_a \, \Lambda^n_b \, \eta_{mn} = \eta_{ab} \big\},
+            \qquad
+            O^{\uparrow}(1,3) \coloneqq \big\{ \Lambda \in O(1,3) \;\big|\; \Lambda^0_0 \geq 1 \big\},
+        \]</span>  whose elements are the <strong>Lorentz transformations</strong><sup class="dg-fnref"><a href="#fn-4" id="fnref-4" aria-label="Footnote 4">4</a></sup>. They relate the frames of any two observers who meet at an event, in special and in general relativity alike.</p>
+<div class="dg-skip dg-medskip"></div>
+<p><em>Frames, not coordinates.</em> <span class="math inline">\(\Lambda\)</span> relates two bases of the single tangent space <span class="math inline">\(T_p\mathcal{M}\)</span>; it does not move the points of <span class="math inline">\(\mathcal{M}\)</span>. The special-relativistic rule that transforms coordinates by a Lorentz matrix is a statement about chart transition maps, and it only holds between charts <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span>, <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> whose metric components equal <span class="math inline">\(\eta_{ij}\)</span> on their whole domains. Then <span class="math inline">\(\partial_m g_{ij} = 0\)</span>, so the Christoffel symbols (<a class="dg-xref" href="../metric/levi-civita-connection.html#eq_christoffel_symbols" data-kind="equation" data-label="eq_christoffel_symbols">7.2</a>) and hence <span class="math inline">\(\mathrm{Riem}\)</span> vanish there, and the transformation law of the connection coefficient functions reduces to <span class="math inline">\((\partial \mathscr{Y}^i / \partial \mathscr{X}^s) \, \partial^2 \mathscr{X}^s / \partial \mathscr{Y}^k \partial \mathscr{Y}^j = 0\)</span>, i.e. (multiplying by <span class="math inline">\(\partial \mathscr{X}^r / \partial \mathscr{Y}^i\)</span>) <span class="math inline">\(\partial^2 \mathscr{X}^r / \partial \mathscr{Y}^k \partial \mathscr{Y}^j = 0\)</span>. On each connected component of <span class="math inline">\(\mathscr{Y}(\mathcal{U} \cap \mathcal{V})\)</span> the transition map is thus affine, <span class="math inline">\(\big( \textrm{\runic ᛖ}_{\mathcal{V}\mathcal{U}} \big)^r(\beta) = \Lambda^r_k \, \beta^k + b^r\)</span>, with constant <span class="math inline">\(\Lambda^r_k = \partial \mathscr{X}^r / \partial \mathscr{Y}^k\)</span> and <span class="math inline">\(b^r\)</span>, and  <span class="math display">\[
+            \eta_{kl}
+            = (g_\mathscr{Y})_{kl}
+            \overset{\text{transf.\ law of } g}{=} \frac{\partial \mathscr{X}^i}{\partial \mathscr{Y}^k} \, \frac{\partial \mathscr{X}^j}{\partial \mathscr{Y}^l} \, (g_\mathscr{X})_{ij}
+            = \Lambda^i_k \, \Lambda^j_l \, \eta_{ij},
+        \]</span>  i.e. <span class="math inline">\(\Lambda \in O(1,3)\)</span>. Such charts exist only where <span class="math inline">\(\mathrm{Riem} = 0\)</span>. In a curved spacetime, Lorentz transformations only relate the frames of observers meeting at an event, while coordinates may be changed by any transition map of the atlas.</p></li>
+<li><p>A spacetime <span class="math inline">\((\mathcal{M}, \mathcal{O}, \mathcal{A}^\uparrow, \nabla^{\text{LC}}, g, \textrm{\runic ᛏ})_4\)</span> is a spacetime of <strong>general  relativity</strong> if its metric satisfies the <strong>Einstein equations</strong>  <span class="math display" id="eq_Einstein_equations">\begin{equation}
+        \boxed{
+            G = \mathrm{Ric} - \frac{1}{2} \, R \, g = 8 \pi G_N \, T ,
+            \qquad \text{i.e.} \qquad
+            \mathrm{Ric}_{ab} - \frac{1}{2} \, R \, g_{ab} = 8 \pi G_N \, T_{ab} ,
+        } \tag{10.1}
+    \end{equation}</span>  where <span class="math inline">\(G\)</span> is the Einstein curvature of <span class="math inline">\(\nabla^{\text{LC}}\)</span> (Chapter <a class="dg-xref" href="../metric/index.html" data-kind="chapter" data-label="chapter_Metric">7</a>), <span class="math inline">\(T\)</span> the energy-momentum tensor  field of the matter, a symmetric <span class="math inline">\((0,2)\)</span>-tensor field, <span class="math inline">\(G_N\)</span> Newton’s constant, and the speed of light is <span class="math inline">\(1\)</span>. In vacuum,  <span class="math inline">\(T = 0\)</span> and the equations read <span class="math inline">\(G = 0\)</span>.</p>
+<p>The left-hand side is built from <span class="math inline">\(g\)</span> alone, the right-hand side from the matter: the matter determines the  geometry, and the geometry, through its geodesics, the motion of the matter. With (<a class="dg-xref" href="#eq_Einstein_equations" data-kind="equation" data-label="eq_Einstein_equations">10.1</a>), every  ingredient of the opening sentence of these notes is in place, and general relativity is fully defined. What follows  adds no further axiom: Section <span class="dg-xref dg-xref-pending" data-label="section_Einstein_Hilbert">10.2</span> derives (<a class="dg-xref" href="#eq_Einstein_equations" data-kind="equation" data-label="eq_Einstein_equations">10.1</a>) from an action, the  Einstein–Hilbert action, and Section <a class="dg-xref" href="matter.html" data-kind="section" data-label="section_Matter">10.3</a> shows how <span class="math inline">\(T\)</span> can also be obtained for matter described from an action.</p></li>
+</ul>
+<figure class="dg-figure figure" id="fig_variation_region"><div class="dg-paper" style="--dg-frac:0.863"><img src="../figures/fig-variation-region.svg" alt="Figure 10.2" width="522" height="544" loading="lazy" decoding="async" data-kind="svg" class="figure-img"></div><figcaption><span class="dg-fignum">Figure 10.2:</span>   The variation of the metric, drawn in one space and one time dimension.  (a) A region <span class="math inline">\(\mathcal{D}\)</span>, with compact closure inside a chart domain <span class="math inline">\(\mathcal{U}\)</span>, bounded by an initial and a final spacelike  slice and by two timelike walls. Light cones show the metric. Inside <span class="math inline">\(\mathcal{D}\)</span> the metric is deformed (orange shading),  and the cones of <span class="math inline">\(g_{\textrm{\runic ᛊ}}\)</span> (orange) differ from those of <span class="math inline">\(g\)</span> (dashed grey), most in the middle, less and less towards  <span class="math inline">\(\partial \mathcal{D}\)</span>, where the deformation vanishes. Outside <span class="math inline">\(\mathcal{D}\)</span> only the cones of <span class="math inline">\(g\)</span> are drawn: whatever <span class="math inline">\(\textrm{\runic ᛉ}\)</span> does there does not enter <span class="math inline">\(S_\mathcal{D}\)</span>.  (b) One component of <span class="math inline">\(\textrm{\runic ᛉ}\)</span> along the cut, aligned with (a). Both profiles vanish on <span class="math inline">\(\partial \mathcal{D}\)</span>, i.e. the metric  is held fixed there. In Case 1 (solid) the profile reaches <span class="math inline">\(\partial \mathcal{D}\)</span> with zero slope, so the first derivatives of the  metric are held fixed as well; compact support in <span class="math inline">\(\mathcal{D}\)</span>, as in Subsection <span class="dg-xref dg-xref-pending" data-label="subsection_EH_variation">10.2.2</span>, is a special  case. In Case 2 (dashed) the slope at <span class="math inline">\(\partial \mathcal{D}\)</span> is free: this is what produces the boundary term of  Subsection <span class="dg-inprep" title="This part of the notes is in preparation">in preparation</span>. Outside <span class="math inline">\(\mathcal{D}\)</span> (grey, faded) a smooth <span class="math inline">\(\textrm{\runic ᛉ}\)</span> generally continues, but <span class="math inline">\(S_\mathcal{D}\)</span> does not see it. </figcaption></figure>
+<div class="dg-footnotes"><div class="dg-fn" id="fn-1"><a class="dg-fn-num" href="#fnref-1" aria-label="Back to the text">1</a><div class="dg-fn-body"><p>We take the signature convention <span class="math inline">\((n_+, n_-) = (1, 3)\)</span>, i.e. <span class="math inline">\((+, -, -, -)\)</span>. At every <span class="math inline">\(p\)</span>, Sylvester’s law of inertia  provides a basis <span class="math inline">\(\{ \hat{e}_a \}\)</span> of <span class="math inline">\(T_p\mathcal{M}\)</span>, ordered so that the positive  entry comes first, in which the components of <span class="math inline">\(g_p\)</span> are  <span class="math display">\[
+            g_p(\hat{e}_a, \hat{e}_b) = \eta_{ab} \coloneqq
+            \begin{pmatrix}
+                1 &amp; 0 &amp; 0 &amp; 0 \\
+                0 &amp; -1 &amp; 0 &amp; 0 \\
+                0 &amp; 0 &amp; -1 &amp; 0 \\
+                0 &amp; 0 &amp; 0 &amp; -1
+            \end{pmatrix}_{ab}.
+            \]</span>  With the other common convention,  <span class="math inline">\((n_+, n_-) = (3, 1)\)</span>, i.e. <span class="math inline">\((-, +, +, +)\)</span>, <span class="math inline">\(\eta_{ab}\)</span> changes sign, and so does every inequality below involving <span class="math inline">\(g\)</span>:  timelike vectors have <span class="math inline">\(g_p(\mathcal{X}_p, \mathcal{X}_p) &lt; 0\)</span>, the time orientation has  <span class="math inline">\(g_p\big( \textrm{\runic ᛏ}(p), \textrm{\runic ᛏ}(p) \big) &lt; 0\)</span>, and future-directed vectors have  <span class="math inline">\(g_p\big( \textrm{\runic ᛏ}(p), \mathcal{X}_p \big) &lt; 0\)</span>. The proper time needs no change:  <span class="math inline">\(s_\gamma = \sqrt{\textrm{\runic ᛇ}_\gamma \, g(v_\gamma, v_\gamma)}\)</span> absorbs the sign through <span class="math inline">\(\textrm{\runic ᛇ}_\gamma = -1\)</span>.</p></div></div><div class="dg-fn" id="fn-2"><a class="dg-fn-num" href="#fnref-2" aria-label="Back to the text">2</a><div class="dg-fn-body"><p>The <em>frame bundle</em> of <span class="math inline">\(\mathcal{M}\)</span> is the set  <span class="math display">\[
+        L\mathcal{M} \coloneqq \dot{\bigcup}_{p \in \mathcal{M}} L_p\mathcal{M},
+        \qquad
+        L_p\mathcal{M} \coloneqq \big\{ \text{ordered bases } (e_0, \dots, e_3) \text{ of } T_p\mathcal{M} \big\},
+        \]</span>  with projection <span class="math inline">\(\pi(e) \coloneqq p\)</span> for <span class="math inline">\(e \in L_p\mathcal{M}\)</span>. As for <span class="math inline">\(T\mathcal{M}\)</span> (Section <a class="dg-xref" href="../fields/vector-fields.html" data-kind="section" data-label="section_Vector_Fields">5.1</a>), a chart  <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> provides coordinates on it: those of <span class="math inline">\(p\)</span>, together with the <span class="math inline">\(16\)</span> components <span class="math inline">\((dx^i)_p(e_a)\)</span> of the  basis vectors, which form an invertible <span class="math inline">\(4 \times 4\)</span> matrix. An observer’s frame is a curve  <span class="math inline">\(\lambda \mapsto e(\lambda) \in L_{\gamma(\lambda)}\mathcal{M}\)</span> lying over <span class="math inline">\(\gamma\)</span>, <span class="math inline">\(\pi \circ e = \gamma\)</span>, whose smoothness in these  coordinates is that of the four vector fields <span class="math inline">\(e_a\)</span> along <span class="math inline">\(\gamma\)</span>: the two descriptions are the same data, and we use the  second. The bundle language pays off when comparing bases: any two bases of the same <span class="math inline">\(T_p\mathcal{M}\)</span> are related by  <span class="math inline">\(e'_a = \Lambda^b_a \, e_b\)</span> for a unique <span class="math inline">\(\Lambda \in GL(4)\)</span>, and for two Lorentz-orthonormal bases <span class="math inline">\(\Lambda\)</span> is a Lorentz  transformation (defined below).</p></div></div><div class="dg-fn" id="fn-3"><a class="dg-fn-num" href="#fnref-3" aria-label="Back to the text">3</a><div class="dg-fn-body"><p>Any other bases <span class="math inline">\(e'(\lambda)\)</span> may be chosen along <span class="math inline">\(\gamma\)</span>; <span class="math inline">\((\gamma, e')\)</span> is then simply not an observer. The two  conditions are what make components <em>measured</em> quantities: by condition 2, the time component  <span class="math inline">\(\epsilon^0(\mathcal{X}) = g(v_\gamma, \mathcal{X})\)</span> is read on the observer’s own clock; by condition 1, the <span class="math inline">\(e_\alpha\)</span> have  unit length and are orthogonal to <span class="math inline">\(v_\gamma\)</span>, i.e. they span the directions the observer regards as purely spatial. A  Lorentz-orthonormal <span class="math inline">\(e'\)</span> with future-directed <span class="math inline">\(e'_0 \neq v_\gamma\)</span> is the frame of <em>another</em> observer passing  through <span class="math inline">\(\gamma(\lambda)\)</span>, with velocity <span class="math inline">\(e'_0\)</span>. Any other <span class="math inline">\(e'\)</span>, e.g. with <span class="math inline">\(e'_1 = e_1 + e_0\)</span> (lightlike), yields components  that mix clock and rod readings. Such bases remain useful, e.g. chart-induced bases, or the lightlike bases common in  the study of radiation.</p></div></div><div class="dg-fn" id="fn-4"><a class="dg-fn-num" href="#fnref-4" aria-label="Back to the text">4</a><div class="dg-fn-body"><p>That both sets are groups under matrix multiplication is not shown here. If all frames are moreover required to be positively oriented w.r.t. <span class="math inline">\(\mathcal{A}^\uparrow\)</span>, then <span class="math inline">\(\det \Lambda = +1\)</span>, and <span class="math inline">\(\Lambda\)</span> belongs to the proper orthochronous Lorentz group <span class="math inline">\(SO^{\uparrow}(1,3)\)</span>.</p></div></div></div>
+<nav class="dg-web dg-prevnext" aria-label="Previous and next page"><a class="dg-prev" href="index.html" rel="prev"><span aria-hidden="true">←</span> <span><span class="dg-secnum">10</span> General Relativity</span></a><a class="dg-next" href="matter.html" rel="next"><span aria-hidden="true">→</span> <span><span class="dg-secnum">10.3</span> Coupling to Matter</span></a></nav>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/daniellopezcano\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Daniel López Cano</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p><a href="../../../notes/diffgeo-gr/gr/index.html">Home</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

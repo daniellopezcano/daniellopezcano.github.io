@@ -23,6 +23,7 @@ python3 _port/convert/build.py          # regenerate pages, sidebar, figures    
 node _port/tools/math_check.mjs         # typeset every equation of the notes with the site's math config
 quarto render notes/diffgeo-gr          # render the course pages into docs/ (~1 min);  `quarto render` for the whole site
 quarto preview                          # local preview at http://localhost:<port>/notes/diffgeo-gr/
+node _port/tools/test_page_script.mjs && node _port/tools/test_interactives.mjs   # behaviour tests in a headless browser (after a render)
 python3 _port/tools/make_inventory.py   # refresh _port/INVENTORY.md
 ```
 Notes source: `/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR` (override with `NOTES=`).

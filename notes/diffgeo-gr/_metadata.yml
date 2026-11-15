@@ -18,8 +18,10 @@ html-math-method:
   method: mathjax
   url: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js"
 include-in-header: assets/_head.html
+# The notes' text block is 45 em wide and many display equations use all of it, so the
+# text column is kept as wide as the screen allows (course.js shrinks the few that still do not fit).
 grid:
-  sidebar-width: 310px
-  body-width: 780px
-  margin-width: 250px
-  gutter-width: 2rem
+  sidebar-width: 280px
+  body-width: 880px
+  margin-width: 210px
+  gutter-width: 1.5rem

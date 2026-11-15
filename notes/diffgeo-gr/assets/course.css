@@ -56,7 +56,7 @@ body::after { background: var(--dg-bg); }
 
 main.content {
   color: var(--dg-text);
-  font-size: 1.04rem;
+  font-size: 1rem;
   line-height: 1.7;
   letter-spacing: 0;
   padding-bottom: 4rem;
@@ -127,7 +127,9 @@ div.sidebar.sidebar-navigation.rollup.quarto-sidebar-toggle-contents { backgroun
 .dg-quote { margin: 1.2rem 1.5rem; padding: 0 0 0 1.1rem; border-left: 3px solid var(--dg-rule); color: var(--dg-text); font-size: 1.06em; }
 
 /* math: wide displays scroll inside their own box instead of widening the page */
-.math.display { display: block; overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 0.9rem 0; padding: 0.15rem 0; }
+.math.display { display: block; overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 0.9rem 0; padding: 0.2rem 3px; }
+.math.display.dg-math-scroll:not(.dg-math-end) { -webkit-mask-image: linear-gradient(to left, transparent 0, #000 2.2rem); mask-image: linear-gradient(to left, transparent 0, #000 2.2rem); }
+.math.display:focus-visible { outline: 1px dashed var(--dg-rule); outline-offset: 2px; }
 .math.display mjx-container[display="true"] { margin: 0 !important; min-width: max-content; }
 /* an inline formula wider than its line (narrow screens; course.js marks it) scrolls in place */
 mjx-container.dg-math-wide { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding-bottom: 2px; }

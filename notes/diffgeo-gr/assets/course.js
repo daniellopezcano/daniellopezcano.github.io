@@ -664,15 +664,37 @@ function fitWideInlineMath() {
     if (r.width && (r.right > b.right + 0.5 || r.left < b.left - 0.5)) m.classList.add('dg-math-wide');
   }
 }
+// A display equation slightly wider than the column is set a little smaller so that it fits
+// (never below 80% of the text size); only what is still too wide scrolls, with a fade at the
+// edge where more is hidden (class dg-math-scroll / dg-math-end, styled in course.css).
+const MIN_DISPLAY_SCALE = 0.8;
+function fitDisplayMath() {
+  for (const d of document.querySelectorAll('main .math.display')) {
+    if (d.closest('.dg-pop')) continue;
+    d.style.fontSize = '';
+    const need = d.scrollWidth, have = d.clientWidth;
+    if (need > have + 1 && have > 0) {
+      d.style.fontSize = (Math.max(MIN_DISPLAY_SCALE, (have - 2) / need) * 100).toFixed(1) + '%';
+    }
+    const scrolls = d.scrollWidth > d.clientWidth + 1;
+    d.classList.toggle('dg-math-scroll', scrolls);
+    if (scrolls && !d.dataset.dgScroll) {
+      d.dataset.dgScroll = '1';
+      d.tabIndex = 0;                                   // keyboard users can scroll it too
+      d.addEventListener('scroll', () => d.classList.toggle('dg-math-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 2), { passive: true });
+    }
+  }
+}
 async function initWideMath() {
   await mathReady();
+  fitDisplayMath();
   fitWideInlineMath();
   let t = 0;
-  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fitWideInlineMath, 150); });
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { fitDisplayMath(); fitWideInlineMath(); }, 150); });
 }
 
 // ---- 5. interactive figures ------------------------------------------------------------------
-// The converter leaves <aside class="dg-interactive" data-module="name"> frames where
+// The converter leaves <div class="dg-interactive" data-module="name"> frames where
 // _port/interactives.json attaches one. The module assets/interactive/<name>.js is imported only
 // when its frame comes near the viewport; it exports `default async function mount(body, frame)`.
 // A frame becomes visible (class dg-ready) only after its module mounted without error.

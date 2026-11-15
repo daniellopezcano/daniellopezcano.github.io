@@ -398,7 +398,7 @@ class Renderer:
         if num.isdigit():
             self.fn_counter = int(num)
         self.footnotes.append((num, self.flow(body)))
-        return (f'<sup class="dg-fnref"><a href="#fn-{num}" id="fnref-{num}" role="doc-noteref" '
+        return (f'<sup class="dg-fnref"><a href="#fn-{num}" id="fnref-{num}" '
                 f'aria-label="Footnote {num}">{num}</a></sup>')
 
     def footnotetext(self, nd: Cmd) -> str:

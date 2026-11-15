@@ -130,9 +130,9 @@ class Ctx:
         out = []
         for module in self.interactives.get(label, []):
             self.interactives_used.add((label, module))
-            out.append(f'<aside class="dg-web dg-interactive" data-module="{module}" data-for="{esc(label)}" '
+            out.append(f'<div class="dg-web dg-interactive" role="group" data-module="{module}" data-for="{esc(label)}" '
                        f'aria-label="Interactive figure"><div class="dg-interactive-bar"><span class="dg-badge">Interactive</span>'
-                       f'</div><div class="dg-interactive-body"></div></aside>')
+                       f'</div><div class="dg-interactive-body"></div></div>')
         return ''.join(out)
 
     def review(self, kind, pos, text):
@@ -233,8 +233,20 @@ def resolve(html: str, page: Page, ctx: Ctx, where: dict) -> str:
         slug, _, frag = t.partition('#')
         return rel(page.slug, slug + '.html') + ('#' + frag if frag else '')
 
+    def num(m):
+        info = ctx.aux.get(m.group(1))
+        n = esc(info['num']) if info else '…'
+        return f'({n})' if m.group(2) == 'eqref' else n
+
+    html = re.sub('\x02N\\|([^|\x02]+)\\|([a-z]+)\x02', num, html)
     html = re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', ref, html)
     return re.sub('\x02U\\|([^\x02]+)\x02', url, html)
+
+
+def nolinks(html: str) -> str:
+    """A title that will sit inside an <a>: its own cross-references become plain numbers
+    (nested links are invalid HTML and break the outer one)."""
+    return re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', lambda m: f'\x02N|{m.group(1)}|{m.group(2)}\x02', html or '')
 
 
 def plain(html: str) -> str:
@@ -253,7 +265,7 @@ def kicker(p: Page) -> str:
     word = 'Appendix' if c.number and c.number[0].isalpha() else 'Chapter'
     if p.kind == 'chapter':
         return f'{word} {c.number}' if c.number else ''
-    link = f'<a href="{rel(p.slug, c.slug + ".html")}">{c.title_html}</a>'
+    link = f'<a href="{rel(p.slug, c.slug + ".html")}">{nolinks(c.title_html)}</a>'
     return f'{word} {c.number} <span class="dg-sep">•</span> {link}'
 
 
@@ -263,13 +275,13 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set):
             f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
     body = p.html
     if p.footnotes:
-        notes = ''.join(f'<div class="dg-fn" id="fn-{n}" role="doc-footnote"><a class="dg-fn-num" href="#fnref-{n}" '
+        notes = ''.join(f'<div class="dg-fn" id="fn-{n}"><a class="dg-fn-num" href="#fnref-{n}" '
                         f'aria-label="Back to the text">{n}</a><div class="dg-fn-body">{h}</div></div>'
                         for n, h in p.footnotes)
-        body += f'\n<section class="dg-footnotes" role="doc-endnotes">{notes}</section>'
+        body += f'\n<div class="dg-footnotes">{notes}</div>'
     if p.kind == 'chapter' and p.children:
         lis = ''.join(f'<li><a href="{rel(p.slug, c.slug + ".html")}"><span class="dg-secnum">{c.number}</span> '
-                      f'{c.title_html}</a></li>' if c.html is not None else
+                      f'{nolinks(c.title_html)}</a></li>' if c.html is not None else
                       f'<li class="dg-pending"><span class="dg-secnum">{c.number or ""}</span> {c.title_html or ""}</li>'
                       for c in p.children)
         body += f'\n<nav class="dg-web dg-chapter-sections" aria-label="Sections"><ul>{lis}</ul></nav>'
@@ -281,7 +293,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set):
         if q is None:
             return '<span></span>'
         n = f'<span class="dg-secnum">{q.number}</span> ' if q.number else ''
-        return f'<a class="{cls}" href="{rel(p.slug, q.slug + ".html")}" rel="{cls[3:]}">{arrow}<span>{n}{q.title_html}</span></a>'
+        return f'<a class="{cls}" href="{rel(p.slug, q.slug + ".html")}" rel="{cls[3:]}">{arrow}<span>{n}{nolinks(q.title_html)}</span></a>'
     body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
              f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
              f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
@@ -360,9 +372,9 @@ def write_partials(front, pages, ctx, P, files):
     lis = []
     for c in (p for p in pages if p.kind == 'chapter'):
         word = 'Appendix' if (c.number or '?')[0].isalpha() else 'Chapter'
-        t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{c.title_html}</span>'
+        t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
         head = f'<a href="{c.slug}.html">{t}</a>' if c.html is not None else f'<span class="dg-pending">{t}</span>'
-        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {k.title_html}</a></li>'
+        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}</a></li>'
                        if k.html is not None else
                        f'<li class="dg-pending"><span class="dg-secnum">{k.number or ""}</span> {k.title_html}</li>' for k in c.children)
         lis.append(f'<li class="dg-contents-chapter">{head}' + (f'<ul>{subs}</ul>' if subs else '') + '</li>')
