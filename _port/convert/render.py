@@ -48,6 +48,7 @@ NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'
 _WS = re.compile(r'\s+')
 _REF_IN_MATH = re.compile(r'\\(eqref|ref)\*?\s*\{([^}]+)\}')
 _LABEL = re.compile(r'\\label\s*\{([^}]+)\}')
+_TIKZ_REF = re.compile(r'\\ref\*?\s*\{([^}]+)\}')
 
 
 def is_display_tabular(nd) -> bool:
@@ -70,6 +71,13 @@ def typo(s: str) -> str:
 def slugify(s: str) -> str:
     s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode()
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
+
+
+def _captionof(nd) -> bool:
+    """A \\captionof at the top level of a custompage's body or of a minipage in it (D50)."""
+    if isinstance(nd, Cmd):
+        return nd.name == 'captionof'
+    return isinstance(nd, Env) and nd.name == 'minipage' and any(_captionof(c) for c in nd.body)
 
 
 class Renderer:
@@ -197,10 +205,14 @@ class Renderer:
             if not (w and hm):
                 raise ConvertError('custompage: cannot read the paper width / hmargin', nd.pos)
             self.textwidth_cm = float(w.group(1)) - 2 * float(hm.group(1))
+            defs = list(self.defs)                  # an environment is a group: its \def's end with it
             try:
+                if any(_captionof(c) for c in nd.body):
+                    return self.figure_page(nd)
                 return self.flow(nd.body)
             finally:
                 self.textwidth_cm = old
+                self.defs = defs
         raise ConvertError(f'environment {name}: no handler yet', nd.pos)
 
     def list(self, nd: Env) -> str:
@@ -301,8 +313,62 @@ class Renderer:
             frac = self.width_frac(g.group(1) or '', nd.pos)
         else:
             snippet = '\n'.join(self.defs + [rest])
-            asset = self.ctx.figures.tex(snippet, slugify(fid), self.textwidth_cm)
+            asset = self.tikz(snippet, slugify(fid), self.textwidth_cm)
             frac = min(1.0, asset.get('width_frac', 1.0))
+        return self.figure_html(num, fid, labels, args, asset, frac)
+
+    def figure_page(self, nd: Env) -> str:
+        """A custompage that is one TikZ figure captioned with \\captionof{figure} (the Einstein-Hilbert
+        flowchart of section 10.2; D50). Its local definitions (\\def, \\colorlet, PGF layers, in source order)
+        and its tikzpicture are typeset as one snippet, as a figure environment's body is; the caption and
+        label make it a numbered figure. \\centering and \\vspace print nothing on the web (D9); the minipage
+        around the caption only sets its width in the PDF. Any other content stops the page."""
+        pre, labels = [], []
+        found = {'pic': None, 'cap': None}
+
+        def walk(nodes, in_mini):
+            for c in nodes:
+                if isinstance(c, Par) or (isinstance(c, Text) and not c.s.strip()):
+                    continue
+                if isinstance(c, Cmd) and c.name in ('centering', 'vspace'):
+                    continue
+                if isinstance(c, Cmd) and c.name == 'def' and not in_mini:
+                    pre.append(f'\\def{c.args[0]}{{{c.args[1]}}}')
+                elif isinstance(c, Cmd) and c.name == 'colorlet' and not in_mini:
+                    pre.append(f'\\colorlet{{{c.args[0]}}}{{{c.args[1]}}}')
+                elif isinstance(c, Cmd) and c.name in ('pgfdeclarelayer', 'pgfsetlayers') and not in_mini:
+                    pre.append(f'\\{c.name}{{{c.args[0]}}}')
+                elif isinstance(c, Env) and c.name == 'tikzpicture' and not in_mini and found['pic'] is None:
+                    found['pic'] = c
+                elif isinstance(c, Env) and c.name == 'minipage' and not in_mini:
+                    walk(c.body, True)
+                elif (isinstance(c, Cmd) and c.name == 'captionof' and c.args[0].strip() == 'figure'
+                      and found['cap'] is None):
+                    found['cap'] = c
+                elif isinstance(c, Cmd) and c.name == 'label' and found['cap'] is not None:
+                    labels.append(c.args[0].strip())
+                else:
+                    raise ConvertError('figure page (custompage with \\captionof{figure}): no handler for this content', c.pos)
+
+        walk(nd.body, False)
+        pic, cap = found['pic'], found['cap']
+        if pic is None:
+            raise ConvertError('figure page (custompage with \\captionof{figure}) without a tikzpicture', nd.pos)
+        num = self.take('figure', cap.pos)
+        fid = labels[0] if labels else 'fig-' + num.replace('.', '-')
+        snippet = '\n'.join(self.defs + pre + [pic.raw])
+        asset = self.tikz(snippet, slugify(fid), self.textwidth_cm)
+        frac = min(1.0, asset.get('width_frac', 1.0))
+        return self.figure_html(num, fid, labels, cap.args[1:], asset, frac)
+
+    def tikz(self, snippet: str, name: str, textwidth_cm: float) -> dict:
+        """A TikZ figure body as an SVG (D10). Its \\ref's are references of this page like those of the
+        text (they become links in the SVG), so the chapter opening pages count them (D38)."""
+        self.refs.extend(m.strip() for m in _TIKZ_REF.findall(snippet))
+        return self.ctx.figures.tex(snippet, name, textwidth_cm)
+
+    def figure_html(self, num: str, fid: str, labels: list[str], args: list, asset: dict, frac: float) -> str:
+        """The <figure> of a numbered figure: `args` are the caption's [short] and {long} nodes."""
         for lab in labels:
             self.anchors[lab] = fid
         extra = ''.join(f'<span class="dg-anchor" id="{esc(l)}"></span>' for l in labels[1:])
@@ -322,7 +388,7 @@ class Renderer:
         """A tikzpicture that is not inside a figure environment: no number, no caption."""
         snippet = '\n'.join(self.defs + [nd.raw])
         name = f'{slugify(self.page.slug)}-diagram-{len(self.ctx.figures_used(self.page.slug)) + 1}'
-        asset = self.ctx.figures.tex(snippet, name, self.textwidth_cm)
+        asset = self.tikz(snippet, name, self.textwidth_cm)
         self.ctx.figures_used(self.page.slug).append(name)
         frac = min(1.0, asset.get('width_frac', 1.0))
         return (f'<div class="dg-diagram"><div class="dg-paper" style="--dg-frac:{frac:.3f}">'
@@ -409,6 +475,9 @@ class Renderer:
         if name in ACCENT:
             base = re.sub(r'<[^>]+>', '', self.inline(a[0])) or ' '
             return unicodedata.normalize('NFC', base[0] + ACCENT[name]) + base[1:]
+        if name in ('captionof', 'colorlet', 'pgfdeclarelayer', 'pgfsetlayers'):
+            raise ConvertError(f'\\{name} outside a figure page (custompage with one tikzpicture and '
+                               f'\\captionof{{figure}}): no handler yet', nd.pos)
         if name == 'DLC':
             self.ctx.review('author-note', nd.pos, self.P.s[nd.pos:nd.pos + 300].split('\n')[0])
             return ''

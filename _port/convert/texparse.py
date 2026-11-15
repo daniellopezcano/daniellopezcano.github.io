@@ -116,6 +116,8 @@ CMDS: dict[str, str] = {
     # document structure in main.tex
     'appendix': '', 'tableofcontents': '', 'listoffigures': '', 'addcontentsline': 'rrm',
     'bibliography': 'r', 'bibliographystyle': 'r',
+    # TikZ figure pages: a custompage holding one tikzpicture and a \captionof{figure} (D50); elsewhere they stop the page
+    'captionof': 'rOm', 'colorlet': 'rr', 'pgfdeclarelayer': 'r', 'pgfsetlayers': 'r',
     # author notes (hidden on the web, listed in REVIEW.md)
     'DLC': 'm',
 }

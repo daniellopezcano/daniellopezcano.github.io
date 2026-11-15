@@ -11,6 +11,9 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     that follows, and ends with the enclosing environment or group as in TeX.
   * lists: \\setcounter{enumi}{n} inside an item (numbers from the LaTeX records, <li value>), and
     the forms that must still stop the page.
+  * figure page (D50): a custompage holding one tikzpicture and \\captionof{figure} becomes a numbered figure
+    whose snippet carries the page's local definitions in source order; its \\refs count for D38; the forms
+    that must stop the page. (Typesetting is stubbed here; the real flowchart is built by build.py.)
   * tabular (D48): column specs of the three tables in the build (incl. the copyright page's, unit B4),
     rules, \\hline header, row spacing, \\arraystretch, display tabular as a block, refusals.
 """
@@ -132,6 +135,47 @@ def main() -> int:
             check(f'{name} stops the page', False, 'no error')
         except ConvertError as e:
             check(f"{name} stops the page ({e.msg})", True)
+
+    # -- figure page: custompage + tikzpicture + \captionof{figure} (D50) ---------------------------------
+    class FakeFigures:
+        def __init__(self):
+            self.calls = []
+
+        def tex(self, snippet, name, textwidth_cm):
+            self.calls.append((snippet, name, textwidth_cm))
+            return {'src': f'figures/{name}.svg', 'width': 1000, 'height': 1200, 'kind': 'svg', 'width_frac': 0.99}
+    real_figures, ctx.figures = ctx.figures, FakeFigures()
+    pic = '\\begin{tikzpicture}\\node {$\\EHs$ \\ref{lab_in_pic}};\\end{tikzpicture}'
+    fp = ('\\begin{custompage}[Head]{53cm}{67cm}{hmargin=2.2cm, top=2.6cm}\n'
+          '\\def\\EHs{\\textrm{s}}\n\\def\\EHgo#1#2{\\coordinate (here) at (#1,#2);}\n\\colorlet{EHup}{color_blue_1}\n'
+          '\\pgfdeclarelayer{EHback}\n\\pgfsetlayers{EHback,main}\n\n\\centering\n' + pic + '\n\n\\vspace{0.8cm}\n'
+          '\\begin{minipage}{0.9\\linewidth}\n\\captionof{figure}[Short (\\S\\ref{lab_short})]{Long, see \\ref{lab_cap}.}\n'
+          '\\label{fig_test_page}\n\\end{minipage}\n\\end{custompage}\nAfter \\ref{lab_after}.')
+    rr, html = run(fp, {'figure': ['10.3']})
+    snip, name, tw = ctx.figures.calls[0] if ctx.figures.calls else ('', '', 0)
+    check('figure page: one numbered <figure> with the label as id, number from the records, caption',
+          html.startswith('<figure class="dg-figure" id="fig_test_page">') and '<span class="dg-fignum">Figure 10.3:</span> Long, see' in html
+          and 'alt="Figure 10.3"' in html and not rr.rec['figure'] and rr.anchors.get('fig_test_page') == 'fig_test_page', html)
+    check('figure page: snippet = local definitions in source order, then the picture; text width of the custompage',
+          snip == ('\\def\\EHs{\\textrm{s}}\n\\def\\EHgo#1#2{\\coordinate (here) at (#1,#2);}\n\\colorlet{EHup}{color_blue_1}\n'
+                   '\\pgfdeclarelayer{EHback}\n\\pgfsetlayers{EHback,main}\n' + pic)
+          and abs(tw - 48.6) < 1e-9 and name == 'fig-test-page', (snip, name, tw))
+    check('figure page: \\refs in the picture and the caption are page references (D38); \\def ends with the custompage',
+          {'lab_in_pic', 'lab_cap', 'lab_short', 'lab_after'} <= set(rr.refs) and rr.defs == [], (rr.refs, rr.defs))
+    check('figure page: listed for the List of Figures with its short caption',
+          ctx.figure_list[-1][0] == '10.3' and ctx.figure_list[-1][2] == 'fig_test_page' and 'Short' in ctx.figure_list[-1][3], ctx.figure_list[-1])
+    for name, tex, records in (
+            ('text inside a figure page', fp.replace('\\centering', 'Some words.'), {'figure': ['10.3']}),
+            ('a second tikzpicture in a figure page', fp.replace('\\vspace{0.8cm}', pic), {'figure': ['10.3']}),
+            ('a figure page without a tikzpicture', fp.replace(pic, ''), {'figure': ['10.3']}),
+            ('\\colorlet outside a figure page', 'Text \\colorlet{a}{b} more.', {}),
+            ('\\captionof outside a custompage', '\\begin{minipage}{5cm}\\captionof{figure}{X}\\end{minipage}', {'figure': ['1.1']})):
+        try:
+            run(tex, records)
+            check(f'{name} stops the page', False, 'no error')
+        except ConvertError as e:
+            check(f"{name} stops the page ({e.msg})", True)
+    ctx.figures = real_figures
 
     # -- tabular (D48) ----------------------------------------------------------------
     import tables
