@@ -750,6 +750,8 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
   .dg-main a, .dg-main a:hover { color: inherit; text-decoration: none; }
   .dg-footnotes { display: block; }
   .math.display { overflow: visible; background: none; }
+  .dg-table-wrap { overflow: visible; background: none; }
+  .dg-table { font-size: inherit !important; }
   mjx-container.dg-math-wide { background: none; }
   .dg-paper { border: 0; cursor: auto; }
   .dg-figure, .dg-diagram, .dg-motivation, .dg-fn { break-inside: avoid; }

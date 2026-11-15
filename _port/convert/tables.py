@@ -220,12 +220,13 @@ def tabular(r, a: int, b: int, pos: int) -> str:
             rcls.append('dg-hline-above')
         if n == len(rows) - 1 and trailing:
             rcls.append('dg-hline-below')
-        tr = f'<tr{f" class={chr(34)}{" ".join(rcls)}{chr(34)}" if rcls else ""}>' + ''.join(tds) + '</tr>'
+        # a newline between cells: no effect on the layout, but the page's text keeps cells apart as words
+        tr = f'<tr{f" class={chr(34)}{" ".join(rcls)}{chr(34)}" if rcls else ""}>' + '\n'.join(tds) + '</tr>'
         out.append(tr)
     if header:
-        body = f'<thead>{out[0]}</thead><tbody>{"".join(out[1:])}</tbody>'
+        body = f'<thead>{out[0]}</thead>\n<tbody>{chr(10).join(out[1:])}</tbody>'
     else:
-        body = f'<tbody>{"".join(out)}</tbody>'
+        body = f'<tbody>{chr(10).join(out)}</tbody>'
     stretch = getattr(r, 'arraystretch', None)
     st = f' style="--dg-arraystretch:{stretch}"' if stretch and float(stretch) != 1.0 else ''
     return f'<div class="dg-table-wrap"><table class="dg-table"{st}>{body}</table></div>'
