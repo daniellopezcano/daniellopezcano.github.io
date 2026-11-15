@@ -657,6 +657,8 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 .dg-landing p.dg-cover-affiliation { margin: 0 0 0.4rem; color: var(--dg-text-soft); font-size: 1rem; line-height: 1.55; }
 .dg-landing p.dg-cover-email { margin: 0; padding-bottom: 1.8rem; font-size: 0.98rem; overflow-wrap: anywhere; }
 .dg-cover-email a, .dg-cover-email .dg-code { color: var(--dg-accent); background: transparent; padding: 0; font-size: 0.95em; }
+/* where the PDF's cover prints \today under a rule across the text block: "Last updated <date>" (web layer, D54) */
+.dg-landing .dg-cover p.dg-cover-date { margin: 0 clamp(1.2rem, 5vw, 3.2rem); padding: 0.5rem 0 1.3rem; border-top: 1px solid var(--dg-heading); color: var(--dg-heading); text-align: right; }
 
 /* the three buttons (web layer) */
 .dg-landing-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }

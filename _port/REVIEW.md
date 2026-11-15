@@ -13,6 +13,11 @@ Things only you can decide or fix. Nothing here was changed in the notes; the we
 - The site navbar on course pages scrolls away with the page (on your other pages it is fixed); the slim course bar stays at the top instead.
 - **"page~\pageref{…}" shows the PDF's page number**, linked to the figure: in §10.2 "(page 84)" on the web is the page of Figure 10.3 in your PDF, and clicking it goes to the figure (DECISIONS D47).
 
+- **The PDF on the site** is the compressed copy of the current build (Ghostscript `/printer`, colour images at 200 dpi: 27.0 MB → 6.97 MB; outline and links kept; `/ebook` was smaller but showed JPEG blocks in the plots of Appendix C). Its cover prints the day it was compiled (`\today`), while the landing page says "Last updated" with the date of the last commit of the notes repository that touched a file of the build, so the two dates can differ (today November 14 vs November 4, 2026).
+- **The Teaching-page thumbnail** is cropped from y = 100 px of the new cover so that the author line stays in the square; the e-mail line is cut. On the "Lecture Notes" card the three buttons do not fit one row (the card is 320 px wide), so "GitHub" wraps; nothing was restyled (rule 6).
+- **Definitions and notation page** (`definitions.html`, D53): built only from your term macros (`\blueone{..}` …, which `main.tex` says highlight defined terms) and the "Notation" table of §4.1.2; `\textbf` terms are not indexed.
+- **Interactive panels** (D55): each sits right after its figure, open, with Reset, a link back to the static figure, and a link to the notebook of your package where one exists.
+
 ## Open questions (pilot)
 
 Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
@@ -88,6 +93,8 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | copyright page (B4, D51) | page title "Copyright, License and Funding" (your page has no title: it is the reverse of the title page); also its entry in the course tree, the breadcrumb, the browser tab and the link at the end of the landing page. The page itself is your text, unchanged, including the title block, both headings, the licence and both FAPESP paragraphs |
 | About the Author (B4, D51) | no words added: the header (your "About the Author", name, affiliation) and the links at the foot are taken from your page's TikZ overlay; the portrait's text alternative for screen readers is your name; the timeline is your four `\aboutstop` entries as a list (years, role, place), in order |
 | List of Figures and Bibliography (B5, D52) | no words added: the titles are the words LaTeX's book class prints in your PDF ("List of Figures", "Bibliography"), also used for their entries in the course tree, the breadcrumb, the browser tab and the two links at the end of the landing page (after the copyright link); the List of Figures shows your caption short forms (Figure 10.3 included) without the PDF's page numbers, the Bibliography your `main.bbl` entries as the PDF prints them |
+| landing page cover (B34, D54) | "Last updated" before the date, where your PDF's cover prints `\today`; the date is computed (the last commit of the notes repository that touched a file `main.tex` includes), written as `\today` writes it ("November 4, 2026") |
+| Teaching page (B34) | button "Read online" on the two cards of the notes (Courses & Schools, Lecture Notes), first in each row of buttons, linking to the course |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)
 
