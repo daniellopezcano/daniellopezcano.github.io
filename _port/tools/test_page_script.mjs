@@ -10,6 +10,8 @@
 // Unit R8, at 1280 and 390 px: chapter opening pages (D38): sections, related Appendix B / C items derived
 // from the pages' own links, the lazy roadmap with the chapter's badges ringed, the Contents drawer at every
 // width, back-links on the Appendix C page, no roadmap where the rule gives none, no console errors on all 13.
+// Unit R10: "read" marks (D40: auto-mark at the end, toggle, tree / chapter page / landing, storage unavailable,
+// no JavaScript), "open here" on the line of its reference, typeset search titles, the "Appendices" part title.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -514,6 +516,104 @@ try {
         await page.close();
       }
     }
+  }
+  // R10 (D40): "read" marks. One browser context, so that localStorage carries across the pages.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const { page, errors } = await load(await ctx.newPage(), 'metric/length-geodesics.html');
+    const SLUG = 'metric/length-geodesics';
+    const pressed = () => page.locator('.dg-readtoggle').getAttribute('aria-pressed');
+    const stored = () => page.evaluate(() => { try { return JSON.parse(localStorage.getItem('dg-read') || '[]'); } catch (e) { return null; } });
+    const markOn = (sel) => page.evaluate(s => { const m = document.querySelector(s); return !!m && m.classList.contains('dg-on') && getComputedStyle(m).visibility === 'visible'; }, sel);
+    const treeMark = '#dg-tree a[href$="length-geodesics.html"] .dg-readmark';
+    ok(await page.locator('.dg-readtoggle').count() === 1 && (await pressed()) === 'false' && !(await markOn(treeMark)), 'read: a section page has the toggle (not pressed) and no mark yet');
+    const box0 = await page.evaluate(s => { const a = document.querySelector(s).closest('a').getBoundingClientRect(); return [a.width, a.height]; }, treeMark);
+    await page.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' }));
+    await page.waitForTimeout(500);
+    ok((await pressed()) === 'true' && (await stored()).includes(SLUG), 'read: reaching previous/next marks the page (toggle pressed, slug stored)');
+    ok(await markOn(treeMark), 'read: the check shows in the course tree at once');
+    const box1 = await page.evaluate(s => { const a = document.querySelector(s).closest('a').getBoundingClientRect(); return [a.width, a.height]; }, treeMark);
+    ok(box0[0] === box1[0] && box0[1] === box1[1], `read: the check does not move the tree entry (${box0} -> ${box1})`);
+    ok(await page.evaluate(s => document.querySelector(s).textContent.trim() === 'read', treeMark), 'read: the check has a hidden text alternative ("read")');
+    await load(page, 'metric/metric.html');
+    ok(await markOn(treeMark) && !(await markOn('#dg-tree a[href$="metric.html"] .dg-readmark')), 'read: after loading another page, 7.2 is marked in the tree and 7.1 is not');
+    await load(page, 'metric/index.html');
+    ok(await markOn('.dg-chapter-sections a[href$="length-geodesics.html"] .dg-readmark') && !(await markOn('.dg-chapter-sections a[href$="metric.html"] .dg-readmark')),
+      'read: the chapter opening page marks 7.2 in its sections list');
+    ok(await page.locator('.dg-readtoggle').count() === 0, 'read: no toggle on a chapter opening page');
+    await load(page, 'index.html');
+    ok(await markOn('.dg-contents a[href="metric/length-geodesics.html"] .dg-readmark') && await page.locator('.dg-contents .dg-readmark.dg-on').count() === 1,
+      'read: the landing page marks 7.2 (and nothing else) in its contents');
+    ok(await page.locator('.dg-readtoggle').count() === 0, 'read: no toggle on the landing page');
+    // the toggle clears the mark, and reaching the end again during the visit does not set it back
+    await load(page, 'metric/length-geodesics.html');
+    ok((await pressed()) === 'true', 'read: the toggle shows the page as read on the next visit');
+    await page.locator('.dg-readtoggle').click(); await page.waitForTimeout(200);
+    ok((await pressed()) === 'false' && !(await stored()).includes(SLUG) && !(await markOn(treeMark)), 'read: pressing the toggle clears the mark');
+    await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' })); await page.waitForTimeout(300);
+    await page.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' })); await page.waitForTimeout(500);
+    ok((await pressed()) === 'false' && !(await stored()).includes(SLUG), 'read: after clearing, scrolling to the end again does not mark the page');
+    await page.locator('.dg-readtoggle').click(); await page.waitForTimeout(200);
+    ok((await pressed()) === 'true' && (await stored()).includes(SLUG), 'read: pressing the toggle again marks the page');
+    ok(errors.length === 0, `read: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+    await ctx.close();
+    // storage unavailable: no error, the toggle still works for the visit
+    const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await ctx2.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('denied', 'SecurityError'); } }); });
+    const { page: p2, errors: e2 } = await load(await ctx2.newPage(), 'metric/length-geodesics.html');
+    await p2.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' })); await p2.waitForTimeout(500);
+    const a1 = await p2.locator('.dg-readtoggle').getAttribute('aria-pressed');
+    await p2.locator('.dg-readtoggle').click(); await p2.waitForTimeout(200);
+    const a2 = await p2.locator('.dg-readtoggle').getAttribute('aria-pressed');
+    ok(e2.length === 0 && a1 === 'true' && a2 === 'false', `read: without storage no error and the toggle still works (${a1} -> ${a2})${e2.length ? ': ' + e2.slice(0, 3).join(' / ') : ''}`);
+    await ctx2.close();
+    // without JavaScript the toggle is hidden and no check shows
+    const p3 = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 1440, height: 900 } });
+    await p3.goto(`${base}/${C}metric/length-geodesics.html`);
+    ok(await p3.locator('.dg-readtoggle:visible').count() === 0 && await p3.evaluate(() => [...document.querySelectorAll('.dg-readmark')].every(m => getComputedStyle(m).visibility === 'hidden')),
+      'read: without JavaScript no toggle and no check');
+    await p3.close();
+  }
+  // R10: "open here" stays on the line of its reference number (§7.2)
+  for (const width of [1440, 1280]) {
+    const { page } = await open('metric/length-geodesics.html', width);
+    const r = await page.evaluate(() => [...document.querySelectorAll('.dg-xref-open')].filter(k => k.offsetParent).map(k => {
+      const ra = [...k.querySelector('a').getClientRects()].pop(), rb = k.querySelector('button').getBoundingClientRect();
+      return Math.abs(ra.bottom - rb.bottom) < 12 && ra.right <= rb.left + 1;
+    }));
+    ok(r.length >= 3 && r.every(Boolean), `@${width} §7.2: every "open here" sits on the line of its reference (${r.filter(Boolean).length}/${r.length})`);
+    await page.close();
+  }
+  // R10: search result titles and section names are typeset, never raw TeX; the match is still marked
+  {
+    const { page, errors } = await open('metric/metric.html', 1280);
+    await page.keyboard.press('/');
+    await page.keyboard.type('tangent space');
+    await page.waitForFunction(() => document.querySelectorAll('.dg-search-page mjx-container').length > 0, null, { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(300);
+    const s = await page.evaluate(() => {
+      const ts = [...document.querySelectorAll('.dg-search-page, .dg-search-sec')];
+      return { n: ts.length, raw: ts.filter(t => t.textContent.includes('\\(')).length, mjx: document.querySelectorAll('.dg-search-page mjx-container, .dg-search-sec mjx-container').length,
+        marks: document.querySelectorAll('.dg-search-page mark').length, markInMath: document.querySelectorAll('.dg-search-list mjx-container mark, .dg-search-list mark mjx-container').length,
+        hidden: [...document.querySelectorAll('.dg-search-page mjx-container')].some(m => getComputedStyle(m).visibility === 'hidden'),
+        plain: [...document.querySelectorAll('.dg-search-text')].every(t => !t.querySelector('mjx-container')) };
+    });
+    ok(s.n > 0 && s.raw === 0 && s.mjx > 0 && !s.hidden, `search: titles and section names show typeset math, no "\\(" (${s.mjx} formulas in ${s.n} titles)`);
+    ok(s.marks > 0 && s.markInMath === 0 && s.plain, 'search: words in titles are marked, no mark inside a formula, text lines stay plain');
+    ok(errors.length === 0, `search titles: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+    await page.close();
+  }
+  // R10: the notes' part title "Appendices" (main.tex) before Appendix A, in the tree and the landing contents
+  {
+    const { page } = await open('metric/metric.html', 1440);
+    const t = await page.evaluate(() => { const p = document.querySelector('#dg-tree .dg-tree-part'); const n = p && p.nextElementSibling;
+      return p && [p.textContent.trim(), (n && n.querySelector('.dg-n') || {}).textContent]; });
+    ok(t && t[0] === 'Appendices' && t[1] === 'A', `tree: "Appendices" heads the appendices (${t})`);
+    await load(page, 'index.html');
+    const l = await page.evaluate(() => { const p = document.querySelector('.dg-contents .dg-contents-part'); const n = p && p.nextElementSibling;
+      return p && [p.textContent.trim(), n && n.querySelector('.dg-contents-kicker').textContent.trim()]; });
+    ok(l && l[0] === 'Appendices' && l[1] === 'Appendix A', `landing contents: "Appendices" heads the appendices (${l})`);
+    await page.close();
   }
   // console errors and horizontal overflow
   for (const width of [1280, 390]) {

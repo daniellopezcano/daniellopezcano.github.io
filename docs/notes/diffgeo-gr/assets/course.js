@@ -17,6 +17,7 @@
 //   9. copy LaTeX on display equations (D39)
 //  10. search dialog, course index and site index (D36, D39)
 //  11. map dialog: the master roadmap with the current chapter ringed (D39)
+//  12. "read" marks: the toggle at the foot of a section page and the checks in the lists (D40)
 
 export const ROOT = new URL('..', import.meta.url);          // URL of notes/diffgeo-gr/
 
@@ -1170,8 +1171,9 @@ async function initCopyButtons() {
 // (assets/search.json); the search button of the site navbar searches the site's index (<site>/search.json,
 // which post_render.py extends with the course), as it does on every other page of the site. Each index is
 // loaded on first use. Every word of the query must occur (case and accents ignored); ranking: title, then
-// section, then text. Results are plain text (TeX source as written), grouped by page.
-const S = { dlg: null, input: null, list: null, empty: null, scope: 'notes', idx: {}, opener: null, hits: [], active: -1, seq: 0, timer: 0 };
+// section, then text. Results are grouped by page; the formulas of page titles and section names are typeset
+// as in the course tree (R10), the text lines stay plain text (TeX source as written).
+const S = { dlg: null, input: null, list: null, empty: null, scope: 'notes', idx: {}, opener: null, hits: [], active: -1, seq: 0, timer: 0, mathTimer: 0 };
 const MAX_HITS = 30;
 const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
@@ -1225,6 +1227,28 @@ function marked(text, words) {
     at = b;
   }
   return out + escHtml(text.slice(at));
+}
+
+/** A page title or section name as HTML: its words marked as above, its formulas (\(..\), as in the index)
+ *  left whole and unmarked so that MathJax can typeset them as the course tree shows them. */
+function markedTitle(text, words) {
+  return text.split(/(\\\(.*?\\\))/s).map((part, i) => (i % 2
+    ? `<span class="math inline">${escHtml(part)}</span>` : marked(part, words))).join('');
+}
+
+/** Typesets the formulas of the result titles and section names (never of the text lines, which stay plain),
+ *  once the list has stopped changing; until then they are hidden. Without MathJax the TeX stays readable. */
+function typesetHits(seq) {
+  clearTimeout(S.mathTimer);
+  const els = [...S.list.querySelectorAll('.dg-search-page, .dg-search-sec')].filter(el => el.querySelector('.math'));
+  if (!els.length) { S.list.classList.remove('dg-search-raw'); return; }
+  S.list.classList.add('dg-search-raw');
+  S.mathTimer = setTimeout(async () => {
+    await mathReady();
+    if (seq !== S.seq) return;
+    try { if (window.MathJax && MathJax.typesetPromise) await MathJax.typesetPromise(els); } catch (err) { /* the TeX stays */ }
+    if (seq === S.seq) S.list.classList.remove('dg-search-raw');
+  }, 60);
 }
 
 /** One line of `text` around the first match of the query words. */
@@ -1314,6 +1338,7 @@ async function runSearch() {
 function renderHits(hits, q) {
   const words = fold(q).split(/\s+/).filter(Boolean);
   const base = siteRoot();
+  if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([S.list]);     // forget the formulas of the old list
   S.list.replaceChildren();
   let group = null, key = null, n = 0;
   for (const { r } of hits) {
@@ -1324,7 +1349,7 @@ function renderHits(hits, q) {
       li.className = 'dg-search-group';
       li.setAttribute('role', 'group');
       li.setAttribute('aria-labelledby', `dg-sr-g${n}`);
-      li.innerHTML = `<div class="dg-search-page" id="dg-sr-g${n}">${marked(e.title || '', words)}</div><ul role="presentation"></ul>`;
+      li.innerHTML = `<div class="dg-search-page" id="dg-sr-g${n}">${markedTitle(e.title || '', words)}</div><ul role="presentation"></ul>`;
       S.list.append(li);
       group = li.querySelector('ul');
     }
@@ -1334,7 +1359,7 @@ function renderHits(hits, q) {
     o.setAttribute('role', 'option');
     o.setAttribute('aria-selected', 'false');
     o.innerHTML = `<a href="${escHtml(new URL(e.href, base).href)}" tabindex="-1">`
-      + (e.section ? `<span class="dg-search-sec">${marked(e.section, words)}</span>` : '')
+      + (e.section ? `<span class="dg-search-sec">${markedTitle(e.section, words)}</span>` : '')
       + `<span class="dg-search-text">${marked(text, words)}</span></a>`;
     group.append(o);
   }
@@ -1342,6 +1367,7 @@ function renderHits(hits, q) {
   S.input.removeAttribute('aria-activedescendant');
   S.input.setAttribute('aria-expanded', String(hits.length > 0));
   S.empty.hidden = !(q && !hits.length);
+  typesetHits(S.seq);
 }
 
 function openSearch(scope, opener) {
@@ -1470,8 +1496,69 @@ function initMapDialog() {
   });
 }
 
+// ---- 12. "read" marks (D40) ----------------------------------------------------------------------
+// A section page counts as read once its previous/next block has been in the viewport, or when the toggle
+// at its foot is pressed; pressing it again clears the mark, and then reaching the end does not set it again
+// during this visit. Kept in this browser only: localStorage['dg-read'] = JSON array of page slugs (the page's
+// path in the course without .html, <body data-dg-slug>). The checks after the section titles (tree, sections
+// of the chapter opening pages, landing page's contents) are in the HTML, hidden; this only shows them.
+const READ_KEY = 'dg-read';
+/** The stored slugs, or null when the storage cannot be read (private mode, blocked, corrupt). */
+function readStored() {
+  try {
+    const v = JSON.parse(localStorage.getItem(READ_KEY) || '[]');
+    return new Set(Array.isArray(v) ? v.filter(s => typeof s === 'string') : []);
+  } catch (err) { return null; }
+}
+function storeRead(slug, on) {
+  try {
+    const s = readStored() || new Set();               // merged with what other tabs stored meanwhile
+    if (on) s.add(slug); else s.delete(slug);
+    localStorage.setItem(READ_KEY, JSON.stringify([...s]));
+  } catch (err) { /* storage unavailable: the mark lasts for this page */ }
+}
+const slugOf = href => { const p = coursePath(href); return p && p.endsWith('.html') ? p.slice(0, -5) : null; };
+function showReadMarks(set) {
+  for (const m of document.querySelectorAll('.dg-readmark')) {
+    const a = m.closest('a[href]'), s = a && slugOf(a.href);
+    m.classList.toggle('dg-on', !!s && set.has(s));
+  }
+}
+
+function initRead() {
+  const read = readStored() || new Set();
+  showReadMarks(read);
+  window.addEventListener('pageshow', e => {           // back/forward cache: another page may have been read
+    const s = e.persisted && readStored();
+    if (s) { read.clear(); s.forEach(x => read.add(x)); showReadMarks(read); sync(); }
+  });
+  const btn = document.querySelector('.dg-readtoggle'), slug = document.body.dataset.dgSlug;
+  const sync = () => { if (btn && slug) btn.setAttribute('aria-pressed', String(read.has(slug))); };
+  if (!btn || !slug || !document.body.classList.contains('dg-page-reading')) return;
+  let unmarked = false;                                // the reader cleared the mark during this visit
+  const set = on => {
+    if (on) read.add(slug); else read.delete(slug);
+    storeRead(slug, on);
+    sync();
+    showReadMarks(read);
+  };
+  sync();
+  btn.addEventListener('click', () => {
+    const on = !read.has(slug);
+    if (!on) unmarked = true;
+    set(on);
+  });
+  const end = document.querySelector('#dg-main .dg-prevnext') || btn;
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(entries => {
+    if (unmarked) { io.disconnect(); return; }
+    if (entries.some(e => e.isIntersecting)) { io.disconnect(); if (!read.has(slug)) set(true); }
+  });
+  io.observe(end);
+}
+
 function init() {
-  const run = (name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
+  const run =(name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
   run('drawer', initDrawer);
   run('theme', initTheme);
   run('site navbar', initSiteNav);
@@ -1488,6 +1575,7 @@ function init() {
   run('copy buttons', initCopyButtons);
   run('search', initSearch);
   run('map', initMapDialog);
+  run('read', initRead);
   loadInteractives();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

@@ -115,6 +115,7 @@ class Page:
         self.anchors = {}
         self.refs = []                # labels this page refers to (render.py), for the chapter opening pages
         self.files = []
+        self.part_html = None         # a part title of the contents that comes right before this chapter (part_titles)
 
 
 class Ctx:
@@ -176,6 +177,23 @@ def make_pages(src: source.Source, P: Parser):
             chapter.children.append(page)
         pages.append(page)
     return front, pages
+
+
+PART_RE = re.compile(r'\\(?:addcontentsline(?=\s*\{\s*toc\s*\}\s*\{\s*part\s*\})|part\*?(?=\s*[\[{]))')
+
+
+def part_titles(pages, ctx, P) -> None:
+    """The part titles of the notes' table of contents (main.tex: \\addcontentsline{toc}{part}{Appendices}
+    after \\appendix; a \\part would count too): each one is shown, in the notes' words, before the first
+    chapter that follows it in the course tree and the landing page's contents (attribute part_html)."""
+    chapters = [p for p in pages if p.kind == 'chapter']
+    for m in PART_RE.finditer(ctx.src.text):
+        nxt = next((c for c in chapters if c.a > m.start()), None)
+        if nxt is None:
+            continue
+        sig = 'rrm' if m.group(0).startswith('\\addcontentsline') else 'Om'
+        args, _ = P.read_args(sig, m.end(), len(ctx.src.text), m.start())
+        nxt.part_html = Renderer(ctx, nxt, P, {}).inline(args[-1])
 
 
 def assign_slugs(pages, P, src):
@@ -362,12 +380,15 @@ def course_tree(p: Page, order: list, items: list) -> str:
         if q.html is None:
             link = f'<span class="dg-pending">{t}</span>'
         else:
-            link = f'<a href="{rel(p.slug, q.slug + ".html")}"{" aria-current=\"page\"" if here else ""}>{t}</a>'
+            mark = shell.readmark() if q.kind == 'section' else ''          # D40: section pages only
+            link = f'<a href="{rel(p.slug, q.slug + ".html")}"{" aria-current=\"page\"" if here else ""}>{t}{mark}</a>'
         c = ' '.join(x for x in (cls, 'dg-here' if here else '') if x)
         return c, link, here
 
     lis = []
     for c in (q for q in order if q.kind == 'chapter'):
+        if c.part_html:                 # a part title of the notes' contents ("Appendices")
+            lis.append(f'<li class="dg-tree-part">{c.part_html}</li>')
         cls, link, here = entry(c, 'dg-ch' + (' dg-open' if c is chap else ''))
         subs = ''
         if c.children:
@@ -502,16 +523,16 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
         return (f' <span class="dg-related-pages" role="group" aria-label="{INTERFACE_RELATED}" title="{INTERFACE_RELATED}">'
                 + ''.join(f'<span class="dg-related-n">{sep}{x}</span>' for x in out) + '</span>')
 
-    def item(y, extra=''):
+    def item(y, extra='', mark=''):
         if y.html is None:
             return f'<li class="dg-pending"><span class="dg-related-item">{numtitle(y)}</span>{extra}</li>'
-        return f'<li><a class="dg-related-item" href="{rel(p.slug, y.slug + ".html")}">{numtitle(y)}</a>{extra}</li>'
+        return f'<li><a class="dg-related-item" href="{rel(p.slug, y.slug + ".html")}">{numtitle(y)}{mark}</a>{extra}</li>'
 
     cards = []
     if p.children:
         # beside the related items, the card is headed like them (the chapter's own number and title); alone,
-        # it sits right under the page's title and needs no head
-        lis = ''.join(item(c, connected(d['back'][c]) if c in d['back'] else '') for c in p.children)
+        # it sits right under the page's title and needs no head. The sections carry the "read" marks (D40).
+        lis = ''.join(item(c, connected(d['back'][c]) if c in d['back'] else '', shell.readmark()) for c in p.children)
         cards.append(f'<nav class="dg-chapter-card dg-chapter-sections" aria-label="Sections">'
                      f'{head(p, "p", False) if d["related"] else ""}<ul>{lis}</ul></nav>')
     if d['related']:
@@ -561,6 +582,8 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
             return '<span></span>'
         n = f'<span class="dg-secnum">{q.number}</span> ' if q.number else ''
         return f'<a class="{cls}" href="{rel(p.slug, q.slug + ".html")}" rel="{cls[3:]}">{arrow}<span>{n}{nolinks(q.title_html)}</span></a>'
+    if p.kind == 'section':
+        body += '\n' + shell.readtoggle()                 # D40: the "read" toggle, next to previous/next
     body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
              f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
              f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
@@ -642,10 +665,12 @@ def write_landing(front, pages, ctx, files, cfg: dict, search: list):
                   f'<section class="dg-dedication"><p>{h["dedication"]}</p></section>')
     lis = []
     for c in (p for p in pages if p.kind == 'chapter'):
+        if c.part_html:                 # a part title of the notes' contents ("Appendices")
+            lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
         word = 'Appendix' if (c.number or '?')[0].isalpha() else 'Chapter'
         t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
         head = f'<a href="{c.slug}.html">{t}</a>' if c.html is not None else f'<span class="dg-pending">{t}</span>'
-        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}</a></li>'
+        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}{shell.readmark()}</a></li>'
                        if k.html is not None else
                        f'<li class="dg-pending"><span class="dg-secnum">{k.number or ""}</span> {k.title_html}</li>' for k in c.children)
         lis.append(f'<li class="dg-contents-chapter">{head}' + (f'<ul>{subs}</ul>' if subs else '') + '</li>')
@@ -721,6 +746,7 @@ def main():
             except ConvertError:
                 p.title_html = '…'
 
+    part_titles(pages, ctx, P)
     done = [p for p in pages if p.html is not None]
     print(f'{len(done)} of {len(pages)} pages convert')
     for p in pages:
