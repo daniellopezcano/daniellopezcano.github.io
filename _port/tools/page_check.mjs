@@ -15,7 +15,13 @@
 //   * no console error, page error, failed request or HTTP status ≥ 400 (at 1440, 1280 and 390 px);
 //   * no horizontal page overflow at 1280 and 390 px (documentElement.scrollWidth − innerWidth ≤ 1);
 //   * every <img> has alt and explicit width and height attributes; no id twice in the page.
-// Links (in-page and cross-page, with fragments) are checked statically by links_check.py.
+//   * (unit B7, at 1440 after the math is typeset) MathJax typeset everything: no error node, no undefined
+//     macro, no .math element of <main> without output, no \( \) \[ \] left as text in <main> (code, pre, …
+//     excepted); every in-page link (href="#…", links made by the page script included) has its id in the live
+//     DOM, and every same-course link with a fragment has it in the live DOM of its target page when that page
+//     is checked in the same run (links_check.py checks all links statically, before scripts); focusing the
+//     first visible reference (a.dg-xref) of <main> opens its preview; every interactive frame
+//     (.dg-interactive[data-module]) scrolled into view becomes .dg-ready (a module error is a console error).
 // Output: a three-line weight summary (largest page per class), then one line per failing page.
 import { chromium, serveDocs } from './shot.mjs';
 import { selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
@@ -35,6 +41,59 @@ const browser = await chromium.launch();
 const t0 = Date.now();
 
 const fmt = b => b >= 1e6 ? (b / 1e6).toFixed(2) + ' MB' : Math.round(b / KB) + ' kB';
+
+// Runs in the page after the math is typeset (unit B7). Returns
+//   mathErr: MathJax error nodes (merror / data-mjx-error), and undefined macros, which MathJax's noundefined
+//            package sets as red text instead of an error; untyped: .math elements of <main> without output;
+//   raw:     \( \) \[ \] left as text in <main> (outside the tags MathJax skips: code, pre, script, …);
+//   missing: in-page links (href="#…", anywhere in the page, links made by the page script included) whose id
+//            is not in the live DOM;
+//   ids / out: every id of the page, and its same-course links with a fragment to another page (checked
+//            against that page's live ids once all pages ran).
+function liveDom() {
+  const COURSE = '/notes/diffgeo-gr/';
+  const out = { mathErr: [], untyped: 0, raw: [], missing: [], ids: [], out: [], formulas: 0 };
+  const short = s => s.replace(/\s+/g, ' ').trim().slice(0, 60);
+  for (const e of document.querySelectorAll('mjx-merror, .MathJax_Error, [data-mjx-error]')) out.mathErr.push(short(e.getAttribute('data-mjx-error') || e.textContent));
+  const doc = window.MathJax && MathJax.startup && MathJax.startup.document;
+  if (doc && doc.math) for (const m of doc.math) {
+    if (!m.root || !m.root.walkTree) continue;
+    out.formulas++;
+    m.root.walkTree(n => {
+      if (n.isKind('merror')) out.mathErr.push(short(m.math));
+      else if (n.isKind('mtext') && n.attributes.get('mathcolor') === 'red') {
+        const t = n.childNodes.map(c => (c.getText ? c.getText() : '')).join('');
+        if (t.startsWith('\\')) out.mathErr.push(`undefined ${t} in ${short(m.math)}`);
+      }
+    });
+  }
+  const main = document.querySelector('main');
+  if (main) {
+    out.untyped = [...main.querySelectorAll('.math')].filter(e => !e.querySelector('mjx-container')).length;
+    const SKIP = 'script, noscript, style, textarea, pre, code, annotation, annotation-xml, template, mjx-container';
+    const w = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+    for (let n; (n = w.nextNode());) {
+      if (!/\\[()[\]]/.test(n.data) || n.parentElement.closest(SKIP)) continue;
+      out.raw.push(short(n.data.slice(Math.max(0, n.data.search(/\\[()[\]]/) - 20))));
+    }
+  }
+  const has = id => !!(document.getElementById(id) || document.getElementsByName(id).length);
+  for (const e of document.querySelectorAll('[id]')) out.ids.push(e.id);
+  for (const e of document.querySelectorAll('a[name]')) out.ids.push(e.name);
+  for (const a of document.querySelectorAll('a[href]')) {
+    const raw = a.getAttribute('href');
+    if (!raw.includes('#') || /^(mailto|javascript|data):/.test(raw)) continue;
+    const u = new URL(raw, location.href), id = decodeURIComponent(u.hash.slice(1));
+    if (!id) continue;
+    if (u.origin === location.origin && u.pathname === location.pathname) { if (!has(id)) out.missing.push(raw); }
+    else if (u.origin === location.origin && u.pathname.startsWith(COURSE)) {
+      let p = u.pathname.slice(COURSE.length);
+      if (p === '' || p.endsWith('/')) p += 'index.html';
+      out.out.push({ href: raw, page: p.replace(/\.html$/, ''), id });
+    }
+  }
+  return out;
+}
 
 async function checkPage(slug) {
   const problems = [];
@@ -94,6 +153,32 @@ async function checkPage(slug) {
     if (info.imgs.length) problems.push(`img without alt/width/height: ${info.imgs.slice(0, 4).join('; ')}`);
     if (verbose) console.log(`  ${slug}: own ${fmt(sum.own)}, img ${fmt(sum.img)} (lazy ${fmt(sum.lazy)}), third ${fmt(sum.third)}`);
 
+    // 1b. still at 1440, after scripts ran (unit B7): math, live links, one preview, interactive frames
+    phase = 'checks';
+    const live = await page.evaluate(liveDom);
+    if (live.mathErr.length) problems.push(`math errors: ${[...new Set(live.mathErr)].slice(0, 3).join('; ')}`);
+    if (live.untyped) problems.push(`${live.untyped} .math element(s) in <main> not typeset`);
+    if (live.raw.length) problems.push(`raw TeX left in <main>: ${live.raw.slice(0, 3).join('; ')}`);
+    if (live.missing.length) problems.push(`in-page link to a missing id: ${[...new Set(live.missing)].slice(0, 4).join(', ')}`);
+    const xref = page.locator('main a.dg-xref[href]:visible').first();
+    if (await xref.count()) {
+      const label = (await xref.getAttribute('data-label')) || (await xref.getAttribute('href'));
+      await xref.focus();
+      const shown = await page.waitForFunction(() => { const p = document.getElementById('dg-pop'); return p && !p.hidden && p.textContent.trim().length > 0; }, null, { timeout: 8000 })
+        .then(() => true, () => false);
+      if (!shown) problems.push(`no preview on focusing the first reference (${label})`);
+      await page.evaluate(() => document.activeElement && document.activeElement.blur());
+    }
+    const frames = await page.$$eval('.dg-interactive[data-module]', fs => fs.map(f => f.dataset.module));
+    for (let i = 0; i < frames.length; i++) {
+      const frame = (await page.$$('.dg-interactive[data-module]'))[i];
+      await frame.evaluate(f => f.scrollIntoView({ block: 'center' }));
+      const ok = await page.waitForFunction(f => f.classList.contains('dg-ready'), frame, { timeout: 20000 }).then(() => true, () => false);
+      if (!ok) problems.push(`interactive "${frames[i]}" never ready`);
+    }
+    if (verbose) console.log(`  ${slug}: ${live.formulas} formulas, ${live.ids.length} ids, ${live.out.length} links to other pages, frames [${frames.join(', ')}]`);
+    phase = 'done-checks';
+
     // 2./3. 1280 and 390 px (cache now warm): no horizontal page overflow
     for (const w of [1280, 390]) {
       phase = String(w);
@@ -119,7 +204,7 @@ async function checkPage(slug) {
       if (over) problems.push(`page scrolls sideways at ${w} px by ${over}`);
     }
     phase = 'end';
-    return { slug, sum, wide: info.wide, hosts: [...hosts], problems };
+    return { slug, sum, wide: info.wide, hosts: [...hosts], problems, ids: new Set(live.ids), out: live.out };
   } catch (e) {
     problems.push(`check crashed: ${e.message.split('\n')[0]}`);
     return { slug, sum: { own: 0, img: 0, lazy: 0, third: 0 }, hosts: [], problems };
@@ -146,6 +231,13 @@ console.log(`    of which <img loading="lazy"> fetched ahead by the browser: max
 console.log(`  third-party             max ${fmt(mt.sum.third)} on ${mt.slug}   (budget ${fmt(BUDGET.third)})`);
 const hosts = [...new Set(results.flatMap(r => r.hosts))];
 console.log(`  third-party hosts other than jsdelivr / Google Fonts: ${hosts.length ? hosts.join(', ') : 'none'}`);
+// same-course links with a fragment to another page: the id must exist in that page's live DOM (when that page
+// was checked in this run; the others are left to links_check.py, which checks every link statically)
+const liveIds = new Map(results.filter(r => r.ids).map(r => [r.slug, r.ids]));
+for (const r of results) {
+  const miss = (r.out || []).filter(l => liveIds.has(l.page) && !liveIds.get(l.page).has(l.id)).map(l => l.href);
+  if (miss.length) r.problems.push(`link to a missing id on another page: ${[...new Set(miss)].slice(0, 4).join(', ')}`);
+}
 const bad = results.filter(r => r.problems.length);
 for (const r of bad) console.log(`FAIL ${r.slug}: ${[...new Set(r.problems)].join(' | ')}`);
 console.log(`${results.length - bad.length} of ${results.length} pages pass (${((Date.now() - t0) / 1000).toFixed(0)} s)`);

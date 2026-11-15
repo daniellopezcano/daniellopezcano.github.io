@@ -25,7 +25,8 @@ run() {  # run <name> <command...>
 
 notes_clean()   { [ -z "$(git -C "$NOTES/.." status --short)" ]; }
 on_branch()     { [ "$(git rev-parse --abbrev-ref HEAD)" = course-diffgeo-gr ]; }
-# The converter must convert every page. STRICT_PAGES=0 only while pages are still pending (PROGRESS.md).
+# The converter must convert every page: _port/.strict holds 1 since unit B7 (all pages convert), so a page
+# that stops converting fails this check. STRICT_PAGES=0 overrides it while a new chapter is being ported.
 convert()       { if [ "${STRICT_PAGES:-$(cat _port/.strict 2>/dev/null || echo 0)}" = 1 ]; then python3 _port/convert/build.py --strict; else python3 _port/convert/build.py; fi; }
 math_ok()       { node _port/tools/math_check.mjs > "$LOG/math.out" 2>&1; local rc=$?; tail -n 4 "$LOG/math.out"; return $rc; }
 render_site()   { quarto render 2>&1 | tee "$LOG/render.out" | tail -n 3; [ "${PIPESTATUS[0]}" = 0 ] || return 1
