@@ -8,7 +8,7 @@ records of the instrumented LaTeX build (numbering.py), never from a counter
 of our own.
 
 Placeholders left in the output and resolved by build.py once all pages exist:
-    \\x02R|<label>|<style>\\x02   cross reference   (style: ref | eqref)
+    \\x02R|<label>|<style>\\x02   cross reference   (style: ref | eqref | pageref)
     \\x02U|<slug>#<frag>\\x02      URL of another course page, made relative
 Headings inside a page are emitted as  \\x01H<level>|<id>|<html>\\x01  so that
 build.py can find them: it writes them as <h2>/<h3> elements and builds the
@@ -81,6 +81,7 @@ class Renderer:
         self.fn_counter = 0 if page.kind == 'chapter' else None
         self.macros: dict[str, str] = {}      # \edef'ed numbers (footnote marks used inside math)
         self.defs: list[str] = []             # in-body \def lines, needed by later TikZ pictures
+        self.arraystretch = None              # \renewcommand{\arraystretch}{x} in force (None = LaTeX's 1); for tabular
 
     # -- numbering ---------------------------------------------------------------
     def take(self, counter: str, pos: int) -> str:
@@ -108,7 +109,9 @@ class Renderer:
                 flush()
             elif isinstance(nd, Env):
                 flush()
+                stretch = self.arraystretch       # a definition made inside an environment ends with it (TeX group)
                 out.append(self.env(nd))
+                self.arraystretch = stretch
             elif isinstance(nd, Cmd) and nd.name in DECL:
                 flush()
                 rest = self.flow(nodes[i:])
@@ -192,7 +195,7 @@ class Renderer:
         if nd.args[0] is not None:
             raise ConvertError(f'{nd.name} with an optional argument: no handler yet', nd.pos)
         ordered = nd.name == 'enumerate'
-        items, cur, start = [], None, None
+        items, cur, start, floats = [], None, None, []
         for c in nd.body:
             if isinstance(c, Cmd) and c.name == 'item':
                 cur = (c, [])
@@ -201,28 +204,66 @@ class Renderer:
                 cur[1].append(c)
             elif isinstance(c, Cmd) and c.name == 'setcounter' and c.args[0].strip() in ('enumi', 'enumii', 'enumiii'):
                 start = int(c.args[1]) + 1
+            elif isinstance(c, Env) and c.name == 'figure':
+                floats.append(c)        # a float written before the first \item: emitted right before the list
             elif not (isinstance(c, (Text, Par)) and (isinstance(c, Par) or not c.s.strip())):
                 raise ConvertError(f'content before the first \\item in {nd.name}', c.pos)
+        lead = ''.join(self.figure(f) + '\n' for f in floats)
         if ordered:
             self.enum_depth += 1
             depth = self.enum_depth
         else:
             self.item_depth += 1
             depth = self.item_depth
+        # Item numbers of a first-level enumerate are LaTeX's (main.port, counter enumi): every unlabelled
+        # \item takes its record, in source order. The HTML list numbers its <li> itself (a labelled
+        # <li class="dg-labelled"> counts too, LaTeX's \item[..] does not), so each record is checked against
+        # the number the HTML shows; after a \setcounter{enumi}{n} inside an item's body (dropped, it prints
+        # nothing) the following items carry the LaTeX number explicitly (<li value>).
+        numbered = ordered and depth == 1
+        ordinal = start or 1            # the number the HTML list gives its next <li>
+        explicit, expect = False, None
         lis = []
         for it, body in items:
+            num = self.take('enumi', it.pos) if numbered and it.args[0] is None else None
+            body, reset = self.item_setcounter(body, numbered)
             if it.args[0] is not None:
                 lab = f'<span class="dg-item-label">{self.inline(it.args[0])}</span> '
                 lis.append(f'<li class="dg-labelled">{lab}{self.flow(body)}</li>')
             else:
-                lis.append(f'<li>{self.flow(body)}</li>')
+                val = ''
+                if num is not None:
+                    if expect is not None and num != str(expect):
+                        raise ConvertError(f'\\item after \\setcounter{{enumi}}{{{expect - 1}}}, but LaTeX numbered it {num}', it.pos)
+                    expect = None
+                    if explicit:
+                        val = f' value="{num}"'
+                    elif num != str(ordinal):
+                        raise ConvertError(f'\\item numbered {num} by LaTeX, but the HTML list would show {ordinal}', it.pos)
+                lis.append(f'<li{val}>{self.flow(body)}</li>')
+            ordinal += 1
+            if reset is not None:
+                explicit, expect = True, reset + 1
         if ordered:
             self.enum_depth -= 1
         else:
             self.item_depth -= 1
         tag = 'ol' if ordered else 'ul'
         st = f' start="{start}"' if start else ''
-        return f'<{tag} class="dg-{nd.name} dg-depth-{depth}"{st}>\n' + '\n'.join(lis) + f'\n</{tag}>'
+        return lead + f'<{tag} class="dg-{nd.name} dg-depth-{depth}"{st}>\n' + '\n'.join(lis) + f'\n</{tag}>'
+
+    def item_setcounter(self, body: list, numbered: bool):
+        """A \\setcounter{enumi}{n} at the top level of an item's body (first-level enumerate only):
+        removed from the body; returns (body, n). Any other \\setcounter stays and stops the page."""
+        reset, out = None, []
+        for c in body:
+            if numbered and isinstance(c, Cmd) and c.name == 'setcounter' and c.args[0].strip() == 'enumi':
+                if reset is not None or not c.args[1].strip().isdigit():
+                    raise ConvertError(f'\\setcounter{{enumi}}{{{c.args[1]}}} inside an item: no handler for this form', c.pos)
+                reset = int(c.args[1])
+            else:
+                out.append(c)
+        return out, reset
 
     # -- figures -------------------------------------------------------------------
     def figure(self, nd: Env) -> str:
@@ -307,7 +348,10 @@ class Renderer:
         if isinstance(nd, Math):
             return self.math(nd)
         if isinstance(nd, Group):
-            return self.inline(nd.body)
+            stretch = self.arraystretch           # ... and one made inside {..} ends with the group
+            html = self.inline(nd.body)
+            self.arraystretch = stretch
+            return html
         if isinstance(nd, Par):
             return ' '
         if isinstance(nd, Env):
@@ -320,9 +364,15 @@ class Renderer:
         if name[:-3] in TERM_COLOURS and name[-3:] in ('one', 'two'):
             shade = '' if name.endswith('one') else '2'
             return f'<span class="dg-term dg-term-{name[:-3]}{shade}">{self.inline(a[0])}</span>'
-        if name in ('ref', 'eqref'):
+        if name in ('ref', 'eqref', 'pageref'):     # pageref: the PDF's page number, linked like \ref (D47)
             self.refs.append(a[0].strip())
             return f'\x02R|{a[0].strip()}|{name}\x02'
+        if name == 'renewcommand':
+            m = re.fullmatch(r'\{?\\arraystretch\}?', a[0])
+            if m and re.fullmatch(r'\s*\d+(\.\d+)?\s*', a[1]):
+                self.arraystretch = a[1].strip()      # prints nothing; read by the tabular that follows
+                return ''
+            raise ConvertError(f'\\renewcommand{a[0]}: no handler for this definition', nd.pos)
         if name == 'label':
             lab = a[0].strip()
             self.anchors[lab] = lab
