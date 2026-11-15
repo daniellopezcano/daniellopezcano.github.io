@@ -1,8 +1,94 @@
 ---
 title: "Teaching & Projects"
-description: "Selected teaching material, lecture notes, slides, and projects for didactic and pedagogical purposes."
+description: "Student supervision, courses and schools, lecture notes, slides, and projects for didactic and pedagogical purposes."
 page-layout: full
 ---
+
+## Supervision
+
+### Current
+
+::: {.project-grid}
+
+::: {.project-card .activity-card}
+::: {.project-card-body}
+::: {.media-meta}
+PhD · In progress
+:::
+
+### Victor R. Soares da Silva
+
+Co-supervised with Prof. L. Raul Abramo · IFUSP, University of São Paulo · Aug 2026 – present
+
+Characterization of high column density absorbers (HCDs) in the Lyα forest.
+
+::: {.media-actions}
+[Paper](https://arxiv.org/abs/2609.19235){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+:::
+
+### Completed
+
+::: {.project-grid}
+
+::: {.project-card .activity-card}
+::: {.project-card-body}
+::: {.media-meta}
+MSc · Completed
+:::
+
+### Victor R. Soares da Silva
+
+Co-supervised with Prof. L. Raul Abramo · IFUSP, University of São Paulo · Oct 2024 – Jul 2026
+
+Cosmological simulations and Lyα systems.
+:::
+:::
+
+:::
+
+## Courses & Schools
+
+::: {.project-grid}
+
+::: {.project-card .activity-card}
+::: {.project-card-body}
+::: {.media-meta}
+Instructor · Graduate course · Sep – Oct 2026
+:::
+
+### From Differential Geometry to General Relativity
+
+Graduate course at IFUSP, University of São Paulo (3 credits; 18 h of lectures + 9 h of practical sessions), built on my open lecture notes and accompanying Python material.
+
+::: {.media-actions}
+[Lecture notes](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+::: {.project-card .activity-card}
+::: {.project-card-body}
+::: {.media-meta}
+Instructor · 1st IFUSP Winter School · July 2026
+:::
+
+### Neural Networks: Applications in Physics
+
+Four-day minicourse (taught in Portuguese) at the I Escola de Inverno do IFUSP. It goes from JAX fundamentals through domain shift and contrastive learning to two cosmology case studies, and each day pairs a theory block with a hands-on JAX notebook runnable in Colab.
+
+::: {.media-actions}
+[School page](https://portal.if.usp.br/pesquisa/pt-br/node/2745){.btn .btn-outline-info .btn-sm}
+[GitHub](https://github.com/daniellopezcano/I-Escola-de-Inverno-do-IFUSP){.btn .btn-outline-info .btn-sm}
+:::
+:::
+:::
+
+:::
 
 ## Lecture Notes
 
