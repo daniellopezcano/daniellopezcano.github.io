@@ -73,6 +73,7 @@ class Renderer:
         self.rec = records              # counter -> list of numbers for this chunk (consumed in order)
         self.footnotes: list[tuple[str, str]] = []
         self.anchors: dict[str, str] = {}     # label -> fragment id on this page
+        self.refs: list[str] = []             # every label this page refers to (ref and eqref: text, math, captions)
         self.math_log: list[str] = []         # every math string emitted (for the math check)
         self.enum_depth = 0
         self.item_depth = 0
@@ -258,6 +259,7 @@ class Renderer:
         img = (f'<img src="\x02U|{asset["src"]}\x02" alt="Figure {num}" width="{asset["width"]}" '
                f'height="{asset["height"]}" loading="lazy" decoding="async" data-kind="{asset["kind"]}">')
         self.ctx.assets[fid] = asset
+        self.ctx.captions[fid] = {'num': num, 'page': self.page.slug, 'caption': caption, 'frac': frac}
         return (f'<figure class="dg-figure" id="{esc(fid)}">{extra}'
                 f'<div class="dg-paper" style="--dg-frac:{frac:.3f}">{img}</div>'
                 f'<figcaption><span class="dg-fignum">Figure {num}:</span> {caption}</figcaption></figure>'
@@ -319,6 +321,7 @@ class Renderer:
             shade = '' if name.endswith('one') else '2'
             return f'<span class="dg-term dg-term-{name[:-3]}{shade}">{self.inline(a[0])}</span>'
         if name in ('ref', 'eqref'):
+            self.refs.append(a[0].strip())
             return f'\x02R|{a[0].strip()}|{name}\x02'
         if name == 'label':
             lab = a[0].strip()
@@ -497,6 +500,7 @@ class Renderer:
 
     def ref_in_math(self, m, pos: int) -> str:
         label = m.group(2).strip()
+        self.refs.append(label)
         num = self.ctx.aux.get(label)
         if num is None:
             self.ctx.review('undefined-ref', pos, label)

@@ -19,6 +19,7 @@ Commands (run from the repo root):
 ```bash
 _port/tex/build_scratch.sh              # copy the notes to _port/.work and compile with numbering hooks (~4 min; needed after the LaTeX changes)
 python3 _port/convert/build.py --status # which pages convert, and why not (fast, writes nothing)
+python3 _port/convert/build.py --chapters # what the chapter opening pages show: roadmap and related B/C items (D38; writes nothing)
 python3 _port/convert/build.py          # regenerate the course pages (complete HTML), figures, search index (--strict: fail if any page is pending)
 node _port/tools/math_check.mjs         # typeset every equation of the notes with the site's math config
 _port/build.sh [--no-tex]               # scratch build + converter + copy of the course into docs/ (+ post_render.py); seconds with --no-tex

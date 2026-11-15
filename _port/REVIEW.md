@@ -76,6 +76,7 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | copy LaTeX on display equations (R7) | label of the button (screen readers, tooltip): "Copy LaTeX"; confirmation shown and announced: "Copied" |
 | search dialog (R7) | dialog label "Search"; field label and placeholder "Search the notes" / "Search the site"; scope buttons "These notes", "Whole site"; list label "Results" (screen readers); "No results"; close button label "Close". Results show your page titles, section titles and text as written (TeX source as plain text) |
 | map dialog (R7) | dialog label "Course map" (screen readers); its head is the link to §1.1 with your number and title; the caption is your caption of Figure 1.1; button labels "Enlarge figure", "Close" |
+| chapter opening pages (R8) | label of the small page numbers after each related proof or example (screen readers, tooltip): "Pages connected by a reference"; a "·" before each number; the cards are headed by your chapter or appendix number and title ("Chapter n" / "Appendix X" + title, as in the contents of the landing page); the list of sections keeps the label "Sections" (screen readers); the roadmap's caption is your caption of that figure (Figure 1.2, 1.3 or 1.4), its number links to the figure in §1.1; button label "Enlarge figure" |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)
 

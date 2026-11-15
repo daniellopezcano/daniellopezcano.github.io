@@ -7,7 +7,8 @@
 //   1. popovers: footnotes below 1000 px (D11) and cross-reference previews (D25), one shared .dg-pop
 //   2. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c)
 //   3. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
-//   4. landing page: the master roadmap is inlined so its badges are links; cover decorations
+//   4. roadmaps inlined so their badges are links (landing page; chapter opening pages, lazily, with the
+//      chapter's badges ringed, D38); cover decorations
 //   5. interactive figures (D15)
 //   6. page shell: course tree as a drawer, theme switch (D32), reading progress, outline scroll-spy,
 //      sidenotes (D33), keyboard previous/next, site navbar toggle on phones
@@ -587,33 +588,59 @@ function initFigures() {
   });
 }
 
-// ---- 4. landing page --------------------------------------------------------------------------
-/** The master roadmap is inlined in place, so that its badges are links on the page itself. */
-async function initMaps() {
-  for (const paper of document.querySelectorAll('.dg-paper[data-map]')) {
-    const img = paper.querySelector('img');
-    if (!img) continue;
-    Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
-      dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '' });
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'dg-icon-btn dg-expand dg-web';
-    btn.setAttribute('aria-label', 'Enlarge figure');
-    btn.title = 'Enlarge figure';
-    btn.innerHTML = icon('fit');
-    btn.addEventListener('click', () => openViewer(paper));
-    paper.after(btn);                                    // outside the figure: it hides no badge
-    if (img.dataset.kind !== 'svg') continue;
-    try {
-      const svg = await inlineSvg(img.src);
-      const w = +img.getAttribute('width'), h = +img.getAttribute('height');
-      if (w && h) svg.style.aspectRatio = `${w} / ${h}`;
-      svg.setAttribute('class', 'dg-map-svg');
-      if (img.getAttribute('alt')) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', img.getAttribute('alt')); }
-      img.replaceWith(svg);
-      paper.classList.add('dg-map-live');
-      await linkify(svg);
-    } catch (err) { /* the image stays; the viewer still opens */ }
+// ---- 4. landing page and chapter opening pages ----------------------------------------------------
+/** Roadmaps (.dg-paper[data-map]) are inlined in place, so that their badges are links on the page itself:
+ *  the master roadmap of the landing page at once, the roadmap of a chapter opening page (data-map="lazy",
+ *  D38) only when it comes near the viewport. With data-ring, the badges that point into the current
+ *  chapter are ringed, as in the map dialog (section 11). */
+function initMaps() {
+  const papers = [...document.querySelectorAll('.dg-paper[data-map]')];
+  const lazy = papers.filter(p => p.dataset.map === 'lazy');
+  for (const paper of papers) if (paper.dataset.map !== 'lazy') liveMap(paper);
+  if (!lazy.length) return;
+  if (!('IntersectionObserver' in window)) { lazy.forEach(liveMap); return; }
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); liveMap(e.target); }
+  }, { rootMargin: '800px 0px' });
+  lazy.forEach(p => io.observe(p));
+}
+
+async function liveMap(paper) {
+  const img = paper.querySelector('img');
+  if (!img) return;
+  Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
+    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '' });
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dg-icon-btn dg-expand dg-web';
+  btn.setAttribute('aria-label', 'Enlarge figure');
+  btn.title = 'Enlarge figure';
+  btn.innerHTML = icon('fit');
+  btn.addEventListener('click', () => openViewer(paper));
+  paper.after(btn);                                    // outside the figure: it hides no badge
+  if (img.dataset.kind !== 'svg') return;
+  try {
+    const svg = await inlineSvg(img.src);
+    const w = +img.getAttribute('width'), h = +img.getAttribute('height');
+    if (w && h) svg.style.aspectRatio = `${w} / ${h}`;
+    svg.setAttribute('class', 'dg-map-svg');
+    if (img.getAttribute('alt')) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', img.getAttribute('alt')); }
+    img.replaceWith(svg);
+    paper.classList.add('dg-map-live');
+    await linkify(svg);
+    if (paper.hasAttribute('data-ring')) ringChapter(svg, await labels());
+  } catch (err) { /* the image stays; the viewer still opens */ }
+}
+
+/** Rings the linked badges of an inlined roadmap that point into the chapter of the current page
+ *  (same directory of the course). Nothing is ringed outside a chapter directory. */
+function ringChapter(svg, map) {
+  const here = (coursePath(location.href) || '').split('/');
+  const dir = here.length > 1 ? here[0] : null;
+  if (!dir) return;
+  for (const g of svg.querySelectorAll('a.dg-svg-link g.dg-xref[data-label]')) {
+    const u = (map[g.getAttribute('data-label')] || {}).url || '';
+    if (u.split('/')[0] === dir) g.closest('a.dg-svg-link').classList.add('dg-here');
   }
 }
 
@@ -730,13 +757,14 @@ function loadInteractives() {
 // ---- 6. page shell ---------------------------------------------------------------------------
 const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
-/** Course tree: in the grid from 1360 px, a drawer below (opened by the Contents button of the course bar).
+/** Course tree: in the grid from 1360 px, a drawer below (opened by the Contents button of the course bar);
+ *  a drawer at every width on chapter opening pages (D38).
  *  Opening moves the focus into it and keeps it there; Escape, a click outside or a link closes it and the
  *  focus returns to the button. */
 function initDrawer() {
   const tree = document.getElementById('dg-tree'), btn = document.querySelector('.dg-bar-menu');
   if (!tree || !btn) return;
-  const drawer = window.matchMedia('(max-width: 1359.98px)');
+  const drawer = window.matchMedia(document.body.classList.contains('dg-page-chapter') ? 'all' : '(max-width: 1359.98px)');
   const isOpen = () => H.classList.contains('dg-nav-open');
   const open = () => {
     H.classList.add('dg-nav-open');
@@ -1414,13 +1442,7 @@ async function fillMap() {
   M.paper.replaceChildren(svg);
   fitMap();
   await linkify(svg);
-  // the badges that point into the current chapter
-  const here = (coursePath(location.href) || '').split('/');
-  const dir = here.length > 1 ? here[0] : null;
-  for (const g of svg.querySelectorAll('a.dg-svg-link g.dg-xref[data-label]')) {
-    const u = (map[g.getAttribute('data-label')] || {}).url || '';
-    if (dir && u.split('/')[0] === dir) g.closest('a.dg-svg-link').classList.add('dg-here');
-  }
+  ringChapter(svg, map);                                // the badges that point into the current chapter
 }
 
 async function openMap(opener) {

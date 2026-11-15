@@ -188,6 +188,16 @@ body.dg-page-reading .dg-shell { font-size: 1.17rem; }
 /* landing page: one wide column, no tree */
 body.dg-page-landing .dg-shell { display: block; }
 body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+/* chapter opening pages (D38): one wide column like the landing page, the notes' text at its 45 em measure,
+ * no sidenote margin (footnotes as popover + list), the course tree a drawer at every width */
+body.dg-page-chapter .dg-shell { display: block; font-size: 1.17rem; }
+body.dg-page-chapter .dg-main { max-width: 1120px; margin: 0 auto; padding: 2.2rem 1.25rem 5rem; }
+body.dg-page-chapter .dg-main > :not(.dg-web) { max-width: 52.65rem; }      /* 45 em of the text size (1.17rem), also for the smaller footnotes */
+body.dg-page-chapter .dg-bar-menu { display: inline-flex; }
+body.dg-page-chapter .dg-tree { position: fixed; z-index: 41; top: 0; bottom: 0; left: 0; width: min(21rem, 88vw); max-height: none; padding-top: 1.2rem;
+  background: var(--dg-bg); font-size: 0.88rem; transform: translateX(-102%); visibility: hidden; transition: transform 0.18s ease, visibility 0s linear 0.18s; }
+html.dg-nav-open body.dg-page-chapter .dg-tree { transform: none; visibility: visible; box-shadow: 0 0 40px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
+html.dg-nav-open body.dg-page-chapter::after { content: ""; position: fixed; inset: 0; z-index: 40; background: rgba(5, 10, 20, 0.45); }
 
 /* widths: the margin from 1000 px, the tree in the grid from 1360 px (a drawer below) */
 @media (min-width: 1000px) {
@@ -204,10 +214,11 @@ body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5r
   html.dg-nav-open .dg-tree { transform: none; visibility: visible; box-shadow: 0 0 40px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
   html.dg-nav-open body::after { content: ""; position: fixed; inset: 0; z-index: 40; background: rgba(5, 10, 20, 0.45); }   /* over the site navbar (30) */
 }
-@media (prefers-reduced-motion: reduce) { .dg-tree { transition: none; } html.dg-nav-open .dg-tree { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .dg-tree, body.dg-page-chapter .dg-tree { transition: none; } html.dg-nav-open .dg-tree, html.dg-nav-open body.dg-page-chapter .dg-tree { transition: none; } }
 @media (max-width: 999.98px) {
   .dg-shell { display: block; }
   body.dg-page-reading .dg-main { max-width: 46rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+  body.dg-page-chapter .dg-main { padding: 1.4rem 1.1rem 4rem; }
 }
 @media (max-width: 991.98px) {
   :root { --dg-sitenav-h: 69px; }
@@ -216,7 +227,7 @@ body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5r
   .dg-sitenav ul { display: none; order: 3; flex: 0 0 100%; flex-direction: column; padding-top: 8px; }
   .dg-sitenav.dg-open ul { display: flex; }
 }
-@media (max-width: 767.98px) { body.dg-page-reading .dg-shell { font-size: 1.08rem; } }
+@media (max-width: 767.98px) { body.dg-page-reading .dg-shell, body.dg-page-chapter .dg-shell { font-size: 1.08rem; } }
 @media (max-width: 720px) {
   .dg-bar-btn span { display: none; }
   .dg-crumbs a, .dg-crumb-sep { display: none; }
@@ -328,11 +339,51 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 /* ---- 7. web layer ------------------------------------------------------------------------------ */
 .dg-web { font-family: var(--dg-ui); }
 .dg-main .dg-web { font-size: 0.93rem; }
-.dg-chapter-sections { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
-.dg-chapter-sections ul { list-style: none; padding: 0; margin: 0; }
-.dg-main .dg-chapter-sections li { margin: 0.3rem 0; }
-.dg-main .dg-chapter-sections a { text-decoration: none; }
-.dg-chapter-sections .dg-pending { color: var(--dg-pending); }
+
+/* chapter opening pages (D38): cards for the chapter's sections and for the related items of Appendices B and C
+ * (side by side from 900 px), then the chapter's roadmap from section 1.1. The card heads are the notes' own
+ * numbers and titles, set like the contents cards of the landing page. */
+.dg-chapter-web { display: grid; gap: 1rem; align-items: start; margin-top: 2.6rem; }
+@media (min-width: 900px) { .dg-chapter-web.dg-two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; } }
+.dg-chapter-web:not(.dg-two) > .dg-chapter-card { max-width: 52.65rem; }               /* 45 em of the text */
+.dg-chapter-web:not(.dg-two) > .dg-chapter-card:has(> ul > li:nth-child(12)) { max-width: none; }
+.dg-chapter-web:not(.dg-two) > .dg-chapter-card:has(> ul > li:nth-child(12)) > ul { columns: 2 24rem; column-gap: 2.2rem; }
+.dg-chapter-related { display: grid; gap: 1rem; }
+.dg-chapter-card { padding: 1rem 1.15rem 0.8rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
+.dg-main .dg-chapter-card-head { margin: 0 0 0.5rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--dg-rule); font-size: 1em; font-weight: 400; line-height: 1.25; }
+.dg-main .dg-chapter-card-head a { display: block; text-decoration: none; }
+.dg-chapter-card-head a:hover .dg-contents-title { color: var(--dg-accent); }
+.dg-chapter-card ul { list-style: none; margin: 0; padding: 0; }
+.dg-main .dg-chapter-card li { margin: 0; padding: 0.2rem 0 0.2rem 2.6rem; text-indent: -2.6rem; line-height: 1.45; break-inside: avoid; }
+.dg-chapter-card li > * { text-indent: 0; }
+.dg-chapter-card .dg-secnum { display: inline-block; min-width: 2.6rem; margin-right: 0; color: var(--dg-text-soft); font-variant-numeric: tabular-nums; }
+.dg-main a.dg-related-item { padding-block: 0.2rem; text-decoration: none; }                  /* hit area >= 24 px */
+.dg-main a.dg-related-item:hover { text-decoration: underline; }
+.dg-chapter-card .dg-pending, .dg-chapter-card .dg-pending .dg-secnum { color: var(--dg-pending); }
+/* the numbers of the pages at the other end of the references (web layer, small) */
+.dg-related-pages { font-size: 0.86em; font-variant-numeric: tabular-nums; }
+.dg-related-n { white-space: nowrap; }
+.dg-related-sep { color: var(--dg-text-soft); }
+/* a box of at least 24 x 24 px around each number; the negative margin keeps it out of the line height */
+.dg-related-n > :not(.dg-related-sep) { display: inline-block; min-width: 24px; margin: -0.3rem 0; padding: 0.3rem 0.5rem; border-radius: 5px;
+  line-height: 1.2; text-align: center; text-indent: 0; }
+.dg-main .dg-related-pages a { font-weight: 700; text-decoration: none; }
+.dg-main .dg-related-pages a:hover { background: var(--dg-ui-hover); color: var(--dg-accent-hover); }
+.dg-related-pages .dg-related-here { color: var(--dg-text-soft); }
+/* the roadmap: the figure as in section 1.1 (inlined when it comes near, badges into the chapter ringed),
+ * with the notes' caption beside it from 1000 px; the caption keeps the text face */
+.dg-main .dg-web.dg-chapter-map { margin-top: 2.6rem; font-size: 1em; }
+.dg-chapter-map .dg-figure { margin: 0; }
+.dg-chapter-map .dg-paper { width: 100%; cursor: default; }
+.dg-chapter-map .dg-expand { display: flex; margin: 0.45rem 0 0 auto; }
+.dg-chapter-map figcaption { font-family: var(--dg-text-font); }
+.dg-main .dg-chapter-map a.dg-fignum { color: var(--dg-heading); text-decoration: none; }
+.dg-main .dg-chapter-map a.dg-fignum:hover { text-decoration: underline; }
+@media (min-width: 1000px) {
+  .dg-chapter-map .dg-figure { display: grid; grid-template-columns: minmax(0, 1fr) minmax(14rem, 17rem); column-gap: 1.6rem; align-items: start; }
+  .dg-chapter-map .dg-figure > :not(figcaption) { grid-column: 1; }
+  .dg-chapter-map figcaption { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--dg-bar-h) + 1rem); margin-top: 0; }
+}
 .dg-prevnext { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
 .dg-main .dg-prevnext a { display: flex; gap: 0.5rem; max-width: 48%; text-decoration: none; }
 .dg-prevnext .dg-next { flex-direction: row-reverse; margin-left: auto; text-align: right; }
@@ -606,10 +657,10 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 @media print {
   :root { --dg-bg: #fff; --dg-surface: #fff; --dg-text: #000; --dg-text-soft: #222; --dg-heading: #000; }
   body { background: #fff; color: #000; }
-  .dg-skiplink, .dg-sitenav, .dg-bar, .dg-tree, .dg-sitefoot, .dg-prevnext, .dg-chapter-sections, .dg-landing-actions,
+  .dg-skiplink, .dg-sitenav, .dg-bar, .dg-tree, .dg-sitefoot, .dg-prevnext, .dg-chapter-web, .dg-chapter-map, .dg-landing-actions,
   .dg-sidenotes, .dg-pop, dialog.dg-viewer, dialog.dg-dlg, .dg-interactive, .dg-expand, .dg-open-here, .dg-inline, .dg-copy { display: none; }
-  .dg-shell, body.dg-page-reading .dg-shell { display: block; font-size: 11pt; padding: 0; }
-  .dg-main, body.dg-page-reading .dg-main, body.dg-page-landing .dg-main { max-width: none; margin: 0; padding: 0; }
+  .dg-shell, body.dg-page-reading .dg-shell, body.dg-page-chapter .dg-shell { display: block; font-size: 11pt; padding: 0; }
+  .dg-main, body.dg-page-reading .dg-main, body.dg-page-landing .dg-main, body.dg-page-chapter .dg-main { max-width: none; margin: 0; padding: 0; }
   .dg-main a, .dg-main a:hover { color: inherit; text-decoration: none; }
   .dg-footnotes { display: block; }
   .math.display { overflow: visible; -webkit-mask-image: none; mask-image: none; }

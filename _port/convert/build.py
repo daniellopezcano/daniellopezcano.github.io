@@ -4,6 +4,7 @@
     python3 _port/convert/build.py            # regenerate every page that converts
     python3 _port/convert/build.py --status   # only report which pages convert / why not
     python3 _port/convert/build.py --strict   # exit 1 if any page does not convert
+    python3 _port/convert/build.py --chapters # print what the chapter opening pages show (D38; writes nothing)
 
 Inputs : the scratch copy of the notes compiled by _port/tex/build_scratch.sh
          (_port/.work/tex/src: sources + main.aux + main.port + main.bbl).
@@ -112,6 +113,7 @@ class Page:
         self.footnotes = []
         self.math = []
         self.anchors = {}
+        self.refs = []                # labels this page refers to (render.py), for the chapter opening pages
         self.files = []
 
 
@@ -122,6 +124,7 @@ class Ctx:
         self.figure_list = []
         self._used = {}
         self.assets = {}              # figure label -> asset dict (for the landing page)
+        self.captions = {}            # figure label -> {'num', 'page', 'caption', 'frac'} (chapter opening pages)
         path = os.path.join(REPO, '_port', 'interactives.json')
         self.interactives = {}        # LaTeX label -> list of interactive module names
         self.interactives_used = set()
@@ -202,7 +205,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
     left = {c: q for c, q in records.items() if q and c in CHECKED}
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
-    p.html, p.footnotes, p.math, p.anchors = body, r.footnotes, r.math_log, r.anchors
+    p.html, p.footnotes, p.math, p.anchors, p.refs = body, r.footnotes, r.math_log, r.anchors, r.refs
 
 
 # ---------------------------------------------------------------------------------------
@@ -382,7 +385,157 @@ def course_tree(p: Page, order: list, items: list) -> str:
             f'<ol class="dg-tree-list">{"".join(lis)}</ol></nav>')
 
 
-def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list):
+# ---------------------------------------------------------------------------------------
+# chapter opening pages (D38): every list computed from the notes' own cross-references
+# ---------------------------------------------------------------------------------------
+RELATED = ('B', 'C')                  # the appendices whose section pages are listed (D38: proofs, worked examples)
+MASTER_MAP = 'fig_roadmap_master'     # the master roadmap; the other figures of its section are the detailed ones
+SRC_REF = re.compile(r'\\(?:eq)?ref\*?\s*\{([^}]+)\}')
+SRC_LABEL = re.compile(r'\\label\{([^}]+)\}')
+BADGE = re.compile(r'''<g class=['"]dg-xref['"] data-label=['"]([^'"]+)['"]''')
+INTERFACE_RELATED = 'Pages connected by a reference'     # label of the small page numbers (web layer; REVIEW.md)
+
+
+def chapter_of(p: Page) -> Page:
+    return p if p.kind == 'chapter' else p.parent
+
+
+def main_text(c: Page) -> bool:
+    return bool(c.number) and c.number[0].isdigit()
+
+
+def chapter_data(pages: list, ctx: Ctx) -> dict:
+    """chapter page -> {'related': [(appendix, [(item, [pages of the chapter])])], 'back': {item: [main-text pages]},
+    'map': figure label or None, 'counts': {figure label: badges into the chapter}} (D38).
+    An appendix item (section page of Appendix B or C) is connected with a main-text page when one of the two
+    refers to a label that lives on the other. Pages that do not convert yet (D16) take their labels and
+    references from the source."""
+    owner, refs = {}, {}
+    for p in pages:
+        if p.html is not None:
+            labs, rs = list(p.anchors), p.refs
+        else:
+            labs = [m.group(1).strip() for m in SRC_LABEL.finditer(ctx.src.text, p.a, p.b)]
+            rs = [m.group(1).strip() for m in SRC_REF.finditer(ctx.src.text, p.a, p.b)]
+        for lab in labs:
+            owner.setdefault(lab, p)
+        refs[p] = set(rs)
+    order = {p: i for i, p in enumerate(pages)}
+    chapters = [p for p in pages if p.kind == 'chapter']
+    apps = [c for c in chapters if c.number in RELATED]
+    text = [q for q in pages if main_text(chapter_of(q))]
+    pairs = {}                                            # item -> main-text pages connected with it
+    for app in apps:
+        for y in app.children:
+            pairs[y] = sorted((q for q in text if any(owner.get(lab) is y for lab in refs[q])
+                               or any(owner.get(lab) is q for lab in refs[y])), key=order.get)
+    data = {c: {'related': [], 'back': {}, 'map': None, 'counts': {}} for c in chapters}
+    for c in chapters:
+        if main_text(c):
+            for app in apps:
+                its = [(y, [q for q in pairs[y] if chapter_of(q) is c]) for y in app.children]
+                its = [(y, qs) for y, qs in its if qs]
+                if its:
+                    data[c]['related'].append((app, its))
+        elif c.number in RELATED:
+            data[c]['back'] = {y: pairs[y] for y in c.children if pairs[y]}
+    # roadmap: among the detailed roadmaps (the figures of the master roadmap's section, except the master one),
+    # the one with the most badges pointing into the chapter, at least two; a tie goes to the earlier figure
+    master = ctx.captions.get(MASTER_MAP)
+    if master:
+        home = chapter_of(next(p for p in pages if p.slug == master['page']))
+        maps = [f for f, v in ctx.captions.items() if v['page'] == master['page'] and f != MASTER_MAP]
+        badges = {}
+        for f in maps:
+            path = os.path.join(OUT, ctx.assets[f]['src'])
+            badges[f] = BADGE.findall(open(path, encoding='utf-8').read()) if os.path.exists(path) else []
+            if not badges[f]:
+                print(f'  WARNING roadmap {f}: no badges found in {os.path.relpath(path, REPO)}')
+        for c in chapters:
+            if c is home:                                 # it holds the roadmaps
+                continue
+            n = {f: sum(1 for lab in badges[f] if lab in owner and chapter_of(owner[lab]) is c) for f in maps}
+            best = max(maps, key=lambda f: (n[f], -maps.index(f)), default=None)
+            data[c]['counts'] = n
+            if best and n[best] >= 2:
+                data[c]['map'] = best
+    return data
+
+
+def print_chapters(data: dict, ctx: Ctx) -> None:
+    """The computed table behind the chapter opening pages (build.py --chapters)."""
+    print('chapter opening pages (D38): roadmap (badges into the chapter per detailed roadmap) and related items')
+    for c, d in data.items():
+        num = lambda q: q.number or '?'
+        counts = ', '.join(f'{ctx.captions[f]["num"]}: {k}' for f, k in d['counts'].items())
+        fig = f'Figure {ctx.captions[d["map"]]["num"]} ({d["map"]})' if d['map'] else '-'
+        print(f'  {num(c):>2} {plain(c.title_html or "")[:34]:34} roadmap {fig}' + (f'   [{counts}]' if counts else ''))
+        for app, its in d['related']:
+            print(f'       {app.number}: ' + '  '.join(f'{num(y)} ({", ".join(num(q) for q in qs)})' for y, qs in its))
+        if d['back']:
+            print('       ' + '  '.join(f'{num(y)} <- {", ".join(num(q) for q in qs)}' for y, qs in d['back'].items()))
+
+
+def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
+    """Web layer of a chapter opening page (D38): its sections, the related appendix items, the roadmap.
+    Titles carry placeholders: resolve() runs on the result."""
+    def numtitle(q):
+        return f'<span class="dg-secnum">{q.number or ""}</span> {nolinks(q.title_html or "…")}'
+
+    def head(c, tag, link, extra=''):
+        word = 'Appendix' if c.number and c.number[0].isalpha() else 'Chapter'
+        t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
+        if link:
+            t = f'<a href="{rel(p.slug, c.slug + ".html")}">{t}</a>'
+        return f'<{tag} class="dg-chapter-card-head"{extra}>{t}</{tag}>'
+
+    def connected(qs):
+        out = []
+        for q in qs:
+            if q is p:
+                out.append(f'<span class="dg-related-here" aria-current="page">{q.number}</span>')
+            elif q.html is None:
+                out.append(f'<span class="dg-pending">{q.number}</span>')
+            else:
+                out.append(f'<a href="{rel(p.slug, q.slug + ".html")}">{q.number}</a>')
+        sep = '<span class="dg-related-sep" aria-hidden="true">·</span>'      # each number stays with its dot
+        return (f' <span class="dg-related-pages" role="group" aria-label="{INTERFACE_RELATED}" title="{INTERFACE_RELATED}">'
+                + ''.join(f'<span class="dg-related-n">{sep}{x}</span>' for x in out) + '</span>')
+
+    def item(y, extra=''):
+        if y.html is None:
+            return f'<li class="dg-pending"><span class="dg-related-item">{numtitle(y)}</span>{extra}</li>'
+        return f'<li><a class="dg-related-item" href="{rel(p.slug, y.slug + ".html")}">{numtitle(y)}</a>{extra}</li>'
+
+    cards = []
+    if p.children:
+        # beside the related items, the card is headed like them (the chapter's own number and title); alone,
+        # it sits right under the page's title and needs no head
+        lis = ''.join(item(c, connected(d['back'][c]) if c in d['back'] else '') for c in p.children)
+        cards.append(f'<nav class="dg-chapter-card dg-chapter-sections" aria-label="Sections">'
+                     f'{head(p, "p", False) if d["related"] else ""}<ul>{lis}</ul></nav>')
+    if d['related']:
+        groups = ''.join(f'<nav class="dg-chapter-card" aria-labelledby="dg-related-{app.number}">'
+                         f'{head(app, "h2", True, f" id=\"dg-related-{app.number}\"")}'
+                         f'<ul>{"".join(item(y, connected(qs)) for y, qs in its)}</ul></nav>' for app, its in d['related'])
+        cards.append(f'<div class="dg-chapter-related">{groups}</div>')
+    out = ''
+    if cards:
+        out = f'\n<div class="dg-web dg-chapter-web{" dg-two" if len(cards) == 2 else ""}">{"".join(cards)}</div>'
+    fid = d['map']
+    if fid and fid in where:
+        cap, a = ctx.captions[fid], ctx.assets[fid]
+        slug, frag = where[fid]
+        num = f'<a class="dg-fignum" href="{rel(p.slug, slug + ".html")}#{frag}">Figure {cap["num"]}:</a>'
+        out += (f'\n<div class="dg-web dg-chapter-map"><figure class="dg-figure">'
+                f'<div class="dg-paper" data-map="lazy" data-ring="chapter" style="--dg-frac:{cap["frac"]:.3f}">'
+                f'<img src="{rel(p.slug, a["src"])}" alt="Figure {cap["num"]}" width="{a["width"]}" height="{a["height"]}" '
+                f'loading="lazy" decoding="async" data-kind="{a["kind"]}"></div>'
+                f'<figcaption>{num} {cap["caption"]}</figcaption></figure></div>')
+    return out
+
+
+def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list, chapters: dict):
     num = f'<span class="dg-secnum">{p.number}</span> ' if p.number and p.kind == 'section' else ''
     head = (f'<header class="dg-head dg-head-{p.kind}"><p class="dg-kicker">{kicker(p)}</p>'
             f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
@@ -392,12 +545,8 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
                         f'aria-label="Back to the text">{n}</a><div class="dg-fn-body">{h}</div></div>'
                         for n, h in p.footnotes)
         body += f'\n<div class="dg-footnotes">{notes}</div>'
-    if p.kind == 'chapter' and p.children:
-        lis = ''.join(f'<li><a href="{rel(p.slug, c.slug + ".html")}"><span class="dg-secnum">{c.number}</span> '
-                      f'{nolinks(c.title_html)}</a></li>' if c.html is not None else
-                      f'<li class="dg-pending"><span class="dg-secnum">{c.number or ""}</span> {c.title_html or ""}</li>'
-                      for c in p.children)
-        body += f'\n<nav class="dg-web dg-chapter-sections" aria-label="Sections"><ul>{lis}</ul></nav>'
+    if p.kind == 'chapter':
+        body += chapter_web(p, chapters[p], ctx, where)
     k = order.index(p)
     prev = next((q for q in reversed(order[:k]) if q.html is not None), None)
     nxt = next((q for q in order[k + 1:] if q.html is not None), None)
@@ -427,7 +576,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     text = shell.document(cfg=cfg, slug=p.slug, source=src_files,
                           title=f'{title.replace("$", "")} – {shell.COURSE_TITLE} – {shell.SITE_NAME}',
                           desc=shell.description(text_of(body)), crumbs=crumbs, tree=tree,
-                          main=headings(head + '\n' + body), pos=(k + 1) / len(order))
+                          main=headings(head + '\n' + body), pos=(k + 1) / len(order), chapter=p.kind == 'chapter')
     write(os.path.join(OUT, p.slug + '.html'), text, files)
 
 
@@ -490,6 +639,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--status', action='store_true')
     ap.add_argument('--strict', action='store_true')
+    ap.add_argument('--chapters', action='store_true', help='print the data of the chapter opening pages (D38); writes nothing')
     ap.add_argument('--no-figures', action='store_true', help='do not build figure assets (placeholders)')
     args = ap.parse_args()
 
@@ -501,7 +651,7 @@ def main():
     for k, v in aux.items():
         PLAIN_NUM[k] = v['num']
 
-    if args.no_figures or args.status:
+    if args.no_figures or args.status or args.chapters:
         class Stub:
             def graphic(self, path, name): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub'}
             def tex(self, snippet, name, tw=16.0): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub', 'width_frac': 1.0}
@@ -545,7 +695,10 @@ def main():
                          'converted': p.html is not None, 'error': p.error} for p in pages],
               'review': ctx.review_items}
     os.makedirs(os.path.join(REPO, '_port', '.work'), exist_ok=True)
-    if args.status:
+    chapters = chapter_data(pages, ctx)
+    if args.chapters:
+        print_chapters(chapters, ctx)
+    if args.status or args.chapters:
         return 1 if args.strict and len(done) < len(pages) else 0
 
     where = {}
@@ -557,7 +710,7 @@ def main():
     files: set = set()
     search: list = []
     for p in done:
-        write_page(p, ctx, where, pages, files, cfg, search)
+        write_page(p, ctx, where, pages, files, cfg, search, chapters)
     write_landing(front, pages, ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
         for mod in mods:

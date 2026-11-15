@@ -7,6 +7,9 @@
 // no console errors at 1280 and 390 px, no horizontal page scroll at 390 px. Unit R7, at 1280 and 390 px:
 // appendix content in place (from body text and from a footnote), copy LaTeX, the search dialog on both
 // indexes (from a section page and from the landing page), the map dialog, and the no-JavaScript fallbacks.
+// Unit R8, at 1280 and 390 px: chapter opening pages (D38): sections, related Appendix B / C items derived
+// from the pages' own links, the lazy roadmap with the chapter's badges ringed, the Contents drawer at every
+// width, back-links on the Appendix C page, no roadmap where the rule gives none, no console errors on all 13.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -375,6 +378,142 @@ try {
     ok(await page.locator('[data-act="search"]:visible').count() === 0, 'no JavaScript: the search buttons are hidden');
     ok(/index\.html#dg-roadmap$/.test(await page.locator('.dg-bar a[data-act="map"]').getAttribute('href')), 'no JavaScript: "Map" links to the roadmap of the landing page');
     await page.close();
+  }
+  // R8 (D38): chapter opening pages. The expected related items are derived from the pages' own links: an
+  // appendix item (section page of Appendix B or C) is connected with a main-text page when one of the two
+  // links to the other (cross-references in <main>, web layer excluded).
+  {
+    const scanLinks = (page, urls) => page.evaluate(async urls => {
+      const out = {};
+      await Promise.all(urls.map(async u => {
+        const doc = new DOMParser().parseFromString(await (await fetch(u)).text(), 'text/html');
+        const set = new Set();
+        for (const a of doc.querySelectorAll('#dg-main a.dg-xref[href]')) {
+          if (a.closest('.dg-web')) continue;
+          const t = new URL(a.getAttribute('href'), u); t.hash = '';
+          set.add(t.href);
+        }
+        out[u] = [...set];
+      }));
+      return out;
+    }, urls);
+    // from the course tree: { number: { url, pages: [url of each converted section page] } }
+    const treeOf = page => page.evaluate(() => {
+      const out = {};
+      for (const li of document.querySelectorAll('#dg-tree .dg-ch')) {
+        const n = (li.querySelector(':scope > a .dg-n, :scope > .dg-pending .dg-n')?.textContent || '').trim();
+        const a = li.querySelector(':scope > a');
+        out[n] = { url: a ? a.href : null, pages: [...li.querySelectorAll(':scope > ol:not(.dg-tree-outline) > li > a')].map(x => x.href) };
+      }
+      return out;
+    });
+    const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+    for (const width of [1280, 390]) {
+      const W = `@${width}`;
+      const requests = [];
+      const pg = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 900 } });
+      pg.on('request', r => { if (r.resourceType() === 'fetch') requests.push(r.url()); });   // the script's fetches
+      const { page, errors } = await load(pg, 'tangent-spaces/index.html');
+      ok(await page.evaluate(() => document.body.classList.contains('dg-page-chapter')), `${W} chapter page: body class dg-page-chapter`);
+      const tree = await treeOf(page);
+      const secs = await page.$$eval('.dg-chapter-sections li a', as => as.map(a => a.href));
+      ok(secs.length === 3 && sameSet(secs, tree['4'].pages), `${W} chapter page: the 3 sections of Chapter 4 are listed (${secs.length})`);
+      // expected related items
+      const items = ['B', 'C'].flatMap(n => tree[n].pages);
+      const mine = [tree['4'].url, ...tree['4'].pages];
+      const links = await scanLinks(page, [...items, ...mine]);
+      const conn = (q, y) => links[q].includes(y) || links[y].includes(q);
+      const want = {};
+      for (const y of items) { const qs = mine.filter(q => conn(q, y)); if (qs.length) want[y] = qs; }
+      const got = await page.evaluate(() => [...document.querySelectorAll('.dg-chapter-related li')].map(li => ({
+        y: li.querySelector('a.dg-related-item')?.href || null,
+        qs: [...li.querySelectorAll('.dg-related-pages a')].map(a => a.href).concat(li.querySelector('.dg-related-here') ? [location.href] : []),
+        group: li.closest('nav').querySelector('h2 a')?.href || '' })));
+      const groups = await page.$$eval('.dg-chapter-related h2', hs => hs.map(h => h.textContent.replace(/\s+/g, ' ').trim()));
+      ok(groups.length === 2 && /^Appendix B\b/.test(groups[0]) && /^Appendix C\b/.test(groups[1]), `${W} chapter page: related groups headed by Appendix B, then C (${groups.join(' | ')})`);
+      ok(got.every(g => g.y && /\/(proofs-and-additional-material|examples)\/index\.html$/.test(g.group)), `${W} chapter page: each group links to its appendix's opening page`);
+      const gotMap = Object.fromEntries(got.map(g => [g.y, g.qs]));
+      const diff = [...new Set([...Object.keys(want), ...Object.keys(gotMap)])]
+        .filter(y => !want[y] || !gotMap[y] || !sameSet(want[y], gotMap[y])).map(y => y.replace(/^.*\/diffgeo-gr\//, ''));
+      ok(Object.keys(want).length >= 4 && diff.length === 0, `${W} chapter page: related items and their page numbers match the pages' links (${Object.keys(want).length} items${diff.length ? '; differ: ' + diff.join(', ') : ''})`);
+      ok(await page.locator('.dg-chapter-web .dg-open-here, .dg-chapter-map .dg-open-here').count() === 0, `${W} chapter page: no "open here" inside the lists or the roadmap`);
+      // roadmap: lazy, inlined near the viewport, linked, the chapter's badges ringed
+      const map = await page.evaluate(() => { const m = document.querySelector('.dg-chapter-map'); return m && { top: m.getBoundingClientRect().top, svg: !!m.querySelector('svg'),
+        cap: m.querySelector('figcaption a.dg-fignum')?.href || '', num: m.querySelector('figcaption .dg-fignum')?.textContent || '' }; });
+      ok(!!map, `${W} chapter page: the roadmap block is present`);
+      if (map) {
+        map.lazy = await page.evaluate(async () => new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html')
+          .querySelector('.dg-chapter-map img')?.getAttribute('loading'));                       // the page as written, before the script
+        ok(map.lazy === 'lazy' && /\/introduction\/roadmaps\.html#fig_roadmap_topology_to_fields$/.test(map.cap) && map.num === 'Figure 1.3:', `${W} roadmap: lazy image, number "${map.num}" links to the figure in §1.1`);
+        // (the fallback <img loading="lazy"> is the browser's to load; the script fetches the SVG only within 800 px)
+        if (map.top > (width < 600 ? 844 : 900) + 900) {
+          ok(!map.svg && !requests.some(u => /fig-roadmap-topology-to-fields\.svg$/.test(u)), `${W} roadmap: not fetched by the script while far below the viewport (${Math.round(map.top)} px)`);
+        }
+        await page.evaluate(() => document.querySelector('.dg-chapter-map').scrollIntoView());
+        await page.waitForFunction(() => document.querySelectorAll('.dg-chapter-map svg a.dg-svg-link').length > 0, null, { timeout: 10000 }).catch(() => {});
+        const m = await page.evaluate(() => ({ links: document.querySelectorAll('.dg-chapter-map svg a.dg-svg-link').length,
+          here: [...document.querySelectorAll('.dg-chapter-map svg a.dg-here')].map(a => a.getAttribute('href')),
+          stroke: (() => { const h = document.querySelector('.dg-chapter-map svg a.dg-here .dg-svg-hit'); return h ? getComputedStyle(h).stroke : ''; })(),
+          cap: getComputedStyle(document.querySelector('.dg-chapter-map figcaption')).fontFamily }));
+        ok(m.links >= 10, `${W} roadmap: inlined after scrolling to it, ${m.links} links (>= 10)`);
+        ok(m.here.length > 0 && m.here.every(h => /\/tangent-spaces\//.test(h)) && m.stroke && m.stroke !== 'none', `${W} roadmap: the badges into Chapter 4 are ringed (${m.here.length})`);
+        ok(/NewCM/.test(m.cap), `${W} roadmap: the caption keeps the text face`);
+        await page.locator('.dg-chapter-map .dg-expand').click(); await page.waitForTimeout(300);
+        await page.waitForFunction(() => document.querySelectorAll('dialog.dg-viewer[open] a.dg-svg-link').length > 0, null, { timeout: 8000 }).catch(() => {});
+        ok(await page.locator('dialog.dg-viewer[open] a.dg-svg-link').count() >= 10, `${W} roadmap: the expand button opens it in the viewer, with links`);
+        await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+      }
+      ok((await overflow(page)) <= 0, `${W} chapter page: no horizontal page scroll`);
+      ok((await dupIds(page)).length === 0, `${W} chapter page: ids stay unique with the roadmap inlined`);
+      // the course tree is a drawer at every width on these pages
+      await page.evaluate(() => scrollTo(0, 0));
+      const btn = page.locator('.dg-bar-menu');
+      ok(await btn.isVisible(), `${W} chapter page: the Contents button is shown`);
+      await btn.click(); await page.waitForTimeout(400);
+      ok(await page.evaluate(() => { const t = document.getElementById('dg-tree'), r = t.getBoundingClientRect(); return getComputedStyle(t).visibility === 'visible' && r.right > 50 && r.left >= -1; }),
+        `${W} chapter page: the Contents drawer opens`);
+      await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+      ok(errors.length === 0, `${W} chapter page: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      // the opening page of Appendix C: each item carries the main-text pages connected with it
+      if (width === 1280) {
+        await load(page, 'examples/index.html');
+        const t = await treeOf(page);
+        const text = Object.entries(t).filter(([n]) => /^\d+$/.test(n)).flatMap(([, c]) => [c.url, ...c.pages]).filter(Boolean);
+        const cs = t.C.pages;
+        const lk = await scanLinks(page, [...cs, ...text]);
+        const exp = {};
+        for (const y of cs) { const qs = text.filter(q => lk[q].includes(y) || lk[y].includes(q)); if (qs.length) exp[y] = qs; }
+        const back = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.dg-chapter-sections li')]
+          .filter(li => li.querySelector('a.dg-related-item')).map(li => [li.querySelector('a.dg-related-item').href, [...li.querySelectorAll('.dg-related-pages a')].map(a => a.href)])
+          .filter(([, qs]) => qs.length)));
+        const d = [...new Set([...Object.keys(exp), ...Object.keys(back)])].filter(y => !exp[y] || !back[y] || !sameSet(exp[y], back[y]));
+        ok(Object.keys(back).length >= 7 && d.length === 0, `Appendix C page: items carry back-links to the main-text pages connected with them (${Object.keys(back).length} items${d.length ? '; differ: ' + d.map(y => y.replace(/^.*\/diffgeo-gr\//, '')).join(', ') : ''})`);
+        ok(await page.locator('.dg-chapter-related, .dg-chapter-map').count() === 0, 'Appendix C page: no related-items block of its own, no roadmap');
+      }
+      // no roadmap where the rule gives none; no error
+      for (const p of ['introduction/index.html', 'computational-ressources/index.html']) {
+        const { page: q, errors: e } = await open(p, width);
+        await q.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 700) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); } });
+        await q.waitForTimeout(300);
+        ok(await q.locator('.dg-chapter-map').count() === 0 && e.length === 0, `${W} ${p}: no roadmap block, no console errors${e.length ? ': ' + e.slice(0, 3).join(' / ') : ''}`);
+        await q.close();
+      }
+      await page.close();
+    }
+    // all chapter opening pages: no console errors (scrolled through, so the roadmaps load)
+    const { page: t0 } = await open('index.html');
+    const chapters = await t0.$$eval('.dg-contents-chapter > a', as => as.map(a => a.getAttribute('href')));
+    await t0.close();
+    ok(chapters.length === 13, `the landing page lists ${chapters.length} chapter opening pages (13)`);
+    for (const width of [1280, 390]) {
+      for (const p of chapters) {
+        const { page, errors } = await open(p, width);
+        await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 700) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); } });
+        await page.waitForTimeout(600);
+        ok(errors.length === 0, `${p} @${width}: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+        await page.close();
+      }
+    }
   }
   // console errors and horizontal overflow
   for (const width of [1280, 390]) {
