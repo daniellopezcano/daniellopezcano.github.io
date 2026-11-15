@@ -11,6 +11,11 @@
 //   5. interactive figures (D15)
 //   6. page shell: course tree as a drawer, theme switch (D32), reading progress, outline scroll-spy,
 //      sidenotes (D33), keyboard previous/next, site navbar toggle on phones
+//   7. interface words and helpers of 8-11
+//   8. appendix content in place: "open here" on references to Appendix B / C pages (D35)
+//   9. copy LaTeX on display equations (D39)
+//  10. search dialog, course index and site index (D36, D39)
+//  11. map dialog: the master roadmap with the current chapter ringed (D39)
 
 export const ROOT = new URL('..', import.meta.url);          // URL of notes/diffgeo-gr/
 
@@ -84,7 +89,7 @@ const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
 
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
-  if (!t || t.closest('.dg-pop, .dg-viewer')) return null;
+  if (!t || t.closest('.dg-pop, dialog')) return null;           // a modal dialog would cover the popover
   return sidenotesOn() && t.matches('.dg-fnref > a') ? null : t;
 }
 
@@ -216,21 +221,24 @@ function place() {
   if (!el || el.hidden || !t || !t.isConnected) return;
   const rects = t.getClientRects();
   const r = rects.length ? rects[0] : t.getBoundingClientRect();
-  const col = (t.closest('main') || document.querySelector('main') || document.body).getBoundingClientRect();
   const vw = document.documentElement.clientWidth, vh = window.innerHeight, m = 8, gap = 6;
+  const mainR = (t.closest('main') || document.querySelector('main') || document.body).getBoundingClientRect();
+  // a reference in a sidenote (margin column): the popover may use the text column and the margin
+  const col = t.closest('.dg-sidenote') ? { left: mainR.left, right: vw - m, width: vw - m - mainR.left } : mainR;
   const header = document.getElementById('dg-bar');                 // the sticky course bar
   const hb = header ? header.getBoundingClientRect().bottom : 0;
   const topLimit = Math.max(m, hb > 0 ? hb + m : m);
   // a lone display equation lays out its tag against the box width: give it the column's width
   const eq = !!el.querySelector('.math.display') && !el.querySelector('p');
-  const maxW = Math.max(200, Math.min(col.width, vw - 2 * m, eq ? 1e4 : 560));
+  const maxW = Math.floor(Math.max(200, Math.min(col.width, vw - 2 * m, eq ? 1e4 : 560)));
   el.style.maxWidth = `${maxW}px`;
   el.style.width = eq ? `${maxW}px` : '';
   const below = vh - r.bottom - gap - m, above = r.top - gap - topLimit;
   el.style.maxHeight = `${Math.max(120, Math.min(vh * 0.6, Math.max(below, above)))}px`;
   const w = el.offsetWidth, h = el.offsetHeight;
   let lo = Math.max(m, col.left), hi = Math.min(vw - m, col.right) - w;
-  if (hi < lo) { lo = m; hi = Math.max(m, vw - m - w); }
+  if (hi < lo - 2) { lo = m; hi = Math.max(m, vw - m - w); }          // wider than the column: the viewport
+  else hi = Math.max(hi, lo);                                            // (sub-pixel widths)
   const left = clamp(r.left + r.width / 2 - w / 2, lo, hi);
   const top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
   el.style.left = `${left + window.scrollX}px`;
@@ -551,9 +559,10 @@ async function openViewer(paper) {
   } catch (err) { /* the image stays */ }
 }
 
-function initFigures() {
-  for (const paper of document.querySelectorAll('main .dg-paper')) {
-    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive')) continue;
+/** Figure cards inside `root` become buttons that open the viewer. */
+function enableFigures(root) {
+  for (const paper of root.querySelectorAll('.dg-paper')) {
+    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('role')) continue;
     const img = paper.querySelector('img');
     if (!img) continue;
     paper.tabIndex = 0;
@@ -561,6 +570,10 @@ function initFigures() {
     const alt = img.getAttribute('alt');
     paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : 'Enlarge figure');
   }
+}
+
+function initFigures() {
+  enableFigures(document.querySelector('main') || document.body);
   document.addEventListener('click', e => {
     const paper = e.target.closest && e.target.closest('.dg-paper[role="button"]');
     if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href]')) return;
@@ -846,7 +859,7 @@ function initSidenotes() {
   const note = a => box && box.querySelector(`.dg-sidenote[data-for="${CSS.escape(a.hash.slice(1))}"]`);
   const hot = (e, on) => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn()) note(a)?.classList.toggle('dg-hot', on);
+    if (a && sidenotesOn() && !a.closest('.dg-inline')) note(a)?.classList.toggle('dg-hot', on);
   };
   document.addEventListener('pointerover', e => hot(e, true));
   document.addEventListener('pointerout', e => hot(e, false));
@@ -854,7 +867,7 @@ function initSidenotes() {
   document.addEventListener('focusout', e => hot(e, false));
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn()) e.preventDefault();         // the note is beside the mark: no jump to the hidden list
+    if (a && sidenotesOn() && !a.closest('.dg-inline')) e.preventDefault();         // the note is beside the mark: no jump to the hidden list
   });
   let t = 0;
   const later = () => { clearTimeout(t); t = setTimeout(layout, 120); };
@@ -882,6 +895,554 @@ function initKeys() {
   });
 }
 
+// ---- 7. web-layer words and small helpers of sections 8-11 -----------------------------------------
+// Every word of interface text below is listed in _port/REVIEW.md.
+const WORDS = {
+  openHere: 'open here', openPage: 'open page', close: 'close', closeLabel: 'Close',
+  copy: 'Copy LaTeX', copied: 'Copied',
+  search: 'Search', searchNotes: 'Search the notes', searchSite: 'Search the site',
+  scopeNotes: 'These notes', scopeSite: 'Whole site', results: 'Results', noResults: 'No results',
+  map: 'Course map', enlarge: 'Enlarge figure',
+};
+const ICON = name => `<i class="dg-i dg-i-${name}" aria-hidden="true"></i>`;
+const escHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const typing = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+/** The site root (the page shell writes it, relative to the page, in <body data-dg-site>). */
+const siteRoot = () => new URL(document.body.dataset.dgSite || '../../', location.href);
+/** Path of a course URL inside the course directory ('tangent-spaces/tangent-space.html'), or null. */
+function coursePath(href) {
+  const u = new URL(href, location.href);
+  return u.origin === ROOT.origin && u.pathname.startsWith(ROOT.pathname) ? decodeURI(u.pathname.slice(ROOT.pathname.length)) : null;
+}
+let srEl = null;
+/** Says `text` to screen readers (a polite live region). */
+function announce(text) {
+  if (!srEl) {
+    srEl = document.createElement('div');
+    srEl.className = 'dg-sr-only dg-web';
+    srEl.setAttribute('role', 'status');
+    document.body.append(srEl);
+  }
+  srEl.textContent = '';
+  setTimeout(() => { srEl.textContent = text; }, 30);
+}
+
+// ---- 8. appendix content in place (D35) -----------------------------------------------------------
+// A reference to a section page of Appendix B (proofs) or C (worked examples) gets an "open here" button.
+// It opens the target page's content in a panel after the block that holds the reference (for a reference
+// in a footnote: after the block that holds the footnote mark). Fetched at run time, never copied at build
+// time, so the panel cannot disagree with the page. The buttons are copied with the footnotes into the
+// sidenotes and the footnote popover; all of them work through one delegated click handler.
+const APPENDIX_PAGE = /^(proofs-and-additional-material|examples)\/(?!index\.html$)[^/]+\.html$/;
+const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, nav, .dg-web';
+const panels = new Set();
+let panelSeq = 0;
+
+function initPanels() {
+  const main = document.getElementById('dg-main');
+  if (!main) return;
+  for (const a of main.querySelectorAll('a.dg-xref[data-kind="section"][href]')) {
+    const path = coursePath(a.href);
+    if (!path || !APPENDIX_PAGE.test(path) || a.closest(NOT_OPENABLE) || pageKey(a.href) === pageKey(location.href)) continue;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-open-here dg-web';
+    b.setAttribute('aria-expanded', 'false');
+    b.innerHTML = `${ICON('expand')}<span>${WORDS.openHere}</span>`;
+    const keep = document.createElement('span');          // the reference and its button stay on one line
+    keep.className = 'dg-xref-open';
+    a.before(keep);
+    keep.append(a, b);
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.dg-open-here');
+    if (b) { e.preventDefault(); togglePanel(b); }
+  });
+}
+
+/** The block after which the panel of button `b` goes (null if it cannot be found). */
+function panelBlock(b) {
+  const main = document.getElementById('dg-main');
+  let from = b.previousElementSibling;
+  const note = b.closest('.dg-sidenote, .dg-fn, .dg-pop');
+  if (note) {                                            // a footnote: the block that holds its mark
+    const id = note.matches('.dg-pop') ? (pop.trigger && pop.trigger.matches('.dg-fnref > a') ? decodeURIComponent(pop.trigger.hash.slice(1)) : '')
+      : (note.dataset.for || note.id);
+    from = id ? main.querySelector(`.dg-fnref > a[href="#${CSS.escape(id)}"]`) : null;
+  }
+  if (!from) return null;
+  let block = from.closest('p, li, figcaption, td, th, blockquote, .dg-motivation, main') || from.parentElement;
+  if (block.matches('figcaption')) block = block.closest('figure') || block;
+  else if (block.matches('td, th')) block = block.closest('table') || block;
+  return block === main ? from : block;
+}
+
+const panelTarget = b => pageKey(b.previousElementSibling.href);
+const findPanel = (target, block) => [...panels].find(p => p.dgTarget === target && p.dgBlock === block);
+function syncButtons() {
+  for (const b of document.querySelectorAll('.dg-open-here')) {
+    const block = panelBlock(b), box = block && findPanel(panelTarget(b), block);
+    b.setAttribute('aria-expanded', String(!!box));
+    if (box) b.setAttribute('aria-controls', box.id); else b.removeAttribute('aria-controls');
+  }
+}
+
+function closePanel(box, focusTo) {
+  panels.delete(box);
+  box.remove();
+  syncButtons();
+  if (focusTo && focusTo.isConnected && focusTo.getClientRects().length) focusTo.focus({ preventScroll: true });
+}
+
+async function togglePanel(b) {
+  const a = b.previousElementSibling;
+  const block = panelBlock(b);
+  if (!a || !block) { if (a) location.href = a.href; return; }
+  const target = panelTarget(b);
+  const open = findPanel(target, block);
+  if (open) { closePanel(open, b.isConnected ? b : null); return; }
+  if (b.dataset.busy) return;
+  b.dataset.busy = '1';
+  const far = !!b.closest('.dg-fn, .dg-pop');            // the panel opens away from the button
+  let doc;
+  try { doc = await fetchPage(target); } catch (err) { delete b.dataset.busy; location.href = a.href; return; }
+  delete b.dataset.busy;
+  if (findPanel(target, block)) return;
+  const box = buildPanel(doc, target);
+  box.dgTarget = target;
+  box.dgBlock = block;
+  let at = block;                                        // after the panels already open at this block
+  while (at.nextElementSibling && at.nextElementSibling.matches('.dg-inline')) at = at.nextElementSibling;
+  at.after(box);
+  panels.add(box);
+  box.dgOpener = b.closest('.dg-pop') ? pop.trigger : b;
+  if (b.closest('.dg-pop')) hide();
+  syncButtons();
+  if (far) {
+    box.scrollIntoView({ block: 'nearest' });
+    box.focus({ preventScroll: true });
+  }
+  const body = box.querySelector('.dg-inline-body');
+  keepTex(body);
+  try { await typeset(box); } catch (err) { /* the TeX source stays readable */ }
+  box.classList.remove('dg-inline-raw');
+  enableFigures(body);
+  initCopy(body);
+  fitDisplayMath();
+  fitWideInlineMath();
+}
+
+/** The panel: the item's kicker, number and title from its own page, "open page", "close", and the
+ *  children of its <main> except the page header and previous/next (ids removed, URLs rebased). */
+function buildPanel(doc, target) {
+  const main = doc.querySelector('main') || doc.body;
+  const id = `dg-inline-${++panelSeq}`;
+  const box = document.createElement('div');
+  box.className = 'dg-inline dg-inline-raw dg-web';
+  box.id = id;
+  box.tabIndex = -1;
+  box.setAttribute('role', 'region');
+  box.setAttribute('aria-labelledby', `${id}-t`);
+  const head = document.createElement('div');
+  head.className = 'dg-inline-head';
+  const kicker = main.querySelector('.dg-head .dg-kicker');
+  const title = main.querySelector('.dg-head .dg-title');
+  const k = document.createElement('span');
+  k.className = 'dg-inline-kicker';
+  k.textContent = kicker ? kicker.textContent.replace(/\s+/g, ' ').trim() : '';
+  const t = document.createElement('span');
+  t.className = 'dg-inline-title';
+  t.id = `${id}-t`;
+  if (title) t.append(...adopt(document.importNode(title, true), target).childNodes);
+  const tools = document.createElement('span');
+  tools.className = 'dg-inline-tools';
+  tools.innerHTML = `<a href="${escHtml(target)}">${WORDS.openPage}${ICON('arrow-up-right')}</a>`
+    + `<button type="button">${WORDS.close}${ICON('x')}</button>`;
+  tools.querySelector('button').addEventListener('click', () => closePanel(box, box.dgOpener));
+  head.append(k, t, tools);
+  const body = document.createElement('div');
+  body.className = 'dg-inline-body';
+  body.tabIndex = 0;                                      // it scrolls: keyboard users can scroll it too
+  body.setAttribute('aria-labelledby', `${id}-t`);
+  for (const el of main.children) {
+    if (el.matches('.dg-head, .dg-prevnext, .dg-sidenotes, script')) continue;
+    body.append(adopt(document.importNode(el, true), target));
+  }
+  box.append(head, body);
+  return box;
+}
+
+// ---- 9. copy LaTeX (D39) ------------------------------------------------------------------------
+// Every display equation gets a small button that copies its TeX as it stands in the notes: data-tex,
+// written by the converter where it rewrote the source (\label -> \tag, \ref -> number) and kept by
+// mathjax-config.js from the element's text before typesetting everywhere else. The button shows on
+// hover and keyboard focus (one tab stop per display: at most ~60 on the longest page); on touch-only
+// screens, when the equation is tapped.
+/** Keeps the TeX of the display equations of a fragment that is about to be typeset. */
+function keepTex(root) {
+  for (const d of root.querySelectorAll('.math.display:not([data-tex])')) {
+    if (!d.querySelector('mjx-container')) d.dataset.tex = d.textContent;
+  }
+}
+
+function initCopy(root) {
+  for (const d of root.querySelectorAll('.math.display')) {
+    if (d.closest('.dg-pop, .dg-eq') || !(d.dataset.tex || !d.querySelector('mjx-container'))) continue;
+    const w = document.createElement('span');
+    w.className = 'dg-eq';
+    d.before(w);
+    w.append(d);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-copy dg-web';
+    b.setAttribute('aria-label', WORDS.copy);
+    b.title = WORDS.copy;
+    b.innerHTML = `${ICON('clipboard')}${ICON('check')}<span class="dg-copy-msg" aria-hidden="true">${WORDS.copied}</span>`;
+    w.append(b);
+  }
+}
+
+function initCopyEvents() {
+  const touchOnly = window.matchMedia('(hover: none)');
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.dg-copy');
+    if (b) {
+      const d = b.parentElement.querySelector('.math.display');
+      const tex = d && (d.dataset.tex || d.textContent);
+      if (!tex || !navigator.clipboard || !navigator.clipboard.writeText) return;     // silently: nothing to copy with
+      navigator.clipboard.writeText(tex).then(() => {
+        b.classList.add('dg-done');
+        announce(WORDS.copied);
+        clearTimeout(b.dgTimer);
+        b.dgTimer = setTimeout(() => b.classList.remove('dg-done'), 1600);
+      }).catch(() => { /* clipboard refused: silently */ });
+      return;
+    }
+    if (!touchOnly.matches) return;
+    const w = e.target.closest && e.target.closest('.dg-eq');
+    for (const o of document.querySelectorAll('.dg-eq.dg-on')) if (o !== w) o.classList.remove('dg-on');
+    if (w && !e.target.closest('a[href]')) w.classList.toggle('dg-on');
+  });
+}
+
+async function initCopyButtons() {
+  await mathReady();
+  const main = document.getElementById('dg-main');
+  if (main) initCopy(main);
+}
+
+// ---- 10. search (D36, D39) -----------------------------------------------------------------------
+// One dialog, two indexes: "Search" in the course bar and the / key search the course's own index
+// (assets/search.json); the search button of the site navbar searches the site's index (<site>/search.json,
+// which post_render.py extends with the course), as it does on every other page of the site. Each index is
+// loaded on first use. Every word of the query must occur (case and accents ignored); ranking: title, then
+// section, then text. Results are plain text (TeX source as written), grouped by page.
+const S = { dlg: null, input: null, list: null, empty: null, scope: 'notes', idx: {}, opener: null, hits: [], active: -1, seq: 0, timer: 0 };
+const MAX_HITS = 30;
+const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+function loadIndex(scope) {
+  if (!S.idx[scope]) {
+    const url = scope === 'site' ? new URL('search.json', siteRoot()) : new URL('assets/search.json', ROOT);
+    S.idx[scope] = fetch(url).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(list => list.map((e, i) => ({ e, i, t: fold(e.title || ''), s: fold(e.section || ''), x: fold(e.text || '') })))
+      .catch(err => { delete S.idx[scope]; throw err; });
+  }
+  return S.idx[scope];
+}
+
+function rank(index, query) {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  const phrase = words.join(' ');
+  const hits = [];
+  for (const r of index) {
+    let score = 0;
+    for (const w of words) {
+      const inT = r.t.includes(w), inS = r.s.includes(w), inX = r.x.includes(w);
+      if (!inT && !inS && !inX) { score = -1; break; }
+      score += (inT ? 100 : 0) + (inS ? 20 : 0) + (inX ? 1 : 0);
+    }
+    if (score < 0) continue;
+    if (words.length > 1) score += r.t.includes(phrase) ? 50 : r.s.includes(phrase) ? 10 : r.x.includes(phrase) ? 2 : 0;
+    hits.push({ r, score });
+  }
+  hits.sort((a, b) => b.score - a.score || a.r.i - b.r.i);
+  // the best MAX_HITS, grouped by page (pages in the order of their best hit, sections in page order)
+  const top = hits.slice(0, MAX_HITS), order = new Map();
+  for (const h of top) { const k = h.r.e.href.split('#')[0]; if (!order.has(k)) order.set(k, order.size); }
+  return top.sort((a, b) => order.get(a.r.e.href.split('#')[0]) - order.get(b.r.e.href.split('#')[0]) || a.r.i - b.r.i);
+}
+
+/** `text` as HTML with every occurrence of the query words in <mark> (accents and case ignored). */
+function marked(text, words) {
+  let low = '';
+  const map = [];
+  for (let i = 0; i < text.length; i++) { const f = fold(text[i]); for (let j = 0; j < f.length; j++) map.push(i); low += f; }
+  const spans = [];
+  for (const w of words) {
+    for (let k = low.indexOf(w); k >= 0; k = low.indexOf(w, k + w.length)) spans.push([map[k], map[k + w.length - 1] + 1]);
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  let out = '', at = 0;
+  for (const [a, b] of spans) {
+    if (a < at) continue;
+    out += escHtml(text.slice(at, a)) + `<mark>${escHtml(text.slice(a, b))}</mark>`;
+    at = b;
+  }
+  return out + escHtml(text.slice(at));
+}
+
+/** One line of `text` around the first match of the query words. */
+function snippet(text, words) {
+  const low = fold(text);
+  let k = -1;
+  for (const w of words) { const i = low.indexOf(w); if (i >= 0 && (k < 0 || i < k)) k = i; }
+  if (k < 0) return text.slice(0, 160);
+  let a = Math.max(0, k - 60), b = Math.min(text.length, k + 120);
+  if (a > 0) { const sp = text.indexOf(' ', a); a = sp >= 0 && sp < k ? sp + 1 : a; }
+  if (b < text.length) { const sp = text.lastIndexOf(' ', b); b = sp > k ? sp : b; }
+  return (a > 0 ? '… ' : '') + text.slice(a, b) + (b < text.length ? ' …' : '');
+}
+
+function buildSearch() {
+  const d = document.createElement('dialog');
+  d.className = 'dg-search dg-dlg dg-web';
+  d.setAttribute('aria-label', WORDS.search);
+  d.innerHTML = `<div class="dg-search-head">${ICON('search')}
+      <input type="search" class="dg-search-input" role="combobox" aria-expanded="false" aria-controls="dg-search-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+      <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
+    <div class="dg-search-scope"><button type="button" data-scope="notes">${WORDS.scopeNotes}</button><button type="button" data-scope="site">${WORDS.scopeSite}</button></div>
+    <ul class="dg-search-list" id="dg-search-list" role="listbox" aria-label="${WORDS.results}"></ul>
+    <p class="dg-search-empty" hidden>${WORDS.noResults}</p>`;
+  document.body.append(d);
+  Object.assign(S, { dlg: d, input: d.querySelector('input'), list: d.querySelector('ul'), empty: d.querySelector('.dg-search-empty') });
+  d.querySelector('.dg-dlg-close').addEventListener('click', () => d.close());
+  d.querySelector('.dg-search-scope').addEventListener('click', e => {
+    const b = e.target.closest('button[data-scope]');
+    if (b && b.dataset.scope !== S.scope) { setScope(b.dataset.scope); S.input.focus(); }
+  });
+  d.addEventListener('click', e => {
+    if (e.target === d) d.close();                       // a click on the backdrop
+    else if (e.target.closest('a[href]')) d.close();     // a result: leave the dialog, follow the link
+  });
+  d.addEventListener('close', () => {
+    const o = S.opener; S.opener = null;
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+  });
+  S.input.addEventListener('input', () => { clearTimeout(S.timer); S.timer = setTimeout(runSearch, 90); });
+  S.input.addEventListener('keydown', e => {
+    const opts = [...S.list.querySelectorAll('[role="option"]')];
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!opts.length) return;
+      e.preventDefault();
+      const n = S.active < 0 ? (e.key === 'ArrowDown' ? 0 : opts.length - 1)
+        : (S.active + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+      setActive(n);
+    } else if (e.key === 'Escape') {                    // a search field would clear itself first
+      e.preventDefault();
+      d.close();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const o = opts[S.active >= 0 ? S.active : 0];
+      const a = o && o.querySelector('a[href]');
+      if (a) { d.close(); location.href = a.href; }
+    }
+  });
+}
+
+function setActive(n) {
+  const opts = [...S.list.querySelectorAll('[role="option"]')];
+  opts.forEach((o, i) => o.setAttribute('aria-selected', String(i === n)));
+  S.active = n;
+  if (opts[n]) { S.input.setAttribute('aria-activedescendant', opts[n].id); opts[n].scrollIntoView({ block: 'nearest' }); }
+  else S.input.removeAttribute('aria-activedescendant');
+}
+
+function setScope(scope) {
+  S.scope = scope;
+  const label = scope === 'site' ? WORDS.searchSite : WORDS.searchNotes;
+  S.input.placeholder = label;
+  S.input.setAttribute('aria-label', label);
+  for (const b of S.dlg.querySelectorAll('.dg-search-scope button')) b.setAttribute('aria-pressed', String(b.dataset.scope === scope));
+  runSearch();
+}
+
+async function runSearch() {
+  const seq = ++S.seq, q = S.input.value.trim();
+  if (!q) { renderHits([], ''); return; }
+  let index;
+  try { index = await loadIndex(S.scope); } catch (err) { index = []; }
+  if (seq !== S.seq) return;
+  renderHits(rank(index, q), q);
+}
+
+function renderHits(hits, q) {
+  const words = fold(q).split(/\s+/).filter(Boolean);
+  const base = siteRoot();
+  S.list.replaceChildren();
+  let group = null, key = null, n = 0;
+  for (const { r } of hits) {
+    const e = r.e, k = e.href.split('#')[0];
+    if (k !== key) {
+      key = k;
+      const li = document.createElement('li');
+      li.className = 'dg-search-group';
+      li.setAttribute('role', 'group');
+      li.setAttribute('aria-labelledby', `dg-sr-g${n}`);
+      li.innerHTML = `<div class="dg-search-page" id="dg-sr-g${n}">${marked(e.title || '', words)}</div><ul role="presentation"></ul>`;
+      S.list.append(li);
+      group = li.querySelector('ul');
+    }
+    const text = snippet(e.text || '', words);
+    const o = document.createElement('li');
+    o.id = `dg-sr-${n++}`;
+    o.setAttribute('role', 'option');
+    o.setAttribute('aria-selected', 'false');
+    o.innerHTML = `<a href="${escHtml(new URL(e.href, base).href)}" tabindex="-1">`
+      + (e.section ? `<span class="dg-search-sec">${marked(e.section, words)}</span>` : '')
+      + `<span class="dg-search-text">${marked(text, words)}</span></a>`;
+    group.append(o);
+  }
+  S.active = -1;
+  S.input.removeAttribute('aria-activedescendant');
+  S.input.setAttribute('aria-expanded', String(hits.length > 0));
+  S.empty.hidden = !(q && !hits.length);
+}
+
+function openSearch(scope, opener) {
+  if (!S.dlg) buildSearch();
+  S.opener = opener || document.activeElement;
+  setScope(scope);
+  if (!S.dlg.open) S.dlg.showModal();
+  S.input.focus();
+  S.input.select();
+}
+
+function initSearch() {
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('[data-act="search"]');
+    if (b && !b.closest('dialog')) { e.preventDefault(); openSearch(b.dataset.scope === 'site' ? 'site' : 'notes', b); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+    if (typing(document.activeElement) || document.querySelector('dialog[open]') || H.classList.contains('dg-nav-open')) return;
+    e.preventDefault();
+    openSearch('notes', document.activeElement);
+  });
+}
+
+// ---- 11. course map (D39) ------------------------------------------------------------------------
+// "Map" in the course bar opens the master roadmap (the figure fig_roadmap_master of §1.1) in a dialog:
+// fetched on first use with its caption from its own page, inlined so its badges are links (section 2),
+// the badges that point into the current chapter ringed, and a link to the section that holds it.
+// Without JavaScript "Map" stays a link to the roadmap on the landing page; on the landing page it scrolls
+// to it, as the link does.
+const M = { dlg: null, paper: null, opener: null, ready: null, w: 1423, h: 1588 };
+
+function buildMap() {
+  const d = document.createElement('dialog');
+  d.className = 'dg-mapdlg dg-dlg dg-web';
+  d.setAttribute('aria-label', WORDS.map);
+  d.innerHTML = `<div class="dg-mapdlg-head"><span class="dg-mapdlg-sec"></span>
+      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}</button>
+      <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
+    <div class="dg-mapdlg-body"><div class="dg-mapdlg-fig"><div class="dg-paper dg-mapdlg-paper"></div></div><div class="dg-mapdlg-cap"></div></div>`;
+  document.body.append(d);
+  M.dlg = d;
+  M.paper = d.querySelector('.dg-mapdlg-paper');
+  d.querySelector('.dg-dlg-close').addEventListener('click', () => d.close());
+  d.querySelector('.dg-expand').addEventListener('click', () => { if (M.paper.dataset.dgSrc) openViewer(M.paper); });
+  d.addEventListener('click', e => {
+    if (e.target === d) d.close();
+    else if (e.target.closest('a[href]') && !e.target.closest('.dg-viewer')) d.close();
+  });
+  d.addEventListener('close', () => {
+    const o = M.opener; M.opener = null;
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+  });
+  window.addEventListener('resize', () => { if (d.open) fitMap(); });
+}
+
+/** Scales the roadmap to the space the dialog gives it (both dimensions). */
+function fitMap() {
+  const svg = M.paper.querySelector('svg, img');
+  if (!svg) return;
+  const fig = M.dlg.querySelector('.dg-mapdlg-fig'), body = M.dlg.querySelector('.dg-mapdlg-body');
+  const side = getComputedStyle(body).gridTemplateColumns.split(' ').length > 1;
+  const pad = 2 * (parseFloat(getComputedStyle(M.paper).paddingLeft) || 0) + 2;
+  const W = fig.clientWidth - pad, Hh = (side ? fig.clientHeight : body.clientHeight - 12) - pad;
+  const s = Math.max(0.05, Math.min(W / M.w, Hh / M.h));
+  svg.style.width = `${Math.floor(M.w * s)}px`;
+  svg.style.height = `${Math.floor(M.h * s)}px`;
+}
+
+async function fillMap() {
+  const map = await labels();
+  const info = map.fig_roadmap_master;
+  if (!info || !info.url) throw new Error('fig_roadmap_master not in labels.json');
+  const url = new URL(info.url, ROOT).href, page = pageKey(url);
+  const doc = await fetchPage(url);
+  const fig = doc.getElementById('fig_roadmap_master'), img = fig && fig.querySelector('img');
+  if (!img) throw new Error('fig_roadmap_master has no image');
+  const src = new URL(img.getAttribute('src'), page).href;
+  M.w = +img.getAttribute('width') || M.w;
+  M.h = +img.getAttribute('height') || M.h;
+  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h) });
+  // the link to the section that holds the figure, with the notes' own number and title
+  const title = doc.querySelector('.dg-head .dg-title');
+  const sec = M.dlg.querySelector('.dg-mapdlg-sec');
+  if (title) {
+    const a = document.createElement('a');
+    a.href = page;
+    a.append(...adopt(document.importNode(title, true), page).childNodes);
+    sec.replaceChildren(a);
+  }
+  const cap = fig.querySelector('figcaption');
+  const capBox = M.dlg.querySelector('.dg-mapdlg-cap');
+  if (cap) { capBox.replaceChildren(...adopt(document.importNode(cap, true), page).childNodes); keepTex(capBox); }
+  const pic = document.createElement('img');
+  pic.src = src; pic.alt = img.getAttribute('alt') || ''; pic.width = M.w; pic.height = M.h;
+  M.paper.replaceChildren(pic);
+  fitMap();
+  typeset(capBox).catch(() => {}).then(() => fitMap());
+  if (img.dataset.kind !== 'svg') return;
+  const svg = await inlineSvg(src);
+  svg.setAttribute('class', 'dg-map-svg');
+  if (pic.alt) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', pic.alt); }
+  M.paper.replaceChildren(svg);
+  fitMap();
+  await linkify(svg);
+  // the badges that point into the current chapter
+  const here = (coursePath(location.href) || '').split('/');
+  const dir = here.length > 1 ? here[0] : null;
+  for (const g of svg.querySelectorAll('a.dg-svg-link g.dg-xref[data-label]')) {
+    const u = (map[g.getAttribute('data-label')] || {}).url || '';
+    if (dir && u.split('/')[0] === dir) g.closest('a.dg-svg-link').classList.add('dg-here');
+  }
+}
+
+async function openMap(opener) {
+  if (!M.dlg) buildMap();
+  M.opener = opener;
+  if (!M.dlg.open) M.dlg.showModal();
+  M.dlg.querySelector('.dg-dlg-close').focus({ preventScroll: true });
+  M.ready ||= fillMap().catch(err => { M.ready = null; throw err; });
+  try { await M.ready; } catch (err) { M.dlg.close(); if (opener && opener.href) location.href = opener.href; return; }
+  fitMap();
+}
+
+function initMapDialog() {
+  if (document.body.classList.contains('dg-page-landing')) return;     // the roadmap is on the page: the link scrolls to it
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[data-act="map"]');
+    if (!a || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    openMap(a);
+  });
+}
+
 function init() {
   const run = (name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
   run('drawer', initDrawer);
@@ -895,6 +1456,11 @@ function init() {
   run('figures', initFigures);
   run('maps', initMaps);
   run('wide math', initWideMath);
+  run('panels', initPanels);
+  run('copy', initCopyEvents);
+  run('copy buttons', initCopyButtons);
+  run('search', initSearch);
+  run('map', initMapDialog);
   loadInteractives();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

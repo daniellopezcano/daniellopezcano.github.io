@@ -4,7 +4,9 @@
 // previews (equation, figure, page, subsection), figure viewer (open, zoom, Escape, focus restored),
 // links in the inlined master roadmap of the landing page, the page shell (theme switch persisted,
 // course-tree drawer with the Contents button and Escape, outline scroll-spy, keyboard previous/next),
-// no console errors at 1280 and 390 px, no horizontal page scroll at 390 px.
+// no console errors at 1280 and 390 px, no horizontal page scroll at 390 px. Unit R7, at 1280 and 390 px:
+// appendix content in place (from body text and from a footnote), copy LaTeX, the search dialog on both
+// indexes (from a section page and from the landing page), the map dialog, and the no-JavaScript fallbacks.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -179,6 +181,199 @@ try {
     await page.keyboard.press('Escape');
     const btns = await page.$$eval('.dg-landing-actions a', as => as.map(a => [a.textContent.trim(), a.href]));
     ok(btns.length === 3 && /\/introduction\/(index\.html)?$/.test(btns[0][1]), `landing buttons: ${btns.map(b => b[0]).join(' | ')}`);
+    await page.close();
+  }
+  // R7 (D35, D36, D39): appendix content in place, copy LaTeX, search dialog, map dialog, at 1280 and 390 px
+  const dupIds = page => page.evaluate(() => { const s = new Set(), d = []; for (const e of document.querySelectorAll('[id]')) { if (s.has(e.id)) d.push(e.id); s.add(e.id); } return d; });
+  const overflow = page => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  for (const width of [1280, 390]) {
+    const W = `@${width}`;
+    // panel from body text (§2.1 has its only Appendix reference in a footnote, so the body case uses §7.2)
+    {
+      const { page, errors } = await open('metric/length-geodesics.html', width);
+      const b = page.locator('#dg-main > p .dg-open-here, #dg-main li .dg-open-here').filter({ visible: true }).first();
+      ok(await b.count() === 1, `${W} body text: a reference to Appendix B has an "open here" button`);
+      const target = await b.evaluate(x => x.previousElementSibling.href);
+      await b.scrollIntoViewIfNeeded(); await b.click();
+      await page.waitForSelector('#dg-main .dg-inline:not(.dg-inline-raw)', { timeout: 10000 }).catch(() => {});
+      const info = await page.evaluate(() => {
+        const box = document.querySelector('#dg-main .dg-inline'), b = document.querySelector('.dg-open-here[aria-expanded="true"]');
+        return box && { after: box.previousElementSibling && box.previousElementSibling.contains(b), mjx: box.querySelectorAll('mjx-container').length,
+          raw: [...box.querySelectorAll('.math')].filter(m => !m.querySelector('mjx-container')).length,
+          head: box.querySelector('.dg-inline-head').textContent, link: box.querySelector('.dg-inline-tools a').href,
+          inter: box.querySelectorAll('.dg-interactive').length, nested: box.querySelectorAll('.dg-open-here').length,
+          scroll: getComputedStyle(box.querySelector('.dg-inline-body')).overflowY };
+      });
+      ok(info && info.after, `${W} body text: the panel opens right after the block that holds the reference`);
+      ok(info && info.mjx > 10 && info.raw === 0, `${W} body text: the math in the panel is typeset (${info && info.mjx} formulas)`);
+      ok(info && /^Appendix B/.test(info.head) && /B\.13/.test(info.head) && info.link === target, `${W} body text: the panel names the item (kicker, number, title) and links to its page`);
+      ok(info && info.nested === 0 && info.inter === 0 && info.scroll === 'auto', `${W} body text: no nested "open here", no interactive, the panel body scrolls`);
+      ok((await dupIds(page)).length === 0, `${W} body text: ids stay unique with the panel open`);
+      ok((await overflow(page)) <= 0, `${W} body text: no horizontal page scroll with the panel open`);
+      // a reference inside the panel keeps its preview
+      if (width >= 1000) {
+        const x = page.locator('#dg-main .dg-inline a.dg-xref').first();
+        await x.scrollIntoViewIfNeeded(); await x.hover();
+        ok((await waitPop(page, t => t.length > 0)).length > 0, `${W} body text: a reference inside the panel shows its preview`);
+        await page.mouse.move(5, 500); await page.waitForTimeout(400);
+      }
+      await b.click(); await page.waitForTimeout(200);
+      ok(await page.locator('#dg-main .dg-inline').count() === 0 && (await b.getAttribute('aria-expanded')) === 'false', `${W} body text: a second click closes the panel`);
+      await b.click();
+      await page.waitForSelector('#dg-main .dg-inline', { timeout: 10000 }).catch(() => {});
+      await page.locator('#dg-main .dg-inline-tools button').click(); await page.waitForTimeout(200);
+      ok(await page.locator('#dg-main .dg-inline').count() === 0 && await page.evaluate(() => document.activeElement && document.activeElement.matches('.dg-open-here')),
+        `${W} body text: the close button closes the panel and the focus returns to "open here"`);
+      ok(errors.length === 0, `${W} body text: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      await page.close();
+    }
+    // panel from a footnote (§2.1, footnote 1: sidenote at 1280, footnote list / popover at 390)
+    {
+      const { page, errors } = await open('vector-spaces/foundations-sets-maps.html', width, width < 600 ? { hasTouch: true, isMobile: true } : {});
+      const sel = width >= 1000 ? '.dg-sidenote .dg-open-here' : '.dg-footnotes .dg-open-here';
+      const b = page.locator(sel).first();
+      ok(await b.count() === 1, `${W} footnote: the reference to B.1 in footnote 1 has an "open here" button`);
+      await b.scrollIntoViewIfNeeded(); await b.click();
+      await page.waitForSelector('#dg-main .dg-inline:not(.dg-inline-raw)', { timeout: 10000 }).catch(() => {});
+      const info = await page.evaluate(() => {
+        const box = document.querySelector('#dg-main .dg-inline'), mark = document.querySelector('#fnref-1');
+        return box && { after: !!box.previousElementSibling && box.previousElementSibling.contains(mark), head: box.querySelector('.dg-inline-head').textContent };
+      });
+      ok(info && info.after && /B\.1/.test(info.head), `${W} footnote: the panel opens after the block that holds the footnote mark`);
+      ok((await dupIds(page)).length === 0 && (await overflow(page)) <= 0, `${W} footnote: ids unique and no horizontal page scroll with the panel open`);
+      if (width >= 1000) {
+        const dy = await page.evaluate(() => { const n = document.querySelector('.dg-sidenote[data-for="fn-1"]'), m = document.getElementById('fnref-1'); return Math.abs(n.getBoundingClientRect().top - m.getBoundingClientRect().top); });
+        ok(dy <= 30, `${W} footnote: the sidenote stays level with its mark with the panel open (${Math.round(dy)} px)`);
+      }
+      await b.click(); await page.waitForTimeout(200);
+      ok(await page.locator('#dg-main .dg-inline').count() === 0, `${W} footnote: a second click closes the panel`);
+      ok(errors.length === 0, `${W} footnote: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      await page.close();
+    }
+    // copy LaTeX: a numbered equation (source rewritten for the web, original in data-tex) and an unnumbered one
+    {
+      const ctx = await browser.newContext({ viewport: { width, height: width < 600 ? 844 : 900 }, ...(width < 600 ? { hasTouch: true, isMobile: true } : {}) });
+      await ctx.grantPermissions(['clipboard-read', 'clipboard-write']);
+      const { page, errors } = await load(await ctx.newPage(), 'metric/levi-civita-connection.html');
+      const raw = await page.evaluate(async () => {                 // the page as the converter wrote it
+        const doc = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
+        return { numbered: doc.getElementById('eq_christoffel_symbols').getAttribute('data-tex') };
+      });
+      const copy = async (loc) => {
+        await loc.scrollIntoViewIfNeeded();
+        if (width < 600) await loc.tap(); else await loc.hover();
+        await page.waitForTimeout(200);
+        const btn = loc.locator('xpath=following-sibling::button[contains(@class,"dg-copy")]');
+        const visible = await btn.evaluate(b => getComputedStyle(b).opacity === '1');
+        await btn.click(); await page.waitForTimeout(200);
+        return { visible, text: await page.evaluate(() => navigator.clipboard.readText()), done: await btn.evaluate(b => b.classList.contains('dg-done')) };
+      };
+      const r1 = await copy(page.locator('#eq_christoffel_symbols'));
+      ok(r1.visible, `${W} copy: the button shows on ${width < 600 ? 'tap' : 'hover'}`);
+      ok(r1.text === raw.numbered && r1.text.startsWith('\\begin{equation}\\label{eq_christoffel_symbols}'), `${W} copy: a numbered equation copies its source as in the notes (with \\label, not \\tag)`);
+      ok(r1.done, `${W} copy: the button confirms ("Copied")`);
+      if (width >= 1000) {
+        const n = await page.evaluate(() => { const b = document.querySelector('.dg-copy'); b.focus(); return getComputedStyle(b).opacity; });
+        ok(n === '1', `${W} copy: the button shows on keyboard focus`);
+      }
+      ok((await overflow(page)) <= 0 && errors.length === 0, `${W} copy: no horizontal page scroll, no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      // an unnumbered equation (§7.2): its TeX as the converter wrote it (= the notes' source)
+      await load(page, 'metric/length-geodesics.html');
+      const plain = await page.evaluate(async () => {
+        const doc = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
+        const ds = [...doc.querySelectorAll('.math.display')], i = ds.findIndex(d => !d.hasAttribute('data-tex'));
+        return { i, tex: i >= 0 ? ds[i].textContent : null };
+      });
+      const r2 = plain.i >= 0 ? await copy(page.locator('#dg-main .math.display').nth(plain.i)) : { text: '' };
+      ok(plain.tex && r2.text === plain.tex, `${W} copy: an unnumbered equation copies the TeX the converter wrote`);
+      await ctx.close();
+    }
+    // search: both indexes, from a section page and from the landing page
+    {
+      const want = /\/notes\/diffgeo-gr\/proofs-and-additional-material\/proof-length-reparametrization\.html$/;
+      const cases = [
+        ['metric/length-geodesics.html', 'bar', 'reparametrization invariance length', want],
+        ['index.html', 'key', 'Reparametrization  INVARIANCE length', want],
+        ['metric/length-geodesics.html', 'site', 'posters', /\/outreach\.html#posters$/],
+        ['index.html', 'site', 'reparametrization invariance length', want],
+      ];
+      for (const [path, how, q, re] of cases) {
+        const { page, errors } = await open(path, width);
+        const opener = how === 'bar' ? page.locator('.dg-bar [data-act="search"]') : page.locator('.dg-sitenav [data-act="search"]');
+        if (how === 'key') await page.keyboard.press('/'); else await opener.click();
+        await page.waitForTimeout(200);
+        const scope = await page.evaluate(() => document.querySelector('.dg-search-scope [aria-pressed="true"]')?.dataset.scope);
+        ok(await page.locator('dialog.dg-search[open]').count() === 1 && scope === (how === 'site' ? 'site' : 'notes'), `${W} search (${path}, ${how}): the dialog opens on the ${how === 'site' ? 'site' : 'course'} index`);
+        await page.keyboard.type(q);
+        await page.waitForFunction(() => document.querySelectorAll('.dg-search-list [role="option"]').length > 0, null, { timeout: 8000 }).catch(() => {});
+        const first = await page.evaluate(() => { const a = document.querySelector('.dg-search-list [role="option"] a'); return a && { href: a.href, marks: document.querySelectorAll('.dg-search-list mark').length }; });
+        ok(first && re.test(first.href) && first.marks > 0, `${W} search (${path}, ${how}): "${q}" finds ${first && first.href.replace(/^.*?\/\/[^/]+/, '')} first, with the match marked`);
+        if (how === 'bar' && width === 1280) {
+          await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+          ok(await page.locator('dialog.dg-search[open]').count() === 0 && await page.evaluate(() => document.activeElement && document.activeElement.matches('.dg-bar [data-act="search"]')), `${W} search: Escape closes the dialog and the focus returns to the button`);
+          await opener.click(); await page.waitForTimeout(150);
+          await page.locator('.dg-search-scope [data-scope="site"]').click(); await page.waitForTimeout(400);
+          ok(await page.evaluate(() => document.querySelector('.dg-search-input').getAttribute('aria-label')) === 'Search the site', `${W} search: the dialog offers the other index and switches to it`);
+          await page.locator('.dg-search-scope [data-scope="notes"]').click(); await page.waitForTimeout(400);
+          await page.locator('.dg-search-input').fill('zzqqxx'); await page.waitForTimeout(400);
+          ok(await page.locator('.dg-search-empty').isVisible(), `${W} search: a query without hits says so`);
+          await page.locator('.dg-search-input').fill(q);
+          await page.waitForFunction(() => document.querySelectorAll('.dg-search-list [role="option"]').length > 0, null, { timeout: 8000 }).catch(() => {});
+        }
+        await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowUp');
+        await page.keyboard.press('ArrowDown');
+        const sel = await page.evaluate(() => document.querySelector('.dg-search-input').getAttribute('aria-activedescendant'));
+        await page.keyboard.press('Enter');
+        await page.waitForURL(re, { timeout: 8000 }).catch(() => {});
+        ok(sel === 'dg-sr-0' && re.test(page.url()), `${W} search (${path}, ${how}): ↓ selects, Enter opens ${page.url().replace(/^.*?\/\/[^/]+/, '')}`);
+        ok(errors.length === 0, `${W} search (${path}, ${how}): no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+        await page.close();
+      }
+    }
+    // map dialog: a Chapter 4 page has its badges ringed; Escape closes and the focus returns to "Map"
+    {
+      // (§4.1 and §4.2 are avoided: at 390 px they scroll sideways already, a problem the dialog does not touch)
+      const { page, errors } = await open('tangent-spaces/tensor-space.html', width);
+      await page.locator('.dg-bar a[data-act="map"]').click();
+      await page.waitForFunction(() => document.querySelectorAll('dialog.dg-mapdlg[open] a.dg-svg-link').length > 0, null, { timeout: 10000 }).catch(() => {});
+      const m = await page.evaluate(() => {
+        const d = document.querySelector('dialog.dg-mapdlg[open]');
+        if (!d) return null;
+        const r = d.querySelector('svg').getBoundingClientRect(), dr = d.getBoundingClientRect();
+        return { links: d.querySelectorAll('a.dg-svg-link').length, here: [...d.querySelectorAll('a.dg-here')].map(a => a.getAttribute('href')),
+          fits: r.width <= dr.width + 1 && r.right <= dr.right + 1 && r.left >= dr.left - 1, cap: d.querySelector('.dg-mapdlg-cap').textContent.trim().slice(0, 11),
+          sec: d.querySelector('.dg-mapdlg-sec a') && [d.querySelector('.dg-mapdlg-sec a').textContent.trim(), d.querySelector('.dg-mapdlg-sec a').href],
+          capMath: d.querySelectorAll('.dg-mapdlg-cap mjx-container').length };
+      });
+      ok(m && m.links >= 20, `${W} map: the dialog shows the master roadmap with ${m && m.links} links (>= 20)`);
+      ok(m && m.here.length > 0 && m.here.every(h => /\/tangent-spaces\//.test(h)), `${W} map: the badges into Chapter 4 are ringed (${m && m.here.length})`);
+      ok(m && m.fits, `${W} map: the roadmap fits the dialog's width`);
+      ok(m && m.cap === 'Figure 1.1:' && m.capMath > 0 && m.sec && /^1\.1\s+Roadmaps/.test(m.sec[0]) && /\/introduction\/roadmaps\.html$/.test(m.sec[1]), `${W} map: the notes' caption (typeset) and the link to §1.1`);
+      ok((await overflow(page)) <= 0, `${W} map: no horizontal page scroll`);
+      await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+      ok(await page.locator('dialog.dg-mapdlg[open]').count() === 0 && await page.evaluate(() => document.activeElement && document.activeElement.matches('.dg-bar a[data-act="map"]')), `${W} map: Escape closes the dialog and the focus returns to "Map"`);
+      ok(errors.length === 0, `${W} map: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      await page.close();
+    }
+  }
+  {
+    // outside the main chapters nothing is ringed; on the landing page "Map" just scrolls to the roadmap
+    const { page } = await open('examples/example-variations.html');
+    await page.locator('.dg-bar a[data-act="map"]').click();
+    await page.waitForFunction(() => document.querySelectorAll('dialog.dg-mapdlg[open] a.dg-svg-link').length > 0, null, { timeout: 10000 }).catch(() => {});
+    ok(await page.locator('dialog.dg-mapdlg[open] a.dg-here').count() === 0, 'map: nothing ringed on a page of Appendix C');
+    await page.close();
+    const { page: p2 } = await open('index.html');
+    await p2.locator('.dg-bar a[data-act="map"]').click(); await p2.waitForTimeout(600);
+    ok(await p2.locator('dialog.dg-mapdlg').count() === 0 && /#dg-roadmap$/.test(p2.url()), 'map: on the landing page "Map" scrolls to the roadmap (no dialog)');
+    await p2.close();
+  }
+  // without JavaScript: no search buttons, "Map" is the link to the landing page's roadmap
+  {
+    const page = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 1280, height: 900 } });
+    await page.goto(`${base}/${C}vector-spaces/foundations-sets-maps.html`);
+    ok(await page.locator('[data-act="search"]:visible').count() === 0, 'no JavaScript: the search buttons are hidden');
+    ok(/index\.html#dg-roadmap$/.test(await page.locator('.dg-bar a[data-act="map"]').getAttribute('href')), 'no JavaScript: "Map" links to the roadmap of the landing page');
     await page.close();
   }
   // console errors and horizontal overflow

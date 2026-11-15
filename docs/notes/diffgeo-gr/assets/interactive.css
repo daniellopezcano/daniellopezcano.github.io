@@ -53,7 +53,8 @@
 .dg-seg label { padding: 0.25rem 0.75rem; min-height: 2rem; display: inline-flex; align-items: center; cursor: pointer; color: var(--dg-text-soft); background: transparent; }
 .dg-seg label + input + label, .dg-seg input + label ~ label { border-left: 1px solid var(--dg-rule); }
 .dg-seg input:checked + label { background: var(--dg-accent); color: var(--dg-bg); }
-.dg-seg input:focus-visible + label { outline: 2px solid #fff; outline-offset: -3px; }
+.dg-seg input:focus-visible + label { outline: 2px solid var(--dg-accent); outline-offset: -3px; }
+.dg-seg input:checked:focus-visible + label { outline-color: var(--dg-bg); }   /* on the accent fill */
 
 .dg-toggle input { width: 1.05rem; height: 1.05rem; accent-color: var(--dg-accent); cursor: pointer; margin: 0; }
 .dg-toggle label { cursor: pointer; }

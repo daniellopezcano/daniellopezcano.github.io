@@ -72,7 +72,10 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | course bar and page shell (built in R4/R5) | visible: "Lecture Notes" (first breadcrumb, read from the navbar entry), "Contents", "Map", "Search", "Skip to content"; labels of icon buttons and regions (screen readers, tooltips): "Site", "Toggle navigation", "Search", "Contents", "Breadcrumb", "Course map", "Search the notes", "Light or dark", "Course contents" |
 | course tree | its title is the title of the notes and links to the landing page ("Course home" is gone) |
 | browser tab | "<number> <title> – From Differential Geometry to General Relativity – Daniel López Cano" |
-| appendix content opened in place | "open here", "Appendix B" / "Appendix C" + your number and title, "open page", "close" |
+| appendix content opened in place (built in R7) | button "open here"; panel head: the kicker, number and title of the item as its own page shows them (your words), "open page", "close" |
+| copy LaTeX on display equations (R7) | label of the button (screen readers, tooltip): "Copy LaTeX"; confirmation shown and announced: "Copied" |
+| search dialog (R7) | dialog label "Search"; field label and placeholder "Search the notes" / "Search the site"; scope buttons "These notes", "Whole site"; list label "Results" (screen readers); "No results"; close button label "Close". Results show your page titles, section titles and text as written (TeX source as plain text) |
+| map dialog (R7) | dialog label "Course map" (screen readers); its head is the link to §1.1 with your number and title; the caption is your caption of Figure 1.1; button labels "Enlarge figure", "Close" |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)
 

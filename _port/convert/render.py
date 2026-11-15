@@ -446,8 +446,13 @@ class Renderer:
         self.math_log.append(tex)
         cls = 'math inline' if nd.kind == 'inline' else 'math display'
         ident = f' id="{esc(ids[0])}"' if ids else ''
+        # "Copy LaTeX" (D39) copies a display equation's source as it stands in the notes. Where one
+        # of the rewrites above changed it, the original travels in data-tex; everywhere else the
+        # text of the element is the notes' source (mathjax-config.js keeps it before typesetting).
+        orig = nd.src if nd.kind == 'env' else '\\[' + nd.src + '\\]'
+        keep = f' data-tex="{esc(orig).replace(chr(34), "&quot;")}"' if nd.kind != 'inline' and orig != tex else ''
         extra = ''.join(f'<span class="dg-anchor" id="{esc(l)}"></span>' for l in ids[1:])
-        return f'{extra}<span class="{cls}"{ident}>{esc(tex)}</span>'
+        return f'{extra}<span class="{cls}"{ident}{keep}>{esc(tex)}</span>'
 
     def number_rows(self, src: str, nd: Math):
         """Put the equation numbers of the LaTeX build into a numbered environment."""
