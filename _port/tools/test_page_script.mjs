@@ -12,6 +12,9 @@
 // width, back-links on the Appendix C page, no roadmap where the rule gives none, no console errors on all 13.
 // Unit R10: "read" marks (D40: auto-mark at the end, toggle, tree / chapter page / landing, storage unavailable,
 // no JavaScript), "open here" on the line of its reference, typeset search titles, the "Appendices" part title.
+// Unit R10c: read marks after the delay (window.__dgReadDelay), the course tree scrolled to the current entry,
+// previews inside the viewport, search snippets without raw TeX, and on every page at 1440 and 390 px no line
+// break between a formula / reference and its punctuation (D44) and sidenote math within its note (D45).
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -519,7 +522,12 @@ try {
   }
   // R10 (D40): "read" marks. One browser context, so that localStorage carries across the pages.
   {
+    // D40 as amended: the end in view AND >= 20 s on the page. The tests shorten the 20 s through the hook the
+    // script documents (window.__dgReadDelay, ms), set before the page's scripts run.
+    const DELAY = 6000;
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await ctx.addInitScript(d => { window.__dgReadDelay = d; }, DELAY);
+    const t0 = Date.now();
     const { page, errors } = await load(await ctx.newPage(), 'metric/length-geodesics.html');
     const SLUG = 'metric/length-geodesics';
     const pressed = () => page.locator('.dg-readtoggle').getAttribute('aria-pressed');
@@ -530,7 +538,10 @@ try {
     const box0 = await page.evaluate(s => { const a = document.querySelector(s).closest('a').getBoundingClientRect(); return [a.width, a.height]; }, treeMark);
     await page.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' }));
     await page.waitForTimeout(500);
-    ok((await pressed()) === 'true' && (await stored()).includes(SLUG), 'read: reaching previous/next marks the page (toggle pressed, slug stored)');
+    const early = Date.now() - t0 < DELAY - 300;
+    ok(early && (await pressed()) === 'false' && !(await stored()).includes(SLUG), `read: the end in view before the delay does not mark the page yet (${Date.now() - t0} ms of ${DELAY})`);
+    await page.waitForFunction(() => document.querySelector('.dg-readtoggle').getAttribute('aria-pressed') === 'true', null, { timeout: DELAY + 3000 }).catch(() => {});
+    ok((await pressed()) === 'true' && (await stored()).includes(SLUG) && Date.now() - t0 >= DELAY, 'read: with the end still in view, the page is marked once the delay has passed (toggle pressed, slug stored)');
     ok(await markOn(treeMark), 'read: the check shows in the course tree at once');
     const box1 = await page.evaluate(s => { const a = document.querySelector(s).closest('a').getBoundingClientRect(); return [a.width, a.height]; }, treeMark);
     ok(box0[0] === box1[0] && box0[1] === box1[1], `read: the check does not move the tree entry (${box0} -> ${box1})`);
@@ -551,15 +562,15 @@ try {
     await page.locator('.dg-readtoggle').click(); await page.waitForTimeout(200);
     ok((await pressed()) === 'false' && !(await stored()).includes(SLUG) && !(await markOn(treeMark)), 'read: pressing the toggle clears the mark');
     await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' })); await page.waitForTimeout(300);
-    await page.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' })); await page.waitForTimeout(500);
-    ok((await pressed()) === 'false' && !(await stored()).includes(SLUG), 'read: after clearing, scrolling to the end again does not mark the page');
+    await page.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' })); await page.waitForTimeout(DELAY + 500);
+    ok((await pressed()) === 'false' && !(await stored()).includes(SLUG), 'read: after clearing, the end in view past the delay does not mark the page again');
     await page.locator('.dg-readtoggle').click(); await page.waitForTimeout(200);
     ok((await pressed()) === 'true' && (await stored()).includes(SLUG), 'read: pressing the toggle again marks the page');
     ok(errors.length === 0, `read: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
     await ctx.close();
     // storage unavailable: no error, the toggle still works for the visit
     const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
-    await ctx2.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('denied', 'SecurityError'); } }); });
+    await ctx2.addInitScript(() => { window.__dgReadDelay = 0; Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('denied', 'SecurityError'); } }); });
     const { page: p2, errors: e2 } = await load(await ctx2.newPage(), 'metric/length-geodesics.html');
     await p2.evaluate(() => document.querySelector('.dg-prevnext').scrollIntoView({ behavior: 'instant' })); await p2.waitForTimeout(500);
     const a1 = await p2.locator('.dg-readtoggle').getAttribute('aria-pressed');
@@ -595,11 +606,10 @@ try {
       const ts = [...document.querySelectorAll('.dg-search-page, .dg-search-sec')];
       return { n: ts.length, raw: ts.filter(t => t.textContent.includes('\\(')).length, mjx: document.querySelectorAll('.dg-search-page mjx-container, .dg-search-sec mjx-container').length,
         marks: document.querySelectorAll('.dg-search-page mark').length, markInMath: document.querySelectorAll('.dg-search-list mjx-container mark, .dg-search-list mark mjx-container').length,
-        hidden: [...document.querySelectorAll('.dg-search-page mjx-container')].some(m => getComputedStyle(m).visibility === 'hidden'),
-        plain: [...document.querySelectorAll('.dg-search-text')].every(t => !t.querySelector('mjx-container')) };
+        hidden: [...document.querySelectorAll('.dg-search-page mjx-container')].some(m => getComputedStyle(m).visibility === 'hidden') };
     });
     ok(s.n > 0 && s.raw === 0 && s.mjx > 0 && !s.hidden, `search: titles and section names show typeset math, no "\\(" (${s.mjx} formulas in ${s.n} titles)`);
-    ok(s.marks > 0 && s.markInMath === 0 && s.plain, 'search: words in titles are marked, no mark inside a formula, text lines stay plain');
+    ok(s.marks > 0 && s.markInMath === 0, 'search: words in titles are marked, no mark inside a formula');
     ok(errors.length === 0, `search titles: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
     await page.close();
   }
@@ -614,6 +624,123 @@ try {
       return p && [p.textContent.trim(), n && n.querySelector('.dg-contents-kicker').textContent.trim()]; });
     ok(l && l[0] === 'Appendices' && l[1] === 'Appendix A', `landing contents: "Appendices" heads the appendices (${l})`);
     await page.close();
+  }
+  // R10c: on load the course tree scrolls so that the current page's entry is in view; the page does not move
+  for (const [path, width] of [['proofs-and-additional-material/proof-sylvester.html', 1440], ['examples/example-variations.html', 1440],
+    ['proofs-and-additional-material/proof-sylvester.html', 390]]) {
+    const { page } = await open(path, width);
+    if (width < 1000) { await page.locator('.dg-bar-menu').click(); await page.waitForTimeout(400); }
+    const r = await page.evaluate(() => {
+      const t = document.getElementById('dg-tree'), a = t.querySelector('[aria-current="page"]');
+      const tr = t.getBoundingClientRect(), ar = a.getBoundingClientRect();
+      return { y: scrollY, scrolled: t.scrollTop, inTree: ar.top >= tr.top - 1 && ar.bottom <= tr.bottom + 1, onScreen: ar.top >= 0 && ar.bottom <= innerHeight };
+    });
+    ok(r.y === 0 && r.inTree && r.onScreen && r.scrolled > 0, `@${width} ${path}: the current entry of the course tree is in view on load (tree scrolled ${Math.round(r.scrolled)} px, page ${r.y})`);
+    await page.close();
+  }
+  // R10c (D45 c): previews stay inside the viewport: a figure is scaled to fit, a wide equation scrolls inside
+  {
+    const { page } = await open('vector-spaces/foundations-sets-maps.html', 1440);
+    const x = page.locator('a.dg-xref[data-label="fig_vector_spaces_roadmap"]').first();
+    await x.scrollIntoViewIfNeeded(); await x.hover();
+    await waitPop(page, t => t.includes('Figure 1.2'));
+    await page.waitForTimeout(800);
+    const f = await page.evaluate(() => { const p = document.getElementById('dg-pop'), r = p.getBoundingClientRect(), c = p.querySelector('figcaption').getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, vh: innerHeight, scrolls: p.scrollHeight > p.clientHeight + 1, cap: c.bottom <= r.bottom + 1 }; });
+    ok(f.top >= 0 && f.bottom <= f.vh && !f.scrolls && f.cap, `@1440 figure preview fits the viewport whole, caption included (${Math.round(f.top)}–${Math.round(f.bottom)} of ${f.vh})`);
+    await page.close();
+    const { page: p2 } = await open('metric/levi-civita-connection.html', 390, { hasTouch: true, isMobile: true });
+    const y = p2.locator('a.dg-xref[data-label="eq_geodesic"]').first();
+    await y.scrollIntoViewIfNeeded(); await y.tap();
+    await waitPop(p2, t => t.length > 0); await p2.waitForTimeout(1200);
+    const e = await p2.evaluate(() => { const p = document.getElementById('dg-pop'), r = p.getBoundingClientRect(), d = p.querySelector('.math.display'), dr = d.getBoundingClientRect();
+      return { l: r.left, r: r.right, vw: innerWidth, inside: dr.left >= r.left - 1 && dr.right <= r.right + 1, bg: getComputedStyle(d).backgroundImage.split('gradient').length > 4 }; });
+    ok(e.l >= 0 && e.r <= e.vw && e.inside && e.bg, `@390 equation preview: inside the viewport, the equation within the preview (scrolls there, with the edge shadow)`);
+    await p2.close();
+  }
+  // R10c: search snippets never show raw TeX: short inline formulas typeset, others "[…]" or, when the match is
+  // inside, their source in a monospace span
+  {
+    const { page, errors } = await open('metric/metric.html', 1280);
+    for (const q of ['geodesic equation', 'frac lambda']) {
+      await page.keyboard.press('/');
+      await page.locator('.dg-search-input').fill(q);
+      await page.waitForFunction(() => document.querySelectorAll('.dg-search-list [role="option"]').length > 0, null, { timeout: 8000 }).catch(() => {});
+      await page.waitForTimeout(700);
+      const r = await page.evaluate(() => {
+        const ts = [...document.querySelectorAll('.dg-search-text')];
+        const raw = ts.filter(t => { const c = t.cloneNode(true); c.querySelectorAll('mjx-container, code.dg-search-tex').forEach(n => n.remove()); return /\\[([\[]|\\(begin|end)\{/.test(c.textContent); });
+        return { n: ts.length, raw: raw.map(t => t.textContent.slice(0, 80)), mjx: document.querySelectorAll('.dg-search-text mjx-container').length,
+          code: document.querySelectorAll('.dg-search-text code.dg-search-tex').length, markInMath: document.querySelectorAll('.dg-search-text mjx-container mark').length };
+      });
+      ok(r.n > 0 && r.raw.length === 0 && r.markInMath === 0, `search "${q}": no raw TeX in the text lines (${r.n} lines, ${r.mjx} typeset formulas, ${r.code} TeX sources)${r.raw.length ? ': ' + r.raw.slice(0, 2).join(' | ') : ''}`);
+      if (q === 'frac lambda') ok(r.code > 0, `search "${q}": a match inside a formula shows that formula's source in a monospace span`);
+      await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+    }
+    ok(errors.length === 0, `search snippets: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+    await page.close();
+  }
+  // R10c (D44, D45 a): on every page at 1440 and 390 px, no rendered line of the notes' text begins with , . ; : ) ]
+  // or a hyphen right after an inline formula or a reference (or with a footnote mark after one), and none ends
+  // with a lone ( or [ before one; at 1440, no math in a sidenote is wider than the note unless it is in a scroll box,
+  // and no two sidenotes overlap.
+  {
+    const { coursePages, pool } = await import('./course_pages.mjs');
+    const all = coursePages();
+    const audit = () => {
+      const main = document.getElementById('dg-main'), out = { breaks: [], notes: [] };
+      const BLOCK = 'p, li, div, h1, h2, h3, figcaption, td, th, blockquote';
+      const tw = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      const skipText = n => n.parentElement.closest('.dg-open-here') || !n.data.length;
+      const next = el => { let l = el; while (l.lastChild) l = l.lastChild; tw.currentNode = l; for (let n; (n = tw.nextNode());) { if (skipText(n)) continue; return n.parentElement.closest('mjx-container') ? null : n; } return null; };
+      const prev = el => { tw.currentNode = el; for (let n; (n = tw.previousNode());) { if (skipText(n)) continue; return n.parentElement.closest('mjx-container') ? null : n; } return null; };
+      const charRect = (n, i) => { const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1); return r.getClientRects()[0]; };
+      const words = el => `"${(el.matches('mjx-container') ? (el.querySelector('mjx-assistive-mml')?.textContent || 'formula') : el.textContent).replace(/\s+/g, ' ').slice(0, 40)}"`;
+      for (const el of main.querySelectorAll('mjx-container:not([display="true"]), a.dg-xref, span.dg-xref-pending, a.dg-cite')) {
+        const web = el.closest('.dg-web');
+        if ((web && !web.classList.contains('dg-sidenotes')) || (el.matches('a') && el.closest('mjx-container')) || el.closest('.math.display')) continue;
+        const rects = el.getClientRects();
+        if (!rects.length || !rects[0].width) continue;
+        const block = el.closest(BLOCK);
+        const n = next(el);
+        if (n && n.parentElement.closest(BLOCK) === block && /^[,.;:)\]\-–—]/.test(n.data) || n && n.parentElement.closest('.dg-fnref') && n.parentElement.closest(BLOCK) === block) {
+          const c = charRect(n, 0), a = rects[rects.length - 1];
+          if (c && c.width && c.left < a.right - 3 && c.bottom > a.bottom + 2) out.breaks.push(`line begins with "${n.data.slice(0, 12)}" after ${words(el)}`);
+        }
+        const q = prev(el);
+        if (q && q.parentElement.closest(BLOCK) === block && /[(\[]$/.test(q.data)) {
+          const c = charRect(q, q.data.length - 1), a = rects[0];
+          if (c && c.width && c.right > a.left + 3 && c.top < a.top - 2) out.breaks.push(`line ends with a lone "${q.data.slice(-1)}" before ${words(el)}`);
+        }
+      }
+      let last = null;
+      for (const note of main.querySelectorAll('.dg-sidenote')) {
+        const r = note.getBoundingClientRect();
+        if (!r.width) continue;
+        if (last && r.top < last.bottom - 1) out.notes.push(`sidenote ${note.dataset.n} overlaps the one before`);
+        last = r;
+        for (const m of note.querySelectorAll('mjx-container, .math.display')) {
+          const box = m.closest('.math.display') || (m.matches('mjx-container.dg-math-wide') ? m : null);
+          const mr = (box || m).getBoundingClientRect();
+          if (mr.right > r.right + 1 || mr.left < r.left - 1) out.notes.push(`sidenote ${note.dataset.n}: math wider than the note${box ? ' (its scroll box too)' : ''}`);
+        }
+      }
+      return out;
+    };
+    for (const width of [1440, 390]) {
+      const res = await pool(all, 6, async slug => {
+        const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 900 } });
+        await page.goto(`${base}/${C}${slug}.html`, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => document.documentElement.classList.contains('dg-math-ready'), null, { timeout: 30000 }).catch(() => {});
+        await page.waitForTimeout(600);
+        const r = await page.evaluate(audit);
+        await page.close();
+        return [slug, r];
+      });
+      const breaks = res.filter(([, r]) => r.breaks.length), notes = res.filter(([, r]) => r.notes.length);
+      ok(!breaks.length, `@${width} D44: no line of the notes' text begins with punctuation after a formula or reference, or ends with a lone bracket before one (${all.length} pages)${breaks.length ? ': ' + breaks.slice(0, 6).map(([s, r]) => `${s}: ${r.breaks.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
+      if (width >= 1000) ok(!notes.length, `@${width} D45: sidenote math stays within its note (or scrolls in its own box), no overlapping sidenotes${notes.length ? ': ' + notes.slice(0, 6).map(([s, r]) => `${s}: ${r.notes.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
+    }
   }
   // console errors and horizontal overflow
   for (const width of [1280, 390]) {

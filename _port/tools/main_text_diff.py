@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Hand-written tool: proves that a converter change added markup only (DECISIONS D44).
+
+    python3 _port/tools/main_text_diff.py [--rev HEAD]
+
+For every generated course page (notes/diffgeo-gr/**/*.html) compares the text content of <main> as it is
+now with the same page at git revision --rev (default HEAD): (a) the notes' text, i.e. <main> without the
+web layer (elements with class dg-web), must be identical character for character; (b) pages whose web
+layer text changed are listed for information. Exit code 0 when (a) holds on every page.
+"""
+import argparse, os, subprocess, sys
+from html.parser import HTMLParser
+
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+COURSE = os.path.join(REPO, 'notes', 'diffgeo-gr')
+VOID = {'area', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
+
+
+class MainText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.depth = 0                 # > 0 inside <main>
+        self.web = []                  # stack: inside a dg-web element
+        self.notes, self.all = [], []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in VOID:
+            return
+        if tag == 'main':
+            self.depth += 1
+        if self.depth:
+            cls = (dict(attrs).get('class') or '').split()
+            self.web.append((self.web[-1] if self.web else False) or 'dg-web' in cls)
+
+    def handle_endtag(self, tag):
+        if tag in VOID:
+            return
+        if self.depth and self.web:
+            self.web.pop()
+        if tag == 'main':
+            self.depth -= 1
+
+    def handle_data(self, data):
+        if self.depth:
+            self.all.append(data)
+            if not (self.web and self.web[-1]):
+                self.notes.append(data)
+
+
+def texts(html):
+    p = MainText()
+    p.feed(html)
+    p.close()
+    return ''.join(p.notes), ''.join(p.all)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--rev', default='HEAD')
+    rev = ap.parse_args().rev
+    bad, web, n = [], [], 0
+    for root, _, names in os.walk(COURSE):
+        for name in sorted(names):
+            if not name.endswith('.html'):
+                continue
+            path = os.path.join(root, name)
+            rel = os.path.relpath(path, REPO)
+            try:
+                old = subprocess.run(['git', '-C', REPO, 'show', f'{rev}:{rel}'], capture_output=True, check=True, text=True).stdout
+            except subprocess.CalledProcessError:
+                print(f'new page (not in {rev}): {rel}')
+                continue
+            n += 1
+            a, b = texts(old), texts(open(path, encoding='utf-8').read())
+            if a[0] != b[0]:
+                k = next((i for i, (x, y) in enumerate(zip(a[0], b[0])) if x != y), min(len(a[0]), len(b[0])))
+                bad.append(f'{rel}: notes\' text differs at {k}: {a[0][max(0, k - 40):k + 40]!r} -> {b[0][max(0, k - 40):k + 40]!r}')
+            elif a[1] != b[1]:
+                web.append(rel)
+    for line in bad:
+        print('FAIL', line)
+    if web:
+        print(f'web layer text changed on {len(web)} page(s): ' + ', '.join(os.path.relpath(w, 'notes/diffgeo-gr') for w in web))
+    print(f'{n - len(bad)} of {n} pages: text of <main> without the web layer identical to {rev}')
+    return 1 if bad else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

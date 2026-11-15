@@ -33,6 +33,7 @@ python3 _port/tools/links_check.py      # every link of the course resolves (fil
 python3 _port/tools/render_intact.py    # docs/notes/diffgeo-gr = notes/diffgeo-gr, and a second converter run changes nothing
 #   (the browser checks and links_check take --page <slug> (repeatable; 'index' = landing, 'dir/' = prefix))
 python3 _port/tools/make_inventory.py   # refresh _port/INVENTORY.md
+python3 _port/tools/main_text_diff.py   # the notes' text of every page (<main> without .dg-web) is unchanged against HEAD (--rev)
 bash _port/check.sh                     # all definition-of-done checks; ends with ALL CHECKS PASSED or the failures (--no-render: reuse docs/)
 _port/design/preview.sh                 # the three design-direction prototypes at http://localhost:4321/design/ (record of the choice; not part of the build)
 ```

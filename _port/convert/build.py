@@ -268,6 +268,100 @@ def resolve(html: str, page: Page, ctx: Ctx, where: dict) -> str:
     return re.sub('\x02U\\|([^\x02]+)\x02', url, html)
 
 
+# D44: no line break between an inline formula (or a reference) and the punctuation that belongs to it.
+# A MathJax formula and a nowrap link are atomic boxes, and the browser may break the line on either side of
+# one, which LaTeX never does. glue() wraps such an atom, together with the opening bracket or quotation mark
+# directly before it and what follows it directly (closing brackets, punctuation, a footnote mark, a hyphen or
+# dash with the word or the second reference after it), in <span class="dg-nb"> (white-space: nowrap). Only
+# markup is added: the text of the page stays identical, and a glued run never contains a space.
+_TOKEN = re.compile(r'<!--.*?-->|<(script|style)\b.*?</\1\s*>|<[^>]*>|[^<]+', re.S)
+_ATOM = re.compile(r'<(span|a)\s[^>]*?class="(?:math inline|dg-xref(?: [^"]*)?|dg-cite|dg-inprep)"')
+_FNREF = re.compile(r'<sup class="dg-fnref"')
+_INLINE = re.compile(r'<(em|strong|i|b|u|span)[\s>]')
+_OPEN = '([{“‘'
+_FOLLOW = re.compile(r'[)\]}”’,.;:!?]*(?:[-–—][^\W_]+[)\]}”’,.;:!?]*)*')
+_DASHES = ('-', '–', '—')
+
+
+def _element_end(toks: list, i: int) -> int:
+    """Index of the token that closes the element opened by toks[i]."""
+    tag = re.match(r'<(\w+)', toks[i]).group(1)
+    depth = 0
+    for k in range(i, len(toks)):
+        t = toks[k]
+        if re.match(rf'<{tag}[\s>]', t):
+            depth += 1
+        elif t.startswith(f'</{tag}'):
+            depth -= 1
+            if depth == 0:
+                return k
+    raise SystemExit(f'glue(): <{tag}> not closed near {toks[i][:80]!r}')
+
+
+def glue(html: str) -> str:
+    toks = [m.group(0) for m in _TOKEN.finditer(html)]
+    if ''.join(toks) != html:
+        raise SystemExit('glue(): the page does not tokenize back to itself')
+    text = lambda t: not t.startswith('<')
+    out: list = []                  # (is_text, string)
+    i, n = 0, len(toks)
+    while i < n:
+        t = toks[i]
+        if not _ATOM.match(t):
+            out.append((text(t), t))
+            i += 1
+            continue
+        j = _element_end(toks, i)
+        run = [''.join(toks[i:j + 1])]
+        pre = ''
+        if out and out[-1][0]:      # an opening bracket or quotation mark directly before
+            s = out[-1][1]
+            m = re.search(f'[{re.escape(_OPEN)}]+$', s)
+            if m:
+                pre = m.group(0)
+                out[-1] = (True, s[:m.start()])
+        k, rest = j + 1, ''
+        while k < n:
+            t = toks[k]
+            if text(t):
+                g = _FOLLOW.match(t).group(0)
+                rest = t[len(g):]
+                run.append(g)
+                k += 1
+                if rest in _DASHES and k < n and _ATOM.match(toks[k]):     # "§§7.3–7.4"
+                    e = _element_end(toks, k)
+                    run.append(rest + ''.join(toks[k:e + 1]))
+                    rest, k = '', e + 1
+                    continue
+                if rest in _DASHES:                 # "-<em>algebra</em>": the dash, and the word if it has no space
+                    run.append(rest)
+                    rest = ''
+                    if k < n and _INLINE.match(toks[k]):
+                        e = _element_end(toks, k)
+                        word = ''.join(toks[k:e + 1])
+                        if not re.search(r'\s', re.sub(r'<[^>]*>', '', word)):
+                            run.append(word)
+                            k = e + 1
+                    continue
+                if rest:
+                    break
+            elif _FNREF.match(t):                                            # a footnote mark
+                e = _element_end(toks, k)
+                run.append(''.join(toks[k:e + 1]))
+                k = e + 1
+            else:
+                break
+        body = ''.join(run)
+        if pre or body != run[0]:
+            out.append((False, f'<span class="dg-nb">{pre}{body}</span>'))
+        else:
+            out.append((False, body))
+        if rest:
+            out.append((True, rest))
+        i = k
+    return ''.join(s for _, s in out)
+
+
 def nolinks(html: str) -> str:
     """A title that will sit inside an <a>: its own cross-references become plain numbers
     (nested links are invalid HTML and break the outer one)."""
@@ -511,17 +605,18 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
         return f'<{tag} class="dg-chapter-card-head"{extra}>{t}</{tag}>'
 
     def connected(qs):
+        # each page number is a small chip (web layer): a link, or, for this page itself, a chip without one;
+        # chips wrap between one another, so a wrapped line never begins with a separator
         out = []
         for q in qs:
             if q is p:
-                out.append(f'<span class="dg-related-here" aria-current="page">{q.number}</span>')
+                out.append(f'<span class="dg-chip dg-related-here" aria-current="page">{q.number}</span>')
             elif q.html is None:
-                out.append(f'<span class="dg-pending">{q.number}</span>')
+                out.append(f'<span class="dg-chip dg-pending">{q.number}</span>')
             else:
-                out.append(f'<a href="{rel(p.slug, q.slug + ".html")}">{q.number}</a>')
-        sep = '<span class="dg-related-sep" aria-hidden="true">·</span>'      # each number stays with its dot
+                out.append(f'<a class="dg-chip" href="{rel(p.slug, q.slug + ".html")}">{q.number}</a>')
         return (f' <span class="dg-related-pages" role="group" aria-label="{INTERFACE_RELATED}" title="{INTERFACE_RELATED}">'
-                + ''.join(f'<span class="dg-related-n">{sep}{x}</span>' for x in out) + '</span>')
+                + ''.join(out) + '</span>')
 
     def item(y, extra='', mark=''):
         if y.html is None:
@@ -604,7 +699,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     text = shell.document(cfg=cfg, slug=p.slug, source=src_files,
                           title=f'{title.replace("$", "")} – {shell.COURSE_TITLE} – {shell.SITE_NAME}',
                           desc=shell.description(text_of(body)), crumbs=crumbs, tree=tree,
-                          main=headings(head + '\n' + body), pos=(k + 1) / len(order), chapter=p.kind == 'chapter')
+                          main=glue(headings(head + '\n' + body)), pos=(k + 1) / len(order), chapter=p.kind == 'chapter')
     write(os.path.join(OUT, p.slug + '.html'), text, files)
 
 
@@ -684,7 +779,7 @@ def write_landing(front, pages, ctx, files, cfg: dict, search: list):
     index_page.slug = 'index'
     frags = {name: resolve(x, index_page, ctx, {}) for name, x in
              (('cover', cover_html), ('dedication', dedication), ('contents', contents), ('roadmap', roadmap))}
-    main = shell.landing_main(frags)
+    main = glue(shell.landing_main(frags))
     label = shell.course_label(cfg)
     search.insert(0, {'objectID': f'{COURSE}/index.html', 'href': f'{COURSE}/index.html', 'title': shell.COURSE_TITLE,
                       'section': '', 'text': text_of(frags['cover'] + frags['dedication'])})

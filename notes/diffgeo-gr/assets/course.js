@@ -146,8 +146,12 @@ async function show(t) {
   if (content.classList.contains('dg-pop-raw')) {
     try { await typeset(content); } catch (err) { /* the TeX source stays readable */ }
     content.classList.remove('dg-pop-raw');
-    if (token === pop.token) place();
+    if (token !== pop.token) return;
+    place();
   }
+  // a wide equation is set a little smaller and then scrolls inside the preview, as in the text (D45 c)
+  fitDisplayMath(content);
+  place();
 }
 
 /** Builds (or reuses) the popover content for a trigger; null when there is nothing to show. */
@@ -236,7 +240,19 @@ function place() {
   el.style.maxWidth = `${maxW}px`;
   el.style.width = eq ? `${maxW}px` : '';
   const below = vh - r.bottom - gap - m, above = r.top - gap - topLimit;
-  el.style.maxHeight = `${Math.max(120, Math.min(vh * 0.6, Math.max(below, above)))}px`;
+  const maxH = Math.max(120, Math.min(vh * 0.6, Math.max(below, above)));
+  el.style.maxHeight = `${maxH}px`;
+  // a figure is scaled down until the preview (figure and caption) fits that height, so that it never has to
+  // be scrolled to be seen whole; it scrolls only if it would have to shrink below 45 % of the preview (D45 c)
+  const paper = el.querySelector('figure .dg-paper'), img = paper && paper.querySelector('img, svg');
+  if (paper && img) {
+    paper.style.maxWidth = '';
+    const over = el.scrollHeight - el.clientHeight, ih = img.getBoundingClientRect().height;
+    if (over > 1 && ih > 0) {
+      const pw = paper.getBoundingClientRect().width;
+      paper.style.maxWidth = `${Math.max(pw * 0.45, pw * (ih - over - 2) / ih)}px`;
+    }
+  }
   const w = el.offsetWidth, h = el.offsetHeight;
   let lo = Math.max(m, col.left), hi = Math.min(vw - m, col.right) - w;
   if (hi < lo - 2) { lo = m; hi = Math.max(m, vw - m - w); }          // wider than the column: the viewport
@@ -692,14 +708,22 @@ function drawDecor() {
 // ---- narrow screens: inline formulas wider than their line --------------------------------------
 // MathJax 3 cannot break an inline formula; one wider than the column would widen the whole page.
 // Only those (measured after typesetting) scroll sideways in place, like the display equations.
-function fitWideInlineMath() {
-  const all = document.querySelectorAll('main mjx-container[jax="CHTML"]:not([display="true"])');
-  all.forEach(m => m.classList.remove('dg-math-wide'));
+function fitWideInlineMath(root = document.querySelector('main')) {
+  if (!root) return;
+  const all = root.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
+  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; });
   for (const m of all) {
     const block = m.closest('p, li, td, th, figcaption, div');
     if (!block || m.closest('.math.display, .dg-pop')) continue;
-    const r = m.getBoundingClientRect(), b = block.getBoundingClientRect();
-    if (r.width && (r.right > b.right + 0.5 || r.left < b.left - 0.5)) m.classList.add('dg-math-wide');
+    // the run the converter glued around the formula (D44: brackets, punctuation, a footnote mark) has to
+    // fit the line as a whole: the formula scrolls within what the rest of the run leaves
+    const run = m.closest('.dg-nb');
+    const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
+    if (r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5)) {
+      m.classList.add('dg-math-wide');
+      const extra = Math.ceil(rr.width - r.width);
+      if (run && extra > 0) m.style.maxWidth = `calc(100% - ${extra}px)`;
+    }
   }
   // a formula that scrolls can be scrolled from the keyboard too (as the display equations)
   for (const m of all) {
@@ -708,12 +732,12 @@ function fitWideInlineMath() {
   }
 }
 // A display equation slightly wider than the column is set a little smaller so that it fits
-// (never below 80% of the text size); only what is still too wide scrolls, with a fade at the
-// edge where more is hidden (class dg-math-scroll / dg-math-end, styled in course.css).
+// (never below 80% of the text size); only what is still too wide scrolls inside its own box, which shows
+// a soft shadow at the edge where more is hidden (D45; CSS only, course.css). Class dg-math-scroll marks it.
 const MIN_DISPLAY_SCALE = 0.8;
-function fitDisplayMath() {
-  for (const d of document.querySelectorAll('main .math.display')) {
-    if (d.closest('.dg-pop')) continue;
+function fitDisplayMath(root = document.querySelector('main')) {
+  if (!root) return;
+  for (const d of root.querySelectorAll('.math.display')) {
     d.style.fontSize = '';
     const need = d.scrollWidth, have = d.clientWidth;
     if (need > have + 1 && have > 0) {
@@ -721,11 +745,8 @@ function fitDisplayMath() {
     }
     const scrolls = d.scrollWidth > d.clientWidth + 1;
     d.classList.toggle('dg-math-scroll', scrolls);
-    if (scrolls && !d.dataset.dgScroll) {
-      d.dataset.dgScroll = '1';
-      d.tabIndex = 0;                                   // keyboard users can scroll it too
-      d.addEventListener('scroll', () => d.classList.toggle('dg-math-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 2), { passive: true });
-    }
+    if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
+    else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
   }
 }
 async function initWideMath() {
@@ -775,6 +796,7 @@ function initDrawer() {
   const open = () => {
     H.classList.add('dg-nav-open');
     btn.setAttribute('aria-expanded', 'true');
+    revealCurrent(tree);
     requestAnimationFrame(() => (tree.querySelector('[aria-current="page"]') || tree.querySelector('a[href]'))?.focus());
   };
   const close = (restore = true) => {
@@ -801,6 +823,19 @@ function initDrawer() {
     else if (!e.shiftKey && (cur === last || !tree.contains(cur))) { e.preventDefault(); first.focus(); }
   });
   drawer.addEventListener('change', () => { if (!drawer.matches) close(false); });
+}
+
+/** Scrolls the course tree (never the page) so that the current page's entry is in view: left alone if it is
+ *  already within the part of the tree that can be seen, otherwise centred in it. Run on load (the sticky
+ *  column and the closed drawer) and when the drawer opens. */
+function revealCurrent(tree = document.getElementById('dg-tree')) {
+  const cur = tree && tree.querySelector('[aria-current="page"]');
+  if (!cur) return;
+  const t = tree.getBoundingClientRect(), c = cur.getBoundingClientRect();
+  const seen = Math.max(0, Math.min(tree.clientHeight, window.innerHeight - Math.max(t.top, 0)));   // the part of the tree on screen
+  const top = c.top - t.top + tree.scrollTop - tree.clientTop;     // the entry's offset in the tree's content
+  if (top >= tree.scrollTop && top + c.height <= tree.scrollTop + seen) return;
+  tree.scrollTop = Math.max(0, top - (seen - c.height) / 2);
 }
 
 /** Light or dark (D32): the head script applies the stored choice before the first paint. */
@@ -879,6 +914,10 @@ function initSidenotes() {
     if (!wide.matches) { H.classList.remove('dg-has-sidenotes'); return; }
     if (!box) build();
     H.classList.add('dg-has-sidenotes');
+    // the math of the notes obeys D27 in the margin too (D45 a): displays scroll in their own box, inline
+    // formulas wider than the note scroll in place; done before the heights are measured
+    fitDisplayMath(box);
+    fitWideInlineMath(box);
     const top0 = main.getBoundingClientRect().top;
     let floor = 0;
     for (const n of box.children) {
@@ -936,7 +975,7 @@ const WORDS = {
   copy: 'Copy LaTeX', copied: 'Copied',
   search: 'Search', searchNotes: 'Search the notes', searchSite: 'Search the site',
   scopeNotes: 'These notes', scopeSite: 'Whole site', results: 'Results', noResults: 'No results',
-  map: 'Course map', enlarge: 'Enlarge figure',
+  map: 'Course map', enlarge: 'Enlarge figure', leftOut: '[…]',
 };
 const ICON = name => `<i class="dg-i dg-i-${name}" aria-hidden="true"></i>`;
 const escHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1172,7 +1211,8 @@ async function initCopyButtons() {
 // which post_render.py extends with the course), as it does on every other page of the site. Each index is
 // loaded on first use. Every word of the query must occur (case and accents ignored); ranking: title, then
 // section, then text. Results are grouped by page; the formulas of page titles and section names are typeset
-// as in the course tree (R10), the text lines stay plain text (TeX source as written).
+// as in the course tree (R10); the text lines keep their short inline formulas whole and typeset them too, and
+// never cut through a formula (snippet() below).
 const S = { dlg: null, input: null, list: null, empty: null, scope: 'notes', idx: {}, opener: null, hits: [], active: -1, seq: 0, timer: 0, mathTimer: 0 };
 const MAX_HITS = 30;
 const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -1236,11 +1276,10 @@ function markedTitle(text, words) {
     ? `<span class="math inline">${escHtml(part)}</span>` : marked(part, words))).join('');
 }
 
-/** Typesets the formulas of the result titles and section names (never of the text lines, which stay plain),
- *  once the list has stopped changing; until then they are hidden. Without MathJax the TeX stays readable. */
+/** Typesets the formulas of the result titles, section names and text lines, once the list has stopped changing; until then they are hidden. Without MathJax the TeX stays readable. */
 function typesetHits(seq) {
   clearTimeout(S.mathTimer);
-  const els = [...S.list.querySelectorAll('.dg-search-page, .dg-search-sec')].filter(el => el.querySelector('.math'));
+  const els = [...S.list.querySelectorAll('.dg-search-page, .dg-search-sec, .dg-search-text')].filter(el => el.querySelector('.math'));
   if (!els.length) { S.list.classList.remove('dg-search-raw'); return; }
   S.list.classList.add('dg-search-raw');
   S.mathTimer = setTimeout(async () => {
@@ -1251,16 +1290,71 @@ function typesetHits(seq) {
   }, 60);
 }
 
-/** One line of `text` around the first match of the query words. */
+/** The formulas of an index text, whose math is its TeX source as in the notes (D36): [start, end, display],
+ *  display for \[..\] and a top-level \begin{..}..\end{..}, inline for \(..\). */
+function formulas(text) {
+  const out = [];
+  let i = 0;
+  while (i < text.length) {
+    const j = text.indexOf('\\', i);
+    if (j < 0) break;
+    let end = -1, display = false;
+    if (text.startsWith('\\(', j)) { const e = text.indexOf('\\)', j + 2); end = e < 0 ? text.length : e + 2; }
+    else if (text.startsWith('\\[', j)) { const e = text.indexOf('\\]', j + 2); end = e < 0 ? text.length : e + 2; display = true; }
+    else if (text.startsWith('\\begin{', j)) {
+      const name = text.slice(j + 7, text.indexOf('}', j + 7));
+      const re = /\\(begin|end)\{([^}]*)\}/g;
+      re.lastIndex = j;
+      let depth = 0;
+      for (let m; (m = re.exec(text));) {
+        if (m[2] !== name) continue;
+        depth += m[1] === 'begin' ? 1 : -1;
+        if (!depth) { end = re.lastIndex; break; }
+      }
+      if (end < 0) end = text.length;
+      display = true;
+    }
+    if (end < 0) { i = j + 1; continue; }
+    out.push([j, end, display]);
+    i = end;
+  }
+  return out;
+}
+
+const SNIPPET_MATH = 80;                                // inline formulas longer than this are left out ("[…]")
+/** One line of `text` around the first match of the query words, as HTML. It never cuts through a formula: the
+ *  window is moved outward to the formulas' boundaries. Inline formulas of up to SNIPPET_MATH characters are kept
+ *  whole for MathJax (as in the titles: <mark> only outside math); a display, an environment or a longer formula
+ *  becomes "[…]", unless the match lies inside it: then its TeX source is shown as it is, in a monospace span
+ *  (around the match, if it is long). */
 function snippet(text, words) {
-  const low = fold(text);
+  let low = '';
+  const map = [];
+  for (let i = 0; i < text.length; i++) { const f = fold(text[i]); for (let j = 0; j < f.length; j++) map.push(i); low += f; }
   let k = -1;
-  for (const w of words) { const i = low.indexOf(w); if (i >= 0 && (k < 0 || i < k)) k = i; }
-  if (k < 0) return text.slice(0, 160);
-  let a = Math.max(0, k - 60), b = Math.min(text.length, k + 120);
-  if (a > 0) { const sp = text.indexOf(' ', a); a = sp >= 0 && sp < k ? sp + 1 : a; }
-  if (b < text.length) { const sp = text.lastIndexOf(' ', b); b = sp > k ? sp : b; }
-  return (a > 0 ? '… ' : '') + text.slice(a, b) + (b < text.length ? ' …' : '');
+  for (const w of words) { const i = low.indexOf(w); if (i >= 0 && (k < 0 || map[i] < k)) k = map[i]; }
+  const F = formulas(text), at = p => F.find(f => p > f[0] && p < f[1]);
+  let a = k < 0 ? 0 : Math.max(0, k - 60), b = k < 0 ? Math.min(text.length, 160) : Math.min(text.length, k + 120);
+  if (k >= 0 && a > 0) { const sp = text.indexOf(' ', a); a = sp >= 0 && sp < k ? sp + 1 : a; }
+  if (k >= 0 && b < text.length) { const sp = text.lastIndexOf(' ', b); b = sp > k ? sp : b; }
+  const fa = at(a), fb = at(b);
+  if (fa) a = fa[0];
+  if (fb) b = fb[1];
+  const hit = k >= 0 ? F.find(f => k >= f[0] && k < f[1]) : null;
+  let out = a > 0 ? '… ' : '', pos = a;
+  for (const f of F) {
+    if (f[1] <= a || f[0] >= b) continue;
+    out += marked(text.slice(pos, f[0]), words);
+    const src = text.slice(f[0], f[1]);
+    if (!f[2] && src.length <= SNIPPET_MATH) out += `<span class="math inline">${escHtml(src)}</span>`;
+    else if (f === hit) {
+      const long = src.length > 160, s0 = long ? Math.max(0, k - f[0] - 60) : 0, s1 = long ? Math.min(src.length, k - f[0] + 100) : src.length;
+      out += `<code class="dg-search-tex">${s0 > 0 ? '…' : ''}${marked(src.slice(s0, s1), words)}${s1 < src.length ? '…' : ''}</code>`;
+    } else out += WORDS.leftOut;
+    pos = f[1];
+  }
+  out += marked(text.slice(pos, b), words);
+  return out + (b < text.length ? ' …' : '');
 }
 
 function buildSearch() {
@@ -1360,7 +1454,7 @@ function renderHits(hits, q) {
     o.setAttribute('aria-selected', 'false');
     o.innerHTML = `<a href="${escHtml(new URL(e.href, base).href)}" tabindex="-1">`
       + (e.section ? `<span class="dg-search-sec">${markedTitle(e.section, words)}</span>` : '')
-      + `<span class="dg-search-text">${marked(text, words)}</span></a>`;
+      + `<span class="dg-search-text">${text}</span></a>`;
     group.append(o);
   }
   S.active = -1;
@@ -1497,12 +1591,14 @@ function initMapDialog() {
 }
 
 // ---- 12. "read" marks (D40) ----------------------------------------------------------------------
-// A section page counts as read once its previous/next block has been in the viewport, or when the toggle
+// A section page counts as read once its previous/next block is in the viewport after at least 20 seconds on
+// the page (D40 as amended), or when the toggle
 // at its foot is pressed; pressing it again clears the mark, and then reaching the end does not set it again
 // during this visit. Kept in this browser only: localStorage['dg-read'] = JSON array of page slugs (the page's
 // path in the course without .html, <body data-dg-slug>). The checks after the section titles (tree, sections
 // of the chapter opening pages, landing page's contents) are in the HTML, hidden; this only shows them.
 const READ_KEY = 'dg-read';
+const READ_DELAY = 20000;                              // ms on the page before the end can mark it (D40)
 /** The stored slugs, or null when the storage cannot be read (private mode, blocked, corrupt). */
 function readStored() {
   try {
@@ -1548,18 +1644,39 @@ function initRead() {
     if (!on) unmarked = true;
     set(on);
   });
+  // the automatic mark (D40 as amended): the end of the page in view AND at least READ_DELAY on the page (time
+  // while the page is visible), whichever comes last; the toggle is not affected. Tests shorten the delay by
+  // setting window.__dgReadDelay (milliseconds) before this script runs; nothing else uses it.
   const end = document.querySelector('#dg-main .dg-prevnext') || btn;
   if (!('IntersectionObserver' in window)) return;
+  const delay = Number.isFinite(window.__dgReadDelay) ? window.__dgReadDelay : READ_DELAY;
+  let inView = false, timeOk = false, spent = 0, timer = 0;
+  let since = document.visibilityState === 'hidden' ? null : performance.now();
   const io = new IntersectionObserver(entries => {
-    if (unmarked) { io.disconnect(); return; }
-    if (entries.some(e => e.isIntersecting)) { io.disconnect(); if (!read.has(slug)) set(true); }
+    inView = entries.some(e => e.isIntersecting);
+    check();
+  });
+  const check = () => {
+    if (unmarked) { io.disconnect(); clearTimeout(timer); return; }
+    if (inView && timeOk) { io.disconnect(); if (!read.has(slug)) set(true); }
+  };
+  const arm = () => {
+    clearTimeout(timer);
+    if (since === null || timeOk) return;
+    timer = setTimeout(() => { timeOk = true; check(); }, Math.max(0, delay - spent));
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { if (since !== null) { spent += performance.now() - since; since = null; } clearTimeout(timer); }
+    else if (since === null) { since = performance.now(); arm(); }
   });
   io.observe(end);
+  arm();
 }
 
 function init() {
   const run =(name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
   run('drawer', initDrawer);
+  run('tree', () => revealCurrent());
   run('theme', initTheme);
   run('site navbar', initSiteNav);
   run('scroll', initScroll);
