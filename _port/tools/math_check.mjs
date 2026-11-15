@@ -9,7 +9,8 @@
 //
 // An expression fails when the engine throws or its output carries an error node
 // (MathJax: merror / data-mjx-error; KaTeX: throwOnError with strict 'ignore').
-// Exit code 1 when mathjax3 (the engine the pages load) has failures.
+// Exit code 1 when the engine the pages load (DEFAULT_ENGINE) has failures. The config file serves
+// that engine only; the others read its tex block (and mathjax4 its loader.load, if any) as given.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,7 +24,7 @@ const DEFAULT_REPORT = path.join(PORT, '.work', 'report.json');
 const CONFIG = path.join(REPO, 'notes', 'diffgeo-gr', 'assets', 'mathjax-config.js');
 const require = createRequire(path.join(PORT, 'package.json'));
 const ENGINES = ['mathjax3', 'mathjax4', 'katex'];
-const DEFAULT_ENGINE = 'mathjax3';
+const DEFAULT_ENGINE = 'mathjax3';   // the engine of _port/convert/shell.py (MATHJAX)
 
 // ---------------------------------------------------------------- inputs
 
@@ -119,7 +120,8 @@ async function runMathjax4(items, cfg) {
   const warn = console.warn;  // the loader warns that bundled extensions carry no version
   console.warn = (...a) => { if (!/No version information/.test(String(a[0]))) warn(...a); };
   await MathJax.init({
-    loader: { load: ['input/tex', 'adaptors/liteDOM', ...added.map((p) => `[tex]/${p}`)] },
+    // the browser's tex-chtml.js = input/tex + output; plus what the config's loader.load adds
+    loader: { load: [...new Set(['input/tex', 'adaptors/liteDOM', ...((cfg.loader && cfg.loader.load) || []), ...added.map((p) => `[tex]/${p}`)])] },
     tex: texOptions(cfg.tex, { '[+]': added, '[-]': ['noundefined'] }),
     startup: { typeset: false },
   });
