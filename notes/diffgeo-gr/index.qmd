@@ -1,0 +1,53 @@
+---
+title: "From Differential Geometry to General Relativity"
+toc: false
+---
+
+<!-- Hand-written: landing page of the course section (DECISIONS D19).
+     Every word of the notes on this page comes from the generated fragments in _generated/
+     (cover, master roadmap, contents, epigraph and dedication). The only words written here are
+     the three button labels. The decorations (mesh, ribbon, faded verse lines) echo the notes'
+     title and dedication pages; course.js draws the mesh and the verse lines. -->
+
+:::::: {.dg-landing .column-page-right}
+
+::::: {.dg-landing-cover}
+
+```{=html}
+<svg class="dg-mesh dg-mesh-cover" data-dg-mesh="cover" viewBox="-60 -14 120 46" aria-hidden="true" focusable="false"></svg>
+<svg class="dg-ribbon" viewBox="0 0 24 88" aria-hidden="true" focusable="false"><path d="M0 0H24V88L12 79L0 88Z"/><text x="12" y="68">&#8711;</text></svg>
+```
+
+{{< include _generated/cover.qmd >}}
+
+:::::
+
+::::: {.dg-landing-actions .dg-web}
+
+[<i class="bi bi-book" aria-hidden="true"></i> Start reading](introduction/index.qmd){.dg-btn .dg-btn-primary}
+[<i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Download PDF](/assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.dg-btn}
+[<i class="bi bi-github" aria-hidden="true"></i> Python package](https://github.com/daniellopezcano/differential_geometry){.dg-btn}
+
+:::::
+
+{{< include _generated/roadmap.qmd >}}
+
+{{< include _generated/contents.qmd >}}
+
+::::: {.dg-landing-end}
+
+```{=html}
+<svg class="dg-verse dg-verse-above" data-dg-verse="above" viewBox="-7.5 0 15 2" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet"></svg>
+```
+
+{{< include _generated/dedication.qmd >}}
+
+```{=html}
+<svg class="dg-verse dg-verse-below" data-dg-verse="below" viewBox="-7.5 0 15 1.8" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet"></svg>
+<svg class="dg-mesh dg-mesh-dedication" data-dg-mesh="dedication" viewBox="-60 -14 120 46" aria-hidden="true" focusable="false"></svg>
+<svg class="dg-ribbon dg-ribbon-small" viewBox="0 0 24 42" aria-hidden="true" focusable="false"><path d="M0 0H24V42L12 34L0 42Z"/></svg>
+```
+
+:::::
+
+::::::

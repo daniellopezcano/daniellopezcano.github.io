@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>C.4 Example of Fields (§§5.1–5.3) – Daniel López Cano</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../assets/icons/site-mark.svg" rel="icon" type="image/svg+xml">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-262b6f6cb119cb2e364890ef9d33df13.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "Daniel López Cano",
+    "url": "https://daniellopezcano.github.io/",
+    "image": "https://daniellopezcano.github.io/assets/img/profile.jpg",
+    "jobTitle": "Postdoctoral Researcher in Computational Cosmology",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Institute of Physics, University of São Paulo",
+      "url": "https://portal.if.usp.br/ifusp/pt-br/users/dlopez"
+    },
+    "alumniOf": [
+      {
+        "@type": "Organization",
+        "name": "Donostia International Physics Center",
+        "url": "https://dipc.ehu.eus/en"
+      },
+      {
+        "@type": "Organization",
+        "name": "Universidad Autónoma de Madrid",
+        "url": "https://www.uam.es/ciencias/facultad/departamentos/fisica-teorica"
+      }
+    ],
+    "sameAs": [
+      "https://orcid.org/0000-0002-0279-4874",
+      "https://scholar.google.com/citations?hl=en&user=2n98u-oAAAAJ",
+      "https://github.com/daniellopezcano",
+      "https://portal.if.usp.br/ifusp/pt-br/users/dlopez",
+      "https://arxiv.org/search/?searchtype=author&query=L%C3%B3pez-Cano%2C+D"
+    ]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Daniel López Cano",
+  "url": "https://daniellopezcano.github.io/"
+}
+</script>
+<!-- Hand-written: head of every course page. The math configuration must come before MathJax,
+     which Quarto loads itself (pinned in _metadata.yml, html-math-method). -->
+<link rel="preload" href="../../../notes/diffgeo-gr/assets/fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin="">
+<script src="../../../notes/diffgeo-gr/assets/mathjax-config.js"></script>
+<script type="module" src="../../../notes/diffgeo-gr/assets/course.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/interactive.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../research_and_publications.html"> 
+<span class="menu-text">Research &amp; Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../teaching_and_projects.html"> 
+<span class="menu-text">Teaching &amp; Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../notes/diffgeo-gr/index.html" aria-current="page"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../outreach.html"> 
+<span class="menu-text">Outreach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../cv.html"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/computational-ressources/index.html">Appendices</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/examples/index.html">C Examples</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/examples/example-fields.html">C.4 Example of Fields (§§5.1–5.3)</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/introduction/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1 Introduction</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/introduction/roadmaps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1.1 Roadmaps of the Notes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/vector-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2 Vector Spaces</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.1 Foundations: Sets, Maps, and Algebraic Structures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.2 Vector Space, Dual Space, and Tensor Space</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/basis-components-transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.3 Bases, Components, and Transformation Laws</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/topological-manifolds/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3 Topological Manifolds</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/topological-spaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.1 Topological Spaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.2 Charts and Topological Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/smooth-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.3 Smooth Manifolds</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/tangent-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4 Tangent Spaces</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.1 Tangent Space <span class="math inline">\(T_p \mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/cotangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.2 Cotangent Space <span class="math inline">\(T_p^*\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tensor-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.3 Tensor Space <span class="math inline">\(T_p^{(r,s)}\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/fields/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5 Fields</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/vector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.1 Vector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.2 Covector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/tensor-fields-and-notation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.3 Tensor Fields and notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/covariant-derivative/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6 Covariant Derivative</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connections-affine-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.1 Connections and Affine Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connection-coefficient-functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.2 Connection Coefficient Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/parallel-transport-autoparallels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.3 Parallel Transport and Autoparallels</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.4 Torsion and Curvature</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/metric/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7 Metric</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.1 Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/length-geodesics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.2 Length and Geodesics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/levi-civita-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.3 The Levi-Civita Connection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/curvature-metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.4 Curvature of the Metric</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/integrals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8 Integrals</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/volume-forms-orientation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.1 Volume Forms and Orientation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/integration-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.2 Integration on Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/metric-volume-form.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.3 The Metric Volume Form</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/newtonian/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9 Newton-Cartan Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newtonian-spacetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.1 Newtonian Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newton-axioms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.2 Newton’s Axioms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/stratified-atlas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.3 Stratified Atlas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/pseudo-forces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.4 Pseudo-Forces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/gravity-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.5 Gravity in the Connection</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 General Relativity</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/spacetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10.1 Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">10.2 The Einstein Equations from an Action</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/matter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10.3 Coupling to Matter</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">A Computational ressources</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B Proofs &amp; Comments</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/set-theory-foundations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.1 Set Theory Foundations (§2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/hamel-schauder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.2 Hamel and Schauder Bases (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-dual-basis-transformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.3 Change of basis for the dual basis (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-existence-sum-prod-curves-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.4 Curves realizing the vector space operations of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.5 Chart-induced basis of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tstarpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.6 Chart-induced basis of <span class="math inline">\(T_p^*\mathcal{M}\)</span> (§4.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-topology-tm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.7 The topology of the tangent bundle (§5.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/exact-covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.8 Which covector fields are differentials? (§5.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/connection-vs-covariant-derivative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.9 Connections and covariant derivatives (§6.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-torsion-tensorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.10 Tensoriality of the torsion (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/flat-connections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.11 Flat Torsion-Free Connections (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-sylvester.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.12 Sylvester’s law of inertia (§7.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-length-reparametrization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.13 Reparametrization invariance of the length (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-euler-lagrange.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.14 Euler–Lagrange equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.15 Higher-order Lagrangians (§7.2.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-geodesic-equation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.16 Derivation of the geodesic equation (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-metric-compatibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.17 The Levi-Civita theorem (§7.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/metric-properties.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.18 Properties of <span class="math inline">\(g\)</span> and of the L.C. connection (§§7.3–7.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/support-integrals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.19 Compactness and the integral over a region (§8.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/partitions-of-unity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.20 Partitions of unity, paracompactness and second countability (§8.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.21 Geometric Formulations of Newtonian Gravity (§9.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/torsion-newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.22 Torsion in Newton-Cartan Theory (§9.1)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/examples/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C Examples</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-vector-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.1 Example of Vector Spaces (§§2.2–2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-d-dim-mfld.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.2 Example of a <span class="math inline">\(d\)</span>-dimensional Smooth Manifold (§§3.2–3.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.3 Example of Tangent, Cotangent and Tensor Spaces (§§4.1–4.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-fields.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">C.4 Example of Fields (§§5.1–5.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-connection-torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.5 Examples of Connections, Torsion and Curvature (§§6.1–6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-variations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.6 Example of Variations and Euler–Lagrange Equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.7 Example of Integration (§§8.1–8.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">C.8 Example of Newton–Cartan Theory (§§9.1–9.5)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-schwarzschild.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.9 Example: the Schwarzschild metric (§10.2.2)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#subsection_Example_Fields_manifold" id="toc-subsection_Example_Fields_manifold" class="nav-link active" data-scroll-target="#subsection_Example_Fields_manifold"><span class="dg-secnum">C.4.1</span> The manifold</a></li>
+  <li><a href="#subsection_Example_Fields_jacobians" id="toc-subsection_Example_Fields_jacobians" class="nav-link" data-scroll-target="#subsection_Example_Fields_jacobians"><span class="dg-secnum">C.4.2</span> Jacobians and transformation laws</a></li>
+  <li><a href="#subsection_Example_Fields_curves" id="toc-subsection_Example_Fields_curves" class="nav-link" data-scroll-target="#subsection_Example_Fields_curves"><span class="dg-secnum">C.4.3</span> Curves and velocities</a></li>
+  <li><a href="#subsection_Example_Fields_function" id="toc-subsection_Example_Fields_function" class="nav-link" data-scroll-target="#subsection_Example_Fields_function"><span class="dg-secnum">C.4.4</span> A scalar field, its differential and the action of velocities on it</a></li>
+  <li><a href="#subsection_Example_Fields_vector_fields" id="toc-subsection_Example_Fields_vector_fields" class="nav-link" data-scroll-target="#subsection_Example_Fields_vector_fields"><span class="dg-secnum">C.4.5</span> Vector fields</a></li>
+  <li><a href="#subsection_Example_Fields_action" id="toc-subsection_Example_Fields_action" class="nav-link" data-scroll-target="#subsection_Example_Fields_action"><span class="dg-secnum">C.4.6</span> Action of the vector fields on the scalar field</a></li>
+  <li><a href="#subsection_Example_Fields_covector_field" id="toc-subsection_Example_Fields_covector_field" class="nav-link" data-scroll-target="#subsection_Example_Fields_covector_field"><span class="dg-secnum">C.4.7</span> A covector field</a></li>
+  <li><a href="#subsection_Example_Fields_pairing" id="toc-subsection_Example_Fields_pairing" class="nav-link" data-scroll-target="#subsection_Example_Fields_pairing"><span class="dg-secnum">C.4.8</span> Action of the covector field on the vector fields</a></li>
+  <li><a href="#subsection_Example_Fields_module" id="toc-subsection_Example_Fields_module" class="nav-link" data-scroll-target="#subsection_Example_Fields_module"><span class="dg-secnum">C.4.9</span> Module operations and a tensor field</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/computational-ressources/index.html">Appendices</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/examples/index.html">C Examples</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/examples/example-fields.html">C.4 Example of Fields (§§5.1–5.3)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">C.4 Example of Fields (§§5.1–5.3)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- GENERATED by _port/convert/build.py from Appendices/examples_and_exercises/example_fields.tex, main.tex.
+     Do not edit this file: edit the LaTeX notes and re-run the converter. -->
+<header class="dg-head dg-head-section"><p class="dg-kicker">Appendix C <span class="dg-sep">•</span> <a href="index.html">Examples</a></p><h1 class="dg-title"><span class="dg-secnum">C.4</span> Example of Fields (§§<a class="dg-xref" href="../fields/vector-fields.html" data-kind="section" data-label="section_Vector_Fields">5.1</a>–<a class="dg-xref" href="../fields/tensor-fields-and-notation.html" data-kind="section" data-label="section_Tensor_Fields_and_notation">5.3</a>)</h1></header>
+<p>This appendix follows a single manifold from its definition as a set all the way up to vector fields, covector fields, their actions and a tensor field, so that every object introduced in the three sections above can be seen written out explicitly in two different charts. Point-level objects are written in the compact notation of Subsections <a class="dg-xref" href="../tangent-spaces/tangent-space.html#notation_TpM" data-kind="subsection" data-label="notation_TpM">4.1.2</a> and <a class="dg-xref" href="../tangent-spaces/cotangent-space.html#notation_TstarpM" data-kind="subsection" data-label="notation_TstarpM">4.2.2</a>, field-level objects in that of Section <a class="dg-xref" href="../fields/tensor-fields-and-notation.html" data-kind="section" data-label="section_Tensor_Fields_and_notation">5.3</a>, and the Einstein summation convention is implied throughout.</p>
+<div class="dg-skip dg-medskip"></div>
+<section id="subsection_Example_Fields_manifold" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_manifold"><span class="dg-secnum">C.4.1</span> The manifold</h2>
+<p>Let us define a 2-dim. smooth manifold <span class="math inline">\(\left( \mathcal{M}, \mathcal{O}_\mathcal{M}, \mathcal{A}_{C^\infty} \right)_2\)</span> as follows.</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p>The set <span class="math inline">\(\mathcal{M}\)</span> is the graph of the height function <span class="math inline">\(h\)</span>:  <span class="math display">\begin{align*}
+            \mathcal{M} \coloneqq \left\{ p = (a, b, c) \in \mathbb{R}^3 \;\middle|\; c = h(a,b) \right\},
+        \end{align*}</span>  where the height function <span class="math inline">\(h\)</span> is  <span class="math display">\begin{align*}
+            h(a,b) \coloneqq \frac{1}{2}\cos(a+b) + \frac{1}{2}\sin\left(a - b + \frac{\pi}{2}\right) + 1
+            = \cos a \, \cos b + 1,
+        \end{align*}</span>  and the last equality lets us write every subsequent expression in a compact form.</p></li>
+<li><p>The topology <span class="math inline">\(\mathcal{O}_\mathcal{M}\)</span> is the one induced from the ambient space <span class="math inline">\(\left( \mathbb{R}^3, \mathcal{O}_{\mathbb{R}^3} \right)\)</span>:  <span class="math display">\begin{align*}
+            \mathcal{O}_\mathcal{M} \coloneqq \left.\mathcal{O}_{\mathbb{R}^3}\right|_\mathcal{M}
+            = \left\{ \mathcal{M} \cap \mathcal{W} \;\middle|\; \mathcal{W} \in \mathcal{O}_{\mathbb{R}^3} \right\}.
+        \end{align*}</span></p></li>
+<li><p>The atlas <span class="math inline">\(\mathcal{A} \coloneqq \left\{ (\mathcal{U}, \mathscr{X}), (\mathcal{V}, \mathscr{Y}) \right\}\)</span> is defined by the two charts<sup class="dg-fnref"><a href="#fn-2" id="fnref-2" aria-label="Footnote 2">2</a></sup>:  <span class="math display">\[
+            \begin{array}{c@{\;\;} | @{\;\;} c}
+                \textbf{Chart $(\mathcal{U}, \mathscr{X})$} &amp;
+                \textbf{Chart $(\mathcal{V}, \mathscr{Y})$} \\[6pt]
+                \begin{aligned}
+                    \mathcal{U}                    &amp;\coloneqq \mathcal{M} \\[2pt]
+                    \mathscr{X} \colon \mathcal{U} &amp;\longrightarrow \mathscr{X}(\mathcal{U}) = \mathbb{R}^2 \\
+                    p = (a,b,c)                    &amp;\longmapsto \mathscr{X}(p) \coloneqq \left( a \,,\, b \right)
+                \end{aligned}
+                &amp;
+                \begin{aligned}
+                    \mathcal{V}                    &amp;\coloneqq \mathcal{M} \setminus \left\{ a \leq 0, \, b = 0 \right\} \\[2pt]
+                    \mathscr{Y} \colon \mathcal{V} &amp;\longrightarrow \mathscr{Y}(\mathcal{V}) = (0, \infty) \times (-\pi, \pi) \\
+                    p = (a,b,c)                    &amp;\longmapsto \mathscr{Y}(p) \coloneqq \left( \sqrt{a^2 + b^2} \,,\, \operatorname{atan2}(b, a) \right)
+                \end{aligned}
+            \end{array}
+        \]</span>  so that the coordinate functions are <span class="math inline">\(\mathscr{X}^1(p) = a\)</span>, <span class="math inline">\(\mathscr{X}^2(p) = b\)</span> and <span class="math inline">\(\mathscr{Y}^1(p) = \sqrt{a^2+b^2}\)</span>, <span class="math inline">\(\mathscr{Y}^2(p) = \operatorname{atan2}(b,a)\)</span>. Both chart maps are homeomorphisms onto their (open) images: <span class="math inline">\(\mathcal{M}\)</span> is a graph over <span class="math inline">\(\mathbb{R}^2\)</span>, so <span class="math inline">\(\mathscr{X}\)</span> is the restriction of the projection <span class="math inline">\((a,b,c) \mapsto (a,b)\)</span>, and <span class="math inline">\(\mathscr{Y}\)</span> is that projection followed by polar coordinates. Their inverses are  <span class="math display">\begin{align*}
+            \mathscr{X}^{-1} \colon \mathscr{X}(\mathcal{U}) &amp;\longrightarrow \mathcal{U} \\
+            (\alpha_1, \alpha_2)_\mathcal{U}                 &amp;\longmapsto \big( \alpha_1, \, \alpha_2, \, h(\alpha_1, \alpha_2) \big)_\mathcal{M}
+        \end{align*}</span>  <span class="math display">\begin{align*}
+            \mathscr{Y}^{-1} \colon \mathscr{Y}(\mathcal{V}) &amp;\longrightarrow \mathcal{V} \\
+            (\beta_1, \beta_2)_\mathcal{V}                   &amp;\longmapsto \big( \beta_1 \cos \beta_2, \, \beta_1 \sin \beta_2, \, h(\beta_1 \cos \beta_2, \beta_1 \sin \beta_2) \big)_\mathcal{M}.
+        \end{align*}</span></p></li>
+</ol>
+<p>Since <span class="math inline">\(\mathcal{U} = \mathcal{M}\)</span>, the overlap of the two chart domains is <span class="math inline">\(\mathcal{U} \cap \mathcal{V} = \mathcal{V}\)</span>, and the two chart transition maps are <span class="math display">\begin{align*}
+    \textrm{\runic ᛖ}_{\mathcal{V}\mathcal{U}} \colon \mathscr{Y}(\mathcal{U} \cap \mathcal{V}) &amp;\longrightarrow \mathscr{X}(\mathcal{U} \cap \mathcal{V}) \\
+    \left( \beta_1 \,,\, \beta_2 \right)_\mathcal{V} &amp;\longmapsto
+    \left( \mathscr{X} \circ \mathscr{Y}^{-1} \right) \left( \beta_1 \,,\, \beta_2 \right)_\mathcal{V}
+    = \left( \beta_1 \cos \beta_2 \,,\, \beta_1 \sin \beta_2 \right)_\mathcal{U}
+\end{align*}</span> <span class="math display">\begin{align*}
+    \textrm{\runic ᛖ}_{\mathcal{U}\mathcal{V}} \colon \mathscr{X}(\mathcal{U} \cap \mathcal{V}) &amp;\longrightarrow \mathscr{Y}(\mathcal{U} \cap \mathcal{V}) \\
+    \left( \alpha_1 \,,\, \alpha_2 \right)_\mathcal{U} &amp;\longmapsto
+    \left( \mathscr{Y} \circ \mathscr{X}^{-1} \right) \left( \alpha_1 \,,\, \alpha_2 \right)_\mathcal{U}
+    = \left( \sqrt{\alpha_1^2 + \alpha_2^2} \,,\, \operatorname{atan2}(\alpha_2, \alpha_1) \right)_\mathcal{V}.
+\end{align*}</span> Both are <span class="math inline">\(C^\infty\)</span> on <span class="math inline">\(\mathscr{Y}(\mathcal{V})\)</span> and <span class="math inline">\(\mathscr{X}(\mathcal{V})\)</span> respectively (on the latter the branch cut has been removed, and <span class="math inline">\(\alpha_1^2 + \alpha_2^2 &gt; 0\)</span> there), so the atlas is <span class="math inline">\(C^\infty\)</span>-compatible, <span class="math inline">\(\mathcal{A} \equiv \mathcal{A}_{C^\infty}\)</span>, and <span class="math inline">\(\left( \mathcal{M}, \mathcal{O}_\mathcal{M}, \mathcal{A}_{C^\infty} \right)_2\)</span> is a 2-dim. smooth manifold.</p>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_jacobians" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_jacobians"><span class="dg-secnum">C.4.2</span> Jacobians and transformation laws</h2>
+<ul class="dg-itemize dg-depth-1">
+<li><p>To relate the two charts we need the Jacobians of the transition maps at a point <span class="math inline">\(p \in \mathcal{U} \cap \mathcal{V}\)</span>. Writing <span class="math inline">\(\mathscr{X}(p) = (\alpha_1, \alpha_2)_\mathcal{U}\)</span>, <span class="math inline">\(\mathscr{Y}(p) = (\beta_1, \beta_2)_\mathcal{V}\)</span>:  <span class="math display">\begin{align*}
+            \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^i_j\left( \mathscr{X}(p) \right)
+            = \left( \frac{\partial \mathscr{Y}^i}{\partial \mathscr{X}^j} \right)_p
+            = \partial_j \left[ \mathscr{Y}^i \circ \mathscr{X}^{-1} \right] \left( \mathscr{X}(p) \right)
+            =
+            \begin{bmatrix}
+                \dfrac{\alpha_1}{\sqrt{\alpha_1^2 + \alpha_2^2}} &amp; \dfrac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \\[10pt]
+                -\dfrac{\alpha_2}{\alpha_1^2 + \alpha_2^2} &amp; \dfrac{\alpha_1}{\alpha_1^2 + \alpha_2^2}
+            \end{bmatrix}_\mathcal{V},
+        \end{align*}</span>  since  <span class="math display">\begin{align*}
+            \partial_1 \textrm{\runic ᛖ}_{\mathcal{U}\mathcal{V}}
+            \left( \begin{array}{c} \alpha_1 \\ \alpha_2 \end{array} \right)_\mathcal{U}
+            = \left( \begin{array}{c} \alpha_1 / \sqrt{\alpha_1^2 + \alpha_2^2} \\ -\alpha_2 / (\alpha_1^2 + \alpha_2^2) \end{array} \right)_\mathcal{V}
+            \quad ; \quad
+            \partial_2 \textrm{\runic ᛖ}_{\mathcal{U}\mathcal{V}}
+            \left( \begin{array}{c} \alpha_1 \\ \alpha_2 \end{array} \right)_\mathcal{U}
+            = \left( \begin{array}{c} \alpha_2 / \sqrt{\alpha_1^2 + \alpha_2^2} \\ \alpha_1 / (\alpha_1^2 + \alpha_2^2) \end{array} \right)_\mathcal{V}.
+        \end{align*}</span></p></li>
+<li><p>Correspondingly, for the inverse transition map:  <span class="math display">\begin{align*}
+            \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_j\left( \mathscr{Y}(p) \right)
+            = \left( \frac{\partial \mathscr{X}^i}{\partial \mathscr{Y}^j} \right)_p
+            = \partial_j \left[ \mathscr{X}^i \circ \mathscr{Y}^{-1} \right] \left( \mathscr{Y}(p) \right)
+            =
+            \begin{bmatrix}
+                \cos \beta_2 &amp; -\beta_1 \sin \beta_2 \\[4pt]
+                \sin \beta_2 &amp; \beta_1 \cos \beta_2
+            \end{bmatrix}_\mathcal{U},
+        \end{align*}</span>  since  <span class="math display">\begin{align*}
+            \partial_1 \textrm{\runic ᛖ}_{\mathcal{V}\mathcal{U}}
+            \left( \begin{array}{c} \beta_1 \\ \beta_2 \end{array} \right)_\mathcal{V}
+            = \left( \begin{array}{c} \cos \beta_2 \\ \sin \beta_2 \end{array} \right)_\mathcal{U}
+            \quad ; \quad
+            \partial_2 \textrm{\runic ᛖ}_{\mathcal{V}\mathcal{U}}
+            \left( \begin{array}{c} \beta_1 \\ \beta_2 \end{array} \right)_\mathcal{V}
+            = \left( \begin{array}{c} -\beta_1 \sin \beta_2 \\ \beta_1 \cos \beta_2 \end{array} \right)_\mathcal{U}.
+        \end{align*}</span>  As a consistency check, using <span class="math inline">\(\alpha_1 = \beta_1 \cos \beta_2\)</span> and <span class="math inline">\(\alpha_2 = \beta_1 \sin \beta_2\)</span>,  <span class="math display">\begin{align*}
+            \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_{k}\left( \mathscr{Y}(p) \right) \cdot \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^k_{j}\left( \mathscr{X}(p) \right)
+            = \delta^i_j.
+        \end{align*}</span></p></li>
+<li><p>With these two matrices, the transformation laws derived in Subsections <a class="dg-xref" href="../tangent-spaces/tangent-space.html#subsection_Basis_and_Coordinate_Components_of_TpM" data-kind="subsection" data-label="subsection_Basis_and_Coordinate_Components_of_TpM">4.1.1</a> and <a class="dg-xref" href="../tangent-spaces/cotangent-space.html#subsection_Basis_and_Coordinate_Components_of_TstarpM" data-kind="subsection" data-label="subsection_Basis_and_Coordinate_Components_of_TstarpM">4.2.1</a> become completely explicit. For the <strong>basis vectors</strong> of <span class="math inline">\(T_p\mathcal{M}\)</span> — covariant, <span class="math inline">\((\partial x_i)_p = \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^j_{i}\left( \mathscr{X}(p) \right) \cdot (\partial y_j)_p\)</span> and <span class="math inline">\((\partial y_j)_p = \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_{j}\left( \mathscr{Y}(p) \right) \cdot (\partial x_i)_p\)</span>:  <span class="math display">\begin{gather*}
+            \begin{cases}
+                (\partial x_1)_p
+                = \dfrac{\alpha_1}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot (\partial y_1)_p
+                - \dfrac{\alpha_2}{\alpha_1^2 + \alpha_2^2} \cdot (\partial y_2)_p \\[10pt]
+                (\partial x_2)_p
+                = \dfrac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot (\partial y_1)_p
+                + \dfrac{\alpha_1}{\alpha_1^2 + \alpha_2^2} \cdot (\partial y_2)_p
+            \end{cases}
+            \\[8pt]
+            \begin{cases}
+                (\partial y_1)_p
+                = \cos \beta_2 \cdot (\partial x_1)_p
+                + \sin \beta_2 \cdot (\partial x_2)_p \\[10pt]
+                (\partial y_2)_p
+                = -\beta_1 \sin \beta_2 \cdot (\partial x_1)_p
+                + \beta_1 \cos \beta_2 \cdot (\partial x_2)_p
+            \end{cases}
+        \end{gather*}</span></p></li>
+<li><p>For the <strong>basis covectors</strong> of <span class="math inline">\(T^*_p\mathcal{M}\)</span> — contravariant, <span class="math inline">\((dx^i)_p = \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_j\left( \mathscr{Y}(p) \right) \cdot (dy^j)_p\)</span> and <span class="math inline">\((dy^i)_p = \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^i_j\left( \mathscr{X}(p) \right) \cdot (dx^j)_p\)</span>:  <span class="math display">\begin{gather*}
+            \begin{cases}
+                (dx^1)_p = \cos \beta_2 \cdot (dy^1)_p - \beta_1 \sin \beta_2 \cdot (dy^2)_p \\[10pt]
+                (dx^2)_p = \sin \beta_2 \cdot (dy^1)_p + \beta_1 \cos \beta_2 \cdot (dy^2)_p
+            \end{cases}
+            \\[8pt]
+            \begin{cases}
+                (dy^1)_p = \dfrac{\alpha_1}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot (dx^1)_p + \dfrac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot (dx^2)_p \\[10pt]
+                (dy^2)_p = -\dfrac{\alpha_2}{\alpha_1^2 + \alpha_2^2} \cdot (dx^1)_p + \dfrac{\alpha_1}{\alpha_1^2 + \alpha_2^2} \cdot (dx^2)_p
+            \end{cases}
+        \end{gather*}</span></p></li>
+<li><p>For the <strong>components of a vector</strong> <span class="math inline">\(\mathcal{X}_p \in T_p\mathcal{M}\)</span> — contravariant, <span class="math inline">\(x^i_p = \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_j\left( \mathscr{Y}(p) \right) \cdot y^j_p\)</span> and <span class="math inline">\(y^i_p = \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^i_j\left( \mathscr{X}(p) \right) \cdot x^j_p\)</span>:  <span class="math display">\begin{gather*}
+            \begin{cases}
+                x^1_p = \cos \beta_2 \cdot y^1_p - \beta_1 \sin \beta_2 \cdot y^2_p \\[10pt]
+                x^2_p = \sin \beta_2 \cdot y^1_p + \beta_1 \cos \beta_2 \cdot y^2_p
+            \end{cases}
+            \\[8pt]
+            \begin{cases}
+                y^1_p = \dfrac{\alpha_1}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot x^1_p + \dfrac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot x^2_p \\[10pt]
+                y^2_p = -\dfrac{\alpha_2}{\alpha_1^2 + \alpha_2^2} \cdot x^1_p + \dfrac{\alpha_1}{\alpha_1^2 + \alpha_2^2} \cdot x^2_p
+            \end{cases}
+        \end{gather*}</span></p></li>
+<li><p>For the <strong>components of a covector</strong> <span class="math inline">\(\mathsf{X}_p \in T^*_p\mathcal{M}\)</span> — covariant, <span class="math inline">\(\mathtt{y}_j^p = \left( \textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}} \right)^i_j\left( \mathscr{Y}(p) \right) \cdot \mathtt{x}_i^p\)</span> and <span class="math inline">\(\mathtt{x}_j^p = \left( \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}} \right)^i_j\left( \mathscr{X}(p) \right) \cdot \mathtt{y}_i^p\)</span>:  <span class="math display">\begin{gather*}
+            \begin{cases}
+                \mathtt{y}_1^p = \cos \beta_2 \cdot \mathtt{x}_1^p + \sin \beta_2 \cdot \mathtt{x}_2^p \\[10pt]
+                \mathtt{y}_2^p = -\beta_1 \sin \beta_2 \cdot \mathtt{x}_1^p + \beta_1 \cos \beta_2 \cdot \mathtt{x}_2^p
+            \end{cases}
+            \\[8pt]
+            \begin{cases}
+                \mathtt{x}_1^p = \dfrac{\alpha_1}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot \mathtt{y}_1^p - \dfrac{\alpha_2}{\alpha_1^2 + \alpha_2^2} \cdot \mathtt{y}_2^p \\[10pt]
+                \mathtt{x}_2^p = \dfrac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot \mathtt{y}_1^p + \dfrac{\alpha_1}{\alpha_1^2 + \alpha_2^2} \cdot \mathtt{y}_2^p
+            \end{cases}
+        \end{gather*}</span></p></li>
+</ul>
+<p>Note that the four laws come in two pairs: basis vectors transform exactly like covector components (both with <span class="math inline">\(\textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}}\)</span> in one direction and <span class="math inline">\(\textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}}\)</span> in the other, contracted on the upper index), and basis covectors exactly like vector components (contracted on the lower index).</p>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_curves" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_curves"><span class="dg-secnum">C.4.3</span> Curves and velocities</h2>
+<p>With all the machinery in place we can now have some fun. Consider the two families of curves (<span class="math inline">\(x_0 \in \mathbb{R}\)</span> and <span class="math inline">\(r_0 &gt; 0\)</span> fixed): <span class="math display">\begin{align*}
+    \gamma_{x_0} \colon \mathbb{R} &amp;\longrightarrow \mathcal{M} &amp;
+    \delta_{r_0} \colon \mathbb{R} &amp;\longrightarrow \mathcal{M} \\
+    \lambda &amp;\longmapsto \gamma_{x_0}(\lambda) \coloneqq \big( x_0, \, \lambda, \, h(x_0, \lambda) \big)_\mathcal{M} &amp;
+    \lambda &amp;\longmapsto \delta_{r_0}(\lambda) \coloneqq \big( r_0 \cos \lambda, \, r_0 \sin \lambda, \, h(r_0 \cos \lambda, r_0 \sin \lambda) \big)_\mathcal{M}.
+\end{align*}</span> The first family sweeps the manifold with “vertical” curves, the second one with “circles”. For <span class="math inline">\(x_0 &gt; 0\)</span>, <span class="math inline">\(\gamma_{x_0}\)</span> stays inside <span class="math inline">\(\mathcal{V}\)</span>, while for <span class="math inline">\(x_0 \leq 0\)</span> it crosses the branch cut at <span class="math inline">\(\lambda = 0\)</span>; <span class="math inline">\(\delta_{r_0}\)</span> stays inside <span class="math inline">\(\mathcal{V}\)</span> for <span class="math inline">\(\lambda \in (-\pi, \pi)\)</span> and leaves it when it crosses the branch cut. Following Subsection <a class="dg-xref" href="../tangent-spaces/tangent-space.html#notation_TpM" data-kind="subsection" data-label="notation_TpM">4.1.2</a>, we write <span class="math inline">\(\mathcal{X}_p \coloneqq v_{\gamma, p}\)</span> and <span class="math inline">\(\mathcal{Y}_p \coloneqq v_{\delta, p}\)</span> for their velocities at a point <span class="math inline">\(p\)</span>.</p>
+<div class="dg-skip dg-medskip"></div>
+<p><strong>The curve <span class="math inline">\(\gamma_{x_0}\)</span>.</strong> Its chart representative in <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> and the corresponding velocity at <span class="math inline">\(p = \gamma_{x_0}(\lambda_0)\)</span> are <span class="math display">\begin{align*}
+    \left( \mathscr{X} \circ \gamma_{x_0} \right)(\lambda)
+    = \left( \begin{array}{c} x_0 \\ \lambda \end{array} \right)_\mathcal{U}
+    \;\Longrightarrow\;
+    \left( \begin{array}{c} x^1_p \\ x^2_p \end{array} \right)
+    \coloneqq \left( \mathscr{X} \circ \gamma_{x_0} \right)'(\lambda_0)
+    = \left( \begin{array}{c} 0 \\ 1 \end{array} \right)
+    \;\longrightarrow\;
+    \mathcal{X}_p = (\partial x_2)_p.
+\end{align*}</span> The same velocity can be computed through <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span>, for <span class="math inline">\(p \in \mathcal{V}\)</span>: <span class="math display">\begin{align*}
+    \left( \mathscr{Y} \circ \gamma_{x_0} \right)(\lambda)
+    = \left( \begin{array}{c} \sqrt{x_0^2 + \lambda^2} \\ \operatorname{atan2}(\lambda, x_0) \end{array} \right)_\mathcal{V}
+    \;\Longrightarrow\;
+    \left( \begin{array}{c} y^1_p \\ y^2_p \end{array} \right)
+    \coloneqq \left( \mathscr{Y} \circ \gamma_{x_0} \right)'(\lambda_0)
+    = \left( \begin{array}{c} \dfrac{\lambda_0}{\sqrt{x_0^2 + \lambda_0^2}} \\[10pt] \dfrac{x_0}{x_0^2 + \lambda_0^2} \end{array} \right)
+    \;\longrightarrow\; \dots
+\end{align*}</span> <span class="math display">\begin{align*}
+    \dots \;\longrightarrow\; \mathcal{X}_p
+    = \frac{\lambda_0}{\sqrt{x_0^2 + \lambda_0^2}} \cdot (\partial y_1)_p
+    + \frac{x_0}{x_0^2 + \lambda_0^2} \cdot (\partial y_2)_p,
+\end{align*}</span> and this is exactly what the transformation law of the previous subsection produces, since at <span class="math inline">\(p = \gamma_{x_0}(\lambda_0)\)</span> we have <span class="math inline">\(\alpha_1 = x_0\)</span> and <span class="math inline">\(\alpha_2 = \lambda_0\)</span>: <span class="math display">\begin{align*}
+    \left( \begin{array}{c} y^1_p \\ y^2_p \end{array} \right)
+    = \textrm{\runic ᛞ}_{\mathcal{V}\mathcal{U}}\left( \mathscr{X}(p) \right) \left( \begin{array}{c} 0 \\ 1 \end{array} \right)
+    = \left( \begin{array}{c} \alpha_2 / \sqrt{\alpha_1^2 + \alpha_2^2} \\ \alpha_1 / (\alpha_1^2 + \alpha_2^2) \end{array} \right)
+    = \left( \begin{array}{c} \lambda_0 / \sqrt{x_0^2 + \lambda_0^2} \\ x_0 / (x_0^2 + \lambda_0^2) \end{array} \right). \quad \checkmark
+\end{align*}</span></p>
+<div class="dg-skip dg-medskip"></div>
+<p><strong>The curve <span class="math inline">\(\delta_{r_0}\)</span>.</strong> Now it is the polar chart that trivializes the computation. For <span class="math inline">\(\lambda \in (-\pi, \pi)\)</span><sup class="dg-fnref"><a href="#fn-3" id="fnref-3" aria-label="Footnote 3">3</a></sup>, at <span class="math inline">\(p = \delta_{r_0}(\lambda_0)\)</span>: <span class="math display">\begin{align*}
+    \left( \mathscr{Y} \circ \delta_{r_0} \right)(\lambda)
+    = \left( \begin{array}{c} r_0 \\ \lambda \end{array} \right)_\mathcal{V}
+    \;\Longrightarrow\;
+    \left( \begin{array}{c} \tilde{y}^1_p \\ \tilde{y}^2_p \end{array} \right)
+    \coloneqq \left( \mathscr{Y} \circ \delta_{r_0} \right)'(\lambda_0)
+    = \left( \begin{array}{c} 0 \\ 1 \end{array} \right)
+    \;\longrightarrow\;
+    \mathcal{Y}_p = (\partial y_2)_p,
+\end{align*}</span> while in the cartesian chart <span class="math display">\begin{align*}
+    \left( \mathscr{X} \circ \delta_{r_0} \right)(\lambda)
+    = \left( \begin{array}{c} r_0 \cos \lambda \\ r_0 \sin \lambda \end{array} \right)_\mathcal{U}
+    \;\Longrightarrow\;
+    \left( \begin{array}{c} \tilde{x}^1_p \\ \tilde{x}^2_p \end{array} \right)
+    \coloneqq \left( \mathscr{X} \circ \delta_{r_0} \right)'(\lambda_0)
+    = \left( \begin{array}{c} -r_0 \sin \lambda_0 \\ r_0 \cos \lambda_0 \end{array} \right)
+    \;\longrightarrow\; \dots
+\end{align*}</span> <span class="math display">\begin{align*}
+    \dots \;\longrightarrow\;
+    \mathcal{Y}_p = -r_0 \sin \lambda_0 \cdot (\partial x_1)_p + r_0 \cos \lambda_0 \cdot (\partial x_2)_p,
+\end{align*}</span> which is again the second column of <span class="math inline">\(\textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}}\left( \mathscr{Y}(p) \right)\)</span>, i.e. the transformation law applied to <span class="math inline">\((0,1)\)</span>, with <span class="math inline">\(\beta_1 = r_0\)</span> and <span class="math inline">\(\beta_2 = \lambda_0\)</span>. In terms of the chart coordinates of the base point, <span class="math inline">\(\alpha_1 = r_0 \cos \lambda_0\)</span> and <span class="math inline">\(\alpha_2 = r_0 \sin \lambda_0\)</span>, the same velocity reads <span class="math inline">\(\mathcal{Y}_p = -\alpha_2 \cdot (\partial x_1)_p + \alpha_1 \cdot (\partial x_2)_p\)</span>, an expression we will reuse below.</p>
+<figure class="dg-figure figure" id="fig_Example_Fields_curves"><div class="dg-paper" style="--dg-frac:0.800"><img src="../figures/fig-example-fields-curves.webp" alt="Figure C.5" width="794" height="1123" loading="lazy" decoding="async" data-kind="webp" class="figure-img"></div><figcaption><span class="dg-fignum">Figure C.5:</span>   Curves on the manifold <span class="math inline">\(\left( \mathcal{M}, \mathcal{O}_\mathcal{M}, \mathcal{A}_{C^\infty} \right)_2\)</span> of Appendix <a class="dg-xref" href="#" data-kind="section" data-label="section_Example_Fields">C.4</a> (top), and their chart representatives under <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> (bottom left) and <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> (bottom right), as indicated by the arrows labelled <span class="math inline">\(\mathscr{X}\)</span> and <span class="math inline">\(\mathscr{Y}\)</span>. Shown are two members of each family, <span class="math inline">\(\gamma_{x_0}\)</span> with <span class="math inline">\(x_0 = -3\pi/2\)</span> (green) and <span class="math inline">\(x_0 = 2\pi\)</span> (yellow), and <span class="math inline">\(\delta_{r_0}\)</span> with <span class="math inline">\(r_0 = \pi\)</span> (purple) and <span class="math inline">\(r_0 = \pi/3\)</span> (grey), together with the straight line <span class="math inline">\(\gamma_{m=1}\)</span> of slope one (light blue) used in Fig. <a class="dg-xref" href="#fig_Example_Fields_function" data-kind="figure" data-label="fig_Example_Fields_function">C.6</a>. Arrowheads indicate the direction of the velocities <span class="math inline">\(v_{\gamma, p}\)</span> and <span class="math inline">\(v_{\delta, p}\)</span> at sampled points; only their direction is meaningful, their length has been normalized. Each family is trivial in one chart and non-trivial in the other: the <span class="math inline">\(\gamma_{x_0}\)</span> are vertical lines <span class="math inline">\(\mathscr{X}^1 = x_0\)</span> in <span class="math inline">\(\mathscr{X}\)</span>, whereas the <span class="math inline">\(\delta_{r_0}\)</span> are vertical lines <span class="math inline">\(\mathscr{Y}^1 = r_0\)</span> in <span class="math inline">\(\mathscr{Y}\)</span>. Curves crossing the branch cut <span class="math inline">\(\{a \leq 0,\, b = 0\}\)</span> of the polar chart, such as <span class="math inline">\(\gamma_{-3\pi/2}\)</span> and <span class="math inline">\(\gamma_{m=1}\)</span>, appear in <span class="math inline">\(\mathscr{Y}\)</span> as two disconnected pieces, since <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> cannot see the points where they leave <span class="math inline">\(\mathcal{V}\)</span>. Note that the arrows drawn on the manifold are not ‘real’ objects: what we can write down are the components of the velocities w.r.t. a chart, while the velocities themselves are only ‘waiting’ to act on a function in order to produce its directional derivative at each point <span class="math inline">\(p\)</span>.</figcaption></figure>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_function" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_function"><span class="dg-secnum">C.4.4</span> A scalar field, its differential and the action of velocities on it</h2>
+<p>Let us now define a smooth scalar field <span class="math inline">\(f \in C^\infty(\mathcal{M})\)</span> on our manifold: <span class="math display">\begin{align*}
+    f \colon \mathcal{M} &amp;\longrightarrow \mathbb{R} \\
+    p = (a, b, c)        &amp;\longmapsto f(p) \coloneqq c = \cos a \, \cos b + 1,
+\end{align*}</span> that is, the simplest possible choice: the “height” of each point. We could identify it with a scalar field — a <span class="math inline">\((0,0)\)</span>-tensor field — such as the temperature at each point of <span class="math inline">\(\mathcal{M}\)</span>.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>Its chart representatives, which are the objects we can actually differentiate, are <span class="math display">\begin{align*}
+    \left( f \circ \mathscr{X}^{-1} \right) \colon \mathscr{X}(\mathcal{U}) &amp;\longrightarrow \mathbb{R} &amp;
+    \left( f \circ \mathscr{Y}^{-1} \right) \colon \mathscr{Y}(\mathcal{V}) &amp;\longrightarrow \mathbb{R} \\
+    (\alpha_1, \alpha_2) &amp;\longmapsto \cos \alpha_1 \cos \alpha_2 + 1 &amp;
+    (\beta_1, \beta_2) &amp;\longmapsto \cos \left( \beta_1 \cos \beta_2 \right) \cos \left( \beta_1 \sin \beta_2 \right) + 1,
+\end{align*}</span> and their partial derivatives at <span class="math inline">\(\mathscr{X}(p)\)</span> and <span class="math inline">\(\mathscr{Y}(p)\)</span> are, by Subsection <a class="dg-xref" href="../tangent-spaces/cotangent-space.html#subsection_Basis_and_Coordinate_Components_of_TstarpM" data-kind="subsection" data-label="subsection_Basis_and_Coordinate_Components_of_TstarpM">4.2.1</a>, precisely the components of the covector <span class="math inline">\((df)_p = \mathtt{x}_i^p \cdot (dx^i)_p = \mathtt{y}_i^p \cdot (dy^i)_p\)</span>: <span class="math display">\begin{align*}
+    \mathtt{x}_1^p = \partial_1 \left[ f \circ \mathscr{X}^{-1} \right] (\alpha_1, \alpha_2) &amp;= -\sin \alpha_1 \cos \alpha_2, &amp;
+    \mathtt{x}_2^p = \partial_2 \left[ f \circ \mathscr{X}^{-1} \right] (\alpha_1, \alpha_2) &amp;= -\cos \alpha_1 \sin \alpha_2,
+\end{align*}</span> <span class="math display">\begin{align*}
+    \mathtt{y}_1^p = \partial_1 \left[ f \circ \mathscr{Y}^{-1} \right] (\beta_1, \beta_2)
+    &amp;= -\frac{\alpha_1 \sin \alpha_1 \cos \alpha_2 + \alpha_2 \cos \alpha_1 \sin \alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}}, \\[6pt]
+    \mathtt{y}_2^p = \partial_2 \left[ f \circ \mathscr{Y}^{-1} \right] (\beta_1, \beta_2)
+    &amp;= \alpha_2 \sin \alpha_1 \cos \alpha_2 - \alpha_1 \cos \alpha_1 \sin \alpha_2,
+\end{align*}</span> where in the last two lines we abbreviated <span class="math inline">\(\alpha_1 = \beta_1 \cos \beta_2\)</span>, <span class="math inline">\(\alpha_2 = \beta_1 \sin \beta_2\)</span> and <span class="math inline">\(\sqrt{\alpha_1^2 + \alpha_2^2} = \beta_1\)</span> to keep the expressions readable. The reader may check that they are related by the covariant transformation law of Subsection <a class="dg-xref" href="#subsection_Example_Fields_jacobians" data-kind="subsection" data-label="subsection_Example_Fields_jacobians">C.4.2</a>.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>Evaluating <span class="math inline">\(f\)</span> along the curves gives two ordinary functions of one real variable: <span class="math display">\begin{align*}
+    \left( f \circ \gamma_{x_0} \right)(\lambda) &amp;= \cos x_0 \, \cos \lambda + 1, \\
+    \left( f \circ \delta_{r_0} \right)(\lambda) &amp;= \cos \left( r_0 \cos \lambda \right) \cos \left( r_0 \sin \lambda \right) + 1,
+\end{align*}</span> and we can now compute the action of the velocities on <span class="math inline">\(f\)</span> <strong>without any chart at all</strong>, directly from the definition <span class="math inline">\(v_{\gamma, p}(f) \coloneqq \left( f \circ \gamma \right)'(\lambda_0)\)</span>: <span class="math display">\begin{align*}
+    \mathcal{X}_p(f) &amp;= \left( f \circ \gamma_{x_0} \right)'(\lambda_0) = -\cos x_0 \, \sin \lambda_0, \\[6pt]
+    \mathcal{Y}_p(f) &amp;= \left( f \circ \delta_{r_0} \right)'(\lambda_0)
+    = r_0 \sin \lambda_0 \, \sin\left(r_0 \cos \lambda_0\right) \, \cos \left(r_0 \sin \lambda_0\right)
+    - r_0 \cos \lambda_0 \, \cos \left(r_0 \cos \lambda_0\right) \, \sin \left(r_0 \sin \lambda_0\right) \\
+    &amp;= \alpha_2 \sin \alpha_1 \cos \alpha_2 - \alpha_1 \cos \alpha_1 \sin \alpha_2,
+\end{align*}</span> with <span class="math inline">\(\alpha_1 = r_0 \cos \lambda_0\)</span> and <span class="math inline">\(\alpha_2 = r_0 \sin \lambda_0\)</span> in the last line. Of course the same numbers must come out of the chart expressions <span class="math inline">\(\mathcal{X}_p(f) = (df)_p(\mathcal{X}_p) = x^i_p \, \mathtt{x}_i^p = y^i_p \, \mathtt{y}_i^p\)</span>. For <span class="math inline">\(\gamma_{x_0}\)</span> in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span>, with <span class="math inline">\((\alpha_1, \alpha_2) = (x_0, \lambda_0)\)</span>: <span class="math display">\begin{align*}
+    \mathcal{X}_p(f) = x^i_p \, \mathtt{x}_i^p = 0 \cdot \left( -\sin x_0 \cos \lambda_0 \right) + 1 \cdot \left( -\cos x_0 \sin \lambda_0 \right)
+    = -\cos x_0 \sin \lambda_0, \quad \checkmark
+\end{align*}</span> and in the chart <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> the two contributions conspire to give the same result: <span class="math display">\begin{align*}
+    \mathcal{X}_p(f) = y^i_p \, \mathtt{y}_i^p
+    &amp;= \frac{\alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \cdot \left( -\frac{\alpha_1 \sin \alpha_1 \cos \alpha_2 + \alpha_2 \cos \alpha_1 \sin \alpha_2}{\sqrt{\alpha_1^2 + \alpha_2^2}} \right) \\
+    &amp;\quad + \frac{\alpha_1}{\alpha_1^2 + \alpha_2^2} \cdot \left( \alpha_2 \sin \alpha_1 \cos \alpha_2 - \alpha_1 \cos \alpha_1 \sin \alpha_2 \right) \\
+    &amp;= -\frac{\alpha_2^2 + \alpha_1^2}{\alpha_1^2 + \alpha_2^2} \cos \alpha_1 \sin \alpha_2
+    = -\cos x_0 \sin \lambda_0. \quad \checkmark
+\end{align*}</span> For <span class="math inline">\(\delta_{r_0}\)</span> it is now the polar chart that makes the check immediate: <span class="math inline">\(\mathcal{Y}_p(f) = \tilde{y}^i_p \, \mathtt{y}_i^p = \mathtt{y}_2^p\)</span>, which is the chart-free result above. ✓This is the whole point of the construction: the velocity is an intrinsic object, the components and the partial derivatives are not, and the chart dependence cancels in the contraction.</p>
+<figure class="dg-figure figure" id="fig_Example_Fields_function"><div class="dg-paper" style="--dg-frac:0.800"><img src="../figures/fig-example-fields-function.webp" alt="Figure C.6" width="794" height="1123" loading="lazy" decoding="async" data-kind="webp" class="figure-img"></div><figcaption><span class="dg-fignum">Figure C.6:</span>   The scalar field <span class="math inline">\(f(p) = \cos a \cos b + 1\)</span> of Subsection <a class="dg-xref" href="#subsection_Example_Fields_function" data-kind="subsection" data-label="subsection_Example_Fields_function">C.4.4</a>, drawn as colour and level sets on the manifold (top) and through its chart representatives <span class="math inline">\(f \circ \mathscr{X}^{-1}\)</span> (bottom left) and <span class="math inline">\(f \circ \mathscr{Y}^{-1}\)</span> (bottom right). The curves <span class="math inline">\(\delta_\pi\)</span> (purple) and <span class="math inline">\(\gamma_{m=1}\)</span> (light blue) intersect at the point <span class="math inline">\(p = \big( 2, \sqrt{\pi^2 - 4} \big)\)</span> (black dot), where their velocities <span class="math inline">\(v_{\delta, p}\)</span> and <span class="math inline">\(v_{\gamma, p}\)</span> are drawn at true scale. Also at <span class="math inline">\(p\)</span>, the covector <span class="math inline">\((df)_p\)</span> is represented by its stack of level lines (black): the thick line through <span class="math inline">\(p\)</span> is its kernel, tangent to the level set of <span class="math inline">\(f\)</span> through <span class="math inline">\(p\)</span>, and consecutive lines differ by one unit of <span class="math inline">\((df)_p\)</span>. On the manifold this stack lies inside the tangent plane <span class="math inline">\(T_p\mathcal{M}\)</span> (grey), the chart-free picture of the covector. In each chart the stack and the arrows look different, since both the components <span class="math inline">\(\mathtt{x}_i^p\)</span>, <span class="math inline">\(\mathtt{y}_i^p\)</span> of <span class="math inline">\((df)_p\)</span> and those of the velocities change. Their contraction does not: the arrows cross the stack in the same way in both charts, giving <span class="math inline">\(v_{\gamma, p}(f) \approx 0.68\)</span> and <span class="math inline">\(v_{\delta, p}(f) \approx -1.11\)</span>, i.e. <span class="math inline">\(\gamma_{m=1}\)</span> climbs <span class="math inline">\(f\)</span> at <span class="math inline">\(p\)</span> while <span class="math inline">\(\delta_\pi\)</span> descends it.</figcaption></figure>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_vector_fields" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_vector_fields"><span class="dg-secnum">C.4.5</span> Vector fields</h2>
+<p>Each point of <span class="math inline">\(\mathcal{M}\)</span> lies on exactly one curve of each family (taking <span class="math inline">\(\delta_0\)</span> to be the constant curve at the origin), so each family defines a <strong>smooth vector field</strong>, i.e. a smooth section of <span class="math inline">\(T\mathcal{M}\)</span> assigning to every point the velocity of the curve of the family passing through it: <span class="math display">\[
+    \begin{array}{c@{\quad} | @{\quad} c}
+        \begin{aligned}
+            \mathcal{X} \colon \mathcal{M} &amp;\longrightarrow T\mathcal{M} \\
+            p = (a,b,c)                    &amp;\longmapsto \mathcal{X}(p) \coloneqq v_{\gamma_{a}, p}
+        \end{aligned}
+        &amp;
+        \begin{aligned}
+            \mathcal{Y} \colon \mathcal{M} &amp;\longrightarrow T\mathcal{M} \\
+            p = (a,b,c)                    &amp;\longmapsto \mathcal{Y}(p) \coloneqq v_{\delta_{\sqrt{a^2+b^2}}, p}
+        \end{aligned}
+    \end{array}
+\]</span> so that <span class="math inline">\(\mathcal{X}(p) = \mathcal{X}_p\)</span> and <span class="math inline">\(\mathcal{Y}(p) = \mathcal{Y}_p\)</span> are the velocities of the previous subsections. In each case the velocity is evaluated at the parameter value at which the corresponding curve passes through <span class="math inline">\(p\)</span>, namely <span class="math inline">\(\lambda_0 = b\)</span> for <span class="math inline">\(\gamma_a\)</span> and <span class="math inline">\(\lambda_0 = \operatorname{atan2}(b,a)\)</span> for <span class="math inline">\(\delta_{\sqrt{a^2+b^2}}\)</span> (at the origin <span class="math inline">\(\delta_0\)</span> is constant and <span class="math inline">\(\mathcal{Y}\)</span> vanishes). In both cases <span class="math inline">\(\left( \pi \circ \mathcal{X} \right)(p) = p\)</span> and <span class="math inline">\(\left( \pi \circ \mathcal{Y} \right)(p) = p\)</span> by construction, as a section must satisfy.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>Their component functions, <span class="math inline">\(X^i \coloneqq \left. \mathcal{X} \right|_\mathcal{U} \left\lfloor \mathscr{X}^i \right\rceil\)</span> and <span class="math inline">\(Y^i \coloneqq \left. \mathcal{X} \right|_\mathcal{V} \left\lfloor \mathscr{Y}^i \right\rceil\)</span> for <span class="math inline">\(\mathcal{X}\)</span>, and <span class="math inline">\(\tilde{X}^i\)</span>, <span class="math inline">\(\tilde{Y}^i\)</span> for <span class="math inline">\(\mathcal{Y}\)</span>, follow from Subsection <a class="dg-xref" href="#subsection_Example_Fields_curves" data-kind="subsection" data-label="subsection_Example_Fields_curves">C.4.3</a> by reading the components of the velocities at a generic point <span class="math inline">\(p = (a, b, c)\)</span>. For <span class="math inline">\(\mathcal{X}\)</span>, <span class="math display">\begin{align*}
+    \left. \mathcal{X} \right|_\mathcal{U} = X^i \, \partial x_i = \partial x_2
+    \quad ; \quad
+    \left. \mathcal{X} \right|_\mathcal{V} = Y^i \, \partial y_i
+    = \frac{b}{\sqrt{a^2 + b^2}} \, \partial y_1
+    + \frac{a}{a^2 + b^2} \, \partial y_2,
+\end{align*}</span> and for <span class="math inline">\(\mathcal{Y}\)</span>, <span class="math display">\begin{align*}
+    \left. \mathcal{Y} \right|_\mathcal{U} = \tilde{X}^i \, \partial x_i
+    = -b \, \partial x_1 + a \, \partial x_2
+    \quad ; \quad
+    \left. \mathcal{Y} \right|_\mathcal{V} = \tilde{Y}^i \, \partial y_i = \partial y_2,
+\end{align*}</span> where the component functions are read as functions of <span class="math inline">\(p = (a, b, c)\)</span>, and the basis fields are the chart-induced ones, <span class="math inline">\(\partial x_i = \partial / \partial \mathscr{X}^i\)</span> and <span class="math inline">\(\partial y_i = \partial / \partial \mathscr{Y}^i\)</span>. Each of the two fields is therefore an element of the chart-induced frame of <em>one</em> of the two charts, and an honest field with non-constant component functions in the other one. Two remarks are worth making here:</p>
+<ul class="dg-itemize dg-depth-1">
+<li><p><span class="math inline">\(\left. \mathcal{Y} \right|_\mathcal{V} = \partial y_2\)</span> is only a frame element over <span class="math inline">\(\mathcal{V}\)</span>, but the field itself extends smoothly to all of <span class="math inline">\(\mathcal{M}\)</span>: its component functions in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span>, <span class="math inline">\((\tilde{X}^1, \tilde{X}^2) = (-b, a)\)</span>, are perfectly smooth across the branch cut. What does <em>not</em> extend is the frame: at the origin <span class="math inline">\(a = b = 0\)</span> the field vanishes, so it cannot be part of any frame there.</p></li>
+<li><p>This is the local-versus-global statement of Section <a class="dg-xref" href="../fields/vector-fields.html" data-kind="section" data-label="section_Vector_Fields">5.1</a> in miniature: chart-induced frames always exist over a chart domain, and nothing guarantees that any of them extends to the whole manifold.</p></li>
+</ul>
+<div class="dg-skip dg-medskip"></div>
+<p>Finally, in the tangent-bundle charts <span class="math inline">\(\xi_\mathscr{X}\)</span> and <span class="math inline">\(\xi_\mathscr{Y}\)</span> of Section <a class="dg-xref" href="../fields/vector-fields.html" data-kind="section" data-label="section_Vector_Fields">5.1</a> each of these fields is described, at the point <span class="math inline">\(p = (a, b, c)\)</span>, by <span class="math inline">\(2 \dim \mathcal{M} = 4\)</span> numbers, the first two of which locate the base point and the last two of which are the components of the vector sitting over it: <span class="math display">\begin{align*}
+    \xi_\mathscr{X} \left( \mathcal{X}_p \right) =
+    \left( \begin{array}{c}
+        \left( a \,,\, b \right) \\
+        \left( 0 \,,\, 1 \right)
+    \end{array} \right)
+    \quad ; \quad
+    \xi_\mathscr{Y} \left( \mathcal{X}_p \right) =
+    \left( \begin{array}{c}
+        \left( \sqrt{a^2+b^2} \,,\, \operatorname{atan2}(b,a) \right) \\[4pt]
+        \left( \dfrac{b}{\sqrt{a^2+b^2}} \,,\, \dfrac{a}{a^2+b^2} \right)
+    \end{array} \right),
+\end{align*}</span> <span class="math display">\begin{align*}
+    \xi_\mathscr{X} \left( \mathcal{Y}_p \right) =
+    \left( \begin{array}{c}
+        \left( a \,,\, b \right) \\
+        \left( -b \,,\, a \right)
+    \end{array} \right)
+    \quad ; \quad
+    \xi_\mathscr{Y} \left( \mathcal{Y}_p \right) =
+    \left( \begin{array}{c}
+        \left( \sqrt{a^2+b^2} \,,\, \operatorname{atan2}(b,a) \right) \\
+        \left( 0 \,,\, 1 \right)
+    \end{array} \right).
+\end{align*}</span></p>
+<figure class="dg-figure figure" id="fig_Example_Fields_vector_fields"><div class="dg-paper" style="--dg-frac:0.800"><img src="../figures/fig-example-fields-vector-fields.webp" alt="Figure C.7" width="794" height="1123" loading="lazy" decoding="async" data-kind="webp" class="figure-img"></div><figcaption><span class="dg-fignum">Figure C.7:</span>   The vector fields <span class="math inline">\(\mathcal{X}\)</span> (yellow) and <span class="math inline">\(\mathcal{Y}\)</span> (light blue) of Subsection <a class="dg-xref" href="#subsection_Example_Fields_vector_fields" data-kind="subsection" data-label="subsection_Example_Fields_vector_fields">C.4.5</a>, obtained by assigning to every point the velocity of the curve of each family passing through it. Top: the two fields drawn over a grid of base points on the manifold; since a vector field is a section of <span class="math inline">\(T\mathcal{M}\)</span>, each arrow lives in the tangent space of its own base point. Bottom: their component functions in <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> (left) and <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> (right). Each field is a chart-induced basis field of <em>one</em> chart, with constant components <span class="math inline">\((0,1)\)</span>: <span class="math inline">\(\left. \mathcal{X} \right|_\mathcal{U} = \partial x_2\)</span> and <span class="math inline">\(\left. \mathcal{Y} \right|_\mathcal{V} = \partial y_2\)</span>. In the other chart it is an honest field with non-constant component functions, a rotation <span class="math inline">\((\tilde{X}^1, \tilde{X}^2) = (-b, a)\)</span> for <span class="math inline">\(\mathcal{Y}\)</span> in <span class="math inline">\(\mathscr{X}\)</span>, and <span class="math inline">\((Y^1, Y^2) = \big( b/\sqrt{a^2+b^2},\, a/(a^2+b^2) \big)\)</span> for <span class="math inline">\(\mathcal{X}\)</span> in <span class="math inline">\(\mathscr{Y}\)</span>. Arrows are normalized, so only directions are meaningful; recall that without a metric there is no intrinsic notion of the length of a tangent vector. Note that <span class="math inline">\(\mathcal{Y}\)</span> vanishes at the origin, so it cannot be part of a frame there, even though its component functions <span class="math inline">\((-b, a)\)</span> are perfectly smooth.</figcaption></figure>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_action" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_action"><span class="dg-secnum">C.4.6</span> Action of the vector fields on the scalar field</h2>
+<p>We can now evaluate the action <span class="math inline">\(\mathcal{X} \left\lfloor f \right\rceil\)</span> of these fields upon the scalar field <span class="math inline">\(f\)</span> defined above. By definition this is the function that assigns to each point the directional derivative of <span class="math inline">\(f\)</span> there, <span class="math inline">\(\mathcal{X} \left\lfloor f \right\rceil(p) \coloneqq \mathcal{X}_p(f)\)</span>, and in a chart it is the contraction of the component functions with the components <span class="math inline">\(\mathtt{x}_i^p = \partial_i \left[ f \circ \mathscr{X}^{-1} \right] \left( \mathscr{X}(p) \right)\)</span> of Subsection <a class="dg-xref" href="#subsection_Example_Fields_function" data-kind="subsection" data-label="subsection_Example_Fields_function">C.4.4</a>, now evaluated at <span class="math inline">\((\alpha_1, \alpha_2) = (a, b)\)</span>. For <span class="math inline">\(\mathcal{X}\)</span>, whose component functions in <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> are <span class="math inline">\((0, 1)\)</span>: <span class="math display">\begin{align*}
+    \mathcal{X} \left\lfloor f \right\rceil \colon \mathcal{M} &amp;\longrightarrow \mathbb{R} \\
+    p = (a,b,c) &amp;\longmapsto \mathcal{X} \left\lfloor f \right\rceil(p)
+    = X^i(p) \cdot \mathtt{x}_i^p
+    = 0 \cdot \left( -\sin a \cos b \right) + 1 \cdot \left( -\cos a \sin b \right)
+    = -\cos a \, \sin b,
+\end{align*}</span> and for <span class="math inline">\(\mathcal{Y}\)</span>, whose component functions in the same chart are <span class="math inline">\((-b, a)\)</span>: <span class="math display">\begin{align*}
+    \mathcal{Y} \left\lfloor f \right\rceil \colon \mathcal{M} &amp;\longrightarrow \mathbb{R} \\
+    p = (a,b,c) &amp;\longmapsto \mathcal{Y} \left\lfloor f \right\rceil(p)
+    = \tilde{X}^i(p) \cdot \mathtt{x}_i^p
+    = (-b) \left( -\sin a \cos b \right) + a \left( -\cos a \sin b \right) \\
+    &amp;\qquad = b \, \sin a \, \cos b - a \, \cos a \, \sin b.
+\end{align*}</span> Both results are again smooth functions on <span class="math inline">\(\mathcal{M}\)</span>, i.e. elements of <span class="math inline">\(C^\infty(\mathcal{M})\)</span>, as they must be: a vector field eats an element of the ring and returns, <span class="math inline">\(\mathbb{R}\)</span>-linearly, another element of the ring.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>Computing the same action through the other chart is a useful exercise. For <span class="math inline">\(\mathcal{Y}\)</span>, whose component functions in <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> are <span class="math inline">\((0,1)\)</span>, <span class="math display">\begin{align*}
+    \mathcal{Y} \left\lfloor f \right\rceil(p)
+    = \tilde{Y}^i(p) \cdot \mathtt{y}_i^p
+    = 0 \cdot \mathtt{y}_1^p + 1 \cdot \mathtt{y}_2^p
+    = b \, \sin a \, \cos b - a \, \cos a \, \sin b, \quad \checkmark
+\end{align*}</span> which is the same function, as it has to be. Note also where these functions vanish: <span class="math inline">\(\mathcal{X} \left\lfloor f \right\rceil = 0\)</span> wherever the field is tangent to a level set of <span class="math inline">\(f\)</span>, which here happens along <span class="math inline">\(b = 0, \pm\pi, \dots\)</span> and <span class="math inline">\(a = \pm \pi/2, \pm 3\pi/2, \dots\)</span>; there the flow of the field neither climbs nor descends the “eggs”.</p>
+<figure class="dg-figure figure" id="fig_Example_Fields_action"><div class="dg-paper" style="--dg-frac:0.800"><img src="../figures/fig-example-fields-action.webp" alt="Figure C.8" width="794" height="1123" loading="lazy" decoding="async" data-kind="webp" class="figure-img"></div><figcaption><span class="dg-fignum">Figure C.8:</span>   Action of the vector fields <span class="math inline">\(\mathcal{X}\)</span> (yellow) and <span class="math inline">\(\mathcal{Y}\)</span> (light blue) on the scalar field <span class="math inline">\(f\)</span>, as computed in Subsection <a class="dg-xref" href="#subsection_Example_Fields_action" data-kind="subsection" data-label="subsection_Example_Fields_action">C.4.6</a>. Top: both fields on the manifold, coloured by <span class="math inline">\(f\)</span>. Bottom: the new scalar fields <span class="math inline">\(\mathcal{X} \left\lfloor f \right\rceil = -\cos a \sin b\)</span> (left) and <span class="math inline">\(\mathcal{Y} \left\lfloor f \right\rceil = b \sin a \cos b - a \cos a \sin b\)</span> (right), drawn as colour maps in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span>, together with the level sets of <span class="math inline">\(f\)</span> and the corresponding field. Red (blue) regions are those where the field climbs (descends) <span class="math inline">\(f\)</span>, and the white bands, where the action vanishes, are those where the field runs along the level sets of <span class="math inline">\(f\)</span>. For <span class="math inline">\(\mathcal{X}\)</span> these are <span class="math inline">\(b = 0, \pm\pi, \dots\)</span> and <span class="math inline">\(a = \pm \pi/2, \pm 3\pi/2, \dots\)</span>. The magnitude of <span class="math inline">\(\mathcal{Y} \left\lfloor f \right\rceil\)</span> grows with the distance to the origin (note the different colour scales), since the component functions <span class="math inline">\((-b, a)\)</span> of <span class="math inline">\(\mathcal{Y}\)</span> do. Both panels illustrate that a vector field eats an element of the ring <span class="math inline">\(C^\infty(\mathcal{M})\)</span> and returns another one, and by Subsection <a class="dg-xref" href="#subsection_Example_Fields_pairing" data-kind="subsection" data-label="subsection_Example_Fields_pairing">C.4.8</a> they equally show the actions <span class="math inline">\(df \left\lceil \mathcal{X} \right\rfloor\)</span> and <span class="math inline">\(df \left\lceil \mathcal{Y} \right\rfloor\)</span> of the covector field <span class="math inline">\(df\)</span>.</figcaption></figure>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_covector_field" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_covector_field"><span class="dg-secnum">C.4.7</span> A covector field</h2>
+<p>The simplest way of producing a covector field is to take the differential of a scalar field, so let us consider <span class="math display">\begin{align*}
+    df \colon \mathcal{M} &amp;\longrightarrow T^*\mathcal{M} \\
+    p                     &amp;\longmapsto df(p) \coloneqq (df)_p,
+\end{align*}</span> which trivially satisfies <span class="math inline">\(\left( \pi^* \circ df \right) = \mathbb{I}_\mathcal{M}\)</span>. Its component functions, <span class="math inline">\(\mathtt{X}_i \coloneqq \left. df \right|_\mathcal{U} \left\lceil \partial x_i \right\rfloor\)</span> and <span class="math inline">\(\mathtt{Y}_i \coloneqq \left. df \right|_\mathcal{V} \left\lceil \partial y_i \right\rfloor\)</span> (Section <a class="dg-xref" href="../fields/tensor-fields-and-notation.html" data-kind="section" data-label="section_Tensor_Fields_and_notation">5.3</a>), return at each point the components of Subsection <a class="dg-xref" href="#subsection_Example_Fields_function" data-kind="subsection" data-label="subsection_Example_Fields_function">C.4.4</a>, <span class="math inline">\(\mathtt{X}_i(p) = \mathtt{x}_i^p\)</span> and <span class="math inline">\(\mathtt{Y}_i(p) = \mathtt{y}_i^p\)</span>, so that in each chart <span class="math display">\begin{align*}
+    \left. df \right|_\mathcal{U} &amp;= \mathtt{X}_i \, dx^i
+    = -\sin a \cos b \; dx^1
+    - \cos a \sin b \; dx^2, \\[6pt]
+    \left. df \right|_\mathcal{V} &amp;= \mathtt{Y}_i \, dy^i
+    = -\frac{a \sin a \cos b + b \cos a \sin b}{\sqrt{a^2 + b^2}} \; dy^1
+    + \left( b \sin a \cos b - a \cos a \sin b \right) dy^2,
+\end{align*}</span> with the component functions read as functions of <span class="math inline">\(p = (a, b, c)\)</span>, and <span class="math inline">\(dx^i = d\mathscr{X}^i\)</span>, <span class="math inline">\(dy^i = d\mathscr{Y}^i\)</span> the chart-induced basis covector fields. These two expressions are of course related by the transformation law for covector component functions of Section <a class="dg-xref" href="../fields/tensor-fields-and-notation.html" data-kind="section" data-label="section_Tensor_Fields_and_notation">5.3</a>, <span class="math inline">\(\mathtt{Y}_j = \left( \partial \mathscr{X}^i / \partial \mathscr{Y}^j \right) \mathtt{X}_i\)</span>, where the entries of <span class="math inline">\(\textrm{\runic ᛞ}_{\mathcal{U}\mathcal{V}}\)</span> are now the functions <span class="math inline">\(\partial \mathscr{X}^1 / \partial \mathscr{Y}^1 = a / \sqrt{a^2+b^2}\)</span>, <span class="math inline">\(\partial \mathscr{X}^2 / \partial \mathscr{Y}^1 = b / \sqrt{a^2+b^2}\)</span>, <span class="math inline">\(\partial \mathscr{X}^1 / \partial \mathscr{Y}^2 = -b\)</span> and <span class="math inline">\(\partial \mathscr{X}^2 / \partial \mathscr{Y}^2 = a\)</span>: <span class="math display">\begin{align*}
+    \mathtt{Y}_1 &amp;= \frac{a}{\sqrt{a^2 + b^2}} \, \mathtt{X}_1 + \frac{b}{\sqrt{a^2 + b^2}} \, \mathtt{X}_2
+    = \frac{a}{\sqrt{a^2 + b^2}} \left( -\sin a \cos b \right) + \frac{b}{\sqrt{a^2 + b^2}} \left( -\cos a \sin b \right), \quad \checkmark \\[6pt]
+    \mathtt{Y}_2 &amp;= -b \, \mathtt{X}_1 + a \, \mathtt{X}_2
+    = b \sin a \cos b - a \cos a \sin b. \quad \checkmark
+\end{align*}</span> In the cotangent-bundle charts of Section <a class="dg-xref" href="../fields/covector-fields.html" data-kind="section" data-label="section_Covector_Fields">5.2</a> the field reads, at the point <span class="math inline">\(p = (a,b,c)\)</span>, <span class="math display">\begin{align*}
+    \xi^*_\mathscr{X} \left( (df)_p \right) =
+    \left( \begin{array}{c}
+        \left( a \,,\, b \right) \\
+        \left( -\sin a \cos b \,,\, -\cos a \sin b \right)
+    \end{array} \right)
+\end{align*}</span> <span class="math display">\begin{align*}
+    \xi^*_\mathscr{Y} \left( (df)_p \right) =
+    \left( \begin{array}{c}
+        \left( \sqrt{a^2 + b^2} \,,\, \operatorname{atan2}(b,a) \right) \\[4pt]
+        \left( \dfrac{-a \sin a \cos b - b \cos a \sin b}{\sqrt{a^2 + b^2}} \,,\, b \sin a \cos b - a \cos a \sin b \right)
+    \end{array} \right).
+\end{align*}</span> Since <span class="math inline">\(\mathcal{M}\)</span> is contractible, every covector field on it is the differential of some scalar field, so nothing is lost by this choice of example; on a manifold with non-trivial <span class="math inline">\(H^1_{\text{dR}}\)</span> this would no longer be true (see the discussion opening Section <a class="dg-xref" href="../fields/covector-fields.html" data-kind="section" data-label="section_Covector_Fields">5.2</a>).</p>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_pairing" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_pairing"><span class="dg-secnum">C.4.8</span> Action of the covector field on the vector fields</h2>
+<p>We can finally contract the two kinds of fields. By definition, <span class="math inline">\(df \left\lceil \mathcal{X} \right\rfloor(p) \coloneqq (df)_p \left( \mathcal{X}(p) \right)\)</span>, which in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> reads <span class="math inline">\(df \left\lceil \mathcal{X} \right\rfloor = \mathtt{X}_i \, X^i\)</span> and gives <span class="math display">\begin{align*}
+    df \left\lceil \mathcal{X} \right\rfloor(p)
+    &amp;= \mathtt{X}_i(p) \, X^i(p)
+    = \left( -\sin a \cos b \right) \cdot 0 + \left( -\cos a \sin b \right) \cdot 1
+    = -\cos a \, \sin b, \\[6pt]
+    df \left\lceil \mathcal{Y} \right\rfloor(p)
+    &amp;= \mathtt{X}_i(p) \, \tilde{X}^i(p)
+    = \left( -\sin a \cos b \right) \cdot (-b) + \left( -\cos a \sin b \right) \cdot a
+    = b \, \sin a \, \cos b - a \, \cos a \, \sin b,
+\end{align*}</span> and the same two functions come out of the chart <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span>, for instance for <span class="math inline">\(\mathcal{Y}\)</span>, whose component functions there are <span class="math inline">\((0,1)\)</span>: <span class="math display">\begin{align*}
+    df \left\lceil \mathcal{Y} \right\rfloor(p)
+    = \mathtt{Y}_i(p) \, \tilde{Y}^i(p)
+    = \mathtt{Y}_1(p) \cdot 0 + \mathtt{Y}_2(p) \cdot 1
+    = b \, \sin a \, \cos b - a \, \cos a \, \sin b. \quad \checkmark
+\end{align*}</span></p>
+<div class="dg-skip dg-medskip"></div>
+<p>Comparing with Subsection <a class="dg-xref" href="#subsection_Example_Fields_action" data-kind="subsection" data-label="subsection_Example_Fields_action">C.4.6</a> we see that <span class="math display">\begin{align*}
+    df \left\lceil \mathcal{X} \right\rfloor = \mathcal{X} \left\lfloor f \right\rceil
+    \qquad \forall \, \mathcal{X} \in \Gamma T\mathcal{M},
+\end{align*}</span> which is nothing but the definition of the differential, <span class="math inline">\((df)_p (v_{\gamma, p}) \coloneqq v_{\gamma, p}(f)\)</span>, promoted from a point to the whole manifold. The two brackets <span class="math inline">\(\left\lfloor \cdot \right\rceil\)</span> and <span class="math inline">\(\left\lceil \cdot \right\rfloor\)</span> are thus two readings of one and the same number at each point: either “the field differentiates the function” or “the differential of the function eats the field”.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>One asymmetry between the two readings is worth stressing, since it is what makes <span class="math inline">\(df \left\lceil \cdot \right\rfloor\)</span> a tensor field, a <span class="math inline">\((0,1)\)</span> one, whereas <span class="math inline">\(\mathcal{X} \left\lfloor \cdot \right\rceil\)</span> is not: the vector field <span class="math inline">\(\mathcal{X}\)</span> is a <span class="math inline">\((1,0)\)</span>-tensor field through its action on covector fields, not through its action on scalar fields. The map <span class="math inline">\(df \left\lceil \cdot \right\rfloor\)</span> is <span class="math inline">\(C^\infty(\mathcal{M})\)</span>-linear, <span class="math display">\begin{align*}
+    df \left\lceil g \odot_\Gamma \mathcal{X} \right\rfloor
+    = g \odot_{C^\infty} df \left\lceil \mathcal{X} \right\rfloor
+    \qquad \forall \, g \in C^\infty(\mathcal{M}),
+\end{align*}</span> whereas <span class="math inline">\(\mathcal{X} \left\lfloor \cdot \right\rceil\)</span> is only <span class="math inline">\(\mathbb{R}\)</span>-linear and satisfies instead the Leibniz rule <span class="math inline">\(\mathcal{X} \left\lfloor f \odot_{C^\infty} g \right\rceil = f \odot_{C^\infty} \mathcal{X} \left\lfloor g \right\rceil \oplus_{C^\infty} g \odot_{C^\infty} \mathcal{X} \left\lfloor f \right\rceil\)</span>. With our example, taking <span class="math inline">\(g = f\)</span>: <span class="math display">\begin{align*}
+    \mathcal{X} \left\lfloor f \odot_{C^\infty} f \right\rceil(p)
+    = \frac{d}{d\lambda} \left[ \left( \cos a \cos \lambda + 1 \right)^2 \right]_{\lambda = b}
+    = -2 \left( \cos a \cos b + 1 \right) \cos a \sin b
+    = 2 f(p) \cdot \mathcal{X} \left\lfloor f \right\rceil(p). \quad \checkmark
+\end{align*}</span></p>
+<div class="dg-skip dg-medskip"></div>
+</section>
+<section id="subsection_Example_Fields_module" class="level2">
+<h2 class="anchored" data-anchor-id="subsection_Example_Fields_module"><span class="dg-secnum">C.4.9</span> Module operations and a tensor field</h2>
+<p>To close the example, the two <span class="math inline">\(C^\infty(\mathcal{M})\)</span>-module operations on <span class="math inline">\(\Gamma T\mathcal{M}\)</span> are completely explicit in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span>: <span class="math display">\begin{align*}
+    \left. \left( \mathcal{X} \oplus_\Gamma \mathcal{Y} \right) \right|_\mathcal{U}
+    &amp;= \left( X^i + \tilde{X}^i \right) \partial x_i
+    = -b \; \partial x_1 + \left( 1 + a \right) \partial x_2, \\[6pt]
+    \left. \left( f \odot_\Gamma \mathcal{X} \right) \right|_\mathcal{U}
+    &amp;= \left( f \, X^i \right) \partial x_i
+    = \left( \cos a \cos b + 1 \right) \partial x_2.
+\end{align*}</span> The second line is where a module parts ways with a vector space: the scaling factor is a <em>function</em>, so it stretches the field by a different amount at every point — and it would reverse it wherever <span class="math inline">\(f\)</span> changed sign, which our particular <span class="math inline">\(f \geq 0\)</span> never does.</p>
+<div class="dg-skip dg-medskip"></div>
+<p>Finally, a <span class="math inline">\((0,2)\)</span>-tensor field costs us nothing at this stage: define <span class="math inline">\(T \coloneqq df \otimes df\)</span>, i.e. <span class="math display">\begin{align*}
+    T \colon \Gamma T\mathcal{M} \times \Gamma T\mathcal{M} &amp;\longrightarrow C^\infty(\mathcal{M}) \\
+    \left( \mathcal{X}_1, \mathcal{X}_2 \right) &amp;\longmapsto
+    T \left( \mathcal{X}_1, \mathcal{X}_2 \right) \coloneqq
+    df \left\lceil \mathcal{X}_1 \right\rfloor \odot_{C^\infty} df \left\lceil \mathcal{X}_2 \right\rfloor,
+\end{align*}</span> whose component functions in the chart <span class="math inline">\((\mathcal{U}, \mathscr{X})\)</span> are <span class="math inline">\(\left( T_\mathcal{U} \right)_{ij} \coloneqq T \left( \partial x_i, \partial x_j \right) = \mathtt{X}_i \, \mathtt{X}_j\)</span>, i.e. <span class="math display">\begin{align*}
+    \left. T \right|_\mathcal{U} = \left( T_\mathcal{U} \right)_{ij} \, dx^i \otimes dx^j,
+    \qquad
+    \left( T_\mathcal{U} \right)_{ij} =
+    \begin{bmatrix}
+        \sin^2 a \cos^2 b &amp; \sin a \cos a \sin b \cos b \\[4pt]
+        \sin a \cos a \sin b \cos b &amp; \cos^2 a \sin^2 b
+    \end{bmatrix}_{ij},
+\end{align*}</span> and which transforms, as every <span class="math inline">\((0,2)\)</span>-tensor field must, with one Jacobian factor per (covariant) index: <span class="math inline">\(\left( T_\mathcal{V} \right)_{kl} = \left( \partial \mathscr{X}^i / \partial \mathscr{Y}^k \right) \left( \partial \mathscr{X}^j / \partial \mathscr{Y}^l \right) \left( T_\mathcal{U} \right)_{ij} = \mathtt{Y}_k \, \mathtt{Y}_l\)</span>, as it should. Evaluating it on our two fields gives <span class="math display">\begin{align*}
+    T \left( \mathcal{X}, \mathcal{Y} \right)(p)
+    = \left( T_\mathcal{U} \right)_{ij}(p) \, X^i(p) \, \tilde{X}^j(p)
+    = \left( -\cos a \sin b \right) \left( b \sin a \cos b - a \cos a \sin b \right),
+\end{align*}</span> an element of <span class="math inline">\(C^\infty(\mathcal{M})\)</span>, built out of nothing but the objects defined in this appendix.</p>
+<div class="dg-footnotes"><div class="dg-fn" id="fn-2"><a class="dg-fn-num" href="#fnref-2" aria-label="Back to the text">2</a><div class="dg-fn-body"><p>For the chart <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> we remove from <span class="math inline">\(\mathcal{M}\)</span> the points with <span class="math inline">\(a \leq 0\)</span>, <span class="math inline">\(b = 0\)</span>, since the function  <span class="math display">\[
+                \operatorname{atan2}(b, a) =
+                \begin{cases}
+                    \arctan\left(b/a\right) &amp; \text{if } a &gt; 0, \\
+                    \arctan\left(b/a\right) + \pi &amp; \text{if } a &lt; 0 \text{ and } b \geq 0, \\
+                    \arctan\left(b/a\right) - \pi &amp; \text{if } a &lt; 0 \text{ and } b &lt; 0, \\
+                    +\pi/2 &amp; \text{if } a = 0 \text{ and } b &gt; 0, \\
+                    -\pi/2 &amp; \text{if } a = 0 \text{ and } b &lt; 0, \\
+                    \text{undefined} &amp; \text{if } a = 0 \text{ and } b = 0,
+                \end{cases}
+            \]</span>  is discontinuous there. Removing that closed ray leaves <span class="math inline">\(\mathscr{Y}(\mathcal{V}) = (0, \infty) \times (-\pi, \pi)\)</span>, which is open in <span class="math inline">\(\mathbb{R}^2\)</span>, as a chart image must be: note that the value <span class="math inline">\(\operatorname{atan2}(b,a) = \pi\)</span> is <em>not</em> attained on <span class="math inline">\(\mathcal{V}\)</span>, and that the origin <span class="math inline">\(a = b = 0\)</span> is excluded as well.</p></div></div><div class="dg-fn" id="fn-3"><a class="dg-fn-num" href="#fnref-3" aria-label="Back to the text">3</a><div class="dg-fn-body"><p>Outside that interval the curve leaves <span class="math inline">\(\mathcal{V}\)</span> and re-enters it, and its chart representative must be written with the wrapping function <span class="math inline">\(\operatorname{wrap}_{(-\pi, \pi)}(\lambda) \coloneqq \left( \lambda + \pi \mod 2\pi \right) - \pi\)</span>, which returns the unique representative of <span class="math inline">\(\lambda \mod 2\pi\)</span> in <span class="math inline">\([-\pi, \pi)\)</span>. This is a statement about the chart, not about the curve: <span class="math inline">\(\delta_{r_0}\)</span> is perfectly smooth on all of <span class="math inline">\(\mathbb{R}\)</span>, it is <span class="math inline">\((\mathcal{V}, \mathscr{Y})\)</span> that cannot see the whole of it.</p></div></div></div>
+<nav class="dg-web dg-prevnext" aria-label="Previous and next page"><a class="dg-prev" href="example-tpm.html" rel="prev"><span aria-hidden="true">←</span> <span><span class="dg-secnum">C.3</span> Example of Tangent, Cotangent and Tensor Spaces (§§4.1–4.3)</span></a><a class="dg-next" href="example-connection-torsion-curvature.html" rel="next"><span aria-hidden="true">→</span> <span><span class="dg-secnum">C.5</span> Examples of Connections, Torsion and Curvature (§§6.1–6.4)</span></a></nav>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/daniellopezcano\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Daniel López Cano</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p><a href="../../../notes/diffgeo-gr/examples/index.html">Home</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

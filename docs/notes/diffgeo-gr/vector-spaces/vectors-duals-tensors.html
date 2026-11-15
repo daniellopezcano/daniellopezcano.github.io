@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2.2 Vector Space, Dual Space, and Tensor Space – Daniel López Cano</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../assets/icons/site-mark.svg" rel="icon" type="image/svg+xml">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-262b6f6cb119cb2e364890ef9d33df13.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "Daniel López Cano",
+    "url": "https://daniellopezcano.github.io/",
+    "image": "https://daniellopezcano.github.io/assets/img/profile.jpg",
+    "jobTitle": "Postdoctoral Researcher in Computational Cosmology",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Institute of Physics, University of São Paulo",
+      "url": "https://portal.if.usp.br/ifusp/pt-br/users/dlopez"
+    },
+    "alumniOf": [
+      {
+        "@type": "Organization",
+        "name": "Donostia International Physics Center",
+        "url": "https://dipc.ehu.eus/en"
+      },
+      {
+        "@type": "Organization",
+        "name": "Universidad Autónoma de Madrid",
+        "url": "https://www.uam.es/ciencias/facultad/departamentos/fisica-teorica"
+      }
+    ],
+    "sameAs": [
+      "https://orcid.org/0000-0002-0279-4874",
+      "https://scholar.google.com/citations?hl=en&user=2n98u-oAAAAJ",
+      "https://github.com/daniellopezcano",
+      "https://portal.if.usp.br/ifusp/pt-br/users/dlopez",
+      "https://arxiv.org/search/?searchtype=author&query=L%C3%B3pez-Cano%2C+D"
+    ]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Daniel López Cano",
+  "url": "https://daniellopezcano.github.io/"
+}
+</script>
+<!-- Hand-written: head of every course page. The math configuration must come before MathJax,
+     which Quarto loads itself (pinned in _metadata.yml, html-math-method). -->
+<link rel="preload" href="../../../notes/diffgeo-gr/assets/fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin="">
+<script src="../../../notes/diffgeo-gr/assets/mathjax-config.js"></script>
+<script type="module" src="../../../notes/diffgeo-gr/assets/course.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/interactive.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../research_and_publications.html"> 
+<span class="menu-text">Research &amp; Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../teaching_and_projects.html"> 
+<span class="menu-text">Teaching &amp; Projects</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../notes/diffgeo-gr/index.html" aria-current="page"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../outreach.html"> 
+<span class="menu-text">Outreach</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../cv.html"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/vector-spaces/index.html">2 Vector Spaces</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html">2.2 Vector Space, Dual Space, and Tensor Space</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/introduction/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1 Introduction</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/introduction/roadmaps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1.1 Roadmaps of the Notes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/vector-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2 Vector Spaces</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.1 Foundations: Sets, Maps, and Algebraic Structures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">2.2 Vector Space, Dual Space, and Tensor Space</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/vector-spaces/basis-components-transformations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.3 Bases, Components, and Transformation Laws</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/topological-manifolds/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3 Topological Manifolds</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/topological-spaces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.1 Topological Spaces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.2 Charts and Topological Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/topological-manifolds/smooth-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3.3 Smooth Manifolds</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/tangent-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4 Tangent Spaces</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.1 Tangent Space <span class="math inline">\(T_p \mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/cotangent-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.2 Cotangent Space <span class="math inline">\(T_p^*\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/tangent-spaces/tensor-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4.3 Tensor Space <span class="math inline">\(T_p^{(r,s)}\mathcal{M}\)</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/fields/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5 Fields</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/vector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.1 Vector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.2 Covector Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/fields/tensor-fields-and-notation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5.3 Tensor Fields and notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/covariant-derivative/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6 Covariant Derivative</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connections-affine-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.1 Connections and Affine Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/connection-coefficient-functions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.2 Connection Coefficient Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/parallel-transport-autoparallels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.3 Parallel Transport and Autoparallels</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/covariant-derivative/torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6.4 Torsion and Curvature</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/metric/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7 Metric</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.1 Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/length-geodesics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.2 Length and Geodesics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/levi-civita-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.3 The Levi-Civita Connection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/metric/curvature-metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7.4 Curvature of the Metric</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/integrals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8 Integrals</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/volume-forms-orientation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.1 Volume Forms and Orientation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/integration-manifolds.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.2 Integration on Manifolds</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/integrals/metric-volume-form.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8.3 The Metric Volume Form</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/newtonian/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9 Newton-Cartan Theory</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newtonian-spacetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.1 Newtonian Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/newton-axioms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.2 Newton’s Axioms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/stratified-atlas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.3 Stratified Atlas</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/pseudo-forces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.4 Pseudo-Forces</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/newtonian/gravity-connection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9.5 Gravity in the Connection</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/gr/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 General Relativity</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/spacetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10.1 Spacetime</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">10.2 The Einstein Equations from an Action</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/gr/matter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10.3 Coupling to Matter</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">A Computational ressources</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B Proofs &amp; Comments</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/set-theory-foundations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.1 Set Theory Foundations (§2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/hamel-schauder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.2 Hamel and Schauder Bases (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-dual-basis-transformation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.3 Change of basis for the dual basis (§2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-existence-sum-prod-curves-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.4 Curves realizing the vector space operations of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.5 Chart-induced basis of <span class="math inline">\(T_p\mathcal{M}\)</span> (§4.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tstarpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.6 Chart-induced basis of <span class="math inline">\(T_p^*\mathcal{M}\)</span> (§4.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-topology-tm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.7 The topology of the tangent bundle (§5.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/exact-covector-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.8 Which covector fields are differentials? (§5.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/connection-vs-covariant-derivative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.9 Connections and covariant derivatives (§6.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-torsion-tensorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.10 Tensoriality of the torsion (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/flat-connections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.11 Flat Torsion-Free Connections (§6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-sylvester.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.12 Sylvester’s law of inertia (§7.1.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-length-reparametrization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.13 Reparametrization invariance of the length (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-euler-lagrange.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.14 Euler–Lagrange equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.15 Higher-order Lagrangians (§7.2.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-geodesic-equation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.16 Derivation of the geodesic equation (§7.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/proof-metric-compatibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.17 The Levi-Civita theorem (§7.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/metric-properties.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.18 Properties of <span class="math inline">\(g\)</span> and of the L.C. connection (§§7.3–7.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/support-integrals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.19 Compactness and the integral over a region (§8.2)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/partitions-of-unity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.20 Partitions of unity, paracompactness and second countability (§8.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">B.21 Geometric Formulations of Newtonian Gravity (§9.1)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/proofs-and-additional-material/torsion-newton.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B.22 Torsion in Newton-Cartan Theory (§9.1)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../notes/diffgeo-gr/examples/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C Examples</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-vector-space.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.1 Example of Vector Spaces (§§2.2–2.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-d-dim-mfld.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.2 Example of a <span class="math inline">\(d\)</span>-dimensional Smooth Manifold (§§3.2–3.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-tpm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.3 Example of Tangent, Cotangent and Tensor Spaces (§§4.1–4.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-fields.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.4 Example of Fields (§§5.1–5.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-connection-torsion-curvature.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.5 Examples of Connections, Torsion and Curvature (§§6.1–6.4)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-variations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.6 Example of Variations and Euler–Lagrange Equations (§7.2.1)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.7 Example of Integration (§§8.1–8.3)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+ <span class="menu-text">C.8 Example of Newton–Cartan Theory (§§9.1–9.5)</span>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../notes/diffgeo-gr/examples/example-schwarzschild.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C.9 Example: the Schwarzschild metric (§10.2.2)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/vector-spaces/index.html">2 Vector Spaces</a></li><li class="breadcrumb-item"><a href="../../../notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html">2.2 Vector Space, Dual Space, and Tensor Space</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">2.2 Vector Space, Dual Space, and Tensor Space</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- GENERATED by _port/convert/build.py from Chapters/Vector_Spaces.tex.
+     Do not edit this file: edit the LaTeX notes and re-run the converter. -->
+<header class="dg-head dg-head-section"><p class="dg-kicker">Chapter 2 <span class="dg-sep">•</span> <a href="index.html">Vector Spaces</a></p><h1 class="dg-title"><span class="dg-secnum">2.2</span> Vector Space, Dual Space, and Tensor Space</h1></header>
+<p>We now formally define the concept of an <span class="math inline">\(\mathbb{R}\)</span>-vector space, along with the related notions of linear maps, isomorphisms, and the dual vector space (rows 3 and 4 of Figure <a class="dg-xref" href="../introduction/roadmaps.html#fig_vector_spaces_roadmap" data-kind="figure" data-label="fig_vector_spaces_roadmap">1.2</a>). Note that, at this stage, the definitions are purely algebraic and do not rely on any choice of basis. See appendices <a class="dg-xref" href="../examples/example-vector-space.html#subsection_appendix_Check_for_Vector_Space_Properties" data-kind="subsection" data-label="subsection_appendix_Check_for_Vector_Space_Properties">C.1.1</a> &amp; <a class="dg-xref" href="../examples/example-vector-space.html#subsection_appendix_example_vector_space_objects" data-kind="subsection" data-label="subsection_appendix_example_vector_space_objects">C.1.2</a> for concrete examples illustrating these definitions employing polynomials.</p>
+<ul class="dg-itemize dg-depth-1">
+<li><p>An <span class="dg-term dg-term-orange"><span class="math inline">\(\mathbb{R}\)</span>-vector space</span> is the triplet <span class="math inline">\((V, \oplus, \odot)\)</span> equipped with the Field <span class="math inline">\((\mathbb{R}, +, \cdot)\)</span>. The doublet <span class="math inline">\((V, \oplus)\)</span> forms an Abelian group, and the s-multiplication operator <span class="dg-term dg-term-orange"><span class="math inline">\(\odot: \mathbb{R} \times V \to V\)</span></span> satisfies (considering <span class="math inline">\(\mathcal{X}, \mathcal{Y} \in V\)</span>, elements of the vector space, known as <span class="dg-term dg-term-orange">vectors</span>, and <span class="math inline">\(\alpha, \beta \in \mathbb{R}\)</span>):</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p>Associativity (w.r.t <span class="math inline">\(\cdot, \odot\)</span>): <span class="math inline">\((\alpha \cdot \beta) \odot \mathcal{X} = \alpha \odot (\beta \odot \mathcal{X})\)</span>,</p></li>
+<li><p>Distributive 1: <span class="math inline">\((\alpha + \beta) \odot \mathcal{X} = (\alpha \odot \mathcal{X}) \oplus (\beta \odot \mathcal{X})\)</span>,</p></li>
+<li><p>Distributive 2: <span class="math inline">\(\alpha \odot (\mathcal{X} \oplus \mathcal{Y}) = (\alpha \odot \mathcal{X}) \oplus (\alpha \odot \mathcal{Y})\)</span>,</p></li>
+<li><p>Unitarity / Neutral element / Identity (w.r.t <span class="math inline">\(\odot\)</span>): <span class="math inline">\(\exists 1 \in \mathbb{R}\)</span> such that <span class="math inline">\(1 \odot \mathcal{X} = \mathcal{X} \odot 1 = \mathcal{X}\)</span>.</p></li>
+</ol></li>
+<li><p>Let <span class="math inline">\((V, \oplus_V, \odot_V)\)</span> and <span class="math inline">\((W, \oplus_W, \odot_W)\)</span> be vector spaces. The map <span class="math inline">\(\phi : V \to W\)</span> is <span class="dg-term dg-term-orange">linear</span> (w.r.t. the vector spaces we have defined, also denoted as <span class="math inline">\(\phi : V \overset{\sim}{\longrightarrow} W\)</span>) <span class="math inline">\(\iff \forall \mathcal{X}, \mathcal{Y} \in V; \, \forall \alpha \in \mathbb{R}\)</span>:</p>
+<ol class="dg-enumerate dg-depth-1">
+<li><p><span class="math inline">\( \phi(\mathcal{X} \oplus_V \mathcal{Y}) = \phi(\mathcal{X}) \oplus_W \phi(\mathcal{Y}) \)</span>, and</p></li>
+<li><p><span class="math inline">\( \phi(\alpha \odot_V \mathcal{X}) = \alpha \odot_W \phi(\mathcal{X}) \)</span>.</p></li>
+</ol></li>
+<li><p>Given two <span class="math inline">\(\mathbb{R}\)</span>-vector spaces <span class="math inline">\((V, \oplus_V, \odot_V)\)</span> and <span class="math inline">\((W, \oplus_W, \odot_W)\)</span>, a map <span class="math inline">\(\phi : V \longrightarrow W\)</span> is a (vector space) <span class="dg-term dg-term-orange">isomorphism</span> if it is linear and bijective, hence invertible. If such a map exists, we say that the vector spaces <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span> are <span class="dg-term dg-term-orange">isomorphic</span>, and we write <span class="math inline">\(V \cong W\)</span>. Intuitively, this means that <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span> have the same structure as vector spaces.</p></li>
+<li><p>The Vector Space of <span class="dg-term dg-term-orange">Homomorphisms</span> between two vector spaces <span class="math inline">\((V, \oplus_V, \odot_V)\)</span> and <span class="math inline">\((W, \oplus_W, \odot_W)\)</span> is the triplet conformed by the set <span class="math inline">\(\text{Hom}(V, W) := \{ \phi, \varphi : V \overset{\sim}{\longrightarrow} W \}\)</span>, and the operations:  <span class="math display">\[
+            \begin{aligned}
+                &amp;\begin{array}{c}
+                    \textbf{Addition } \oplus_H: \\[6pt]
+                    \begin{aligned}
+                        \oplus_H : \text{Hom}(V, W) \times \text{Hom}(V, W) &amp;\longrightarrow \text{Hom}(V, W) \\
+                        (\phi, \varphi) &amp;\longmapsto \phi \oplus_H \varphi
+                    \end{aligned} \\[6pt]
+                    \text{with } (\phi \oplus_H \varphi)(v) := \phi(v) \oplus_W \varphi(v).
+                \end{array}
+                \quad
+                &amp;\begin{array}{c}
+                    \textbf{s-multiplication } \odot_H: \\[6pt]
+                    \begin{aligned}
+                        \odot_H : \mathbb{R} \times \text{Hom}(V, W) &amp;\longrightarrow \text{Hom}(V, W) \\
+                        (\lambda, \phi)                              &amp;\longmapsto \lambda \odot_H \phi
+                    \end{aligned} \\[6pt]
+                    \text{with } (\lambda \odot_H \phi)(v) := \lambda \odot_W \phi(v).
+                \end{array}
+            \end{aligned}
+        \]</span></p></li>
+<li><p>Given a vector space <span class="math inline">\((V, \oplus, \odot)\)</span>, we define its <span class="dg-term dg-term-red">Dual Vector Space</span> as <span class="math inline">\((V^* , \oplus^*, \odot^*)\)</span>, with <span class="math inline">\(V^* := \text{Hom}(V, \mathbb{R}) := \{ \phi : V \overset{\sim}{\longrightarrow} \mathbb{R} \}\)</span>, and the addition and s-multiplication operators, <span class="math inline">\(\oplus^*\)</span> and <span class="math inline">\(\odot^*\)</span>, following the associatted homomorphic definitions above. We will denote with <span class="math inline">\(\mathsf{X}, \mathsf{Y}\)</span> elements of the dual vector space <span class="math inline">\(V^*\)</span> known as <span class="dg-term dg-term-red">covectors</span>.</p></li>
+<li><p>Given a vector space <span class="math inline">\((V, \oplus, \odot)\)</span> and its dual vector space <span class="math inline">\((V^*, \oplus^*, \odot^*)\)</span>, we define the <span class="dg-term dg-term-brown"><span class="math inline">\((r,s)\)</span>-tensor space</span> as the triplet <span class="math inline">\(\left( {T}^{(r,s)}, \oplus_T, \odot_T \right)\)</span>, where <span class="math inline">\({T}^{(r,s)}\)</span> is the set of all maps of the form<sup class="dg-fnref"><a href="#fn-2" id="fnref-2" aria-label="Footnote 2">2</a></sup> <sup class="dg-fnref"><a href="#fn-3" id="fnref-3" aria-label="Footnote 3">3</a></sup>:  <span class="math display">\begin{align*}
+            T \colon
+            \underbrace{V^* \times \dots \times V^*}_{r \text{-times}}
+            \times
+            \underbrace{V \times \dots \times V}_{s \text{-times}}
+            &amp;\xlongrightarrow{\substack{\sim \\ \dots \\ \sim}} \mathbb{R} \\
+            \left( \mathsf{X}^{(1)}, \dots, \mathsf{X}^{(r)}, \mathcal{X}^{(1)}, \dots, \mathcal{X}^{(s)} \right)
+            &amp;\longmapsto
+            T \left( \mathsf{X}^{(1)}, \dots, \mathsf{X}^{(r)}, \mathcal{X}^{(1)}, \dots, \mathcal{X}^{(s)} \right),
+        \end{align*}</span>  with the property that <span class="math inline">\(T\)</span> is <span class="dg-term dg-term-brown">multilinear</span>, i.e., it is <span class="math inline">\(\mathbb{R}\)</span>-linear with respect to each of its <span class="math inline">\(r + s\)</span> slots independently. The multilinearity condition explicitly reads:</p>
+<ul class="dg-itemize dg-depth-2">
+<li><p>For any covector slot <span class="math inline">\(i \in \{1, \dots, r\}\)</span>:  <span class="math display">\[
+                    \begin{aligned}
+                        T \left( \dots,\; \alpha \odot^* \mathsf{X}^{(i)} \oplus^* \mathsf{Y}^{(i)},\; \dots;\; \dots \right) =
+                        \alpha \cdot T \left( \dots,\; \mathsf{X}^{(i)},\; \dots;\; \dots \right)
+                        + T \left( \dots,\; \mathsf{Y}^{(i)},\; \dots;\; \dots \right),
+                    \end{aligned}
+                \]</span>  for any <span class="math inline">\(\alpha \in \mathbb{R}\)</span> and any <span class="math inline">\(\mathsf{X}^{(i)}, \mathsf{Y}^{(i)} \in V^*\)</span>.</p></li>
+<li><p>Similarly, for any vector slot <span class="math inline">\(j \in \{1, \dots, s\}\)</span>:  <span class="math display">\[
+                    \begin{aligned}
+                        T \left( \dots;\; \dots,\; \alpha \odot \mathcal{X}^{(j)} \oplus \mathcal{Y}^{(j)},\; \dots \right) =
+                        \alpha \cdot T \left( \dots;\; \dots,\; \mathcal{X}^{(j)},\; \dots \right)
+                        + T \left( \dots;\; \dots,\; \mathcal{Y}^{(j)},\; \dots \right),
+                    \end{aligned}
+                \]</span>  for any <span class="math inline">\(\alpha \in \mathbb{R}\)</span> and any <span class="math inline">\(\mathcal{X}^{(j)}, \mathcal{Y}^{(j)} \in V\)</span>.</p></li>
+</ul>
+<p>The addition <span class="math inline">\(\oplus_T\)</span> and the s-multiplication <span class="math inline">\(\odot_T\)</span> in the <span class="math inline">\((r,s)\)</span>-tensor space <span class="math inline">\(\left( {T}^{(r,s)}, \oplus_T, \odot_T \right)\)</span> are the defined as:  <span class="math display">\[
+            \begin{aligned}
+                &amp;\begin{array}{c}
+                    \begin{aligned}
+                        \oplus_T : {T}^{(r,s)} \times {T}^{(r,s)} &amp;\longrightarrow {T}^{(r,s)} \\
+                        (T_1, T_2) &amp;\longmapsto T_1 \oplus_T T_2
+                    \end{aligned} \\[6pt]
+                    \text{with } (T_1 \oplus_T T_2)(\dots) := T_1(\dots) + T_2(\dots).
+                \end{array}
+                \quad
+                &amp;\begin{array}{c}
+                    \begin{aligned}
+                        \odot_T : \mathbb{R} \times {T}^{(r,s)} &amp;\longrightarrow {T}^{(r,s)} \\
+                        (\alpha, T)                             &amp;\longmapsto \alpha \odot_T T
+                    \end{aligned} \\[6pt]
+                    \text{with } (\alpha \odot_T T)(\dots) := \alpha \cdot T(\dots).
+                \end{array}
+            \end{aligned}
+        \]</span></p></li>
+<li><p>Given two <span class="math inline">\(\mathbb{R}\)</span>-vector spaces <span class="math inline">\(\left( V, \oplus_V, \odot_V \right)\)</span> and <span class="math inline">\(\left( W, \oplus_W, \odot_W \right)\)</span>, we define their <span class="dg-term dg-term-brown">tensor product</span> as the <span class="math inline">\(\mathbb{R}\)</span>-vector space <span class="math inline">\(\left( V \otimes W, \oplus_\otimes, \odot_\otimes \right)\)</span>, whose elements are finite sums <span class="math inline">\(\tau = \sum_{k} \alpha_k \, (v_k \otimes w_k)\)</span> of simple tensors <span class="math inline">\(v_k \otimes w_k\)</span>, with <span class="math inline">\(\alpha_k \in \mathbb{R}\)</span>, and whose operations act term by term:  <span class="math display">\[
+            \begin{aligned}
+                &amp;\begin{array}{c}
+                    \textbf{Addition} \; \oplus_\otimes: \\[6pt]
+                    \begin{aligned}
+                        \oplus_\otimes : (V \otimes W) \times (V \otimes W)
+                        &amp;\longrightarrow V \otimes W \\[2pt]
+                        (\tau_1,\; \tau_2) &amp;\longmapsto \tau_1 \oplus_\otimes \tau_2
+                    \end{aligned} \\[6pt]
+                    \text{with } \displaystyle\sum_{k} \alpha_k (v_k \otimes w_k) \oplus_\otimes \sum_{l} \beta_l (v'_l \otimes w'_l)
+                    := \sum_{k} \alpha_k (v_k \otimes w_k) + \sum_{l} \beta_l (v'_l \otimes w'_l).
+                \end{array}
+            \end{aligned}
+        \]</span>  <span class="math display">\[
+            \begin{aligned}
+                &amp;\begin{array}{c}
+                    \textbf{s-multiplication} \; \odot_\otimes: \\[6pt]
+                    \begin{aligned}
+                        \odot_\otimes : \mathbb{R} \times (V \otimes W)
+                        &amp;\longrightarrow V \otimes W \\[2pt]
+                        (\alpha,\; \tau) &amp;\longmapsto \alpha \odot_\otimes \tau
+                    \end{aligned} \\[6pt]
+                    \text{with } \alpha \odot_\otimes \displaystyle\sum_{k} \alpha_k (v_k \otimes w_k)
+                    := \sum_{k} (\alpha \cdot \alpha_k) (v_k \otimes w_k).
+                \end{array}
+            \end{aligned}
+        \]</span></p>
+<div class="dg-skip dg-medskip"></div>
+<p>Two such sums are regarded as the same element whenever one can be turned into the other using the <span class="dg-term dg-term-brown">bilinearity</span> relations:  <span class="math display">\[
+            \begin{aligned}
+                (v_1 \oplus_V v_2) \otimes w
+                &amp;= (v_1 \otimes w) \oplus_\otimes (v_2 \otimes w), \\[4pt]
+                v \otimes (w_1 \oplus_W w_2)
+                &amp;= (v \otimes w_1) \oplus_\otimes (v \otimes w_2), \\[4pt]
+                (\alpha \odot_V v) \otimes w
+                &amp;= \alpha \odot_\otimes (v \otimes w)
+                = v \otimes (\alpha \odot_W w).
+            \end{aligned}
+        \]</span>  The general elements of <span class="math inline">\(V \otimes W\)</span> are finite linear combinations:  <span class="math display">\[
+            \sum_{k} \alpha_k \odot_\otimes (v_k \otimes w_k), \quad \alpha_k \in \mathbb{R}.
+        \]</span>  The tensor product formalizes the concept of <span class="dg-term dg-term-brown">bilinearity</span> itself into a linear structure. This provides the algebraic backbone that generalizes naturally to <span class="dg-term dg-term-brown">multilinearity</span>, which underlies the formal definition of tensors as higher-order linear maps. The tensor product enjoys the following structural properties:</p>
+<ul class="dg-itemize dg-depth-2">
+<li><p>Universal Property: For any bilinear map, <span class="math inline">\(B : V \times W \longrightarrow Z\)</span>, into a vector space <span class="math inline">\(Z\)</span>, there exists a unique linear map <span class="math inline">\(\widetilde{B} : V \otimes W \longrightarrow Z\)</span> such that <span class="math inline">\(\widetilde{B} (v \otimes w) = B(v, w)\)</span> for all <span class="math inline">\(v \in V\)</span> and <span class="math inline">\(w \in W\)</span>.</p></li>
+<li><p>Dimension Formula: If <span class="math inline">\(\dim V = m\)</span> and <span class="math inline">\(\dim W = n\)</span>, then <span class="math inline">\(\dim ( V \otimes W ) = m \cdot n\)</span>. A basis is given by the set of tensor products of basis elements:  <span class="math display">\[
+                    \{ \hat{x}_i \otimes \hat{y}_j \mid i=1,\dots,m;\; j=1,\dots,n \},
+                \]</span>  where <span class="math inline">\(\{\hat{x}_i\}\)</span> and <span class="math inline">\(\{\hat{y}_j\}\)</span> are bases of <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span>, respectively.</p></li>
+<li><p>Associativity: Tensor products are associative up to canonical isomorphism: <span class="math inline">\((V_1 \otimes V_2) \otimes V_3 \cong V_1 \otimes (V_2 \otimes V_3)\)</span>. It is customary to omit parentheses and write unambiguously: <span class="math inline">\(V_1 \otimes V_2 \otimes V_3\)</span>.</p></li>
+<li><p>Distributivity over Direct Sums: Tensor products distribute over direct sums:  <span class="math display">\[
+                    (V_1 \oplus_V V_2) \otimes W
+                    \cong
+                    (V_1 \otimes W) \oplus_\otimes (V_2 \otimes W).
+                \]</span></p></li>
+<li><p>Duality Relation: There is a canonical isomorphism <span class="math inline">\(\text{Hom}(V \otimes W, \mathbb{R}) \cong \text{Bilin}(V \times W, \mathbb{R})\)</span>, where <span class="math inline">\(\text{Bilin}(V \times W, \mathbb{R})\)</span> denotes the space of bilinear maps from <span class="math inline">\(V \times W\)</span> to <span class="math inline">\(\mathbb{R}\)</span>.</p></li>
+</ul></li>
+<li><p>An equivalent way to define an <span class="dg-term dg-term-brown"><span class="math inline">\((r,s)\)</span>-tensor</span> on a finite-dimensional vector space <span class="math inline">\((V, \oplus, \odot)\)</span> is as an element of the <span class="dg-term dg-term-brown">tensor product space</span>  <span class="math display">\[
+            T^{(r,s)} \cong \underbrace{V \otimes \dots \otimes V}_{r\text{-times}}
+            \otimes
+            \underbrace{V^* \otimes \dots \otimes V^*}_{s\text{-times}}.
+        \]</span>  Note the order of the factors: the <span class="math inline">\(r\)</span> <em>covector</em> slots of the multilinear map are matched by <span class="math inline">\(r\)</span> copies of <span class="math inline">\(V\)</span>, and the <span class="math inline">\(s\)</span> <em>vector</em> slots by <span class="math inline">\(s\)</span> copies of <span class="math inline">\(V^*\)</span>. This is because a vector <span class="math inline">\(v \in V\)</span> can eat covectors through the canonical identification <span class="math inline">\(V \cong (V^*)^*\)</span> discussed in the next item, <span class="math inline">\(v(\mathsf{X}) \coloneqq \mathsf{X}(v)\)</span>, while a covector eats vectors directly. Accordingly, a simple tensor with <span class="math inline">\(v_1, \dots, v_r \in V\)</span> and <span class="math inline">\(\mathsf{v}^1, \dots, \mathsf{v}^s \in V^*\)</span> acts slot by slot,  <span class="math display">\[
+            \left( v_1 \otimes \dots \otimes v_r \otimes \mathsf{v}^1 \otimes \dots \otimes \mathsf{v}^s \right)
+            \left( \mathsf{X}^{(1)}, \dots, \mathsf{X}^{(r)}, \mathcal{X}^{(1)}, \dots, \mathcal{X}^{(s)} \right)
+            \coloneqq
+            \mathsf{X}^{(1)}(v_1) \cdots \mathsf{X}^{(r)}(v_r) \cdot
+            \mathsf{v}^1\big(\mathcal{X}^{(1)}\big) \cdots \mathsf{v}^s\big(\mathcal{X}^{(s)}\big),
+        \]</span>  which is manifestly multilinear, and a general element of the tensor product space acts by extending this rule linearly (which is well defined by the universal property). The resulting linear map from the tensor product space to the space of multilinear maps defined above is an isomorphism when <span class="math inline">\(V\)</span> is finite-dimensional: both spaces have dimension <span class="math inline">\(d^{\,r+s}\)</span> and, as shown below, the images of simple tensors of basis elements span the space of multilinear maps. This is the precise sense in which both definitions are equivalent, and the reason for the symbol <span class="math inline">\(\cong\)</span>.</p>
+<p>In this definition, tensors are no longer described as multilinear maps, but rather as elements of a vector space constructed through tensor products. Both perspectives are fully equivalent: the first is often more intuitive for understanding the action of tensors, while the second is more algebraic and convenient for computations, particularly in component form.</p></li>
+<li><p>We can also think of tensors as follows: Given a <span class="math inline">\((1,1)\)</span>-tensor  <span class="math display">\begin{align*}
+            T :
+            V^* \times V
+            &amp;\;\xlongrightarrow{\substack{\sim \\ \sim}}\; \mathbb{R}\\
+            \left( \mathsf{X}, \mathcal{X} \right)
+            &amp;\longmapsto
+            T\left( \mathsf{X}, \mathcal{X} \right).
+        \end{align*}</span>  We can associate to any such tensor a linear map  <span class="math display">\begin{align*}
+            \varphi_T :V
+            &amp;\;\xlongrightarrow{\sim}\; V\\
+            \mathcal{X} &amp;\longmapsto \varphi_T(\mathcal{X}) \coloneqq T(\cdot, \mathcal{X}),
+        \end{align*}</span>  where the dot “<span class="math inline">\(\cdot\)</span>” indicates that the first slot is left open. More explicitly, the map  <span class="math display">\begin{align*}
+            T(\cdot, \mathcal{X}) :
+            V^*
+            &amp;\;\xlongrightarrow{\sim}\; \mathbb{R}\\
+            \mathsf{X} &amp;\longmapsto T\left( \mathsf{X}, \mathcal{X} \right),
+        \end{align*}</span>  is a linear map that can eat a covector <span class="math inline">\(\mathsf{X} \in V^*\)</span> and return a real number. Hence, <span class="math inline">\(T(\cdot, \mathcal{X}) \in (V^*)^*\)</span>, that is, the dual of <span class="math inline">\(V^*\)</span>. In finite-dimensional vector spaces, there exists a canonical isomorphism <span class="math inline">\((V^*)^* \cong V\)</span> which identifies <span class="math inline">\((V^*)^*\)</span> with <span class="math inline">\(V\)</span> itself <sup class="dg-fnref"><a href="#fn-4" id="fnref-4" aria-label="Footnote 4">4</a></sup>. Therefore, <span class="math inline">\(T(\cdot, \mathcal{X})\)</span> can be interpreted as an element of <span class="math inline">\(V\)</span>. In other words, the data of a <span class="math inline">\((1,1)\)</span>-tensor, <span class="math inline">\(T : V^* \times V \xlongrightarrow{\substack{\sim \\ \sim}} \mathbb{R}\)</span>, is equivalent to the data of the linear map <span class="math inline">\(\varphi_T : V \xlongrightarrow{\sim} V\)</span>.</p></li>
+</ul>
+<div class="dg-footnotes"><div class="dg-fn" id="fn-2"><a class="dg-fn-num" href="#fnref-2" aria-label="Back to the text">2</a><div class="dg-fn-body"><p>The indices enclosed in parentheses, such as <span class="math inline">\(\mathsf{X}^{(i)}\)</span> or <span class="math inline">\(\mathcal{X}^{(j)}\)</span>, refer strictly to the position of the argument within the tensor map <span class="math inline">\(T\)</span>. This is a purely positional convention used for clarity when expressing properties like multilinearity. Don’t confuse this with coordinate or basis indices.</p></div></div><div class="dg-fn" id="fn-3"><a class="dg-fn-num" href="#fnref-3" aria-label="Back to the text">3</a><div class="dg-fn-body"><p>We can equivalently write <span class="math inline">\(T \in T^{(r,s)} := \text{Hom}(\underbrace{V^* \times \dots \times V^*}_{r\text{-times}} \times \underbrace{V \times \dots \times V}_{s\text{-times}}, \mathbb{R})\)</span></p></div></div><div class="dg-fn" id="fn-4"><a class="dg-fn-num" href="#fnref-4" aria-label="Back to the text">4</a><div class="dg-fn-body"><p>This identification holds because in finite-dimensional spaces, the double dual of any vector space is naturally isomorphic to the space itself. This is not generally true in infinite-dimensional settings, where the double dual can be strictly larger than the original space, unless additional conditions (like reflexivity) are satisfied.</p></div></div></div>
+<nav class="dg-web dg-prevnext" aria-label="Previous and next page"><a class="dg-prev" href="foundations-sets-maps.html" rel="prev"><span aria-hidden="true">←</span> <span><span class="dg-secnum">2.1</span> Foundations: Sets, Maps, and Algebraic Structures</span></a><a class="dg-next" href="basis-components-transformations.html" rel="next"><span aria-hidden="true">→</span> <span><span class="dg-secnum">2.3</span> Bases, Components, and Transformation Laws</span></a></nav>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/daniellopezcano\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Daniel López Cano</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p><a href="../../../notes/diffgeo-gr/vector-spaces/index.html">Home</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

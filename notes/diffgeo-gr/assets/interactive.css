@@ -1,0 +1,116 @@
+/* Hand-written (not generated): style of the interactive figures of the course pages (web layer, D14/D15).
+ * The frame (.dg-interactive, emitted by the converter after the figure it accompanies) is styled for the
+ * dark page: accent border, "Interactive" badge, controls on the dark surface. The drawing areas are
+ * white, like the paper cards of the static figures, so that colours read the same as in the figures.
+ * A frame is shown only once its module mounted (course.js adds .dg-ready): if JavaScript fails,
+ * only the static figure is there. The hidden frame is collapsed rather than display:none, because
+ * course.js loads a module when its frame nears the viewport (IntersectionObserver), and an element
+ * with display:none never intersects; collapsed, it also keeps its width for the module to measure. */
+
+.dg-interactive:not(.dg-ready) {
+  height: 0; min-height: 0; margin: 0; padding: 0; border: 0; overflow: hidden; visibility: hidden;
+}
+
+/* the frame is a <div> (an <aside> would be moved to the margin column by Quarto); keep it in the body column */
+main.content .dg-interactive, .page-columns .dg-interactive {
+  grid-column: body-content-start / body-content-end !important;
+  float: none; width: auto; max-width: none;
+  font-size: 0.93rem;
+}
+.dg-interactive {
+  margin: 0.4rem 0 1.8rem;
+  padding: 0.55rem 0.8rem 0.8rem;
+  border: 1px solid var(--dg-accent);
+  border-radius: 8px;
+  background: var(--dg-surface);
+  color: var(--dg-text);
+  line-height: 1.45;
+}
+.dg-interactive-bar { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.dg-badge {
+  display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--dg-bg); background: var(--dg-accent); border-radius: 999px; padding: 0.08rem 0.6rem;
+}
+.dg-interactive-body { display: flex; flex-direction: column; gap: 0.55rem; }
+.dg-note { display: block; color: var(--dg-text-soft); font-size: 0.9rem; }
+
+/* ---- controls ---- */
+.dg-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.2rem; }
+.dg-ctl { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2rem; }
+.dg-ctl-label { color: var(--dg-text); white-space: nowrap; }
+.dg-value { font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; color: var(--dg-text); }
+.dg-slider { flex: 1 1 14rem; }
+.dg-slider label { display: inline-flex; align-items: center; }
+.dg-slider input[type="range"] { flex: 1 1 auto; min-width: 8rem; accent-color: var(--dg-accent); height: 1.6rem; cursor: pointer; }
+
+.dg-btn {
+  font: inherit; font-size: 0.86rem; line-height: 1.2; color: var(--dg-text); background: var(--dg-surface-2);
+  border: 1px solid var(--dg-rule); border-radius: 6px; padding: 0.3rem 0.65rem; min-height: 2rem; cursor: pointer;
+}
+.dg-btn:hover:not(:disabled) { border-color: var(--dg-accent); }
+.dg-btn:disabled { opacity: 0.4; cursor: default; }
+.dg-btn-icon { width: 2rem; padding: 0; font-size: 1.05rem; }
+.dg-stepper .dg-value { min-width: 1.2em; text-align: center; }
+.dg-presets { gap: 0.4rem; }
+
+.dg-seg { display: inline-flex; border: 1px solid var(--dg-rule); border-radius: 6px; overflow: hidden; }
+.dg-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.dg-seg label { padding: 0.25rem 0.75rem; min-height: 2rem; display: inline-flex; align-items: center; cursor: pointer; color: var(--dg-text-soft); background: transparent; }
+.dg-seg label + input + label, .dg-seg input + label ~ label { border-left: 1px solid var(--dg-rule); }
+.dg-seg input:checked + label { background: var(--dg-accent); color: var(--dg-bg); }
+.dg-seg input:focus-visible + label { outline: 2px solid #fff; outline-offset: -3px; }
+
+.dg-toggle input { width: 1.05rem; height: 1.05rem; accent-color: var(--dg-accent); cursor: pointer; margin: 0; }
+.dg-toggle label { cursor: pointer; }
+.dg-toggle.dg-disabled { opacity: 0.4; }
+.dg-toggle.dg-disabled label, .dg-toggle input:disabled { cursor: default; }
+
+.dg-interactive :focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 2px; }
+
+.dg-status { font-weight: 700; color: var(--dg-heading); min-height: 1.5em; text-align: center; }
+.dg-status[data-kind="none"] { color: var(--dg-color-red-1); }
+
+.dg-readouts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.6rem; }
+.dg-readout { display: inline-flex; align-items: center; gap: 0.4rem; }
+.dg-readout-value { font-variant-numeric: tabular-nums; min-width: 4.5em; }
+
+/* ---- drawing areas (white, like the figures' paper cards) ---- */
+.dg-paperbox { background: var(--dg-paper); border-radius: 6px; color: #222; }
+.dg-plot { position: relative; display: flex; justify-content: center; overflow: hidden; }
+.dg-plot-svg { display: block; overflow: visible; touch-action: none; }
+.dg-plot-labels { position: absolute; top: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.dg-plot-label { position: absolute; white-space: nowrap; color: #222; font-size: 0.95rem; line-height: 1; }
+.dg-axis-label { font-size: 0.9rem; }
+.dg-grid { stroke: #e3e3e3; stroke-width: 1; stroke-dasharray: 3 3; }
+.dg-tick { stroke: #444; stroke-width: 1; }
+.dg-frame { fill: none; stroke: #444; stroke-width: 1; }
+.dg-ticklabel { fill: #333; font-size: 11px; font-family: system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.dg-svgtext { font-size: 13px; }
+.dg-handle { cursor: grab; }
+.dg-handle:focus { outline: none; }
+.dg-handle:focus-visible { stroke: var(--dg-accent) !important; stroke-width: 3px !important; }
+.dg-target { cursor: default; }
+.dg-arrow.dg-removable { cursor: pointer; }
+.dg-arrow.dg-removable:hover .dg-shaft, .dg-arrow.dg-removable:focus-visible .dg-shaft { stroke: #EE6677; }
+.dg-arrow.dg-removable:hover .dg-head, .dg-arrow.dg-removable:focus-visible .dg-head { fill: #EE6677; }
+.dg-arrow:focus { outline: none; }
+.dg-arrow.dg-inert { pointer-events: none; }
+
+.dg-scene { position: relative; overflow: hidden; }
+.dg-canvas { display: block; touch-action: none; cursor: grab; }
+.dg-canvas.dg-grabbing { cursor: grabbing; }
+
+.dg-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.15rem 1rem; font-size: 0.85rem; color: var(--dg-text-soft); margin-top: 0.3rem; }
+.dg-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.dg-legend svg line, .dg-legend svg circle { filter: brightness(1.25); }
+
+/* two panels side by side, stacked on narrow screens */
+.dg-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.7rem; }
+.dg-panel { min-width: 0; }
+.dg-maps-stage { display: flex; justify-content: center; }
+.dg-maps-stage .dg-plot { width: 100%; max-width: 380px; }
+
+@media (max-width: 767.98px) {
+  .dg-interactive { padding: 0.5rem 0.55rem 0.7rem; }
+  .dg-controls { gap: 0.45rem 0.9rem; }
+}
