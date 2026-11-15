@@ -34,8 +34,8 @@ Status: `todo`, `in progress`, `done`, `blocked`. One commit per finished unit, 
 | P5 | Course shell: `_metadata.yml`, `assets/course.css`, `_head.html`, navbar entry, sidebar | done | `quarto render notes/diffgeo-gr` completes; outline, sidebar and search index include generated pages | 378b8b3 |
 | P6 | Page script `assets/course.js`: footnote popovers, reference previews, figure zoom/pan, roadmap links, interactive loader; landing page `index.qmd` | done | `tools/test_page_script.mjs`: 49 checks pass at 1280 and 390 px | dfd8cc4 |
 | P7 | Interactive core `assets/interactive/dg.js` + pilot 2D (`maps`, §2.1) + pilot 3D (`variations`, C.6) | done | `tools/test_interactives.mjs` passes at 1280 and 390 px; lengths and first variations match the notes' closed forms | dfd8cc4 |
-| P8 | `_port/INVENTORY.md`, `PLAN.md`, `DECISIONS.md`, `REVIEW.md`, `CLAUDE.md` | done | | (pilot commit) |
-| P9 | Render, checker review of the pilot pages vs the PDF (desktop + phone), fixes, commit | done | checker compared 5 pages with PDF pp. 1, 11–18, 59–61, 157–163: text, numbering, colours, runic glyphs match; 4 defects found and fixed (nested links in prev/next, lost bullet, footnote panel, clipped wide equations); all tests pass after the fixes; existing pages differ from `main` only by the navbar entry | (pilot commit) |
+| P8 | `_port/INVENTORY.md`, `PLAN.md`, `DECISIONS.md`, `REVIEW.md`, `CLAUDE.md` | done | | db5d158 |
+| P9 | Render, checker review of the pilot pages vs the PDF (desktop + phone), fixes, commit | done | checker compared 5 pages with PDF pp. 1, 11–18, 59–61, 157–163: text, numbering, colours, runic glyphs match; 4 defects found and fixed (nested links in prev/next, lost bullet, footnote panel, clipped wide equations); all tests pass after the fixes; existing pages differ from `main` only by the navbar entry | db5d158 |
 
 ### Bulk (after approval)
 
