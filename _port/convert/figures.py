@@ -328,6 +328,39 @@ class Figures:
             self.log.append(f'built {name}.{info["kind"]} from {path}')
             return self._store(key, built, info, name)
 
+    def image_size(self, path: str) -> tuple[int, int]:
+        from PIL import Image
+        with Image.open(self._resolve(path)) as im:
+            return im.size
+
+    def crop(self, path: str, name: str, box: tuple, out_px: int, quality: int) -> dict:
+        """The part of a raster graphic that the PDF shows (a TikZ clip), re-encoded small as WebP (unit B4:
+        the About the Author header). box = (left, top, right, bottom) as fractions of the image; the result
+        is out_px wide (never wider than the cropped pixels)."""
+        from PIL import Image
+        f = self._resolve(path)
+        with open(f, 'rb') as fh:
+            data = fh.read()
+        key = _sha(VERSION, 'crop', data, str((box, out_px, quality)))
+        hit = self._cached(key, name)
+        if hit:
+            return hit
+        with Image.open(f) as im:
+            w, h = im.size
+        l, t, r, b = (round(v) for v in (box[0] * w, box[1] * h, box[2] * w, box[3] * h))
+        if not (0 <= l < r <= w and 0 <= t < b <= h):
+            raise FigureError(f'{name}: crop box {box} lies outside the image {path} ({w}x{h})')
+        cw, ch = r - l, b - t
+        ow = min(out_px, cw)
+        oh = round(ch * ow / cw)
+        with tempfile.TemporaryDirectory(dir=self.work, prefix='c-') as tmp:
+            webp = os.path.join(tmp, 'crop.webp')
+            _run(['cwebp', '-quiet', '-q', str(quality), '-crop', str(l), str(t), str(cw), str(ch),
+                  '-resize', str(ow), str(oh), f, '-o', webp])
+            self.stats[name] = {'kind': 'webp', 'input_bytes': len(data), 'pixels': f'{w}x{h}', 'crop': [l, t, cw, ch]}
+            self.log.append(f'built {name}.webp from {path} (crop)')
+            return self._store(key, webp, {'width': ow, 'height': oh, 'kind': 'webp'}, name)
+
     def _pdf(self, pdf: str, tmp: str):
         wbp, hbp = _pdf_size_bp(pdf)
         size = {'width': round(wbp * PX_PER_BP), 'height': round(hbp * PX_PER_BP)}

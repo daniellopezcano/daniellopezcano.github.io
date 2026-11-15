@@ -15,6 +15,7 @@ build.py can find them: it writes them as <h2>/<h3> elements and builds the
 page outline (course tree) and the search index (one entry per section) from them.
 """
 from __future__ import annotations
+import html
 import re
 import unicodedata
 from texparse import Parser, ConvertError, Text, Par, Math, Cmd, Env, Group
@@ -40,7 +41,15 @@ SYMBOL = {'S': '§', 'dots': '…', 'ldots': '…', 'textbullet': '•', 'textco
 ACCENT = {"'": '\u0301', '`': '\u0300', '^': '\u0302', '"': '\u0308', '~': '\u0303', '=': '\u0304', '.': '\u0307',
           'c': '\u0327', 'v': '\u030c', 'u': '\u0306', 'H': '\u030b', 'k': '\u0328', 'r': '\u030a'}
 PRINT_ONLY = {'vspace', 'newpage', 'clearpage', 'thispagestyle', 'pagestyle', 'par', 'appendix',
-              'addcontentsline', 'bibliographystyle', 'begingroup', 'endgroup'}
+              'addcontentsline', 'bibliographystyle', 'begingroup', 'endgroup', 'phantomsection', 'markboth'}
+# Page-local macros of the front matter (unit B4, D51): accepted only after their \newcommand on the same page,
+# and only if that definition still has the shape the handler renders (LOCAL_SHAPE: what the body must contain)
+LOCAL_SHAPE = {'cpheading': (r'\bfseries #1}', r'\leaders\vrule'),
+               'grantbadge': (r'\tcbox', r'\##1'),
+               'aboutstop': (r'{#2}', r'{#3}}', r'{#4}}')}
+# tcolorbox options (unit B4): keys that only lay the box out in the PDF; the others are rendered or stop the page
+TCB_LAYOUT = {'enhanced', 'breakable', 'frame hidden', 'arc', 'boxrule', 'left', 'right', 'top', 'bottom',
+              'before skip', 'after skip'}
 SKIPS = {'medskip': 'dg-medskip', 'smallskip': 'dg-smallskip', 'bigskip': 'dg-bigskip'}
 HEAD_LEVEL = {'subsection': 2, 'subsubsection': 3}
 NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'}
@@ -97,6 +106,7 @@ class Renderer:
         self.macros: dict[str, str] = {}      # \edef'ed numbers (footnote marks used inside math)
         self.defs: list[str] = []             # in-body \def lines, needed by later TikZ pictures
         self.arraystretch = None              # \renewcommand{\arraystretch}{x} in force (None = LaTeX's 1); for tabular
+        self.local: dict[str, str] = {}       # page-local \newcommand bodies (front matter, LOCAL_SHAPE)
 
     # -- numbering ---------------------------------------------------------------
     def take(self, counter: str, pos: int) -> str:
@@ -151,6 +161,14 @@ class Renderer:
                         labels.append(nodes[i].args[0])
                     i += 1
                 out.append(self.heading(nd, labels))
+            elif isinstance(nd, Cmd) and nd.name == 'cpheading':
+                flush()
+                out.append(self.cpheading(nd))
+            elif isinstance(nd, Group) and self.block_group(nd):
+                flush()                           # {\footnotesize ... \par\smallskip ... \par}: paragraphs inside
+                stretch = self.arraystretch
+                out.append(self.flow(nd.body))
+                self.arraystretch = stretch
             elif isinstance(nd, Cmd) and nd.name == 'tcblower':
                 flush()
                 out.append('\x03LOWER\x03')
@@ -160,6 +178,25 @@ class Renderer:
                 buf.append(self.inline_node(nd))
         flush()
         return '\n'.join(out)
+
+    @staticmethod
+    def block_group(nd: Group) -> bool:
+        """A brace group at block level that holds paragraph breaks or vertical skips (front matter)."""
+        return any(isinstance(c, Par) or isinstance(c, Env) or isinstance(c, Cmd) and (c.name in SKIPS or c.name == 'par')
+                   for c in nd.body)
+
+    def local_macro(self, name: str, pos: int) -> str:
+        if name not in self.local:
+            raise ConvertError(f'\\{name} without its page-local \\newcommand before it on this page', pos)
+        return self.local[name]
+
+    def cpheading(self, nd: Cmd) -> str:
+        """\\cpheading{title} of the copyright page: a bold navy heading followed by a light-blue rule to the
+        margin (its definition, checked by LOCAL_SHAPE). On the web: an <h2> of the page, rule drawn by CSS."""
+        self.local_macro('cpheading', nd.pos)
+        title = self.inline(nd.args[0])
+        hid = 'sec-' + slugify(html.unescape(re.sub(r'<[^>]+>', '', title)))
+        return f'\x01H2|{hid}|<span class="dg-cp-heading">{title}</span>\x01'
 
     def heading(self, nd: Cmd, labels: list[str]) -> str:
         level = HEAD_LEVEL[nd.name]
@@ -197,6 +234,8 @@ class Renderer:
             low = f'<div class="dg-motivation-lower">{lower}</div>' if lower else ''
             return (f'<div class="dg-motivation"><div class="dg-motivation-title">Motivation: '
                     f'{self.inline(nd.args[0])}</div><div class="dg-motivation-upper">{upper}</div>{low}</div>')
+        if name == 'tcolorbox':
+            return self.tcolorbox(nd)
         if name == 'custompage':
             # a page of its own size in the PDF: only its text width matters here (figures scale to it)
             old = self.textwidth_cm
@@ -214,6 +253,48 @@ class Renderer:
                 self.textwidth_cm = old
                 self.defs = defs
         raise ConvertError(f'environment {name}: no handler yet', nd.pos)
+
+    def tcolorbox(self, nd: Env) -> str:
+        """A tcolorbox (the MIT licence box of the copyright page): background, a left border line and the
+        font size of its options are rendered; layout-only keys (TCB_LAYOUT) print nothing; any other key stops."""
+        opts = nd.args[0] or ''
+        style, cls = [], ''
+        for key, val in self.keyvals(opts, nd.pos):
+            if key in TCB_LAYOUT:
+                continue
+            if key == 'colback':
+                style.append(f'background:{self.colour(val, nd.pos)}')
+            elif key == 'borderline west':
+                m = re.fullmatch(r'\{([\d.]+)pt\}\{([\d.]+)pt\}\{([^{}]+)\}', val)
+                if not m or float(m.group(2)) != 0:
+                    raise ConvertError(f'tcolorbox: borderline west={val}: no handler for this form', nd.pos)
+                style.append(f'border-left:{float(m.group(1)) * 0.1:.3g}em solid {self.colour(m.group(3), nd.pos)}')
+            elif key == 'fontupper':
+                m = re.fullmatch(r'\\([A-Za-z]+)', val)
+                if not m or m.group(1) not in DECL or not DECL[m.group(1)]:
+                    raise ConvertError(f'tcolorbox: fontupper={val}: no handler', nd.pos)
+                cls = ' ' + DECL[m.group(1)]
+            else:
+                raise ConvertError(f'tcolorbox: option "{key}" has no handler yet', nd.pos)
+        st = f' style="{";".join(style)}"' if style else ''
+        return f'<div class="dg-tcb{cls}"{st}>{self.flow(nd.body)}</div>'
+
+    @staticmethod
+    def keyvals(opts: str, pos: int) -> list:
+        """A pgfkeys option list -> [(key, value)], split at top-level commas."""
+        out, depth, cur = [], 0, ''
+        for ch in opts + ',':
+            if ch == ',' and depth == 0:
+                if cur.strip():
+                    k, _, v = cur.partition('=')
+                    out.append((' '.join(k.split()), v.strip()))
+                cur = ''
+                continue
+            depth += (ch == '{') - (ch == '}')
+            cur += ch
+        if depth:
+            raise ConvertError(f'unbalanced braces in options [{opts}]', pos)
+        return out
 
     def list(self, nd: Env) -> str:
         if nd.args[0] is not None:
@@ -386,6 +467,8 @@ class Renderer:
 
     def diagram(self, nd: Env) -> str:
         """A tikzpicture that is not inside a figure environment: no number, no caption."""
+        if 'aboutstop' in self.local and '\\aboutstop' in nd.raw:
+            return self.timeline(nd)
         snippet = '\n'.join(self.defs + [nd.raw])
         name = f'{slugify(self.page.slug)}-diagram-{len(self.ctx.figures_used(self.page.slug)) + 1}'
         asset = self.tikz(snippet, name, self.textwidth_cm)
@@ -394,6 +477,31 @@ class Renderer:
         return (f'<div class="dg-diagram"><div class="dg-paper" style="--dg-frac:{frac:.3f}">'
                 f'<img src="\x02U|{asset["src"]}\x02" alt="" width="{asset["width"]}" height="{asset["height"]}" '
                 f'loading="lazy" decoding="async" data-kind="{asset["kind"]}"></div></div>')
+
+    def timeline(self, nd: Env) -> str:
+        """The trajectory timeline of About the Author (D51): a tikzpicture holding one \\draw (the line) and
+        \\aboutstop{x}{years}{role}{place} calls. On the web an ordered list in source order, so its words stay
+        text (search, screen readers, phone width); the x positions only space the stops evenly in the PDF.
+        Anything else in the picture stops the page."""
+        raw = nd.raw
+        m = re.fullmatch(r'\\begin\{tikzpicture\}(.*)\\end\{tikzpicture\}', raw, re.S)
+        body = m.group(1)
+        body = re.sub(r'^\s*\\draw\[[^\]]*\]\s*\([\d.]+,0\)\s*--\s*\([\d.]+,0\)\s*;', '', body, count=1)
+        stops, i, sub = [], 0, Parser(body)
+        while True:
+            j = body.find('\\aboutstop', i)
+            rest = body[i:j if j != -1 else len(body)]
+            if rest.strip():
+                raise ConvertError(f'timeline (tikzpicture with \\aboutstop): no handler for "{rest.strip()[:40]}"', nd.pos)
+            if j == -1:
+                break
+            args, i = sub.read_args('rmmm', j + len('\\aboutstop'), len(body), nd.pos)
+            stops.append(args[1:])
+        if not stops:
+            raise ConvertError('timeline without \\aboutstop', nd.pos)
+        lis = ''.join(f'<li><span class="dg-tl-years">{self.inline(y)}</span><span class="dg-tl-role">{self.inline(r)}</span>'
+                      f'<span class="dg-tl-place">{self.inline(pl)}</span></li>' for y, r, pl in stops)
+        return f'<ol class="dg-timeline">{lis}</ol>'
 
     def width_frac(self, opts: str, pos: int) -> float:
         m = re.search(r'width\s*=\s*([\d.]*)\s*\\(textwidth|linewidth)', opts)
@@ -494,6 +602,24 @@ class Renderer:
                 self.macros[m.group(1)] = str(self.fn_counter)
                 return ''
             raise ConvertError(f'\\edef{a[0]}: no handler for this definition', nd.pos)
+        if name == 'newcommand':
+            m = re.fullmatch(r'\{?\\([A-Za-z]+)\}?\s*(?:\[\d\])?', a[0])
+            if not m or m.group(1) not in LOCAL_SHAPE:
+                raise ConvertError(f'\\newcommand{a[0]}: no handler for this definition', nd.pos)
+            if not all(part in a[1] for part in LOCAL_SHAPE[m.group(1)]):
+                raise ConvertError(f'\\newcommand{a[0]}: its definition changed; update render.py (LOCAL_SHAPE and handler)', nd.pos)
+            self.local[m.group(1)] = a[1]
+            return ''
+        if name == 'grantbadge':                    # its definition prints \#<arg> in a navy box (LOCAL_SHAPE)
+            self.local_macro('grantbadge', nd.pos)
+            return f'<span class="dg-grant">#{self.inline(a[0])}</span>'
+        if name == 'cpheading':
+            raise ConvertError('\\cpheading inside inline text: no handler', nd.pos)
+        if name == 'rule':
+            if a[0] is not None:
+                raise ConvertError('\\rule with a raise argument: no handler yet', nd.pos)
+            w, h = (tables.length_em(x, self.textwidth_cm, nd.pos) for x in (a[1], a[2]))
+            return f'<span class="dg-rule" style="width:{w:.3g}em;height:{h:.3g}em" aria-hidden="true"></span>'
         if name == 'def':
             self.defs.append(f'\\def{a[0]}{{{a[1]}}}')      # kept for the TikZ pictures that follow
             return ''
@@ -507,6 +633,9 @@ class Renderer:
             return f'var(--dg-{name.replace("_", "-")})'
         if name in ('red', 'blue', 'black', 'white', 'gray'):
             return f'var(--dg-tex-{name})'
+        m = re.fullmatch(r'([a-z_0-9]+)!(\d{1,2})', name)        # xcolor's c!p: p % of c, the rest white (paper)
+        if m:
+            return f'color-mix(in srgb, {self.colour(m.group(1), pos)} {m.group(2)}%, var(--dg-bg))'
         raise ConvertError(f'colour "{name}": not in the palette known to render.py', pos)
 
     def cite(self, nd: Cmd) -> str:

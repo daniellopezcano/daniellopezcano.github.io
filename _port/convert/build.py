@@ -116,6 +116,9 @@ class Page:
         self.refs = []                # labels this page refers to (render.py), for the chapter opening pages
         self.files = []
         self.part_html = None         # a part title of the contents that comes right before this chapter (part_titles)
+        self.role = None              # front matter (kind 'front'): 'copyright' | 'about' (FRONT)
+        self.head_html = self.foot_html = None   # a front page's own header / foot (frontmatter.py), else the standard ones
+        self.web_title = False        # the title is ours, not the notes' (web layer, REVIEW.md)
 
 
 class Ctx:
@@ -194,6 +197,48 @@ def part_titles(pages, ctx, P) -> None:
         sig = 'rrm' if m.group(0).startswith('\\addcontentsline') else 'Om'
         args, _ = P.read_args(sig, m.end(), len(ctx.src.text), m.start())
         nxt.part_html = Renderer(ctx, nxt, P, {}).inline(args[-1])
+
+
+# Front matter (unit B4, D51): the files main.tex \input's before the first chapter, each one a page of its own,
+# in the notes' order before Chapter 1. The copyright page has no title in the notes: its title is ours (web layer).
+FRONT = {'Chapters/Copyrigh_page.tex': 'copyright', 'Chapters/About_the_author.tex': 'about'}
+COPYRIGHT_TITLE = 'Copyright, License and Funding'
+TOC_ENTRY = re.compile(r'\\addcontentsline\s*\{\s*toc\s*\}\s*\{\s*chapter\s*\}')
+
+
+def front_pages(src: source.Source, P: Parser, ctx, front: Page) -> list:
+    out = []
+    for a, b, f in src.main_inputs:
+        if a >= front.b:
+            continue
+        if f not in FRONT:
+            raise SystemExit(f'{f} is \\input before the first chapter but build.FRONT does not know it')
+        p = Page('front', a, b)
+        p.role = FRONT[f]
+        if p.role == 'copyright':
+            p.slug, p.title_html, p.web_title = 'copyright', esc(COPYRIGHT_TITLE), True
+        else:                                       # its entry in the notes' contents is its title
+            m = TOC_ENTRY.search(src.text, a, b)
+            if not m:
+                raise SystemExit(f'{f}: no \\addcontentsline{{toc}}{{chapter}}{{..}} to take the page title from')
+            args, _ = P.read_args('m', m.end(), b, m.start())
+            p.title_html = Renderer(ctx, p, P, {}).inline(args[0])
+            p.slug = slugify(plain(p.title_html))
+        out.append(p)
+    return out
+
+
+def render_front(p: Page, ctx: Ctx, P: Parser, records: dict):
+    r = Renderer(ctx, p, P, records)
+    nodes = P.parse(p.a, p.b)
+    if p.role == 'about':
+        import frontmatter
+        nodes, p.head_html, p.foot_html = frontmatter.about(nodes, r, ctx.src.preamble)
+    body = r.flow(nodes)
+    left = {c: q for c, q in records.items() if q and c in CHECKED}
+    if left:
+        raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
+    p.html, p.footnotes, p.math, p.anchors, p.refs = body, r.footnotes, r.math_log, r.anchors, r.refs
 
 
 def assign_slugs(pages, P, src):
@@ -495,10 +540,14 @@ def course_tree(p: Page, order: list, items: list) -> str:
         elif here:
             subs = out_ol
         lis.append(f'<li class="{cls}">{link}{out_ol if here and c.children else ""}{subs}</li>')
+    matter = ''.join('<li{}>{}{}</li>'.format(*((f' class="{c}"' if c else ''), link, out_ol if here else ''))
+                     for c, link, here in (entry(q) for q in order if q.kind == 'front'))
+    if matter:                          # front (and later back) matter, after the appendices (PLAN: sidebar)
+        matter = f'<ol class="dg-tree-list dg-tree-matter">{matter}</ol>'
     home = rel(p.slug, 'index.html')
     return (f'<nav class="dg-tree dg-web" id="dg-tree" aria-label="{shell.INTERFACE["tree"]}">'
             f'<p class="dg-tree-title"><a href="{home}">{shell.COURSE_TITLE}</a></p>'
-            f'<ol class="dg-tree-list">{"".join(lis)}</ol></nav>')
+            f'<ol class="dg-tree-list">{"".join(lis)}</ol>{matter}</nav>')
 
 
 # ---------------------------------------------------------------------------------------
@@ -654,9 +703,13 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
 
 def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list, chapters: dict):
     num = f'<span class="dg-secnum">{p.number}</span> ' if p.number and p.kind == 'section' else ''
-    head = (f'<header class="dg-head dg-head-{p.kind}"><p class="dg-kicker">{kicker(p)}</p>'
-            f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
-    body = p.html
+    if p.kind == 'front':
+        head = p.head_html or (f'<header class="dg-head dg-head-front">'
+                               f'<h1 class="dg-title{" dg-web" if p.web_title else ""}">{p.title_html}</h1></header>')
+    else:
+        head = (f'<header class="dg-head dg-head-{p.kind}"><p class="dg-kicker">{kicker(p)}</p>'
+                f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
+    body = p.html + (('\n' + p.foot_html) if p.foot_html else '')
     if p.footnotes:
         # the number links back to the mark; a \footnotetext whose mark the notes place by hand (inside
         # math, as \hyperlink to the footnote) has no mark element to return to: the number is plain text
@@ -691,7 +744,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     chap = p if p.kind == 'chapter' else p.parent
     home = rel(p.slug, 'index.html')
     crumbs = [f'<a href="{home}">{esc(shell.course_label(cfg))}</a>']
-    if chap is not p:
+    if chap is not None and chap is not p:
         crumbs.append(f'<a href="{rel(p.slug, chap.slug + ".html")}">{numbered(chap)}{nolinks(chap.title_html)}</a>')
     crumbs.append(f'<span aria-current="page">{numbered(p)}{nolinks(p.title_html)}</span>')
     crumbs = [resolve(c, p, ctx, where) for c in crumbs]
@@ -741,7 +794,7 @@ def write_lastmod(files: set):
         open(path, 'w', encoding='utf-8').write(text)
 
 
-def write_landing(front, pages, ctx, files, cfg: dict, search: list):
+def write_landing(front, pages, fronts, ctx, files, cfg: dict, search: list):
     """The landing page: templates/landing.html (hand-written) with fragments generated from main.tex."""
     import cover
     texts = cover.extract(ctx.src.text[front.a:front.b])
@@ -760,6 +813,12 @@ def write_landing(front, pages, ctx, files, cfg: dict, search: list):
                   f'<span class="dg-epigraph-source">{h["quote_source"]}</span></footer></blockquote></section>'
                   f'<section class="dg-dedication"><p>{h["dedication"]}</p></section>')
     lis = []
+    for q in fronts:                    # the notes' contents list About the Author before Chapter 1, not the copyright page
+        if q.role == 'about' and q.html is not None:
+            lis.append(f'<li class="dg-contents-front"><a href="{q.slug}.html">'
+                       f'<span class="dg-contents-title">{nolinks(q.title_html)}</span></a></li>')
+    legal = ''.join(f'<p class="dg-web dg-landing-legal"><a href="{q.slug}.html">{q.title_html}</a></p>'
+                    for q in fronts if q.role == 'copyright' and q.html is not None)
     for c in (p for p in pages if p.kind == 'chapter'):
         if c.part_html:                 # a part title of the notes' contents ("Appendices")
             lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
@@ -779,7 +838,8 @@ def write_landing(front, pages, ctx, files, cfg: dict, search: list):
     index_page = Page('front', 0, 0)
     index_page.slug = 'index'
     frags = {name: resolve(x, index_page, ctx, {}) for name, x in
-             (('cover', cover_html), ('dedication', dedication), ('contents', contents), ('roadmap', roadmap))}
+             (('cover', cover_html), ('dedication', dedication), ('contents', contents), ('roadmap', roadmap),
+              ('legal', legal))}
     main = glue(shell.landing_main(frags))
     label = shell.course_label(cfg)
     search.insert(0, {'objectID': f'{COURSE}/index.html', 'href': f'{COURSE}/index.html', 'title': shell.COURSE_TITLE,
@@ -812,6 +872,8 @@ def main():
         class Stub:
             def graphic(self, path, name): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub'}
             def tex(self, snippet, name, tw=16.0): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub', 'width_frac': 1.0}
+            def image_size(self, path): return (1000, 1000)
+            def crop(self, path, name, box, px, q): return {'src': f'figures/{name}.webp', 'width': 800, 'height': 500, 'kind': 'stub'}
         figures = Stub()
     else:
         from figures import Figures
@@ -823,6 +885,16 @@ def main():
 
     front, pages = make_pages(src, P)
     assign_slugs(pages, P, src)
+    fronts = front_pages(src, P, ctx, front)
+    for q in fronts:
+        rec = {}
+        for off, counter, num in records:
+            if q.a <= off < q.b:
+                rec.setdefault(counter, []).append(num)
+        try:
+            render_front(q, ctx, P, rec)
+        except ConvertError as e:
+            q.error = f'{src.where(e.pos if e.pos is not None else q.a)}: {e.msg}'
     starts = [p.a for p in pages]
     per_page = [dict() for _ in pages]
     for off, counter, num in records:
@@ -844,20 +916,21 @@ def main():
                 p.title_html = '…'
 
     part_titles(pages, ctx, P)
-    done = [p for p in pages if p.html is not None]
-    print(f'{len(done)} of {len(pages)} pages convert')
-    for p in pages:
+    order = fronts + pages              # the notes' order: front matter, chapters, appendices
+    done = [p for p in order if p.html is not None]
+    print(f'{len(done)} of {len(order)} pages convert')
+    for p in order:
         if p.error:
             print(f'  PENDING {p.number or "":6} {p.slug:60} {p.error}')
     report = {'pages': [{'slug': p.slug, 'number': p.number, 'kind': p.kind, 'title': plain(p.title_html or ''),
-                         'converted': p.html is not None, 'error': p.error} for p in pages],
+                         'converted': p.html is not None, 'error': p.error} for p in order],
               'review': ctx.review_items}
     os.makedirs(os.path.join(REPO, '_port', '.work'), exist_ok=True)
     chapters = chapter_data(pages, ctx)
     if args.chapters:
         print_chapters(chapters, ctx)
     if args.status or args.chapters:
-        return 1 if args.strict and len(done) < len(pages) else 0
+        return 1 if args.strict and len(done) < len(order) else 0
 
     where = {}
     for p in done:
@@ -868,8 +941,8 @@ def main():
     files: set = set()
     search: list = []
     for p in done:
-        write_page(p, ctx, where, pages, files, cfg, search, chapters)
-    write_landing(front, pages, ctx, files, cfg, search)
+        write_page(p, ctx, where, order, files, cfg, search, chapters)
+    write_landing(front, pages, fronts, ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:
@@ -892,7 +965,7 @@ def main():
     report['review'] = ctx.review_items
     json.dump(report, open(os.path.join(REPO, '_port', '.work', 'report.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
-    return 1 if args.strict and len(done) < len(pages) else 0
+    return 1 if args.strict and len(done) < len(order) else 0
 
 
 if __name__ == '__main__':

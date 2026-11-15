@@ -120,6 +120,9 @@ CMDS: dict[str, str] = {
     'captionof': 'rOm', 'colorlet': 'rr', 'pgfdeclarelayer': 'r', 'pgfsetlayers': 'r',
     # author notes (hidden on the web, listed in REVIEW.md)
     'DLC': 'm',
+    # front matter (unit B4): a rule, print-only bookkeeping, and the page-local macros of the copyright page,
+    # which the renderer accepts only after their \newcommand on the same page
+    'rule': 'orr', 'phantomsection': '', 'markboth': 'rr', 'cpheading': 'm', 'grantbadge': 'm',
 }
 for _c in ('blue', 'green', 'purple', 'orange', 'red', 'yellow', 'brown', 'teal', 'rose', 'olive', 'indigo'):
     CMDS[_c + 'one'] = 'm'
@@ -137,10 +140,10 @@ CMDS.update(ACCENT_WORDS)
 # Environments: signature of the arguments after \begin{name}; body parsed as text
 ENVS: dict[str, str] = {
     'itemize': 'o', 'enumerate': 'o', 'center': '', 'quote': '', 'flushleft': '', 'flushright': '',
-    'motivationbox': 'm', 'custompage': 'Orrr', 'minipage': 'or',
+    'motivationbox': 'm', 'custompage': 'Orrr', 'minipage': 'or', 'tcolorbox': 'o',
 }
 # Environments captured as raw source and given to a dedicated handler
-RAW_ENVS = {'figure', 'tikzpicture', 'tabular', 'titlepage', 'tcolorbox', 'lstlisting', 'verbatim',
+RAW_ENVS = {'figure', 'tikzpicture', 'tabular', 'titlepage', 'lstlisting', 'verbatim',
             'thebibliography'}
 MATH_ENVS = {'equation', 'equation*', 'align', 'align*', 'gather', 'gather*', 'multline', 'multline*',
              'alignat', 'alignat*', 'flalign', 'flalign*', 'displaymath', 'math'}

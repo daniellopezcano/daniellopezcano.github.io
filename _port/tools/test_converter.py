@@ -209,6 +209,88 @@ def main() -> int:
         except ConvertError as e:
             check(f"{name} stops the page ({e.msg})", True)
 
+    # -- front matter (unit B4, D51) -------------------------------------------------------
+    cp_def = ('\\newcommand{\\cpheading}[1]{\\par\\noindent{\\color{color_blue_0}\\normalsize\\bfseries #1}\\enspace'
+              '{\\color{color_blue_2}\\leaders\\vrule height 3.4pt depth -2.6pt\\hfill\\kern0pt}\\par\\vspace{5pt}}\n'
+              '\\newcommand{\\grantbadge}[1]{\\tcbox[on line]{\\footnotesize\\bfseries\\textcolor{white}{\\##1}}}\n')
+    rr, html = run(cp_def + '\\cpheading{Copyright \\& License}\n\nText \\grantbadge{2024/05768-9} and \\rule{3cm}{2pt}.', {})
+    check('\\cpheading: an <h2> heading of the page (outline), id from its text; definitions print nothing',
+          html.startswith('\x01H2|sec-copyright-license|<span class="dg-cp-heading">Copyright &amp; License</span>\x01')
+          and 'newcommand' not in html and 'leaders' not in html, html)
+    check('\\grantbadge prints # and its argument (as its definition does); \\rule a box of the given size in em',
+          '<span class="dg-grant">#2024/05768-9</span>' in html
+          and '<span class="dg-rule" style="width:8.54em;height:0.2em" aria-hidden="true"></span>' in html, html)
+    rr, html = run('{\\footnotesize\\color{black!70}\n\\noindent One.\\par\\smallskip\n\\noindent\\textit{Dois.}\\par}', {})
+    check('a block-level group with \\par\\smallskip: two paragraphs; black!70 = 70 % ink on the paper',
+          html.count('<p>') == 2 and 'color-mix(in srgb, var(--dg-tex-black) 70%, var(--dg-bg))' in html
+          and html.startswith('<div class="dg-sz-foot">'), html)
+    rr, html = run('\\begin{tcolorbox}[enhanced, breakable=false, colback=color_blue_2!20, frame hidden,\n'
+                   ' borderline west={2.5pt}{0pt}{color_blue_0}, arc=0pt, boxrule=0pt, left=9pt, right=8pt, top=6pt,'
+                   ' bottom=6pt, fontupper=\\footnotesize, before skip=0pt, after skip=0pt]\nA\\par\\smallskip B\n\\end{tcolorbox}', {})
+    check('tcolorbox: background, left border and font size from its options; layout keys print nothing',
+          html.startswith('<div class="dg-tcb dg-sz-foot" style="background:color-mix(in srgb, var(--dg-color-blue-2) 20%, '
+                          'var(--dg-bg));border-left:0.25em solid var(--dg-color-blue-0)">'), html)
+    stop_def = ('\\newcommand{\\aboutstop}[4]{\\fill[white] (#1,0) circle (4pt);\\node at (#1,0.32) {#2};'
+                '\\node at (#1,-0.32) {\\textbf{\\textcolor{color_blue_0}{#3}}\\\\[1pt]\\textcolor{black!65}{#4}};}\n')
+    line = '\\draw[color_blue_2, line width=2.5pt, line cap=round] (1.55,0) -- (14.45,0);\n'
+    tl = ('\\begin{tikzpicture}\n' + line + '\\aboutstop{1.55}{2015}{BSc in Physics}{Univ.\\ Aut\\\'onoma de Madrid}\n'
+          '\\aboutstop{5.85}{2019}{MSc}{DIPC, Donostia \\& UAM}\n\\end{tikzpicture}')
+    rr, html = run(stop_def + tl, {})
+    check('timeline: an ordered list of the \\aboutstop calls in source order (years, role, place)',
+          html == ('<ol class="dg-timeline"><li><span class="dg-tl-years">2015</span><span class="dg-tl-role">BSc in Physics</span>'
+                   '<span class="dg-tl-place">Univ. Autónoma de Madrid</span></li><li><span class="dg-tl-years">2019</span>'
+                   '<span class="dg-tl-role">MSc</span><span class="dg-tl-place">DIPC, Donostia &amp; UAM</span></li></ol>'), html)
+    for name, tex in (('\\cpheading without its \\newcommand on the page', '\\cpheading{X}'),
+                      ('\\grantbadge without its \\newcommand on the page', 'A \\grantbadge{1} B'),
+                      ('\\newcommand of a macro the converter does not know', '\\newcommand{\\foo}[1]{#1}'),
+                      ('\\grantbadge whose definition no longer prints \\#', cp_def.replace('\\##1', '#1') + '\\grantbadge{1}'),
+                      ('a tcolorbox option with no handler', '\\begin{tcolorbox}[title=X]A\\end{tcolorbox}'),
+                      ('a timeline picture with other content', stop_def + tl.replace(line, line + '\\node {X};\n')),
+                      ('\\rule with a raise argument', '\\rule[2pt]{1cm}{1pt}')):
+        try:
+            run(tex, {})
+            check(f'{name} stops the page', False, 'no error')
+        except ConvertError as e:
+            check(f"{name} stops the page ({e.msg})", True)
+    front, pages = build.make_pages(src, P)
+    fronts = build.front_pages(src, P, ctx, front)
+    check('front matter: the copyright page (our title, web layer) and About the Author (title from its contents entry)',
+          [(q.role, q.slug, q.title_html, q.web_title) for q in fronts]
+          == [('copyright', 'copyright', 'Copyright, License and Funding', True),
+              ('about', 'about-the-author', 'About the Author', False)], [(q.role, q.slug, q.title_html) for q in fronts])
+
+    class CropFigures:
+        def __init__(self):
+            self.calls = []
+
+        def image_size(self, path):
+            return (6144, 6144) if 'background' in path else (640, 640)
+
+        def crop(self, path, name, box, px, q):
+            self.calls.append((name, box))
+            return {'src': f'figures/{name}.webp', 'width': px, 'height': px, 'kind': 'webp'}
+    import frontmatter
+    real_figures, ctx.figures = ctx.figures, CropFigures()
+    about = fronts[1]
+    ra = Renderer(ctx, about, P, {})
+    rest, head, foot = frontmatter.about(P.parse(about.a, about.b), ra, src.preamble)
+    crops = dict(ctx.figures.calls)
+    bl, bt, br, bb = crops.get('about-the-author-portrait', (0, 0, 0, 0))
+    check('About: portrait cropped to the TikZ clip (circle r = 2.3 cm around the shifted 7.7 cm picture: '
+          'about 382 px centred near (287, 290) of 640 px)',
+          abs((bl + br) / 2 * 640 - 286.8) < 1 and abs((bt + bb) / 2 * 640 - 290.1) < 1 and abs((br - bl) * 640 - 382.3) < 1,
+          (bl, bt, br, bb))
+    bl, bt, br, bb = crops.get('about-the-author-background', (0, 0, 0, 0))
+    check('About: background cropped to the band the PDF shows (34 % of the page height, image centred at 17 %)',
+          (bl, br) == (0.0, 1.0) and abs(bt - 0.2596) < 1e-3 and abs(bb - 0.7404) < 1e-3, (bl, bt, br, bb))
+    check('About: header with the notes\' words (title, name, affiliation), portrait alt = the name; links at the foot',
+          '<h1 class="dg-about-kicker">About the Author</h1>' in head and '<p class="dg-about-name">Daniel López Cano</p>' in head
+          and 'FAPESP Postdoctoral Fellow' in head and 'Institute of Physics, University of São Paulo' in head
+          and 'alt="Daniel López Cano"' in head and 'alt=""' in head
+          and 'href="https://daniellopezcano.github.io"' in foot and 'href="https://github.com/daniellopezcano"' in foot
+          and not any(getattr(n, 'raw', '') and 'overlay' in n.raw for n in rest), (head, foot))
+    ctx.figures = real_figures
+
     print('ALL PASSED' if not FAIL else f'{len(FAIL)} FAILED')
     return 1 if FAIL else 0
 
