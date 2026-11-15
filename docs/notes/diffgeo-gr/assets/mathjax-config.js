@@ -46,7 +46,17 @@ window.MathJax = {
   },
   options: {
     skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-    renderActions: { addMenu: [] }
+    renderActions: (function () {
+      // A link inside a formula (\hyperlink to a footnote) sits in MathJax's visual output, which is
+      // aria-hidden (screen readers read the assistive MathML copy instead). A focusable element inside
+      // aria-hidden is announced as nothing (axe: aria-hidden-focus), so it is taken out of the Tab order;
+      // the pointer still follows it, and the footnote is in the list / the margin of the page.
+      function untab(math) {
+        var root = math.typesetRoot;
+        if (root && root.querySelectorAll) root.querySelectorAll('[aria-hidden="true"] a[href]').forEach(function (a) { a.setAttribute('tabindex', '-1'); });
+      }
+      return { addMenu: [], untabHiddenLinks: [210, function (doc) { Array.from(doc.math).forEach(untab); }, untab] };
+    })()
   },
   startup: {
     pageReady: function () {

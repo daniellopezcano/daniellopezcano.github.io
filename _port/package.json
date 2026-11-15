@@ -4,6 +4,7 @@
   "description": "Node tooling for the lecture-notes port (build-time checks).",
   "type": "module",
   "devDependencies": {
+    "axe-core": "^4.14.0",
     "katex": "^0.19.1",
     "mathjax": "^4.1.3",
     "mathjax-full": "3.2.2",

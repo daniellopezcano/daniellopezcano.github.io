@@ -9,6 +9,7 @@ Things only you can decide or fix. Nothing here was changed in the notes; the we
 - **Typeface: New Computer Modern Book**, the heavier-drawn sibling of the Latin Modern of your PDF, served from the site (four files, about 33 kB each, redistributed under the GUST Font License). Interface text is Lato, as on the rest of your site.
 - **The course pages are no longer Quarto pages**: the converter writes them complete, and `quarto render` copies them. The rest of the site is untouched and still built by Quarto; `_quarto.yml` gains `resources` and `post-render` entries (DECISIONS D29).
 - **Math engine stays MathJax 3.2.2.** MathJax 4.1.3 was tried (unit R6). It typesets every equation and the runes correctly, uses New Computer Modern Math (the family of the text face), and sets the gap beside the vertical rule of the arrays with `@{…}` column specifications as your PDF does (3.2.2 gives a narrower gap; three of the eight arrays were compared). It failed the speed rule I had set in advance (no page more than 30 % slower): pages with little math take about 35 ms longer to start (worst section page 126 → 159 ms; the landing page 152 → 324 ms), pages with much math are within −2 to +10 %. The slowdown is small in absolute terms, so this is a close call: if you prefer MathJax 4 for the font and the arrays, say so; the working configuration is saved (DECISIONS D34, "Result (R6)").
+- **References and citations in the text are thinly underlined** (in your PDF they are coloured only). Colour alone did not pass the accessibility check in either theme (DECISIONS D41).
 - The site navbar on course pages scrolls away with the page (on your other pages it is fixed); the slim course bar stays at the top instead.
 
 ## Open questions (pilot)
@@ -60,7 +61,7 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | page outline title | "On this page" |
 | unresolved references | "in preparation" (tooltip: "This part of the notes is in preparation") |
 | interactive frames | badge "Interactive" |
-| screen-reader labels (not visible) | "Footnote n", "Back to the text", "Sections", "Contents", "Previous and next page", "Interactive figure" |
+| screen-reader labels (not visible) | "Footnote n", "Footnote n, back to the text" (the number link of a footnote; was "Back to the text", R9: the name must contain the visible number), "Sections", "Contents", "Previous and next page", "Interactive figure" |
 | figure numbers | "Figure n:" (as the PDF prints it) |
 | page headers | "Chapter n • Title" / "Appendix X • Title" (as in the PDF running header) |
 

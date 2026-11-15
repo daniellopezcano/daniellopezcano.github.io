@@ -9,7 +9,7 @@
 Inputs : the scratch copy of the notes compiled by _port/tex/build_scratch.sh
          (_port/.work/tex/src: sources + main.aux + main.port + main.bbl).
 Outputs: notes/diffgeo-gr/**/*.html (complete pages, generated, do not edit; D29),
-         assets/labels.json, assets/search.json, assets/fonts/newcm-*.woff2, figures/,
+         assets/labels.json, assets/search.json, assets/lastmod.json (sitemap dates), assets/fonts/newcm-*.woff2, figures/,
          and _port/.work/report.json.
 The page shell is shell.py, the landing page's hand-written part templates/landing.html.
 Everything hand-written for the web (assets/*.css|js, the interactive figures and
@@ -541,8 +541,13 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
             f'<h1 class="dg-title">{num}{p.title_html}</h1></header>')
     body = p.html
     if p.footnotes:
-        notes = ''.join(f'<div class="dg-fn" id="fn-{n}"><a class="dg-fn-num" href="#fnref-{n}" '
-                        f'aria-label="Back to the text">{n}</a><div class="dg-fn-body">{h}</div></div>'
+        # the number links back to the mark; a \footnotetext whose mark the notes place by hand (inside
+        # math, as \hyperlink to the footnote) has no mark element to return to: the number is plain text
+        def fnnum(n):
+            if f'id="fnref-{n}"' in body:
+                return f'<a class="dg-fn-num" href="#fnref-{n}" aria-label="Footnote {n}, back to the text">{n}</a>'   # the name holds the visible number (WCAG 2.5.3)
+            return f'<span class="dg-fn-num">{n}</span>'
+        notes = ''.join(f'<div class="dg-fn" id="fn-{n}">{fnnum(n)}<div class="dg-fn-body">{h}</div></div>'
                         for n, h in p.footnotes)
         body += f'\n<div class="dg-footnotes">{notes}</div>'
     if p.kind == 'chapter':
@@ -580,9 +585,39 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     write(os.path.join(OUT, p.slug + '.html'), text, files)
 
 
+CHANGED: set = set()                                 # pages whose bytes this run changed (for lastmod.json)
+
+
 def write(path: str, text: str, files: set):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     files.add(path)
+    if not os.path.exists(path) or open(path, encoding='utf-8').read() != text:
+        open(path, 'w', encoding='utf-8').write(text)
+        CHANGED.add(path)
+
+
+def write_lastmod(files: set):
+    """assets/lastmod.json: page (relative to the course) -> time its bytes last changed, in the sitemap's
+    format. A page this run did not change keeps its value, so a rebuild without changes leaves the file,
+    and the sitemap that post_render.py writes from it, untouched. A page new to the file and unchanged
+    by this run starts from its file's modification time."""
+    import datetime
+    path = os.path.join(OUT, 'assets', 'lastmod.json')
+    old = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {}
+    stamp = lambda t: t.strftime('%Y-%m-%dT%H:%M:%S.') + f'{t.microsecond // 1000:03d}Z'
+    now = stamp(datetime.datetime.now(datetime.timezone.utc))
+    new = {}
+    for f in sorted(files):
+        if not f.endswith('.html'):
+            continue
+        rel_ = os.path.relpath(f, OUT).replace(os.sep, '/')
+        if f in CHANGED and rel_ in old:
+            new[rel_] = now
+        elif rel_ in old:
+            new[rel_] = old[rel_]
+        else:
+            new[rel_] = stamp(datetime.datetime.fromtimestamp(os.stat(f).st_mtime, tz=datetime.timezone.utc))
+    text = json.dumps(new, indent=0, sort_keys=True) + '\n'
     if not os.path.exists(path) or open(path, encoding='utf-8').read() != text:
         open(path, 'w', encoding='utf-8').write(text)
 
@@ -723,6 +758,7 @@ def main():
               ensure_ascii=False, separators=(',', ':'), sort_keys=True)
     json.dump(search, open(os.path.join(OUT, 'assets', 'search.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, separators=(',', ':'))
+    write_lastmod(files)
     # remove generated pages that no longer exist in the notes
     for root, _, names in os.walk(OUT):
         for n in names:

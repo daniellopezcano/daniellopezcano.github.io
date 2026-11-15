@@ -554,7 +554,7 @@ async function openViewer(paper) {
   try {
     const svg = await inlineSvg(src);
     if (seq !== V.seq || !V.dlg.open) return;
-    if (alt) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', alt); }
+    if (alt) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', alt); }   // 'group', not 'img': linkify() puts links inside
     V.paper.replaceChildren(svg);
     await linkify(svg);
   } catch (err) { /* the image stays */ }
@@ -624,7 +624,7 @@ async function liveMap(paper) {
     const w = +img.getAttribute('width'), h = +img.getAttribute('height');
     if (w && h) svg.style.aspectRatio = `${w} / ${h}`;
     svg.setAttribute('class', 'dg-map-svg');
-    if (img.getAttribute('alt')) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', img.getAttribute('alt')); }
+    if (img.getAttribute('alt')) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', img.getAttribute('alt')); }   // its badges are links
     img.replaceWith(svg);
     paper.classList.add('dg-map-live');
     await linkify(svg);
@@ -699,6 +699,11 @@ function fitWideInlineMath() {
     if (!block || m.closest('.math.display, .dg-pop')) continue;
     const r = m.getBoundingClientRect(), b = block.getBoundingClientRect();
     if (r.width && (r.right > b.right + 0.5 || r.left < b.left - 0.5)) m.classList.add('dg-math-wide');
+  }
+  // a formula that scrolls can be scrolled from the keyboard too (as the display equations)
+  for (const m of all) {
+    if (m.classList.contains('dg-math-wide') && m.scrollWidth > m.clientWidth + 1) { m.tabIndex = 0; m.dataset.dgTab = '1'; }
+    else if (m.dataset.dgTab) { m.removeAttribute('tabindex'); delete m.dataset.dgTab; }
   }
 }
 // A display equation slightly wider than the column is set a little smaller so that it fits
@@ -1438,7 +1443,7 @@ async function fillMap() {
   if (img.dataset.kind !== 'svg') return;
   const svg = await inlineSvg(src);
   svg.setAttribute('class', 'dg-map-svg');
-  if (pic.alt) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', pic.alt); }
+  if (pic.alt) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', pic.alt); }   // its badges are links
   M.paper.replaceChildren(svg);
   fitMap();
   await linkify(svg);

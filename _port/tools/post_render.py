@@ -7,7 +7,9 @@
 The course pages are complete HTML files that Quarto copies without rendering, so Quarto's own
 docs/search.json and docs/sitemap.xml do not know them. This script appends
   * the entries of notes/diffgeo-gr/assets/search.json (written by the converter) to docs/search.json,
-  * one <url> per course page to docs/sitemap.xml (same format as Quarto's; lastmod = the page file's mtime).
+  * one <url> per course page to docs/sitemap.xml (same format as Quarto's; lastmod from
+    notes/diffgeo-gr/assets/lastmod.json, which the converter keeps: the time the page's bytes last changed,
+    so a rebuild without changes leaves the sitemap untouched; the file's mtime for a page not listed there).
 Standard library only; reads only committed files; idempotent (course entries already present are
 replaced, not duplicated). The output directory is QUARTO_PROJECT_OUTPUT_DIR when Quarto sets it, else docs/.
 """
@@ -42,11 +44,16 @@ def main() -> int:
     # sitemap: every generated page of the course
     pages = sorted(p for p in src.rglob('*.html') if MARK in p.read_text(encoding='utf-8')[:400])
     base = site_url()
+    lm_path = src / 'assets' / 'lastmod.json'
+    lastmod = json.loads(lm_path.read_text(encoding='utf-8')) if lm_path.exists() else {}
     urls = []
     for p in pages:
-        t = datetime.datetime.fromtimestamp(p.stat().st_mtime, tz=datetime.timezone.utc)
+        when = lastmod.get(p.relative_to(src).as_posix())
+        if not when:
+            t = datetime.datetime.fromtimestamp(p.stat().st_mtime, tz=datetime.timezone.utc)
+            when = f'{t.strftime("%Y-%m-%dT%H:%M:%S.")}{t.microsecond // 1000:03d}Z'
         urls.append(f'  <url>\n    <loc>{base}/{p.relative_to(REPO).as_posix()}</loc>\n'
-                    f'    <lastmod>{t.strftime("%Y-%m-%dT%H:%M:%S.")}{t.microsecond // 1000:03d}Z</lastmod>\n  </url>\n')
+                    f'    <lastmod>{when}</lastmod>\n  </url>\n')
     sm_path = out / 'sitemap.xml'
     if sm_path.exists():
         sm = sm_path.read_text(encoding='utf-8')
@@ -56,7 +63,8 @@ def main() -> int:
     if '</urlset>' not in sm:
         raise SystemExit(f'post_render.py: {sm_path} has no </urlset>')
     sm = sm.replace('</urlset>', ''.join(urls) + '</urlset>', 1)
-    sm_path.write_text(sm, encoding='utf-8')
+    if not sm_path.exists() or sm_path.read_text(encoding='utf-8') != sm:
+        sm_path.write_text(sm, encoding='utf-8')
     print(f'post_render.py: {len(entries)} search entries and {len(urls)} sitemap addresses of the course added to {out.name}/')
     return 0
 

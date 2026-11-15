@@ -46,6 +46,14 @@ run "figure pipeline (test_figures)"                       python3 _port/tools/t
 run "page script in a headless browser"                    node _port/tools/test_page_script.mjs
 run "interactives in a headless browser"                   node _port/tools/test_interactives.mjs
 # >>> further checks are appended here by later units (fidelity, all-pages browser check, a11y, weight, addresses)
+# R9 (D37): published course = committed course and converter idempotent (only after a render); links;
+# all pages in a browser (errors, sideways scroll at 1280/390 px, img attributes, ids, weight budget);
+# axe-core in both themes + keyboard pass; navbar replica vs Quarto navbar
+[ "$RENDER" = 1 ] && run "docs/ course = committed; converter idempotent"  python3 _port/tools/render_intact.py
+run "every course link resolves (links_check)"             python3 _port/tools/links_check.py
+run "all pages: errors, overflow, weight (page_check)"     node _port/tools/page_check.mjs
+run "accessibility: axe-core + keyboard (a11y_check)"      node _port/tools/a11y_check.mjs
+run "navbar replica = Quarto navbar (navbar_check)"        node _port/tools/navbar_check.mjs
 [ -x _port/tools/checks_extra.sh ] && source _port/tools/checks_extra.sh
 run "rest of the site unchanged with respect to $BASE"     python3 _port/tools/site_unchanged.py "$BASE"
 run "notes directory unchanged (after)"                    notes_clean

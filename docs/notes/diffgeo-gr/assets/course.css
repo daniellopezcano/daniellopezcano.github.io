@@ -15,12 +15,12 @@
 /* ---- 1. tokens ------------------------------------------------------------------------------- */
 :root {
   --dg-text-font: "NewCM", "Latin Modern Roman", "Computer Modern Serif", Georgia, "Times New Roman", serif;
-  --dg-ui: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --dg-ui: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";   /* the site's (Bootstrap's) stack */
   --dg-sitenav-h: 82px; --dg-bar-h: 46px; --dg-tree-w: 16.5rem; --dg-margin-w: 18.5rem;
 
   --dg-bg: #fbfaf6; --dg-surface: #f4f2ea; --dg-surface-2: #ece9de; --dg-rule: rgba(20, 40, 100, 0.17);
   --dg-text: #1a2030; --dg-text-soft: #4b556b; --dg-heading: #142864; --dg-accent: #3152b8; --dg-accent-hover: #142864;
-  --dg-on-accent: #fff; --dg-pending: rgba(75, 85, 107, 0.55);
+  --dg-on-accent: #fff; --dg-pending: rgba(75, 85, 107, 0.85);
   --dg-ui-hover: rgba(20, 40, 100, 0.07); --dg-ui-current: rgba(49, 82, 184, 0.10);
   --dg-web-bg: rgba(49, 82, 184, 0.035); --dg-web-rule: rgba(49, 82, 184, 0.55);
   --dg-pop-bg: #fff; --dg-shadow: 0 12px 32px rgba(20, 30, 60, 0.18);
@@ -33,11 +33,11 @@
    * just enough to reach 4.5:1 on the paper (hue kept). The _2 shades are the notes' own in both themes. */
   --dg-color-blue-0: #142864;
   --dg-color-blue-1: #3859bd;   --dg-color-blue-2: #bdc9ed;
-  --dg-color-green-1: #1d861d;  --dg-color-green-2: #b8e7b8;
+  --dg-color-green-1: #1d841d;  --dg-color-green-2: #b8e7b8;
   --dg-color-purple-1: #6c026c; --dg-color-purple-2: #d0aad0;
-  --dg-color-orange-1: #a86a00; --dg-color-orange-2: #f6dbaa;
+  --dg-color-orange-1: #a16600; --dg-color-orange-2: #f6dbaa;
   --dg-color-red-1: #d60202;    --dg-color-red-2: #f6aaaa;
-  --dg-color-yellow-1: #7c7c00; --dg-color-yellow-2: #f6f6aa;
+  --dg-color-yellow-1: #767600; --dg-color-yellow-2: #f6f6aa;
   --dg-color-brown-1: #753b11;  --dg-color-brown-2: #d3beaf;
   --dg-color-teal-1: #007979;   --dg-color-teal-2: #b2dfdb;
   --dg-color-rose-1: #ad1457;   --dg-color-rose-2: #f8bbd0;
@@ -51,7 +51,7 @@
   :root[data-theme="dark"] {
     --dg-bg: #0e1524; --dg-surface: #141d31; --dg-surface-2: #1a2640; --dg-rule: rgba(189, 201, 237, 0.2);
     --dg-text: #e4e9f5; --dg-text-soft: #aebbd6; --dg-heading: #cbd9ff; --dg-accent: #8eadff; --dg-accent-hover: #c3d3ff;
-    --dg-on-accent: #0e1524; --dg-pending: rgba(174, 187, 214, 0.5);
+    --dg-on-accent: #0e1524; --dg-pending: rgba(174, 187, 214, 0.67);
     --dg-ui-hover: rgba(189, 201, 237, 0.09); --dg-ui-current: rgba(142, 173, 255, 0.14);
     --dg-web-bg: rgba(142, 173, 255, 0.05); --dg-web-rule: rgba(142, 173, 255, 0.5);
     --dg-pop-bg: #1a2640; --dg-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
@@ -158,7 +158,7 @@ hr { border: 0; border-top: 1px solid currentColor; opacity: 0.25; margin: 1rem 
 /* shell grid: course tree | text column (the notes' 45 em) | sidenote margin */
 .dg-shell { display: grid; align-items: start; min-height: 70vh; }
 body.dg-page-reading .dg-shell { font-size: 1.17rem; }
-.dg-main { min-width: 0; padding: 2.2rem 0 5rem; font-family: var(--dg-text-font); font-size: 1em; line-height: 1.58; }
+.dg-main { min-width: 0; padding: 2.2rem 0 5rem; font-family: var(--dg-text-font); font-size: 1em; line-height: 1.58; overflow-wrap: break-word; }   /* a long URL breaks instead of widening the page */
 
 /* course tree: chapters and appendices, the current chapter open, the outline of the current page inside it */
 .dg-tree { position: sticky; top: var(--dg-bar-h); max-height: calc(100vh - var(--dg-bar-h)); overflow-y: auto; overscroll-behavior: contain;
@@ -289,6 +289,9 @@ mjx-container.dg-math-wide { display: inline-block; max-width: 100%; overflow-x:
 html.dg-js:not(.dg-math-ready) .math { visibility: hidden; }                 /* no flash of raw TeX */
 html.dg-js:not(.dg-math-ready) .math.display { min-height: 2.4em; }
 mjx-container { color: inherit; }
+/* MathJax's hidden MathML copy (for screen readers) is as wide as the formula's MathML, not as the formula:
+   near the right edge it widened the page at 390 px. Kept within the formula's own box. */
+mjx-container mjx-assistive-mml { max-width: 100% !important; }
 
 /* lists: LaTeX's default labels (itemize: bullet, dash, asterisk, dot; enumerate: 1. (a) i. A.) */
 .dg-main ul.dg-itemize, .dg-main ol.dg-enumerate { padding-left: 1.6rem; margin: 0 0 0.9rem; }
@@ -325,14 +328,16 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 .dg-fnref { line-height: 0; }
 .dg-main .dg-fnref a { padding: 0 0.12em; font-family: var(--dg-ui); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: none; }
 .dg-footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); font-size: 0.9rem; color: var(--dg-text-soft); }
-.dg-fn { display: grid; grid-template-columns: 2rem 1fr; margin: 0.5rem 0; }
+.dg-fn { display: grid; grid-template-columns: 2rem minmax(0, 1fr); margin: 0.5rem 0; }   /* minmax(0, …): a wide display in a footnote scrolls in its box (D27) */
 .dg-main .dg-fn-num { text-decoration: none; font-variant-numeric: tabular-nums; }
 .dg-fn-body > p:last-child { margin-bottom: 0; }
 .dg-fn:target { background: var(--dg-ui-current); outline: 6px solid var(--dg-ui-current); border-radius: 2px; }
 
 /* cross-references */
-.dg-main a.dg-xref, .dg-main a.dg-cite { text-decoration: none; white-space: nowrap; }
-.dg-main a.dg-xref:hover, .dg-main a.dg-cite:hover { text-decoration: underline; }
+/* references and citations keep the thin underline of the other links of the text: colour alone does not
+   tell them from the words around them (WCAG 1.4.1; DECISIONS D41) */
+.dg-main a.dg-xref, .dg-main a.dg-cite { white-space: nowrap; text-underline-offset: 0.16em; }
+.dg-main a.dg-xref:hover, .dg-main a.dg-cite:hover { text-decoration-color: currentColor; }
 .dg-xref-pending { color: var(--dg-text-soft); }
 .dg-inprep { font-size: 0.82em; font-style: italic; color: var(--dg-text-soft); border: 1px dashed var(--dg-rule); border-radius: 3px; padding: 0 0.35em; white-space: nowrap; }
 
