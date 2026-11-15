@@ -1,0 +1,9 @@
+/* Hand-written (design prototype B, "Night"): the site's own dark palette and sans-serif face,
+ * course tree left, page outline right, footnotes and references in popovers (as in the pilot). */
+html.dir-b { --text-font: var(--ui); --dg-accent-hover: #a9c3ff; --ui-hover: rgba(189, 201, 237, 0.08); --ui-current: rgba(122, 162, 247, 0.14); --web-bg: rgba(122, 162, 247, 0.05); --web-rule: rgba(122, 162, 247, 0.5); --on-accent: #0b1220; }
+.dir-b body.reading main.content { font-size: 1.09rem; line-height: 1.72; letter-spacing: 0.005em; }
+.dir-b .cn { border-right: 1px solid var(--dg-rule); }
+.dir-b .cn-outline { display: none; }
+@media (min-width: 1100px) {
+  .dir-b body.reading .shell { grid-template-columns: 17rem minmax(0, 51rem) 14.5rem; column-gap: 2.4rem; justify-content: center; }
+}

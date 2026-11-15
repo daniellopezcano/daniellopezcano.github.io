@@ -1,0 +1,1477 @@
+{
+ "key": "d2l",
+ "home": {
+  "error": null,
+  "loadMs": 1235,
+  "finalUrl": "https://d2l.ai/",
+  "title": "Dive into Deep Learning — Dive into Deep Learning 1.0.3 documentation"
+ },
+ "page": "https://d2l.ai/chapter_linear-regression/linear-regression.html",
+ "desktop": {
+  "error": null,
+  "loadMs": 3297,
+  "net": {
+   "requests": 196,
+   "totalBytes": 2146283,
+   "by": {
+    "html": {
+     "n": 3,
+     "bytes": 208768
+    },
+    "big": [
+     "https://d2l.ai/chapter_linear-regression/linear-regression.html 158893",
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js 205591",
+     "https://www.googletagmanager.com/gtag/js?id=G-SX0S842T69&cx=c&_slc=1 171059"
+    ],
+    "css": {
+     "n": 11,
+     "bytes": 87985
+    },
+    "images": {
+     "n": 151,
+     "bytes": 925851
+    },
+    "js": {
+     "n": 16,
+     "bytes": 507935
+    },
+    "fonts": {
+     "n": 13,
+     "bytes": 415266
+    },
+    "other": {
+     "n": 2,
+     "bytes": 478
+    }
+   },
+   "fontUrls": [
+    "https://d2l.ai/_static/webfonts/fa-brands-400.woff2",
+    "https://d2l.ai/_static/material-design-icons-3.0.1/iconfont/MaterialIcons-Regular.woff2",
+    "https://d2l.ai/_static/font/Roboto/Roboto-Regular.woff",
+    "https://d2l.ai/_static/webfonts/fa-solid-900.woff2",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Calligraphic-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Size2-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Main-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Size3-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Math-Italic.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Size1-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_AMS-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Main-Bold.woff"
+   ],
+   "loadMs": 3297,
+   "finalUrl": "https://d2l.ai/chapter_linear-regression/linear-regression.html"
+  },
+  "measure": {
+   "title": "3.1. Linear Regression — Dive into Deep Learning 1.0.3 documentation",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 125,
+    "avgGlyphPx": 6.82,
+    "textLines": 7,
+    "sample": "Unlike most of the models that we will cover, linear regression presents us with",
+    "fontFamily": "Roboto, \"Noto Sans SC Sliced\", sans-serif",
+    "firstFamily": "Roboto",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "24px",
+    "color": "rgba(0, 0, 0, 0.87)",
+    "background": "rgb(250, 250, 250)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 850,
+    "pLeft": 300,
+    "lines": 10,
+    "chars": 749,
+    "charsPerLine": 79,
+    "containerTag": "DIV#linear-regression.section"
+   },
+   "headings": {
+    "h1": {
+     "text": "3.1. Linear Regression¶   Colab [pytorch]  Open the notebook",
+     "family": "Roboto",
+     "size": "32px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "36px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "3.1.1. Basics¶",
+     "family": "Roboto",
+     "size": "28px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "32px",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "3.1.1.1. Model¶",
+     "family": "Roboto",
+     "size": "24px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "28px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "mdl-layout__header mdl-layout__header--waterfall",
+     "x": 240,
+     "y": 0,
+     "w": 1200,
+     "h": 128,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "hidden"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation breadcrumb",
+     "x": 280,
+     "y": 0,
+     "w": 556,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": 1336,
+     "y": 0,
+     "w": 64,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": 352,
+     "y": 64,
+     "w": 1048,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "mdl-layout__drawer",
+     "x": 0,
+     "y": 0,
+     "w": 240,
+     "h": 900,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "globaltoc",
+     "x": 0,
+     "y": 86,
+     "w": 239,
+     "h": 1808,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": 0,
+     "y": 86,
+     "w": 239,
+     "h": 1808,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 102,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 142,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 182,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 222,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 262,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1 current",
+     "x": 0,
+     "y": 302,
+     "w": 239,
+     "h": 416,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2 current",
+     "x": 0,
+     "y": 366,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 406,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 470,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 510,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 574,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 638,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": 0,
+     "y": 678,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 718,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 782,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 822,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 862,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 926,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 990,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1054,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1118,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1182,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1246,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1310,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1350,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1414,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1478,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1518,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1558,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1622,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1686,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1726,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": 0,
+     "y": 1790,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "side-doc-outline--content",
+     "position": "fixed",
+     "x": 1210,
+     "y": 128,
+     "w": 230,
+     "h": 772
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "3.2.2",
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 138,
+    "mjxDisplay": 16,
+    "mjx2": 138,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 138,
+    "imgMath": 2,
+    "scripts": [
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ]
+   },
+   "displayEq": {
+    "tag": "span",
+    "cls": "math notranslate nohighlight",
+    "textAlign": "start",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 792,
+    "y": 787,
+    "w": 12,
+    "h": 20,
+    "html": "<span class=\"math notranslate nohighlight\"><mjx-container class=\"MathJax CtxtMenu_Attached_0\" jax=\"CHTML\" tabindex=\"0\" ctxtmenu_counter=\"0\" style=\"font-size: 119.5%; position: relative;\"><mjx-math class=\"MJX-TEX\" aria-hidden=\"true\"><mjx-texatom texclass=\"ORD\"><mjx-mi class=\"mjx-b\"><mjx-c class=\"mjx-"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 16,
+    "eqText": [
+     "(3.1.1)¶",
+     "(3.1.2)¶",
+     "(3.1.3)¶"
+    ]
+   },
+   "eqNumberPos": {
+    "left": 1107,
+    "right": 1150,
+    "text": "(3.1.1)¶",
+    "float": "right",
+    "align": "start"
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 44,
+    "figures": 0,
+    "figcaptions": 4,
+    "imgs": 33,
+    "canvases": 0,
+    "svgs": 0,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 5,
+    "inputs": 3,
+    "searchInputs": 1,
+    "themeToggle": 0,
+    "breadcrumbs": 1,
+    "progress": 0,
+    "codeBlocks": 34,
+    "colab": 9,
+    "github": 1,
+    "tooltips": 31
+   },
+   "prevNext": [
+    {
+     "text": "Previous 3. Linear Neural Networks for Regression",
+     "cls": "mdl-button mdl-js-button mdl-js-ripple-e",
+     "x": 240,
+     "y": 32221,
+     "w": 600,
+     "h": 92
+    },
+    {
+     "text": "Next 3.2. Object-Oriented Design for Implementation",
+     "cls": "mdl-button mdl-js-button mdl-js-ripple-e",
+     "x": 840,
+     "y": 32221,
+     "w": 600,
+     "h": 92
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "iframe",
+     "id": "discourse-embed-frame",
+     "cls": "",
+     "x": 300,
+     "y": 10737,
+     "w": 850,
+     "h": 21388
+    }
+   ],
+   "fontsLoaded": [
+    "Font Awesome 5 Brands normal",
+    "Font Awesome 5 Free 900",
+    "Roboto normal",
+    "Material Icons 400",
+    "MJXZERO normal",
+    "MJXTEX normal",
+    "MJXTEX-B normal",
+    "MJXTEX-I normal",
+    "MJXTEX-S1 normal",
+    "MJXTEX-S2 normal",
+    "MJXTEX-S3 normal",
+    "MJXTEX-A normal",
+    "MJXTEX-C normal"
+   ],
+   "scrollWidth": 1440,
+   "scrollHeight": 900,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgb(250, 250, 250)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": "mjx-container[display=true]",
+   "y": 505
+  },
+  "fixedAfterScroll": [
+   {
+    "tag": "div",
+    "cls": "side-doc-outline--content",
+    "pos": "fixed",
+    "x": 1210,
+    "y": 64,
+    "w": 230,
+    "h": 772
+   }
+  ]
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 2469,
+  "measure": {
+   "title": "3.1. Linear Regression — Dive into Deep Learning 1.0.3 documentation",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 51,
+    "avgGlyphPx": 6.82,
+    "textLines": 16,
+    "sample": "Unlike most of the models that we will cover, linear regression presents us with",
+    "fontFamily": "Roboto, \"Noto Sans SC Sliced\", sans-serif",
+    "firstFamily": "Roboto",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "24px",
+    "color": "rgba(0, 0, 0, 0.87)",
+    "background": "rgb(250, 250, 250)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 351,
+    "pLeft": 20,
+    "lines": 19,
+    "chars": 749,
+    "charsPerLine": 40,
+    "containerTag": "DIV#linear-regression.section"
+   },
+   "headings": {
+    "h1": {
+     "text": "3.1. Linear Regression¶   Colab [pytorch]  Open the notebook",
+     "family": "Roboto",
+     "size": "32px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "36px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "3.1.1. Basics¶",
+     "family": "Roboto",
+     "size": "28px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "32px",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "3.1.1.1. Model¶",
+     "family": "Roboto",
+     "size": "24px",
+     "weight": "400",
+     "color": "rgb(33, 150, 243)",
+     "lineHeight": "28px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "mdl-layout__header mdl-layout__header--waterfall",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 112,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "hidden"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation breadcrumb",
+     "x": 72,
+     "y": 0,
+     "w": 238,
+     "h": 56,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": 310,
+     "y": 0,
+     "w": 64,
+     "h": 56,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": 72,
+     "y": 56,
+     "w": 936,
+     "h": 56,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "mdl-layout__drawer",
+     "x": -250,
+     "y": 0,
+     "w": 240,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "globaltoc",
+     "x": -250,
+     "y": 86,
+     "w": 239,
+     "h": 1808,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "mdl-navigation",
+     "x": -250,
+     "y": 86,
+     "w": 239,
+     "h": 1808,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 102,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 142,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 182,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 222,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 262,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1 current",
+     "x": -250,
+     "y": 302,
+     "w": 239,
+     "h": 416,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2 current",
+     "x": -250,
+     "y": 366,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 406,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 470,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 510,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 574,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 638,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l2",
+     "x": -250,
+     "y": 678,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 718,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 782,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 822,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 862,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 926,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 990,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1054,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1118,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1182,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1246,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1310,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1350,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1414,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1478,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1518,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1558,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1622,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1686,
+     "w": 239,
+     "h": 40,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1726,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "li",
+     "id": "",
+     "cls": "toctree-l1",
+     "x": -250,
+     "y": 1790,
+     "w": 239,
+     "h": 64,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": "3.2.2",
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 138,
+    "mjxDisplay": 16,
+    "mjx2": 138,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 138,
+    "imgMath": 2,
+    "scripts": [
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ]
+   },
+   "displayEq": {
+    "tag": "span",
+    "cls": "math notranslate nohighlight",
+    "textAlign": "start",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 233,
+    "y": 1227,
+    "w": 12,
+    "h": 20,
+    "html": "<span class=\"math notranslate nohighlight\"><mjx-container class=\"MathJax CtxtMenu_Attached_0\" jax=\"CHTML\" tabindex=\"0\" ctxtmenu_counter=\"0\" style=\"font-size: 119.5%; position: relative;\"><mjx-math class=\"MJX-TEX\" aria-hidden=\"true\"><mjx-texatom texclass=\"ORD\"><mjx-mi class=\"mjx-b\"><mjx-c class=\"mjx-"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 16,
+    "eqText": [
+     "(3.1.1)¶",
+     "(3.1.2)¶",
+     "(3.1.3)¶"
+    ]
+   },
+   "eqNumberPos": {
+    "left": 328,
+    "right": 371,
+    "text": "(3.1.1)¶",
+    "float": "right",
+    "align": "start"
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 44,
+    "figures": 0,
+    "figcaptions": 4,
+    "imgs": 33,
+    "canvases": 0,
+    "svgs": 0,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 5,
+    "inputs": 3,
+    "searchInputs": 1,
+    "themeToggle": 0,
+    "breadcrumbs": 1,
+    "progress": 0,
+    "codeBlocks": 34,
+    "colab": 9,
+    "github": 1,
+    "tooltips": 31
+   },
+   "prevNext": [
+    {
+     "text": "Previous 3. Linear Neural Networks for Regression",
+     "cls": "mdl-button mdl-js-button mdl-js-ripple-e",
+     "x": 0,
+     "y": 53439,
+     "w": 78,
+     "h": 92
+    },
+    {
+     "text": "Next 3.2. Object-Oriented Design for Implementation",
+     "cls": "mdl-button mdl-js-button mdl-js-ripple-e",
+     "x": 78,
+     "y": 53439,
+     "w": 312,
+     "h": 92
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "iframe",
+     "id": "discourse-embed-frame",
+     "cls": "",
+     "x": 20,
+     "y": 18860,
+     "w": 351,
+     "h": 34483
+    }
+   ],
+   "fontsLoaded": [
+    "Font Awesome 5 Brands normal",
+    "Font Awesome 5 Free 900",
+    "Roboto normal",
+    "Material Icons 400",
+    "MJXZERO normal",
+    "MJXTEX normal",
+    "MJXTEX-B normal",
+    "MJXTEX-I normal",
+    "MJXTEX-S1 normal",
+    "MJXTEX-S2 normal",
+    "MJXTEX-S3 normal",
+    "MJXTEX-A normal",
+    "MJXTEX-C normal"
+   ],
+   "scrollWidth": 390,
+   "scrollHeight": 844,
+   "overflow": false,
+   "wideEls": [
+    {
+     "tag": "nav",
+     "cls": "mdl-navigation",
+     "right": 1008,
+     "w": 936,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "a",
+     "cls": "mdl-navigation__link",
+     "right": 494,
+     "w": 116,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "a",
+     "cls": "mdl-navigation__link",
+     "right": 641,
+     "w": 147,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "a",
+     "cls": "mdl-navigation__link",
+     "right": 766,
+     "w": 125,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "a",
+     "cls": "mdl-navigation__link",
+     "right": 886,
+     "w": 120,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "a",
+     "cls": "mdl-navigation__link",
+     "right": 1008,
+     "w": 122,
+     "clippedBy": "div.mdl-layout__header-row header- auto"
+    },
+    {
+     "tag": "mjx-math",
+     "cls": "MJX-TEX",
+     "right": 500,
+     "w": 481,
+     "clippedBy": "div.section auto"
+    },
+    {
+     "tag": "mjx-msup",
+     "cls": "",
+     "right": 495,
+     "w": 168,
+     "clippedBy": "div.section auto"
+    }
+   ],
+   "bodyBg": "rgb(250, 250, 250)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

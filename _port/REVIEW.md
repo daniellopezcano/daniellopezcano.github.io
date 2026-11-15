@@ -2,9 +2,17 @@
 
 Things only you can decide or fix. Nothing here was changed in the notes; the web shows exactly what the LaTeX says.
 
+## Decisions taken for you in phase 2 (say if you want any of them otherwise)
+
+- **Design direction A, "Paper"**, chosen under your delegation (2026-11-15). The comparison with the two alternatives, with screenshots, is in `_port/DESIGN.md`; `_port/design/preview.sh` shows all three on the same six pages.
+- **Light by default, dark on request** (remembered per browser). The alternative is to follow the reader's operating-system setting.
+- **Typeface: New Computer Modern Book**, the heavier-drawn sibling of the Latin Modern of your PDF, served from the site (four files, about 33 kB each, redistributed under the GUST Font License). Interface text is Lato, as on the rest of your site.
+- **The course pages are no longer Quarto pages**: the converter writes them complete, and `quarto render` copies them. The rest of the site is untouched and still built by Quarto; `_quarto.yml` gains `resources` and `post-render` entries (DECISIONS D29).
+- The site navbar on course pages scrolls away with the page (on your other pages it is fixed); the slim course bar stays at the top instead.
+
 ## Open questions (pilot)
 
-See the end-of-pilot message; they are repeated in `PROGRESS.md` § "Pilot review" once answered.
+Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 
 ## Facts checked
 
@@ -12,6 +20,7 @@ See the end-of-pilot message; they are repeated in `PROGRESS.md` § "Pilot revie
 - The scratch build reproduces your PDF: 176 pages, the labels in its `main.aux` are identical to those in the notes' `main.aux`, and the text of both PDFs differs only in the date on the cover.
 - `\coloneq` (14 uses) and `\coloneqq` both print ":=" in your PDF (mathtools 2022); the web does the same.
 - Four worked-example figures (`plots/exercises/fig_fields_*.pdf` and others) are whole A4 pages with wide white margins; the web shows them as the PDF does, margins included. Cropping the source PDFs would enlarge them in both.
+- The Feynman Lectures site (one of your reference sites) is online but shows a Cloudflare challenge to a headless browser; it was not measured or screenshotted, and is described in `DESIGN.md` from prior knowledge only.
 - The package repository has no `fig_variations_euler_lagrange_*` notebook (the four figures of C.6), and its `setup.py` omits `scipy` and `tol_colors`, which the code imports.
 
 ## Typos and slips found in the notes (left as they are)
@@ -58,6 +67,9 @@ See the end-of-pilot message; they are repeated in `PROGRESS.md` § "Pilot revie
 | figure viewer (labels of icon buttons, read by screen readers and shown as tooltips) | "Zoom in", "Zoom out", "Fit to window", "Close", "Enlarge figure", "Enlarge Figure n" |
 | interactive after Figure 2.1 (`maps`) | instruction: "Drag from an element of 𝓜 to an element of 𝓝 to add an arrow of φ; click an arrow to remove it."; preset buttons and status line use your five panel names unchanged ("NOT a Function", "General Function", "Only Injective", "Only Surjective", "Bijective"); control labels 𝓜, 𝓝, φ⁻¹ |
 | interactive after Figure C.12 (`variations`) | instruction: "Choose a curve and a family of variations and move ᛊ; drag the surface to rotate it."; options γ, σ, "(i)", "(ii)"; legend copied from Figure C.12 ("(i) linear in 𝒳", "(ii) linear in 𝒴", "(ii), second-order expansion"); readouts L[γ_ᛊ], d/dᛊ L[·]|_{ᛊ=0}; point labels A, B, P, Q |
+
+| course bar (design prototypes; final list when milestone 1 is built) | "Lecture Notes" (first breadcrumb), "Contents", "Map", "Search", labels of icon buttons: "Course map", "Search the notes", "Light or dark", "Toggle navigation", "Skip to content" |
+| appendix content opened in place | "open here", "Appendix B" / "Appendix C" + your number and title, "open page", "close" |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)
 

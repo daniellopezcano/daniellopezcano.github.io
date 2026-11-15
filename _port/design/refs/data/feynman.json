@@ -1,0 +1,216 @@
+{
+ "key": "feynman",
+ "home": {
+  "error": null,
+  "loadMs": 127,
+  "finalUrl": "https://www.feynmanlectures.caltech.edu/",
+  "title": "Attention Required! | Cloudflare"
+ },
+ "page": "https://www.feynmanlectures.caltech.edu/I_04.html",
+ "desktop": {
+  "error": null,
+  "loadMs": 134,
+  "net": {
+   "requests": 6,
+   "totalBytes": 29704,
+   "by": {
+    "html": {
+     "n": 1,
+     "bytes": 2712
+    },
+    "css": {
+     "n": 1,
+     "bytes": 4492
+    },
+    "images": {
+     "n": 2,
+     "bytes": 4044
+    },
+    "js": {
+     "n": 1,
+     "bytes": 16338
+    },
+    "other": {
+     "n": 1,
+     "bytes": 2118
+    }
+   },
+   "fontUrls": [],
+   "loadMs": 134,
+   "finalUrl": "https://www.feynmanlectures.caltech.edu/I_04.html"
+  },
+  "measure": {
+   "title": "Attention Required! | Cloudflare",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "headings": {
+    "h1": {
+     "text": "Sorry, you have been blocked",
+     "family": "-apple-system",
+     "size": "60px",
+     "weight": "300",
+     "color": "rgb(64, 64, 64)",
+     "lineHeight": "72px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "You are unable to access feynmanlectures.caltech.edu",
+     "family": "-apple-system",
+     "size": "30px",
+     "weight": "300",
+     "color": "rgb(89, 89, 89)",
+     "lineHeight": "39px",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 0,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 0,
+    "canvases": 0,
+    "svgs": 0,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 1,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [],
+   "interactives": [],
+   "fontsLoaded": [],
+   "scrollWidth": 1440,
+   "scrollHeight": 1021,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": null,
+   "y": 1400
+  },
+  "fixedAfterScroll": []
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 144,
+  "measure": {
+   "title": "Attention Required! | Cloudflare",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "headings": {
+    "h1": {
+     "text": "Sorry, you have been blocked",
+     "family": "-apple-system",
+     "size": "36px",
+     "weight": "300",
+     "color": "rgb(64, 64, 64)",
+     "lineHeight": "43.2px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "You are unable to access feynmanlectures.caltech.edu",
+     "family": "-apple-system",
+     "size": "30px",
+     "weight": "300",
+     "color": "rgb(89, 89, 89)",
+     "lineHeight": "39px",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 0,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 0,
+    "canvases": 0,
+    "svgs": 0,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 1,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [],
+   "interactives": [],
+   "fontsLoaded": [],
+   "scrollWidth": 397,
+   "scrollHeight": 1065,
+   "overflow": true,
+   "wideEls": [],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

@@ -1,0 +1,126 @@
+/* Hand-written (design prototypes): the page shell shared by the three directions.
+ * sn = site navbar (replica of the Quarto navbar: same links, same look), cb = course bar,
+ * cn = course contents tree, cx = context column, sf = site footer. Directions only set variables and the grid. */
+:root {
+  --sn-h: 82px; --cb-h: 46px;
+  --ui: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --shell-bg: var(--dg-bg); --ui-text: var(--dg-text-soft); --ui-strong: var(--dg-heading); --ui-rule: var(--dg-rule);
+  --bar-bg: var(--dg-bg);
+}
+body { background: var(--shell-bg) !important; color: var(--dg-text); font-family: var(--text-font, var(--ui)); }
+body::before, body::after { display: none !important; }
+
+/* --- site navbar: measured on the Quarto pages (_port/design/measure_nav.mjs) --- */
+.sn { background: #0b1220; position: relative; z-index: 30; }
+.sn-in { display: flex; align-items: center; justify-content: space-between; min-height: var(--sn-h); padding: 17px 29.75px;
+  background: rgba(8, 12, 22, 0.82); border-bottom: 1px solid rgba(122, 162, 247, 0.12); font: 400 17px/1.5 var(--ui); letter-spacing: 0.17px; }
+.sn ul { display: flex; list-style: none; margin: 0; padding: 0; flex: 1; }
+.sn li a { display: block; padding: 8.5px 10.2px; color: #dbe7ff; opacity: 0.95; text-decoration: none; white-space: nowrap; }
+.sn li a:hover, .sn li a:focus, .sn li a.active { color: #fff; }
+.sn-search { width: 40px; height: 34px; border-radius: 6px; background: rgba(122, 162, 247, 0.08); border: 1px solid rgba(122, 162, 247, 0.14); color: #c6d5ef; font-size: 15px; }
+.sn-toggle { display: none; width: 34px; height: 34px; color: #dee2e6; font-size: 26px; line-height: 1; }
+@media (max-width: 991.98px) {
+  :root { --sn-h: 69px; }
+  .sn-in { flex-wrap: wrap; }
+  .sn-toggle { display: block; }
+  .sn ul { display: none; order: 3; flex: 0 0 100%; flex-direction: column; padding-top: 8px; }
+  .sn.open ul { display: flex; }
+}
+
+/* --- course bar --- */
+.cb { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 0.5rem; height: var(--cb-h); padding: 0 1rem;
+  background: var(--bar-bg); border-bottom: 1px solid var(--ui-rule); font: 400 0.86rem/1.2 var(--ui); color: var(--ui-text); }
+.cb-btn { display: inline-flex; align-items: center; gap: 0.4rem; height: 32px; padding: 0 0.6rem; border-radius: 6px; color: var(--ui-text); white-space: nowrap; }
+.cb-btn:hover { background: var(--ui-hover, rgba(127, 127, 127, 0.14)); color: var(--ui-strong); }
+.cb-crumbs { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.35rem; overflow: hidden; white-space: nowrap; }
+.cb-crumbs a, .cb-crumbs span { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+.cb-crumbs a:hover { color: var(--ui-strong); text-decoration: underline; }
+.cb-crumbs [aria-current] { color: var(--ui-strong); font-weight: 700; }
+.cb-crumbs .sep { font-size: 0.7em; opacity: 0.6; flex: none; }
+.cb .n { font-variant-numeric: tabular-nums; margin-right: 0.15em; }
+.cb-tools { display: flex; gap: 0.15rem; flex: none; }
+.cb-line { display: none; }
+.cb-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; }
+.cb-progress i { position: absolute; inset: 0; background: var(--dg-accent); opacity: 0.28; transform-origin: 0 50%; transform: scaleX(var(--pos, 0)); }
+.cb-progress b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--dg-accent); }
+@media (max-width: 720px) { .cb-btn span { display: none; } .cb-crumbs a, .cb-crumbs .sep { display: none; } }
+
+/* --- shell grid, course tree, context column --- */
+.shell { display: grid; align-items: start; min-height: 70vh; }
+.cn, .cx { position: sticky; top: var(--cb-h); max-height: calc(100vh - var(--cb-h)); overflow-y: auto; overscroll-behavior: contain; font: 400 0.88rem/1.35 var(--ui); color: var(--ui-text); scrollbar-width: thin; }
+.cn { padding: 1.4rem 0.9rem 3rem 1.1rem; }
+.cn-title { margin: 0 0 0.9rem; font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
+.cn-title a { color: var(--ui-strong); text-decoration: none; }
+.cn ol { list-style: none; margin: 0; padding: 0; }
+.cn a { display: block; padding: 0.3rem 0.5rem; border-radius: 5px; color: inherit; text-decoration: none; }
+.cn a:hover { background: var(--ui-hover, rgba(127, 127, 127, 0.14)); color: var(--ui-strong); }
+.cn .n { display: inline-block; min-width: 1.5em; font-variant-numeric: tabular-nums; opacity: 0.75; }
+.cn .ch > a { font-weight: 700; color: var(--ui-strong); }
+.cn .ch > ol { display: none; margin: 0.1rem 0 0.5rem 0.55rem; padding-left: 0.5rem; border-left: 1px solid var(--ui-rule); }
+.cn .ch.open > ol { display: block; }
+.cn .ch > ol .n { min-width: 2.1em; }
+.cn [aria-current="page"] { background: var(--ui-current, rgba(79, 127, 230, 0.14)); color: var(--dg-accent) !important; font-weight: 700; }
+.cn-outline { margin: 0.15rem 0 0.4rem 0.9rem !important; font-size: 0.93em; }
+.cn-outline a { padding: 0.18rem 0.5rem; opacity: 0.9; }
+.cn-outline .l3 a { padding-left: 1.3rem; }
+.cn-outline a.on, .cx-outline a.on { color: var(--dg-accent); }
+.cx { padding: 1.6rem 1rem 3rem 0.5rem; }
+.cx-title { margin: 0 0 0.5rem; font-weight: 700; color: var(--ui-strong); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.74rem; }
+.cx-outline ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--ui-rule); }
+.cx-outline a { display: block; padding: 0.22rem 0.7rem; margin-left: -1px; border-left: 2px solid transparent; color: inherit; text-decoration: none; }
+.cx-outline a:hover { color: var(--ui-strong); }
+.cx-outline a.on { border-left-color: var(--dg-accent); }
+.cx-outline .l3 a { padding-left: 1.5rem; font-size: 0.95em; }
+.cx-outline:has(ol:empty) { display: none; }
+main.content { min-width: 0; padding: 2.2rem 0 5rem; font-family: var(--text-font, var(--ui)); }
+main.content a:hover { color: var(--dg-accent-hover, var(--dg-accent)); }
+.sf { display: flex; justify-content: space-between; gap: 1rem; padding: 1.4rem 2rem; border-top: 1px solid var(--ui-rule); font: 400 0.85rem var(--ui); color: var(--ui-text); }
+.sf a { color: inherit; }
+
+/* landing page: one wide column, no tree */
+body.landing .shell { display: block; }
+body.landing .cn, body.landing .cx { display: none; }
+body.landing main.content { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+body.landing .cb-menu { display: none; }
+
+/* the course tree as a drawer (proto.js sets html.drawer below each direction's breakpoint; always in C) */
+html.drawer .cn { position: fixed; z-index: 25; left: 0; top: 0; bottom: 0; width: min(21rem, 88vw); max-height: none; background: var(--bar-bg); border-right: 1px solid var(--ui-rule);
+  transform: translateX(-102%); transition: transform 0.18s ease; padding-top: 1.2rem; box-shadow: 0 0 40px rgba(0, 0, 0, 0.25); }
+html.drawer.nav-open .cn { transform: none; }
+html.drawer.nav-open body::after { content: ""; display: block !important; position: fixed; inset: 0; z-index: 24; background: rgba(5, 10, 20, 0.45) !important; }
+html:not(.drawer) .cb-menu { display: none; }
+@media (max-width: 999.98px) {
+  .shell { display: block; }
+  .cx { display: none; }
+  main.content { padding: 1.4rem 1.1rem 4rem; max-width: 46rem; margin: 0 auto; }
+}
+
+/* --- web layer: appendix content opened in place (REDESIGN "inline panel") --- */
+.dg-open-here { display: inline-flex; align-items: center; gap: 0.25em; margin-left: 0.35em; padding: 0 0.45em; height: 1.45em; vertical-align: baseline; border: 1px solid var(--web-rule, var(--dg-accent)); border-radius: 999px;
+  font: 700 0.68em/1 var(--ui); letter-spacing: 0.03em; color: var(--dg-accent); background: transparent; white-space: nowrap; }
+.dg-open-here:hover, .dg-open-here[aria-expanded="true"] { background: var(--dg-accent); color: var(--on-accent, #fff); }
+.dg-inline { margin: 1rem 0 1.4rem; border: 1px dashed var(--web-rule, var(--dg-accent)); border-radius: 10px; background: var(--web-bg, transparent); overflow: hidden; }
+.dg-inline-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.8rem; font: 400 0.82rem/1.2 var(--ui); color: var(--ui-text); border-bottom: 1px dashed var(--web-rule, var(--dg-accent)); }
+.dg-inline-head b { color: var(--dg-accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; }
+.dg-inline-head .t { flex: 1; min-width: 0; color: var(--ui-strong); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dg-inline-head a, .dg-inline-head button { color: var(--dg-accent); text-decoration: none; white-space: nowrap; }
+.dg-inline-body { padding: 0.9rem 1.1rem 0.4rem; max-height: 70vh; overflow: auto; font-size: 0.95em; }
+.dg-inline-body .dg-head, .dg-inline-body .dg-prevnext { display: none; }
+
+/* --- sidenotes (direction A on wide screens): the footnotes of the notes, shown beside their mark --- */
+.sidenotes { display: none; }
+html.has-sidenotes .sidenotes { display: block; position: absolute; top: 0; left: 100%; width: var(--margin-w); height: 100%; pointer-events: none; }
+html.has-sidenotes main.content { position: relative; }
+html.has-sidenotes .dg-footnotes { display: none; }
+.sidenote { position: absolute; left: 2.2rem; right: 1.2rem; pointer-events: auto; font-size: 0.97rem; line-height: 1.42; color: var(--dg-text-soft); transition: color 0.15s; }
+.sidenote::before { content: attr(data-n); position: absolute; left: -1.25em; top: 0; font-size: 0.8em; font-weight: 700; color: var(--dg-accent); font-family: var(--ui); }
+.sidenote p { margin: 0 0 0.45rem; }
+.sidenote.hot, .sidenote:hover { color: var(--dg-text); }
+.sidenote .math.display { margin: 0.4rem 0; }
+
+/* context pane (direction C) */
+.cx-pane:empty { display: none; }
+.cx-pane { margin-top: 1.2rem; border: 1px dashed var(--web-rule, var(--dg-accent)); border-radius: 10px; background: var(--web-bg, transparent); font-family: var(--text-font, var(--ui)); font-size: 0.95rem; line-height: 1.55; color: var(--dg-text); }
+.cx-pane .dg-inline { margin: 0; border: 0; }
+.cx-pane .cx-note { padding: 0.8rem 1rem 0.3rem; }
+.cx-pane .cx-kicker { display: block; margin-bottom: 0.3rem; font: 700 0.72rem var(--ui); text-transform: uppercase; letter-spacing: 0.07em; color: var(--dg-accent); }

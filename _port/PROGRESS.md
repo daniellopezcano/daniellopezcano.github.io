@@ -1,21 +1,25 @@
-PHASE: design
+PHASE: bulk
 
 # Progress ledger
 
-**Next action.** The pilot is complete and waiting for the author's review (the one planned stop). Do NOT start the bulk units before the approval is recorded below. After approval: write the date, what was approved and every requested change under "Pilot review", change the first line of this file to `PHASE: bulk`, then take the units of `PLAN.md` § "Work units" in order (B1 first: `python3 _port/convert/build.py --status` lists the four pending pages and the construct that stops each), one commit per unit.
+**Milestone status.** None of the phase-2 milestones is reached yet. What is live on `main` is the pilot (27fb386).
 
-**State of the working tree.** Branch `course-diffgeo-gr`, everything of the pilot committed (source, generated pages, `docs/`). ~120 pre-existing files show as modified because of file-mode changes only: never stage them (DECISIONS D22, D28). Scratch build in `_port/.work/tex/src` (git-ignored; rebuild with `_port/tex/build_scratch.sh`, ~4 min). Node tools: `cd _port && npm ci`, then `PLAYWRIGHT_BROWSERS_PATH=$PWD/.work/pw npx playwright install chromium` if `_port/.work/pw` is missing.
+**Next action.** Phase 2 (`_port/REDESIGN.md`), milestone 1. The design direction is chosen (see "Design direction"): do NOT stop to ask for it. Take the R-units of `PLAN.md` § "Phase 2" in order, starting with the first one below that is not `done`. R4 and R5 turn the prototype of direction A (`_port/design/proto/`: `build.py` shows the page shell, `shell.css` + `a.css` the styles, `proto.js` the behaviour) into the real template, stylesheet and page script, following DECISIONS D29–D37 and `DESIGN.md` § 4.
 
-**Pilot review (waiting for the author).** Not approved yet. Open questions put to the author on 2026-11-15:
-1. Navbar label ("Lecture Notes") and address (`/notes/diffgeo-gr/`).
-2. The PDF: replace the old 73-page file in place with a compressed copy of the current build (Ghostscript `/ebook`: 6.3 MB, the file there now is 7.1 MB) and regenerate its thumbnail, or link elsewhere. "Download PDF" currently points to the old file.
-3. Cover date (`\today` in the PDF): left out on the landing page; alternative: date of the last change of the notes.
-4. Figure weight: 5.8 MB for 31 figures (3D plots as 1800 px WebP); once more in `docs/`.
-5. Interactive figures: the ranking in PLAN.md (build 1–12), and the choices listed in REVIEW.md.
-6. Reading layout: one page per section, sans-serif text, 880 px column, slightly wide equations shrunk to fit.
-7. Math engine: MathJax 3 (8 arrays have a narrower gap beside the rule than the PDF; MathJax 4 would match).
-8. Wording of web-layer text (REVIEW.md table), incl. "in preparation".
-9. The source repository named on the copyright page is not public (404).
+**State of the working tree.** Branch `course-diffgeo-gr` = `main` (27fb386, pushed 2026-11-15 by the author's one-off authorisation) + local commits. From here on: never push, never merge into `main`. `core.fileMode` is `false` in this clone, so the mode-only changes of D22 no longer show; still stage explicit paths. Scratch build in `_port/.work/tex/src` (git-ignored; rebuild with `_port/tex/build_scratch.sh`, ~4 min). Node tools: `cd _port && npm ci`, then `PLAYWRIGHT_BROWSERS_PATH=$PWD/.work/pw npx playwright install chromium` if `_port/.work/pw` is missing.
+
+**Pilot review: APPROVED by the author (recorded 2026-11-15, from `_port/REDESIGN.md`).** The pilot is merged into `main` and live at `/notes/diffgeo-gr/`. Answers to the nine questions:
+1. Navbar label "Lecture Notes" and address `/notes/diffgeo-gr/` stay. The address is public: every page address that existed at the pilot must keep working (redirect if a page moves).
+2. PDF: replace the old file in place with the compressed copy of the current build, regenerate its thumbnail, point both cards of the Teaching page and the landing page to it.
+3. Cover date: shown as "Last updated", from the most recent commit in the notes repository that touched a file `main.tex` includes.
+4. Figures: keep 1800 px; figures below the fold load lazily.
+5. Interactives: build the top twelve of the ranking in `PLAN.md`; their presentation is part of the redesign.
+6. Reading layout: decided in the redesign.
+7. Math engine: decided in the redesign; match the PDF where it matters (arrays with vertical rules); MathJax 4 is fine if it holds on every equation and on the runes.
+8. Web-only wording: approved for now; the author reviews the full list in `REVIEW.md` before the final merge.
+9. Notes repository: the author decides later; the copyright text stays verbatim.
+
+**Design direction.** Design direction chosen by Claude under the author's delegation, 2026-11-15: **A, "Paper"** (light paper surface, the notes' own typeface, sidenotes, course tree with the outline inside; the site's dark palette as a reader-selectable dark theme). The author wrote "I delegate the choice of design direction to you, so don't stop for it" and will review the result at the end. Comparison of the three prototypes, screenshots and reasons: `_port/DESIGN.md`; preview: `_port/design/preview.sh`. A resumed session must not stop to ask about this.
 
 **Needs a design decision.** (none)
 
@@ -37,6 +41,15 @@ Status: `todo`, `in progress`, `done`, `blocked`. One commit per finished unit, 
 | P8 | `_port/INVENTORY.md`, `PLAN.md`, `DECISIONS.md`, `REVIEW.md`, `CLAUDE.md` | done | | db5d158 |
 | P9 | Render, checker review of the pilot pages vs the PDF (desktop + phone), fixes, commit | done | checker compared 5 pages with PDF pp. 1, 11–18, 59–61, 157–163: text, numbering, colours, runic glyphs match; 4 defects found and fixed (nested links in prev/next, lost bullet, footnote panel, clipped wide equations); all tests pass after the fixes; existing pages differ from `main` only by the navbar entry | db5d158 |
 
-### Bulk (after approval)
+### Phase 2 (REDESIGN.md)
 
-See `PLAN.md` § "Work units" for the full list (B1…). Copy each unit here when it starts.
+Units and their order: `PLAN.md` § "Phase 2". Copy each unit here when it starts.
+
+| Unit | What | Status | Checks passed | Commit |
+|---|---|---|---|---|
+| A | Branch brought up to date with `main` (docs/ regenerated), `_port/check.sh` and `tools/site_unchanged.py` written, pilot merged into `main` and pushed (author's one-off authorisation), live site verified | done | `check.sh`: all pass except the known `math_check` failure (the `tabular` of §4.1.2, unit B2); live pages load without console errors | 50f234f, 27fb386 |
+| R1 | Reference study in a headless browser (`_port/design/refs/`: `NOTES.md`, 27 screenshots; the Feynman Lectures site refused the headless browser) | done | | (this commit) |
+| R2 | Three design directions as prototypes on six real pages (`_port/design/proto/`), screenshots at 1440 and 390 px (`_port/design/shots/`), `_port/design/preview.sh` | done | all 36 prototype pages load without console errors; the only horizontal overflow at 390 px is the pending `tabular` of §4.1 | (this commit) |
+| R3 | `DESIGN.md` (study, comparison, choice, design system, budgets), DECISIONS D29–D37, `PLAN.md` phase 2 | done | Quarto behaviour behind D29 tested in a scratch project | (this commit) |
+| R4 | Page shell in the converter, Quarto copies the pages (D29) | todo | | |
+| R5 | Design system CSS/JS, fonts (D30–D33) | todo | | |

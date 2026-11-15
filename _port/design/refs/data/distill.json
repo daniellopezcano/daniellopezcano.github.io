@@ -1,0 +1,647 @@
+{
+ "key": "distill",
+ "home": {
+  "error": null,
+  "loadMs": 276,
+  "finalUrl": "https://distill.pub/",
+  "title": "Distill — Latest articles about machine learning"
+ },
+ "page": "https://distill.pub/2017/momentum/",
+ "desktop": {
+  "error": null,
+  "loadMs": 1490,
+  "net": {
+   "requests": 29,
+   "totalBytes": 1850983,
+   "by": {
+    "html": {
+     "n": 1,
+     "bytes": 50799
+    },
+    "css": {
+     "n": 2,
+     "bytes": 3684
+    },
+    "js": {
+     "n": 14,
+     "bytes": 310801
+    },
+    "fonts": {
+     "n": 7,
+     "bytes": 103759
+    },
+    "other": {
+     "n": 5,
+     "bytes": 1381940
+    },
+    "big": [
+     "https://www.googletagmanager.com/gtag/js?id=G-X6DDRMCSF0&cx=c&_slc=1 168359",
+     "https://distill.pub/2017/momentum/assets/data/Uval.json 1374205"
+    ],
+    "otherBig": [
+     "https://distill.pub/2017/momentum/assets/data/Uval.json 1374205"
+    ]
+   },
+   "fontUrls": [
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Size4-Regular.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Math-Italic.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Size2-Regular.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Main-Bold.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Main-Regular.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Size3-Regular.woff2",
+    "https://distill.pub/2017/momentum/assets/lib/fonts/KaTeX_Size1-Regular.woff2"
+   ],
+   "loadMs": 1490,
+   "finalUrl": "https://distill.pub/2017/momentum/"
+  },
+  "measure": {
+   "title": "Why Momentum Really Works",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 81,
+    "avgGlyphPx": 8.04,
+    "textLines": 6,
+    "sample": "Momentum proposes the following tweak to gradient descent. We give gradient desc",
+    "fontFamily": "Georgia, serif",
+    "firstFamily": "Georgia",
+    "resolvedFamilyNote": null,
+    "fontSize": "20px",
+    "lineHeight": "31px",
+    "color": "rgba(0, 0, 0, 0.8)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 648,
+    "pLeft": 396,
+    "lines": 16,
+    "chars": 764,
+    "charsPerLine": 49,
+    "containerTag": "DT-ARTICLE.centered"
+   },
+   "headings": {
+    "h1": {
+     "text": "Why Momentum Really Works",
+     "family": "HoeflerText-Regular",
+     "size": "56px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "56px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "First Steps: Gradient Descent",
+     "family": "HoeflerText-Regular",
+     "size": "30px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "37.5px",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "Decomposing the Error",
+     "family": "HoeflerText-Regular",
+     "size": "26px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "36.4px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "figure",
+     "id": "stochastic",
+     "cls": "",
+     "x": 260,
+     "y": 23599,
+     "w": 920,
+     "h": 460,
+     "position": "relative",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "stochasticgd",
+     "cls": "",
+     "x": 275,
+     "y": 23769,
+     "w": 920,
+     "h": 300,
+     "position": "relative",
+     "top": "170px",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 335,
+    "katexDisplay": 95,
+    "mathml": 334,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "displayEq": {
+    "tag": "span",
+    "cls": "katex-display",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 396,
+    "y": 1507,
+    "w": 648,
+    "h": 31,
+    "html": "<span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-mathml\"><math><semantics><mrow><msup><mi>w</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><msup><mi>w</mi><mi>k</mi></msup><mo>−</mo><mi>α</mi><mi mathvariant=\"normal\">∇</mi><mi>f</mi><mo>(</mo><msup><mi>w</mi><mi>k<"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 21,
+    "figcaptions": 67,
+    "imgs": 0,
+    "canvases": 5,
+    "svgs": 124,
+    "iframes": 0,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 2,
+    "colab": 0,
+    "github": 8,
+    "tooltips": 31
+   },
+   "prevNext": [],
+   "interactives": [
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 229,
+     "y": 275,
+     "w": 984,
+     "h": 300
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 229,
+     "y": 275,
+     "w": 984,
+     "h": 300
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 346,
+     "y": 3715,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 346,
+     "y": 3715,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 746,
+     "y": 3715,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 746,
+     "y": 3715,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 1034,
+     "y": 5168,
+     "w": 300,
+     "h": 150
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 275,
+     "y": 5224,
+     "w": 920,
+     "h": 300
+    }
+   ],
+   "fontsLoaded": [
+    "KaTeX_Main 700",
+    "KaTeX_Main 400",
+    "KaTeX_Math 400 italic",
+    "KaTeX_Size1 400",
+    "KaTeX_Size2 400",
+    "KaTeX_Size3 400",
+    "KaTeX_Size4 400"
+   ],
+   "scrollWidth": 1440,
+   "scrollHeight": 29529,
+   "overflow": false,
+   "wideEls": [
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1546,
+     "w": 620,
+     "clippedBy": "svg. hidden"
+    }
+   ],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": "figure",
+   "y": 3714
+  },
+  "fixedAfterScroll": []
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 1518,
+  "measure": {
+   "title": "Why Momentum Really Works",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 50,
+    "avgGlyphPx": 6.83,
+    "textLines": 10,
+    "sample": "Momentum proposes the following tweak to gradient descent. We give gradient desc",
+    "fontFamily": "Georgia, serif",
+    "firstFamily": "Georgia",
+    "resolvedFamilyNote": null,
+    "fontSize": "17px",
+    "lineHeight": "26.35px",
+    "color": "rgba(0, 0, 0, 0.8)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 342,
+    "pLeft": 24,
+    "lines": 18,
+    "chars": 764,
+    "charsPerLine": 44,
+    "containerTag": "DT-ARTICLE.centered"
+   },
+   "headings": {
+    "h1": {
+     "text": "Why Momentum Really Works",
+     "family": "HoeflerText-Regular",
+     "size": "40px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "40px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "First Steps: Gradient Descent",
+     "family": "HoeflerText-Regular",
+     "size": "26px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "32.5px",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "Decomposing the Error",
+     "family": "HoeflerText-Regular",
+     "size": "20px",
+     "weight": "400",
+     "color": "rgba(0, 0, 0, 0.8)",
+     "lineHeight": "28px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "figure",
+     "id": "stochastic",
+     "cls": "",
+     "x": 24,
+     "y": 25364,
+     "w": 920,
+     "h": 460,
+     "position": "relative",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "stochasticgd",
+     "cls": "",
+     "x": 39,
+     "y": 25534,
+     "w": 920,
+     "h": 300,
+     "position": "relative",
+     "top": "170px",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 335,
+    "katexDisplay": 95,
+    "mathml": 334,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "displayEq": {
+    "tag": "span",
+    "cls": "katex-display",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 24,
+    "y": 1488,
+    "w": 342,
+    "h": 27,
+    "html": "<span class=\"katex-display\"><span class=\"katex\"><span class=\"katex-mathml\"><math><semantics><mrow><msup><mi>w</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><msup><mi>w</mi><mi>k</mi></msup><mo>−</mo><mi>α</mi><mi mathvariant=\"normal\">∇</mi><mi>f</mi><mo>(</mo><msup><mi>w</mi><mi>k<"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 21,
+    "figcaptions": 67,
+    "imgs": 0,
+    "canvases": 5,
+    "svgs": 124,
+    "iframes": 0,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 2,
+    "colab": 0,
+    "github": 8,
+    "tooltips": 31
+   },
+   "prevNext": [],
+   "interactives": [
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 25,
+     "y": 189,
+     "w": 984,
+     "h": 300
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 25,
+     "y": 189,
+     "w": 984,
+     "h": 300
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 1,
+     "y": 4167,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 1,
+     "y": 4167,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 401,
+     "y": 4167,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 401,
+     "y": 4167,
+     "w": 340,
+     "h": 340
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 798,
+     "y": 5759,
+     "w": 300,
+     "h": 150
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 39,
+     "y": 5815,
+     "w": 920,
+     "h": 300
+    }
+   ],
+   "fontsLoaded": [
+    "KaTeX_Main 700",
+    "KaTeX_Main 400",
+    "KaTeX_Math 400 italic",
+    "KaTeX_Size1 400",
+    "KaTeX_Size2 400",
+    "KaTeX_Size3 400",
+    "KaTeX_Size4 400"
+   ],
+   "scrollWidth": 1098,
+   "scrollHeight": 33235,
+   "overflow": true,
+   "wideEls": [
+    {
+     "tag": "figure",
+     "cls": "",
+     "right": 1008,
+     "w": 984,
+     "clippedBy": null
+    },
+    {
+     "tag": "div",
+     "cls": "",
+     "right": 1010,
+     "w": 986,
+     "clippedBy": null
+    },
+    {
+     "tag": "svg",
+     "cls": "",
+     "right": 1009,
+     "w": 984,
+     "clippedBy": null
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 1010,
+     "w": 985,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1010,
+     "w": 985,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1010,
+     "w": 985,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1010,
+     "w": 985,
+     "clippedBy": "svg. hidden"
+    },
+    {
+     "tag": "path",
+     "cls": "",
+     "right": 1010,
+     "w": 985,
+     "clippedBy": "svg. hidden"
+    }
+   ],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

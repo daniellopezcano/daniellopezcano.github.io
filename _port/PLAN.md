@@ -115,3 +115,32 @@ Pilot units P1–P9 are in `PROGRESS.md`. After approval:
 | B36 | Full `check.sh` pass, screenshots of every page reviewed, `REPORT.md` | checker + main |
 
 Rules for every unit: follow `DECISIONS.md`; never edit generated files; never write to the notes; run `python3 _port/convert/build.py --status` and the relevant checks; main agent reviews the diff, updates `PROGRESS.md`, commits.
+
+## Phase 2 (REDESIGN.md): architecture change and units
+
+The architecture diagram above changes in one place (D29): the converter writes complete HTML pages into `notes/diffgeo-gr/` (no `.qmd`), Quarto copies them into `docs/` as project resources on every render, and `_port/tools/post_render.py` adds the course to the site's search index and sitemap. Design: `DESIGN.md` § 4. The pilot's units B1–B36 keep their numbers; the redesign adds R-units and orders everything into the four milestones of the brief. Each milestone ends with a full `check.sh`, a checker review, `docs/` committed, and a line at the top of `PROGRESS.md`.
+
+| Unit | What | Who |
+|---|---|---|
+| **Milestone 1: design** | | |
+| R1–R3 | Reference study, three prototypes, `DESIGN.md`, choice (done) | main |
+| R4 | Page shell: converter writes complete HTML pages from a template (`_port/convert/shell.py`): head, site-navbar replica, course bar, course tree with the page outline, main, sidenote margin, footer; landing page as a template; `_quarto.yml` (resources, navbar href, post-render; sidebar include removed); `post_render.py`; `.qmd` pages and Quarto shell files removed; `build.sh`, `check.sh`, the two browser tests and `CLAUDE.md` adapted | worker, from the prototype |
+| R5 | Design system: `assets/course.css` (tokens light/dark, reset, shell, components, print) and `course.js` (drawer, theme, progress, scroll-spy, sidenotes, keyboard previous/next, read marks), fonts subset by the converter (D31), figures lazy below the fold | worker, from the prototype |
+| R6 | MathJax 4 trial and decision (D34) | worker + checker |
+| R7 | Connections: appendix content in place (D35), previews in the new shell, "copy LaTeX", course search (D36), course map overlay | worker |
+| R8 | Chapter opening pages: roadmap excerpt, sections, related proofs (B) and examples (C), derived from the notes' own cross-references | main decides the data, worker builds |
+| R9 | Checks of D37 (addresses, render-intact, axe-core, weight, navbar replica) in `check.sh` | worker |
+| R10 | Checker review of every converted page (desktop, phone, both themes), fixes, `docs/` committed | checker, worker |
+| **Milestone 2: content complete** | | |
+| B1–B3 | The four pending pages: remaining handlers, `tabular` → HTML tables, Einstein–Hilbert flowchart | worker / main (B2, B3 first of their kind) |
+| B4, B5 | Front matter (copyright, licence, funding, About the Author); List of Figures; Bibliography with linked citations | main, then worker |
+| B6, B7 | Fidelity check (D24) and all-pages browser check, both in `check.sh`; `build.py --strict` on | worker |
+| B34 | The PDF: compressed current build in place of the old file, new thumbnail, both Teaching cards and the landing page point to it, "Read online" buttons (`dg-read-online`), "Last updated" from the notes repository's log | worker |
+| B35, R11 | Index of definitions (from the term macros, with "used in" back-links) and notation page (from the notes' own tables) | main decides, worker builds |
+| **Milestone 3: interactives** | | |
+| R12 | The interactive panel component of DESIGN § 4 (instructions, controls row, Reset, notebook link, "static figure"); `maps` and `variations` moved into it | main (first), worker |
+| B23–B32 | Interactives 1, 2, 3, 5, 6, 7, 9, 10, 11, 12 of the ranking, one unit each | worker |
+| **Milestone 4: polish** | | |
+| B10–B22 | Page-by-page review against the PDF and the design, desktop and phone, both themes; converter fixes | checker finds, worker fixes |
+| B33 | Roadmap badges fully clickable; flowchart zoom defaults | worker |
+| B36 | Full `check.sh`, `REPORT.md` updated for this phase | checker + main |
