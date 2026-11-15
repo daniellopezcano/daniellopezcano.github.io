@@ -73,14 +73,51 @@ def read_aux(path: str) -> dict:
 
 
 def read_bbl(path: str) -> dict:
-    """key -> {'author', 'year', 'entry'} from a natbib .bbl (\\bibitem[Author(Year)]{key})."""
+    """key -> {'author_tex', 'year', 'entry_tex', 'line'} from a natbib .bbl (\\bibitem[Author(Year)]{key}),
+    in the .bbl's order (the order of the Bibliography page); 'line' is the .bbl line where the entry text starts."""
     bib = {}
     if not os.path.exists(path):
         return bib
     txt = open(path, encoding='utf-8').read()
     for m in re.finditer(r'\\bibitem\[(.*?)\((\d{4}[a-z]?)\)[^\]]*\]\{([^}]+)\}(.*?)(?=\\bibitem|\\end\{thebibliography\})', txt, re.S):
-        bib[m.group(3)] = {'author_tex': m.group(1), 'year': m.group(2), 'entry_tex': m.group(4).strip()}
+        a = m.start(4) + len(m.group(4)) - len(m.group(4).lstrip())
+        bib[m.group(3)] = {'author_tex': m.group(1), 'year': m.group(2), 'entry_tex': m.group(4).strip(),
+                           'line': txt.count('\n', 0, a) + 1}
     return bib
+
+
+# What plainnat writes between \begin{thebibliography}{n} and the first \bibitem: fallback definitions that print
+# nothing (natbib and hyperref define \natexlab and \url already). Anything else there stops the Bibliography page.
+BBL_PREAMBLE = re.compile(r'\s*\\providecommand\{\\natexlab\}\[1\]\{#1\}'
+                          r'\s*\\providecommand\{\\url\}\[1\]\{\\texttt\{#1\}\}'
+                          r'\s*\\expandafter\\ifx\\csname urlstyle\\endcsname\\relax'
+                          r'\s*\\providecommand\{\\doi\}\[1\]\{doi: #1\}\\else'
+                          r'\s*\\providecommand\{\\doi\}\{doi: \\begingroup \\urlstyle\{rm\}\\Url\}\\fi\s*')
+LOF_LINE = re.compile(r'\\contentsline \{figure\}\{\\numberline \{([^{}]+)\}')
+
+
+def read_lof(path: str) -> list:
+    return parse_lof(open(path, encoding='utf-8').read())
+
+
+def parse_lof(text: str) -> list:
+    """The List of Figures of the LaTeX build (main.lof): [(number, line of main.lof, gap)] in order; gap is True
+    for the first entry after an \\addvspace (the PDF's space between chapters) that is not the first entry.
+    A line of another form stops the List of Figures page."""
+    out, gap = [], False
+    for n, line in enumerate(text.split('\n'), 1):
+        line = line.rstrip('\n').rstrip('%').strip()
+        if not line:
+            continue
+        if line.startswith('\\addvspace'):
+            gap = bool(out)
+            continue
+        m = LOF_LINE.match(line)
+        if not m:
+            raise ConvertError(f'main.lof:{n}: a line of a form build.parse_lof does not know: {line[:80]}')
+        out.append((m.group(1), n, gap))
+        gap = False
+    return out
 
 
 def read_records(path: str, src: source.Source) -> list[tuple[int, str, str]]:
@@ -119,6 +156,7 @@ class Page:
         self.role = None              # front matter (kind 'front'): 'copyright' | 'about' (FRONT)
         self.head_html = self.foot_html = None   # a front page's own header / foot (frontmatter.py), else the standard ones
         self.web_title = False        # the title is ours, not the notes' (web layer, REVIEW.md)
+        self.source = None            # what the page is generated from, when it is not a span of the source (D52)
 
 
 class Ctx:
@@ -226,6 +264,86 @@ def front_pages(src: source.Source, P: Parser, ctx, front: Page) -> list:
             p.slug = slugify(plain(p.title_html))
         out.append(p)
     return out
+
+
+# Pages that LaTeX generates (unit B5, D52): \listoffigures and \bibliography{..} in main.tex place the List of
+# Figures and the Bibliography in the notes' order; a main.tex without the command has no such page. Their titles
+# are the words the book class prints (\listfigurename, \bibname), so the notes' words; the addresses are fixed
+# (PLAN page map; render.cite links to bibliography.html). Kind 'front' before the first chapter, 'back' after it.
+LISTS = {'lof': (re.compile(r'\\listoffigures(?![A-Za-z])'), 'List of Figures', 'list-of-figures'),
+         'bib': (re.compile(r'\\bibliography\s*\{[^{}]*\}'), 'Bibliography', 'bibliography')}
+MATTER = ('front', 'back')
+RENAMED = re.compile(r'\\(?:listfigurename|bibname)(?![A-Za-z])|\{\s*(?:babel|polyglossia)\s*\}')
+
+
+def list_pages(src: source.Source, front: Page) -> list:
+    m = RENAMED.search(src.preamble + src.text)
+    if m:
+        raise SystemExit(f'main.tex: "{m.group(0)}": the titles of the List of Figures and the Bibliography would no '
+                         f'longer be the book class\'s; update build.LISTS')
+    out = []
+    for role, (rx, title, slug) in LISTS.items():
+        ms = list(rx.finditer(src.text))
+        if len(ms) > 1:
+            raise SystemExit(f'{src.where(ms[1].start())}: a second {ms[1].group(0)}: no handler')
+        if ms:
+            p = Page('front' if ms[0].start() < front.b else 'back', ms[0].start(), ms[0].end())
+            p.role, p.title_html, p.slug = role, esc(title), slug
+            out.append(p)
+    return out
+
+
+def render_lof(p: Page, ctx: Ctx, lof: list):
+    """The List of Figures (D52): the captions' short forms (the long caption when there is none) as the
+    renderer collected them from the figures of every page (Renderer.figure_html), in order. Their numbers and
+    order must be those of main.lof; otherwise the page stops. Each entry: the number, a link to the figure made
+    like a reference (hover preview), and the caption with its own references as separate links."""
+    got = [f[0] for f in ctx.figure_list]
+    for i in range(max(len(got), len(lof))):
+        g = got[i] if i < len(got) else None
+        w = lof[i][0] if i < len(lof) else None
+        if g != w:
+            line = lof[min(i, len(lof) - 1)][1] if lof else 1
+            say = lambda x: f'Figure {x}' if x else 'no figure'
+            raise ConvertError(f'main.lof:{line}: the LaTeX build lists {say(w)} where the converter has {say(g)} '
+                               f'(entry {i + 1}; the List of Figures must have the numbers and order of main.lof)')
+    lis = []
+    for (num, slug, fid, cap), (_, _, gap) in zip(ctx.figure_list, lof):
+        lab = f' data-label="{esc(fid)}"' if fid in ctx.aux else ''
+        cap = re.sub(r'<span class="dg-anchor" id="[^"]*"></span>', '', cap)       # a \label in a caption: no second anchor
+        lis.append(f'<li{" class=\"dg-lof-gap\"" if gap else ""}><span class="dg-lof-num">'
+                   f'<a class="dg-xref" href="\x02U|{slug}#{fid}\x02" data-kind="figure"{lab}>{num}</a></span> '
+                   f'<span class="dg-lof-cap">{cap}</span></li>')
+    p.html = f'<ol class="dg-lof">{"".join(lis)}</ol>'
+    p.source = 'the figure captions of the notes (numbers and order checked against main.lof)'
+
+
+def render_bib(p: Page, ctx: Ctx, path: str):
+    """The Bibliography (D52): one entry per \\bibitem of main.bbl, in its order, id bib-<key> (the target of
+    the citations, render.cite), the entry text through the inline renderer; a construct it does not know stops
+    the page with main.bbl:line."""
+    txt = open(path, encoding='utf-8').read()
+    m = re.search(r'\\begin\{thebibliography\}\{[^{}]*\}', txt)
+    first = txt.find('\\bibitem', m.end() if m else 0)
+    if not m or first == -1:
+        raise ConvertError('main.bbl: no \\begin{thebibliography} with \\bibitem entries')
+    if not BBL_PREAMBLE.fullmatch(txt, m.end(), first):
+        raise ConvertError(f'main.bbl:{txt.count(chr(10), 0, m.end()) + 1}: the lines before the first \\bibitem are not '
+                           f'the plainnat preamble build.BBL_PREAMBLE knows')
+    n = len(re.findall(r'\\bibitem(?![A-Za-z])', txt))
+    if n != len(ctx.bib):
+        raise ConvertError(f'main.bbl: {n} \\bibitem but build.read_bbl read {len(ctx.bib)} (an entry of a form it does not know)')
+    lis = []
+    for key, v in ctx.bib.items():
+        P = Parser(v['entry_tex'])
+        try:
+            body = Renderer(ctx, p, P, {}).inline(P.parse(0, len(v['entry_tex'])))
+        except ConvertError as e:
+            line = v['line'] + v['entry_tex'].count('\n', 0, e.pos or 0)
+            raise ConvertError(f'main.bbl:{line}: {e.msg}')
+        lis.append(f'<li id="bib-{esc(key)}">{re.sub(" {2,}", " ", body).strip()}</li>')
+    p.html = f'<ul class="dg-bib">{"".join(lis)}</ul>'
+    p.source = 'main.bbl'
 
 
 def render_front(p: Page, ctx: Ctx, P: Parser, records: dict):
@@ -541,8 +659,8 @@ def course_tree(p: Page, order: list, items: list) -> str:
             subs = out_ol
         lis.append(f'<li class="{cls}">{link}{out_ol if here and c.children else ""}{subs}</li>')
     matter = ''.join('<li{}>{}{}</li>'.format(*((f' class="{c}"' if c else ''), link, out_ol if here else ''))
-                     for c, link, here in (entry(q) for q in order if q.kind == 'front'))
-    if matter:                          # front (and later back) matter, after the appendices (PLAN: sidebar)
+                     for c, link, here in (entry(q) for q in order if q.kind in MATTER))
+    if matter:                          # front and back matter, after the appendices (PLAN: sidebar)
         matter = f'<ol class="dg-tree-list dg-tree-matter">{matter}</ol>'
     home = rel(p.slug, 'index.html')
     return (f'<nav class="dg-tree dg-web" id="dg-tree" aria-label="{shell.INTERFACE["tree"]}">'
@@ -703,8 +821,8 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
 
 def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list, chapters: dict):
     num = f'<span class="dg-secnum">{p.number}</span> ' if p.number and p.kind == 'section' else ''
-    if p.kind == 'front':
-        head = p.head_html or (f'<header class="dg-head dg-head-front">'
+    if p.kind in MATTER:
+        head = p.head_html or (f'<header class="dg-head dg-head-{p.kind}">'
                                f'<h1 class="dg-title{" dg-web" if p.web_title else ""}">{p.title_html}</h1></header>')
     else:
         head = (f'<header class="dg-head dg-head-{p.kind}"><p class="dg-kicker">{kicker(p)}</p>'
@@ -749,7 +867,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     crumbs.append(f'<span aria-current="page">{numbered(p)}{nolinks(p.title_html)}</span>')
     crumbs = [resolve(c, p, ctx, where) for c in crumbs]
     tree = resolve(course_tree(p, order, outline(p.html)), p, ctx, where)
-    src_files = ', '.join(sorted({ctx.src.loc(o)[0] for o in (p.a, p.b - 1)}))
+    src_files = p.source or ', '.join(sorted({ctx.src.loc(o)[0] for o in (p.a, p.b - 1)}))
     text = shell.document(cfg=cfg, slug=p.slug, source=src_files,
                           title=f'{title.replace("$", "")} – {shell.COURSE_TITLE} – {shell.SITE_NAME}',
                           desc=shell.description(text_of(body)), crumbs=crumbs, tree=tree,
@@ -794,7 +912,7 @@ def write_lastmod(files: set):
         open(path, 'w', encoding='utf-8').write(text)
 
 
-def write_landing(front, pages, fronts, ctx, files, cfg: dict, search: list):
+def write_landing(front, pages, matter, ctx, files, cfg: dict, search: list):
     """The landing page: templates/landing.html (hand-written) with fragments generated from main.tex."""
     import cover
     texts = cover.extract(ctx.src.text[front.a:front.b])
@@ -813,12 +931,14 @@ def write_landing(front, pages, fronts, ctx, files, cfg: dict, search: list):
                   f'<span class="dg-epigraph-source">{h["quote_source"]}</span></footer></blockquote></section>'
                   f'<section class="dg-dedication"><p>{h["dedication"]}</p></section>')
     lis = []
-    for q in fronts:                    # the notes' contents list About the Author before Chapter 1, not the copyright page
+    for q in matter:                    # the notes' contents list About the Author before Chapter 1, not the copyright page
         if q.role == 'about' and q.html is not None:
             lis.append(f'<li class="dg-contents-front"><a href="{q.slug}.html">'
                        f'<span class="dg-contents-title">{nolinks(q.title_html)}</span></a></li>')
+    # the pages that are not in the notes' contents (the copyright page, the List of Figures, the Bibliography):
+    # small links after the dedication, in the notes' order (D51, D52)
     legal = ''.join(f'<p class="dg-web dg-landing-legal"><a href="{q.slug}.html">{q.title_html}</a></p>'
-                    for q in fronts if q.role == 'copyright' and q.html is not None)
+                    for q in matter if q.role in ('copyright', 'lof', 'bib') and q.html is not None)
     for c in (p for p in pages if p.kind == 'chapter'):
         if c.part_html:                 # a part title of the notes' contents ("Appendices")
             lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
@@ -916,7 +1036,17 @@ def main():
                 p.title_html = '…'
 
     part_titles(pages, ctx, P)
-    order = fronts + pages              # the notes' order: front matter, chapters, appendices
+    lists = list_pages(src, front)      # after every page: the List of Figures takes the figures they rendered
+    for q in lists:
+        try:
+            if q.role == 'lof':
+                render_lof(q, ctx, read_lof(os.path.join(SRC, 'main.lof')))
+            else:
+                render_bib(q, ctx, os.path.join(SRC, 'main.bbl'))
+        except ConvertError as e:
+            q.error = f'{src.where(e.pos if e.pos is not None else q.a)}: {e.msg}'
+    # the notes' order (front matter, chapters, appendices, back matter): where main.tex places each page
+    order = sorted(fronts + lists + pages, key=lambda q: q.a)
     done = [p for p in order if p.html is not None]
     print(f'{len(done)} of {len(order)} pages convert')
     for p in order:
@@ -942,7 +1072,7 @@ def main():
     search: list = []
     for p in done:
         write_page(p, ctx, where, order, files, cfg, search, chapters)
-    write_landing(front, pages, fronts, ctx, files, cfg, search)
+    write_landing(front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:

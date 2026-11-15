@@ -16,6 +16,9 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     that must stop the page. (Typesetting is stubbed here; the real flowchart is built by build.py.)
   * tabular (D48): column specs of the three tables in the build (incl. the copyright page's, unit B4),
     rules, \\hline header, row spacing, \\arraystretch, display tabular as a block, refusals.
+  * List of Figures and Bibliography (unit B5, D52): where main.tex places them (page order, course tree),
+    main.lof parsed and compared with the converter's figures (a mismatch stops the page), the entries of
+    main.bbl (accents, \\emph, \\url, --, \\penalty0, \\newblock, ids) and the forms that stop the page.
 """
 from __future__ import annotations
 import os
@@ -290,6 +293,97 @@ def main() -> int:
           and 'href="https://daniellopezcano.github.io"' in foot and 'href="https://github.com/daniellopezcano"' in foot
           and not any(getattr(n, 'raw', '') and 'overlay' in n.raw for n in rest), (head, foot))
     ctx.figures = real_figures
+
+    # -- List of Figures and Bibliography (unit B5, D52) ----------------------------------------
+    lists = build.list_pages(src, front)
+    check('main.tex places a List of Figures (front matter) and a Bibliography (back matter); titles are the book class\'s',
+          [(q.role, q.kind, q.slug, q.title_html) for q in lists]
+          == [('lof', 'front', 'list-of-figures', 'List of Figures'), ('bib', 'back', 'bibliography', 'Bibliography')],
+          [(q.role, q.kind, q.slug, q.title_html) for q in lists])
+    order = sorted(fronts + lists + pages, key=lambda q: q.a)
+    for q in order:
+        q.html = ''
+    build.assign_slugs(pages, P, src)
+    slugs = [q.slug for q in order]
+    check('page order (previous/next): copyright, List of Figures, About the Author, Chapter 1 ... C.9, Bibliography (last)',
+          slugs[:4] == ['copyright', 'list-of-figures', 'about-the-author', 'introduction/index']
+          and slugs[-2:] == ['examples/example-schwarzschild', 'bibliography'], slugs[:4] + slugs[-2:])
+    import re as _re
+    tree = build.course_tree(order[-1], order, [])
+    group = _re.search(r'<ol class="dg-tree-list dg-tree-matter">(.*?)</ol>', tree)
+    check('course tree: the front and back matter group, in the notes\' order',
+          group is not None and _re.findall(r'>([^<>]+)</a>', group.group(1))
+          == ['Copyright, License and Funding', 'List of Figures', 'About the Author', 'Bibliography'], tree[-600:])
+    for q in order:
+        q.html = None
+
+    lof_text = open(os.path.join(build.SRC, 'main.lof'), encoding='utf-8').read()
+    lof = build.parse_lof(lof_text)
+    check('main.lof: numbers in order, a gap at each chapter change (none before the first entry)',
+          lof[0][:1] == ('1.1',) and not lof[0][2] and [n for n, _, g in lof if g][:3] == ['2.1', '3.1', '4.1']
+          and '10.3' in [n for n, _, _ in lof] and not any(g for n, _, g in lof if n in ('1.2', '4.2', 'C.19')), lof[:6])
+    lofp = lists[0]
+    figs = [(n, 'some/page', f'fig-{n}', f'Caption {n} (\\S\x02R|section_Spacetime|ref\x02)') for n, _, _ in lof]
+    ctx.figure_list = list(figs)
+    build.render_lof(lofp, ctx, lof)
+    h = lofp.html
+    check('List of Figures: one entry per figure, the number a reference-style link (dg-xref, figure) beside the caption, '
+          'whose references stay separate links',
+          h.startswith('<ol class="dg-lof"><li><span class="dg-lof-num"><a class="dg-xref" href="\x02U|some/page#fig-1.1\x02" '
+                       'data-kind="figure">1.1</a></span> <span class="dg-lof-cap">Caption 1.1 (\\S\x02R|section_Spacetime|ref\x02)</span></li>')
+          and h.count('<li') == len(lof) and h.count('class="dg-lof-gap"') == sum(g for _, _, g in lof), h[:300])
+    for name, fl in (('two figures in another order', figs[:1] + [figs[2], figs[1]] + figs[3:]),
+                     ('a figure missing', figs[:-1]), ('an extra figure', figs + [('C.20', 'x', 'fig-x', 'x')]),
+                     ('a different number', [('1.9',) + figs[0][1:]] + figs[1:])):
+        ctx.figure_list = list(fl)
+        try:
+            build.render_lof(lofp, ctx, lof)
+            check(f'List of Figures vs main.lof, {name}: stops the page', False, 'no error')
+        except ConvertError as e:
+            check(f'List of Figures vs main.lof, {name}: stops the page ({e.msg[:90]}...)', e.msg.startswith('main.lof:'), e.msg)
+    try:
+        build.parse_lof(lof_text + '\\contentsline {table}{\\numberline {1.1}{\\ignorespaces T}}{3}{table.1}%\n')
+        check('main.lof with a line of another form stops the page', False, 'no error')
+    except ConvertError as e:
+        check(f'main.lof with a line of another form stops the page ({e.msg[:60]}...)', e.msg.startswith('main.lof:'), e.msg)
+    ctx.figure_list = []
+
+    bbl = os.path.join(build.SRC, 'main.bbl')
+    ctx.bib = build.read_bbl(bbl)
+    bibp = lists[1]
+    build.render_bib(bibp, ctx, bbl)
+    h = bibp.html
+    ids = _re.findall(r'<li id="bib-([^"]+)">', h)
+    check('Bibliography: one entry per \\bibitem, in the .bbl\'s order, id bib-<key>', ids == list(ctx.bib) and len(ids) == 6, ids)
+    entry = lambda k: _re.search(rf'<li id="bib-{k}">(.*?)</li>', h).group(1)
+    # ~: what typo() makes of every ~ of the notes (today a plain space, see the B5 report), so either is accepted here
+    sp = lambda t: t.replace('\u00a0', ' ')
+    check('Bibliography: accents ({\\\'\\i}, {\\\'a}), \\emph, ~ as a space, \\newblock as one space',
+          entry('Ortin_2004') == 'Tomás Ortín. <em>Gravity and Strings</em>. Cambridge Monographs on Mathematical Physics. '
+                                 'Cambridge University Press, Cambridge, 2004.'
+          and sp(entry('Landau_Lifshitz_1975')).startswith('L. D. Landau and E. M. Lifshitz. <em>The Classical Theory of Fields</em>, '
+                                                           'volume 2 of <em>Course of Theoretical Physics</em>.'), (entry('Ortin_2004'), entry('Landau_Lifshitz_1975')))
+    check('Bibliography: -- an en dash, \\penalty0 a break opportunity, {Hamiltonian} its word',
+          entry('Regge_Teitelboim_1974') == 'Tullio Regge and Claudio Teitelboim. Role of surface integrals in the Hamiltonian '
+                                            'formulation of general relativity. <em>Annals of Physics</em>, 88:<wbr>286–318, 1974.',
+          entry('Regge_Teitelboim_1974'))
+    check('Bibliography: \\url a link whose text is the URL as printed (typewriter)',
+          entry('IWSGL').endswith('<a href="https://www.youtube.com/watch?v=7G4SqIboeig&amp;list=PLFeEvEPtX_0S6vxxiiNPrJbLu9aK1UVC_&amp;index=1">'
+                                  '<code class="dg-code">https://www.youtube.com/watch?v=7G4SqIboeig&amp;list=PLFeEvEPtX_0S6vxxiiNPrJbLu9aK1UVC_&amp;index=1'
+                                  '</code></a>, Feb 2015.') and sp(entry('IWSGL')).startswith('Frederic P Schuller. A thorough'), entry('IWSGL'))
+    keep = ctx.bib['Poisson_2004']['entry_tex']
+    for name, tex, want in (('a command it does not know', keep + ' \\doi{10.1/x}', 'main.bbl:'),
+                            ('\\penalty other than 0', keep.replace('Cambridge,', 'Cambridge,\\penalty10000'), 'main.bbl:')):
+        ctx.bib['Poisson_2004']['entry_tex'] = tex
+        try:
+            build.render_bib(bibp, ctx, bbl)
+            check(f'Bibliography entry with {name} stops the page', False, 'no error')
+        except ConvertError as e:
+            check(f'Bibliography entry with {name} stops the page ({e.msg})', e.msg.startswith(want), e.msg)
+    ctx.bib['Poisson_2004']['entry_tex'] = keep
+    line = ctx.bib['Poisson_2004']['line']
+    check('main.bbl line of an entry is where its text starts',
+          open(bbl, encoding='utf-8').read().split('\n')[line - 1].startswith('Eric Poisson.'), line)
 
     print('ALL PASSED' if not FAIL else f'{len(FAIL)} FAILED')
     return 1 if FAIL else 0

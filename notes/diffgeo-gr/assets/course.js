@@ -77,11 +77,12 @@ function adopt(node, base) {
 }
 
 // ---- 1. popovers ----------------------------------------------------------------------------
-// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">.
+// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">; citations:
+// <a class="dg-cite">, previewing their entry of the Bibliography page (D52).
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
 // With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6).
-const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href]';
+const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href], a.dg-cite[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
 let lastPointer = 'mouse';
@@ -138,10 +139,10 @@ async function show(t) {
   try { content = await popContent(t); } catch (err) { content = null; }
   if (token !== pop.token || !content) { if (token === pop.token) pop.trigger = null; return; }
   const el = popEl();
-  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : 'footnote';
+  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : t.matches('a.dg-cite') ? 'cite' : 'footnote';
   el.replaceChildren(content);
   el.hidden = false;
-  if (t.matches('a.dg-xref')) t.setAttribute('aria-describedby', 'dg-pop');
+  if (t.matches('a.dg-xref, a.dg-cite')) t.setAttribute('aria-describedby', 'dg-pop');
   place();
   if (content.classList.contains('dg-pop-raw')) {
     try { await typeset(content); } catch (err) { /* the TeX source stays readable */ }

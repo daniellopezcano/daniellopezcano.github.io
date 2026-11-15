@@ -625,6 +625,12 @@ class Renderer:
             return ''
         if name == 'bibliography':
             return ''                                        # its own page, built from the .bbl
+        if name == 'newblock':                               # plainnat: a small space between the blocks of an entry
+            return ' '
+        if name == 'penalty':                                # \penalty0 (main.bbl): a line break allowed, nothing printed
+            if int(a[0]) != 0:
+                raise ConvertError(f'\\penalty{a[0]}: no handler (only \\penalty0)', nd.pos)
+            return '<wbr>'
         raise ConvertError(f'\\{name}: declared in texparse.CMDS but has no handler in render.py', nd.pos)
 
     def colour(self, name: str, pos: int) -> str:

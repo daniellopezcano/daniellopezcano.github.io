@@ -763,8 +763,23 @@ h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; fon
   .dg-about-portrait { width: 6.5rem; margin-top: -3.6rem; }
   .dg-timeline { font-size: 0.92em; }
 }
+.dg-landing-legal + .dg-landing-legal { margin-top: 0.15rem; }
+
+/* ---- 8c. List of Figures and Bibliography (unit B5, D52) ------------------------------------------- */
+/* LoF: as the PDF's, a number column and the caption beside it (hanging), the book class's 10 pt between
+   chapters (\addvspace); no page numbers (they are the PDF's layout) */
+.dg-lof { list-style: none; margin: 1rem 0 1.5rem 1.5em; padding: 0; }
+.dg-lof > li { display: grid; grid-template-columns: 3.1em minmax(0, 1fr); margin: 0.12rem 0; line-height: 1.45; }
+.dg-lof > li.dg-lof-gap { margin-top: 0.85rem; }
+/* Bibliography: plainnat author-year, no labels, hanging indent (natbib's \bibhang, 1 em) */
+.dg-bib { list-style: none; margin: 1rem 0 1.5rem; padding: 0; }
+.dg-bib > li { margin: 0 0 0.75rem; padding-left: 1em; text-indent: -1em; }
+.dg-bib .dg-code { overflow-wrap: anywhere; }
+@media (max-width: 599.98px) { .dg-lof { margin-left: 0; } }
+
 @media print {
   .dg-about-band { border-radius: 0; }
+  .dg-lof > li, .dg-bib > li { break-inside: avoid; }
   .dg-about-band, .dg-about-band::after, .dg-grant, .dg-tcb { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 

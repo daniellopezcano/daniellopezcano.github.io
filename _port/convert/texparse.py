@@ -80,6 +80,7 @@ class Group(Node):
 # Signatures.  One letter per argument:
 #   m  mandatory, parsed as text        r  mandatory, raw source string
 #   O  optional [..], parsed as text    o  optional [..], raw source string
+#   n  a TeX integer (\penalty0): optional sign and digits, and the one space TeX's number reading takes
 # A trailing '*' in the key is not used: starred forms are detected generically
 # for the names listed in STARRED.
 # ---------------------------------------------------------------------------
@@ -123,6 +124,8 @@ CMDS: dict[str, str] = {
     # front matter (unit B4): a rule, print-only bookkeeping, and the page-local macros of the copyright page,
     # which the renderer accepts only after their \newcommand on the same page
     'rule': 'orr', 'phantomsection': '', 'markboth': 'rr', 'cpheading': 'm', 'grantbadge': 'm',
+    # bibliography entries of main.bbl (unit B5): plainnat's block separator and a TeX penalty (n: a TeX integer)
+    'newblock': '', 'penalty': 'n',
 }
 for _c in ('blue', 'green', 'purple', 'orange', 'red', 'yellow', 'brown', 'teal', 'rose', 'olive', 'indigo'):
     CMDS[_c + 'one'] = 'm'
@@ -151,6 +154,7 @@ MATH_ENVS = {'equation', 'equation*', 'align', 'align*', 'gather', 'gather*', 'm
 _WORD = re.compile(r'[A-Za-z@]+')
 _PARBREAK = re.compile(r'\n[ \t]*(\n[ \t]*)+')
 _PLAIN = re.compile(r'[^\\${}~\n]+')
+_INT = re.compile(r'([+-]?\d+) ?')
 
 
 class Parser:
@@ -256,6 +260,13 @@ class Parser:
         args = []
         for kind in sig:
             j = self.skip_ws(i, end)
+            if kind == 'n':
+                m = _INT.match(self.s, j, end)
+                if not m:
+                    raise ConvertError('missing number', pos)
+                args.append(m.group(1))
+                i = m.end()
+                continue
             if kind in 'oO':
                 if j < end and self.s[j] == '[':
                     k = self.bracket_end(j, end)

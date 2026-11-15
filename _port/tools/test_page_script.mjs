@@ -15,6 +15,7 @@
 // Unit R10c: read marks after the delay (window.__dgReadDelay), the course tree scrolled to the current entry,
 // previews inside the viewport, search snippets without raw TeX, and on every page at 1440 and 390 px no line
 // break between a formula / reference and its punctuation (D44) and sidenote math within its note (D45).
+// Unit B5 (D52): a citation previews its Bibliography entry; a List of Figures number previews its figure.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -141,6 +142,22 @@ try {
       await page.mouse.move(5, 500); await page.waitForTimeout(400);
     }
     await page.close();
+  }
+  // 2c (unit B5, D52). a citation previews its Bibliography entry; a List of Figures number previews the figure
+  {
+    const { page } = await open('gr/matter.html');
+    const c = page.locator('a.dg-cite[href$="#bib-Landau_Lifshitz_1975"]').first();
+    await c.scrollIntoViewIfNeeded(); await c.hover();
+    const t = await waitPop(page, s => s.includes('Landau'));
+    ok(t.startsWith('L.') && t.includes('The Classical Theory of Fields') && t.includes('1975.'), 'citation preview shows its Bibliography entry');
+    ok((await c.getAttribute('aria-describedby')) === 'dg-pop', 'citation is described by the popover while open');
+    await page.close();
+    const { page: p2 } = await open('list-of-figures.html');
+    const x = p2.locator('.dg-lof a.dg-xref[data-label="fig_maps_examples"]').first();
+    await x.hover();
+    const f = await waitPop(p2, s => s.includes('Figure 2.1'));
+    ok(f.includes('Figure 2.1') && (await p2.locator('#dg-pop figure img').count()) === 1, 'List of Figures: the number previews its figure');
+    await p2.close();
   }
   // 1b. touch: first tap previews, tap elsewhere closes
   {

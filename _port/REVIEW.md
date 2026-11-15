@@ -86,6 +86,7 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | course tree and landing contents (R10) | "Appendices" before Appendix A is your part title from the table of contents (`main.tex`: `\addcontentsline{toc}{part}{Appendices}`), read from the source, not a web word |
 | copyright page (B4, D51) | page title "Copyright, License and Funding" (your page has no title: it is the reverse of the title page); also its entry in the course tree, the breadcrumb, the browser tab and the link at the end of the landing page. The page itself is your text, unchanged, including the title block, both headings, the licence and both FAPESP paragraphs |
 | About the Author (B4, D51) | no words added: the header (your "About the Author", name, affiliation) and the links at the foot are taken from your page's TikZ overlay; the portrait's text alternative for screen readers is your name; the timeline is your four `\aboutstop` entries as a list (years, role, place), in order |
+| List of Figures and Bibliography (B5, D52) | no words added: the titles are the words LaTeX's book class prints in your PDF ("List of Figures", "Bibliography"), also used for their entries in the course tree, the breadcrumb, the browser tab and the two links at the end of the landing page (after the copyright link); the List of Figures shows your caption short forms (Figure 10.3 included) without the PDF's page numbers, the Bibliography your `main.bbl` entries as the PDF prints them |
 
 ### Choices made in the pilot interactives (say if you want them otherwise)
 
