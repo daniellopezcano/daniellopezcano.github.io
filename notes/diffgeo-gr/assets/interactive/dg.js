@@ -10,7 +10,8 @@
 //   matrix(rows, cols)            numeric matrix or column vector in brackets (plain text; set(M) is cheap)
 //   Plot2D                        SVG plot: data->pixel scales (equal: same scale on both axes), axes, lines,
 //                                 filled areas, arrows, keyed draggable handles (hit area >= 24 px, D56)
-//   Scene3D                       canvas-2D 3D scene: shaded surfaces (colour per quad), curves, points, arrows, drag to rotate
+//   Scene3D                       canvas-2D 3D scene: shaded surfaces (colour per quad), curves, points, arrows, drag to rotate;
+//                                 project() (world -> canvas px) and grab (drag a picked object instead of rotating)
 //   Touch (D56, interactive.css): drawings are touch-action pan-y pinch-zoom, so a vertical swipe scrolls the page;
 //   draggable handles are touch-action none and cancel their touchstart; on touch the 3D view rotates only about the vertical.
 //   dispose(root)                 stop the observers of the plots and scenes inside root (Reset re-mounts, D55)
@@ -444,6 +445,9 @@ function fmtTick(t, all) {
  * clear(tag) removes just those): surface, polyline, point, arrow. Call render() after changes;
  * it draws once on the next animation frame (no permanent loop). Drag / arrow keys rotate (on touch,
  * horizontal drags only: azimuth), double click or Home resets the view.
+ * grab(x, y): optional; called with the canvas position (css px) of a pointer or touch that starts on the canvas.
+ * If it returns a function, that function receives the positions of the drag (move(x, y)) instead of the view
+ * rotating, and a touch that starts there does not scroll the page (D56). It must not change anything itself.
  */
 export class Scene3D {
   constructor(parent, opt = {}) {
@@ -502,9 +506,17 @@ export class Scene3D {
   wire() {
     const c = this.canvas;
     let drag = null;
-    c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; c.setPointerCapture(e.pointerId); c.classList.add('dg-grabbing'); });
+    const at = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    const grab = e => this.o.grab && this.o.grab(...at(e));
+    c.addEventListener('pointerdown', e => {
+      const move = grab(e);
+      if (move) e.preventDefault();
+      drag = { x: e.clientX, y: e.clientY, id: e.pointerId, move }; c.setPointerCapture(e.pointerId); c.classList.add('dg-grabbing');
+    });
+    c.addEventListener('touchstart', e => { if (e.touches.length === 1 && grab(e.touches[0])) e.preventDefault(); }, { passive: false });
     c.addEventListener('pointermove', e => {
       if (!drag || drag.id !== e.pointerId) return;
+      if (drag.move) { drag.move(...at(e)); return; }
       // on touch only horizontal drags rotate (azimuth): vertical swipes scroll the page (touch-action pan-y, D56)
       const dx = e.clientX - drag.x, dy = e.pointerType === 'touch' ? 0 : e.clientY - drag.y;
       drag.x = e.clientX; drag.y = e.clientY;
@@ -537,9 +549,28 @@ export class Scene3D {
     requestAnimationFrame(() => { this.queued = false; this.draw(); });
   }
 
+  /** The current view: canvas size (css px), camera vectors and proj(p) -> [x, y, depth] (larger depth: nearer the viewer). */
+  view() {
+    const W = this.wrap.clientWidth || 300, H = Math.round(W * this.o.aspect);
+    const az = this.o.azimuth * Math.PI / 180, elv = this.o.elevation * Math.PI / 180;
+    const eye = [Math.cos(elv) * Math.cos(az), Math.cos(elv) * Math.sin(az), Math.sin(elv)];
+    const right = [-Math.sin(az), Math.cos(az), 0];
+    const up = [-Math.sin(elv) * Math.cos(az), -Math.sin(elv) * Math.sin(az), Math.cos(elv)];
+    const [cen, R] = this.bounds();
+    const scale = Math.min(W, H) / (2 * R) * this.o.zoom, D = this.o.perspective;
+    const proj = p => {
+      const d = [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2]];
+      const z = dot3(d, eye), k = D ? D * R / (D * R - z) : 1;
+      return [W / 2 + dot3(d, right) * scale * k, H / 2 - dot3(d, up) * scale * k, z];
+    };
+    return { W, H, eye, right, up, R, proj };
+  }
+  /** Canvas position (css px) and depth of the world point p in the current view. */
+  project(p) { return this.view().proj(p); }
+
   /** Draw now (normally called through render()). */
   draw() {
-    const W = this.wrap.clientWidth || 300, H = Math.round(W * this.o.aspect), dpr = window.devicePixelRatio || 1;
+    const { W, H, eye, right, up, R, proj } = this.view(), dpr = window.devicePixelRatio || 1;
     const c = this.canvas, ctx = this.ctx;
     if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) {
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); c.style.width = W + 'px'; c.style.height = H + 'px';
@@ -548,18 +579,7 @@ export class Scene3D {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
     if (!this.prims.length) return;
-    const az = this.o.azimuth * Math.PI / 180, elv = this.o.elevation * Math.PI / 180;
-    const eye = [Math.cos(elv) * Math.cos(az), Math.cos(elv) * Math.sin(az), Math.sin(elv)];
-    const right = [-Math.sin(az), Math.cos(az), 0];
-    const up = [-Math.sin(elv) * Math.cos(az), -Math.sin(elv) * Math.sin(az), Math.cos(elv)];
-    const [cen, R] = this.bounds();
-    const scale = Math.min(W, H) / (2 * R) * this.o.zoom, D = this.o.perspective;
-    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const proj = p => {
-      const d = [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2]];
-      const z = dot(d, eye), k = D ? D * R / (D * R - z) : 1;
-      return [W / 2 + dot(d, right) * scale * k, H / 2 - dot(d, up) * scale * k, z];
-    };
+    const dot = dot3;
     // light fixed relative to the viewer, given as [right, up, towards the viewer]
     const L = this.o.light, ln = Math.hypot(...L);
     const lw = [0, 1, 2].map(k => (L[0] * right[k] + L[1] * up[k] + L[2] * eye[k]) / ln);
@@ -621,6 +641,7 @@ export class Scene3D {
     }
   }
 }
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 function shadeHex(hex, k) {
   const n = parseInt(hex.slice(1), 16);
   const ch = s => Math.max(0, Math.min(255, Math.round(((n >> s) & 255) * k)));

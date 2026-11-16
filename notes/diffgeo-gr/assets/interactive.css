@@ -168,3 +168,21 @@
 .dg-controls .dg-tr-lambda { flex: 1 1 9rem; }
 .dg-controls .dg-tr-kappa { flex: 0 1 11rem; }
 .dg-tr-lambda input[type="range"], .dg-tr-kappa input[type="range"] { min-width: 5rem; }
+
+/* ---- charts and transition maps (charts, B26, after Figure 3.1): the 3D view centred above the two chart panels, the
+   transition maps between them (Figure 3.1's arrow), the label of p under each chart; stacked, with vertical arrows, on phones ---- */
+.dg-charts [hidden] { display: none !important; }
+.dg-charts { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-charts-scene { width: 100%; max-width: 560px; margin: 0 auto; }
+.dg-ch-plabel { font-size: 0.9rem; }
+.dg-ch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem 0.6rem; }
+.dg-ch-end { display: flex; justify-content: center; margin-top: 0.3rem; min-height: 1.6em; }
+.dg-ch-end .dg-readout-value { min-width: 0; }
+.dg-ch-arrows { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; font-size: 1.05rem; transition: opacity 0.15s; }
+.dg-ch-arrows.dg-ch-off { opacity: 0.3; }
+.dg-ch-v { display: none; }
+@media (max-width: 767.98px) {
+  .dg-ch-row { grid-template-columns: minmax(0, 1fr); }
+  .dg-ch-h { display: none; }
+  .dg-ch-v { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+}

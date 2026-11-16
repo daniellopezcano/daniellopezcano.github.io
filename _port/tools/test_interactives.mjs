@@ -6,7 +6,8 @@
 // transformation law of §4.1.1 (finite differences of the chart maps) and those of the laws module against the laws
 // of §2.3 (components through J and J⁻¹, the pairing over 200 random bases; its place at the end of §2.3, D57), those of the
 // transport module against the closed forms of Appendix C.5 (parallel transport, autoparallels, torsion, curvature, the
-// coefficients in the chart Y; its place at the end of C.5, D57), checks touch on a phone (D56: a swipe
+// coefficients in the chart Y; its place at the end of C.5, D57), those of the charts module against the charts and
+// transition maps of §3.2 (Figure 3.1: p on M, X(p) and Y(p) stay linked wherever p is dragged; membership in U, V), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -21,6 +22,7 @@ const VAR = 'notes/diffgeo-gr/examples/example-variations.html';
 const TPM = 'notes/diffgeo-gr/tangent-spaces/tangent-space.html';
 const LAWS = 'notes/diffgeo-gr/vector-spaces/basis-components-transformations.html';
 const TR = 'notes/diffgeo-gr/examples/example-connection-torsion-curvature.html';
+const CHARTS = 'notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html';
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -341,6 +343,155 @@ async function tpmCrossChecks(page) {
   check(wY < 1e-12 && wI < 1e-12, `Y(p) vs closed form ${wY.toExponential(1)}; Y^-1 o Y = id ${wI.toExponential(1)}`);
   check(wP < 1e-12, `both curves pass through p at lambda_0: ${wP.toExponential(1)}`);
   check(wH < 1e-12, `embedding height vs the notebook's formula: ${wH.toExponential(1)}`);
+}
+
+// ---- charts (Figure 3.1): the figure's charts, written here independently of the module (eggs.js). X is the identity on
+// the parameters, Y polar coordinates about (-1, -1); U, V the ellipses of the notebook 2_1_charts.ipynb.
+const chU = q => ((q[0] - 0.1) / 0.9) ** 2 + ((q[1] + 0.7) / 1.5) ** 2, chV = q => ((q[0] - 0.7) / 1.4) ** 2 + ((q[1] - 0.3) / 0.9) ** 2;
+const chY = tpmY, chYinv = ([r, t]) => [-1 + r * Math.cos(t), -1 + r * Math.sin(t)];
+const CH_A = Math.PI * Math.PI / 3, CH_LIM = { X: [[-CH_A, CH_A], [-CH_A, CH_A]], Y: [[-0.2, 5.5], [-Math.PI - 0.2, Math.PI + 0.2]] };
+
+async function testCharts(width) {
+  console.log(`charts @ ${width}px`);
+  const { page, errors } = await open(CHARTS, width);
+  await ready(page);
+  const fr = page.locator('.dg-interactive');
+  const state = async () => JSON.parse(await fr.locator('.dg-charts').getAttribute('data-state'));
+  const panel = k => fr.locator('.dg-ch-row .dg-panel').nth(k);
+  const canvas = fr.locator('canvas');
+  const canvasHash = () => canvas.evaluate(c => { const d = c.toDataURL(); let h = 0; for (let k = 0; k < d.length; k += 7) h = (h * 31 + d.charCodeAt(k)) | 0; return h; });
+  // p on M, X(p) in (U, X) and Y(p) in (V, Y): the handles sit at the closed-form images of the module's p (pixel positions
+  // from the plot frame and the figure's ranges), the readouts show the same numbers, or p ∉ U / p ∉ V where the chart is not defined
+  async function linked(what) {
+    const st = await state(), iu = chU(st.p) < 1, iv = chV(st.p) < 1, img = { X: st.p, Y: chY(st.p) };
+    let err = 0, ok = st.inU === iu && st.inV === iv && (iu || iv);
+    for (const [k, key, inside] of [[0, 'X', iu], [1, 'Y', iv]]) {
+      const svg = panel(k).locator('svg'), h = svg.locator('[data-key="p"]');
+      const end = panel(k).locator('.dg-ch-end'), shown = await end.locator('.dg-readout').isVisible(), out = await end.locator('.dg-ch-out').isVisible();
+      ok = ok && (await h.count() === (inside ? 1 : 0)) && shown === inside && out === !inside;
+      ok = ok && (await panel(k).locator('.dg-plot-label', { hasText: '∉' }).count() === (inside ? 0 : 1));
+      if (!inside) continue;
+      const f = await svg.locator('rect.dg-frame').evaluate(r => [+r.getAttribute('x'), +r.getAttribute('y'), +r.getAttribute('width'), +r.getAttribute('height')]);
+      const [xl, yl] = CH_LIM[key], c = [+(await h.getAttribute('cx')), +(await h.getAttribute('cy'))];
+      const px = [f[0] + (img[key][0] - xl[0]) / (xl[1] - xl[0]) * f[2], f[1] + f[3] - (img[key][1] - yl[0]) / (yl[1] - yl[0]) * f[3]];
+      err = Math.max(err, Math.hypot(c[0] - px[0], c[1] - px[1]));
+      const v = (await end.locator('.dg-readout-value').textContent()).match(/[−-]?\d+\.\d+/g).map(num);
+      ok = ok && v.length === 2 && v.every((x, i) => Math.abs(x - img[key][i]) <= 5.1e-4);
+    }
+    ok = ok && await fr.locator('.dg-ch-arrows').evaluate(e => e.classList.contains('dg-ch-off')) === !(iu && iv);
+    check(ok && err < 0.6, `${what}: p = (${st.p.map(v => v.toFixed(3))}), ${iu ? 'X(p) shown' : 'p ∉ U'}, ${iv ? 'Y(p) shown' : 'p ∉ V'}, transition maps ${iu && iv ? 'active' : 'faded'}; handles at the closed-form images (max ${err.toFixed(2)} px)`);
+    return st;
+  }
+  // drag the handle of chart k to the chart point q (pixel position from the plot frame and the figure's ranges)
+  async function dragTo(k, q) {
+    const svg = panel(k).locator('svg'), h = svg.locator('[data-key="p"]');
+    const [x, y] = await center(h), f = await svg.locator('rect.dg-frame').evaluate(r => [+r.getAttribute('x'), +r.getAttribute('y'), +r.getAttribute('width'), +r.getAttribute('height')]);
+    const sb = await svg.boundingBox(), [xl, yl] = CH_LIM[k ? 'Y' : 'X'];
+    const t = [sb.x + f[0] + (q[0] - xl[0]) / (xl[1] - xl[0]) * f[2], sb.y + f[1] + f[3] - (q[1] - yl[0]) / (yl[1] - yl[0]) * f[3]];
+    await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(t[0], t[1], { steps: 8 }); await page.mouse.up();
+  }
+  const drag = async (loc, dx, dy) => { const [x, y] = await center(loc); await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + dx, y + dy, { steps: 6 }); await page.mouse.up(); };
+  await shot(page, `charts-${width}.png`);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  check(await fr.locator('.dg-ch-arrows mjx-container').count() === 3, 'transition maps typeset (two arrows, and the vertical form for phones)');
+  const fh = (await fr.boundingBox()).height;
+  if (width >= 1000) check(fh <= 900, `panel height ${Math.round(fh)} px (<= 900)`);
+  const boxes = await fr.locator('.dg-ch-row > *').evaluateAll(es => es.map(e => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.right]; }));
+  check(width < 768 ? boxes[1][1] > boxes[0][1] + 50 && boxes[2][1] > boxes[1][1] : Math.abs(boxes[2][1] - boxes[0][1]) < 2 && boxes[1][0] >= boxes[0][2] && boxes[1][2] <= boxes[2][0],
+    width < 768 ? 'charts stacked, transition maps between them' : 'charts side by side, transition maps between them');
+  const st0 = await linked('start');
+  check(st0.p[0] === 0.6 && st0.p[1] === -0.3, 'starts at p = (0.6, -0.3)');
+  // drag X(p) in (U, X)
+  const h0 = await canvasHash();
+  await drag(panel(0).locator('[data-key="p"]'), -25, -15);
+  const st1 = await linked('after dragging X(p) in (U, X)');
+  check(st1.p[0] < st0.p[0] - 0.1 && st1.p[1] > st0.p[1] + 0.05, 'X(p) followed the pointer');
+  await page.waitForTimeout(100);
+  check(await canvasHash() !== h0, 'the 3D view follows p');
+  // drag X(p) far down: p leaves V (Y(p) disappears) and stops on the boundary of U
+  await drag(panel(0).locator('[data-key="p"]'), 5, 600);
+  const st2 = await linked('after dragging X(p) far out of U');
+  check(chU(st2.p) < 1 && chU(st2.p) > 1 - 1e-6 && chV(st2.p) > 1, `p stopped on the boundary of U, outside V (ellipse values U ${chU(st2.p).toFixed(9)}, V ${chV(st2.p).toFixed(3)})`);
+  await shot(page, `charts-outV-${width}.png`);
+  // drag Y(p) is impossible now; drag p on the surface back into U ∩ V: the 3D point follows the pointer exactly
+  await canvas.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  let cb = await canvas.boundingBox(), s = await state();
+  let [x, y] = [cb.x + s.p3[0], cb.y + s.p3[1]];
+  const tgt = [x + 12, y - 30];
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(tgt[0], tgt[1], { steps: 8 }); await page.mouse.up();
+  const st3 = await linked('after dragging p on the surface');
+  check(Math.hypot(cb.x + st3.p3[0] - tgt[0], cb.y + st3.p3[1] - tgt[1]) < 1 && Math.hypot(st3.p[0] - st2.p[0], st3.p[1] - st2.p[1]) > 0.05,
+    `p on the surface is under the pointer (${(cb.x + st3.p3[0] - tgt[0]).toFixed(2)}, ${(cb.y + st3.p3[1] - tgt[1]).toFixed(2)}) px`);
+  // a long drag on the surface: p stays in U ∪ V (stops on its boundary)
+  s = st3; [x, y] = [cb.x + s.p3[0], cb.y + s.p3[1]];
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - Math.min(200, cb.width * 0.4), y + 40, { steps: 10 }); await page.mouse.up();
+  const st4 = await linked('after a long drag on the surface');
+  check(Math.min(chU(st4.p), chV(st4.p)) < 1 && Math.hypot(st4.p[0] - st3.p[0], st4.p[1] - st3.p[1]) > 0.05, 'p moved and stays in U ∪ V');
+  // drag Y(p) in (V, Y) far to the right: it stops on the boundary of V
+  await dragTo(0, [0.7, 0.3]);                                   // back into U ∩ V, at the centre of V
+  const st5 = await linked('after dragging X(p) to (0.7, 0.3)');
+  check(near(st5.p[0], 0.7, 0.02) && near(st5.p[1], 0.3, 0.02), 'X(p) is where it was dropped');
+  await drag(panel(1).locator('[data-key="p"]'), 500, 0);
+  const st6 = await linked('after dragging Y(p) far out of V');
+  check(chV(st6.p) < 1 && chV(st6.p) > 1 - 1e-6 && chY(st6.p)[0] > chY(st5.p)[0], `p stopped on the boundary of V (ellipse value ${chV(st6.p).toFixed(9)})`);
+  // keyboard on Y(p): ArrowLeft decreases Y^1 by 1/100 of its range, Y^2 unchanged
+  await panel(1).locator('[data-key="p"]').focus(); await page.keyboard.press('ArrowLeft');
+  const st7 = await linked('ArrowLeft on Y(p)');
+  const y6 = chY(st6.p), y7 = chY(st7.p);
+  check(near(y7[0], y6[0] - 0.057, 1e-9) && near(y7[1], y6[1], 1e-9), `ArrowLeft: Y(p) (${y6.map(v => v.toFixed(3))}) -> (${y7.map(v => v.toFixed(3))})`);
+  // dragging the surface away from p rotates the view and leaves p
+  const h1 = await canvasHash(), sp = (await state()).p;
+  await canvas.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  cb = await canvas.boundingBox();
+  const p3 = (await state()).p3, start = [cb.x + (p3[0] < cb.width / 2 ? 0.85 : 0.15) * cb.width, cb.y + 0.8 * cb.height];
+  await page.mouse.move(...start); await page.mouse.down(); await page.mouse.move(start[0] + 60, start[1] + 10, { steps: 5 }); await page.mouse.up();
+  await page.waitForTimeout(100);
+  check(await canvasHash() !== h1 && JSON.stringify((await state()).p) === JSON.stringify(sp), 'dragging the surface elsewhere rotates it and leaves p');
+  await linked('after rotating the view');
+  await panelFoot(page, fr, 'fig_chart_transition_maps', 'Figure 3.1', '2_1_charts.ipynb');
+  const st8 = await state();
+  check(st8.p[0] === 0.6 && st8.p[1] === -0.3, 'Reset -> p = (0.6, -0.3) again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await chartsCrossChecks(page);
+  await page.close();
+}
+
+async function chartsCrossChecks(page) {
+  console.log('charts: the module against the charts and transition maps of §3.2');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/charts.js');
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const pts = [];
+    while (pts.length < 500) { const p = [-0.8 + 1.9 * rnd(), -0.7 + 1.6 * rnd()]; if (m.inU(p) && m.inV(p)) pts.push(p); }
+    const maps = pts.map(p => { const a = m.X(p), b = m.Y(p); return { p, a, b, uv: m.tUV(a), vu: m.tVU(b), back: m.tVU(m.tUV(a)) }; });
+    // membership just inside / outside the boundaries (U and V are open), in the parameters and in chart coordinates
+    const ell = (c, ax, s, t) => [c[0] + s * ax[0] * Math.cos(t), c[1] + s * ax[1] * Math.sin(t)];
+    const bnd = [];
+    for (let k = 0; k < 360; k++) {
+      const t = 2 * Math.PI * (k + 0.5) / 360;
+      for (const [nm, c, ax] of [['U', [0.1, -0.7], [0.9, 1.5]], ['V', [0.7, 0.3], [1.4, 0.9]]]) {
+        const i = ell(c, ax, 1 - 1e-9, t), o = ell(c, ax, 1 + 1e-9, t);
+        const f = nm === 'U' ? m.inU : m.inV, g = nm === 'U' ? q => m.inXU(m.X(q)) : q => m.inYV(m.Y(q));
+        bnd.push([f(i), f(o), g(i), g(o)]);
+      }
+    }
+    const polar = [m.inYV([-0.5, 0.5]), m.inYV([0, 0.5]), m.inYV([2, Math.PI + 0.01]), m.inYV([2, -Math.PI - 0.01])];
+    return { maps, bnd, polar };
+  });
+  let wUV = 0, wVU = 0, wB = 0, wY = 0;
+  for (const q of r.maps) {
+    const e = chY(q.p);
+    wUV = Math.max(wUV, ...q.uv.map((v, k) => Math.abs(v - e[k])));                 // ᛖ_UV(X(p)) = Y(p)
+    wVU = Math.max(wVU, ...q.vu.map((v, k) => Math.abs(v - q.p[k])));               // ᛖ_VU(Y(p)) = X(p)
+    wB = Math.max(wB, ...q.back.map((v, k) => Math.abs(v - q.a[k])));
+    wY = Math.max(wY, ...q.b.map((v, k) => Math.abs(v - e[k])), ...chYinv(q.b).map((v, k) => Math.abs(v - q.p[k])));
+  }
+  check(wUV <= 1e-9, `ᛖ_UV = Y o X^-1 vs polar coordinates about (-1, -1) (500 random points of U ∩ V): max difference ${wUV.toExponential(2)}`);
+  check(wVU <= 1e-9, `ᛖ_VU = X o Y^-1 vs (-1 + r cos θ, -1 + r sin θ): max difference ${wVU.toExponential(2)}`);
+  check(wB <= 1e-9 && wY <= 1e-9, `ᛖ_VU o ᛖ_UV = id on X(U ∩ V): ${wB.toExponential(2)}; Y and its inverse: ${wY.toExponential(2)}`);
+  check(r.bnd.every(([fi, fo, gi, go]) => fi && !fo && gi && !go), `membership at the boundaries of U and V (360 angles each, 1e-9 inside / outside), in M and in chart coordinates`);
+  check(r.polar.every(v => !v), 'Y(V) excludes r <= 0 and |θ| > π');
 }
 
 // ---- laws (end of §2.3, D57): closed forms of §2.3, written here independently of the module. The plane's own
@@ -804,6 +955,43 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // charts (B26): a finger on p in the 3D view drags p (and does not scroll or rotate); a finger 10 px off X(p) drags it;
+  // a vertical swipe elsewhere on the 3D view scrolls the page
+  {
+    const { page, errors } = await open(CHARTS, 390, { touch: true });
+    await ready(page);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive');
+    const state = async () => JSON.parse(await fr.locator('.dg-charts').getAttribute('data-state'));
+    const cv = fr.locator('canvas');
+    await cv.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    let b = await cv.boundingBox(), s0 = await state(), y0 = await scrollY(page);
+    const at = [b.x + s0.p3[0], b.y + s0.p3[1]];
+    await swipe(page, cdp, at, [at[0] - 10, at[1] + 12]);
+    let s1 = await state(), y1 = await scrollY(page);
+    check(Math.hypot(s1.p[0] - s0.p[0], s1.p[1] - s0.p[1]) > 0.02 && y1 === y0 && Math.hypot(b.x + s1.p3[0] - at[0] + 10, b.y + s1.p3[1] - at[1] - 12) < 1.5,
+      `charts: a finger on p in the 3D view drags it (p ${s0.p.map(v => v.toFixed(3))} -> ${s1.p.map(v => v.toFixed(3))}, under the finger) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await cv.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    b = await cv.boundingBox(); s0 = await state(); y0 = await scrollY(page);
+    const ex = s0.p3[0] < b.width / 2 ? b.x + 0.85 * b.width : b.x + 0.15 * b.width;
+    await swipe(page, cdp, [ex, b.y + b.height * 0.8], [ex, b.y + b.height * 0.8 - 150]);
+    y1 = await scrollY(page);
+    check(y1 > y0 + 50 && JSON.stringify((await state()).p) === JSON.stringify(s0.p), `charts: a vertical swipe on the 3D view away from p scrolls the page (scrollY ${y0} -> ${y1})`);
+    const svg = fr.locator('.dg-ch-row .dg-panel').nth(0).locator('svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'charts: touch-action pan-y pinch-zoom on the chart, none on X(p)');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 + 10, hy = hb.y + hb.height / 2;
+    s0 = await state(); y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 15, hy - 20]);
+    s1 = await state(); y1 = await scrollY(page);
+    check(Math.hypot(s1.p[0] - s0.p[0], s1.p[1] - s0.p[1]) > 0.05 && y1 === y0, `charts: a swipe starting 10 px from X(p) drags it (p ${s0.p.map(v => v.toFixed(3))} -> ${s1.p.map(v => v.toFixed(3))}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -837,7 +1025,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); }
   await testTouch();
   await testBroken();
 } catch (e) {
