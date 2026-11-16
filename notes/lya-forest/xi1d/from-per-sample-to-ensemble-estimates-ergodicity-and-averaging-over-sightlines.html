@@ -15,6 +15,7 @@
 <link rel="preload" href="../assets/fonts/newcm-bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/course.css">
 <link rel="stylesheet" href="../assets/lya.css">
+<link rel="stylesheet" href="../assets/interactive.css">
 <script>try{var t=localStorage.getItem('dg-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script src="../assets/mathjax-config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js"></script>
@@ -40,7 +41,7 @@
 \frac{1}{N}\sum_{s=1}^{N}
 \widehat{\xi}_{ij}^{(s)}\!\left(\vec{x}_{\perp},\Delta\right), \tag{5.9}
 
-\end{equation}</span> where <span class="math inline">\(\widehat{\xi}_{ij}^{(s)}(\vec{x}_{\perp},\Delta)\)</span> is given by Eq. <span class="dg-nb">(<a class="dg-xref" href="per-sample-realization-level-1d-two-point-correlation.html#eq:xi1D_sample_nonperiodic" data-kind="equation" data-label="eq:xi1D_sample_nonperiodic">5.2</a>).</span></p>
+\end{equation}</span> where <span class="math inline">\(\widehat{\xi}_{ij}^{(s)}(\vec{x}_{\perp},\Delta)\)</span> is given by Eq. <span class="dg-nb">(<a class="dg-xref" href="per-sample-realization-level-1d-two-point-correlation.html#eq:xi1D_sample_nonperiodic" data-kind="equation" data-label="eq:xi1D_sample_nonperiodic">5.2</a>).</span></p><div class="dg-web dg-interactive" role="group" data-module="ergodicity" data-for="eq:xi1D_ensemble_estimator_from_samples" data-notebook="https://github.com/daniellopezcano/SkewerJAX/blob/main/notebooks/08_toy_field_statistics.ipynb" aria-label="Interactive figure"><div class="dg-interactive-bar"><span class="dg-badge">Interactive</span></div><div class="dg-interactive-body"></div></div>
 <p>Under mild regularity conditions, these empirical estimators converge to the corresponding ensemble quantity as the number of independent realizations and/or sampled sightlines increases. In many cosmological applications, however, one effectively has access only to a few realizations of the underlying random process. In that context, one often invokes an ergodic assumption: ensemble averages may be approximated by averages over a sufficiently large available domain, here represented by the spectral coordinate <span class="dg-nb"><span class="math inline">\(\Lambda\)</span>,</span> and possibly also by averaging over many sightlines.</p>
 <p>Particularizing Eq. <span class="dg-nb">(<a class="dg-xref" href="../xi-decomposition/index.html#eq:xi1D_general_L_decomposition" data-kind="equation" data-label="eq:xi1D_general_L_decomposition">4.2</a>)</span> for <span class="math inline">\(L=2 \longrightarrow \mathcal{C} = C_{12}\)</span> we can regroup terms to obtain: <span class="math display" id="eq:xi1D_ensemble_L2_decomposition" data-tex="\begin{align}
 &amp;\xi\!\left(\Lambda_\alpha,\Lambda_\beta\right)
