@@ -374,6 +374,7 @@ class Figures:
             with open(meta, 'w') as fh:
                 json.dump(info, fh, sort_keys=True)
         out = dict(res)
+        out.pop('text_v', None)          # cache bookkeeping: a cache hit carries it, a fresh measure does not
         out['text'] = info['text']
         return out
 
