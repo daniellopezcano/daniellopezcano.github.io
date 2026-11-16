@@ -23,6 +23,10 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     (markup only) and their sites, entries merged by text (one chip per page), alphabetical order with "Symbols"
     first, "used in" from \\ref / \\ref* / \\pageref (not \\eqref; not inside pictures, captions excepted), the Notation table found by the title rule, the links to
     the titles with "notation", the headings, and a term in a footnote stopping the page.
+  * "at": "end" in interactives.json (unit B24, D57), on a small source of its own: the panel closes a subsection
+    (before the next heading of its level, after its subsubsections and lists), or a section / subsection that runs
+    to the end of the page (after its last block, footnotes kept apart; inner before outer); an entry without "at"
+    stays right after its heading; "at" on a figure or subsubsection label, or a value other than "end", stops the build.
 """
 from __future__ import annotations
 import os
@@ -493,6 +497,55 @@ def main() -> int:
     got = build.used_refs(pic, 0, len(pic), Parser(pic))
     check('D53: "used in" ignores references inside a picture (figure body, saved boxes, tikzpicture, nested) but not in a '
           'caption (\\caption, its short form, \\captionof)', got == {'x1', 'x4', 'x5', 'x7', 'x11'}, sorted(got))
+
+    # -- a panel that closes a (sub)section: "at": "end" in interactives.json (unit B24, D57) ---------------------
+    T = ('\\section{Alpha}\\label{section_A}\nFirst paragraph.\n'
+         '\\subsection{One}\\label{sub_1}\nInside one.\n'
+         '\\subsubsection{Deeper}\\label{subsub_1}\nStill one\\footnote{A note.}.\n'
+         '\\begin{itemize}\\item last item of one\\end{itemize}\n'
+         '\\subsection{Two}\\label{sub_2}\nInside two.\n'
+         '\\begin{itemize}\\item last item of the page\\end{itemize}\n')
+    taux = {'section_A': {'num': '2.1', 'page': '1', 'kind': 'section'}, 'sub_1': {'num': '2.1.1', 'page': '1', 'kind': 'subsection'},
+            'sub_2': {'num': '2.1.2', 'page': '1', 'kind': 'subsection'}, 'subsub_1': {'num': '2.1.1.1', 'page': '1', 'kind': 'subsubsection'},
+            'fig_A': {'num': '2.1', 'page': '1', 'kind': 'figure'}}
+
+    def at_end_page(entries):
+        c = build.Ctx(types.SimpleNamespace(text=T, where=lambda pos: f'test:{pos}'), taux, {}, None)
+        c.interactives = {}
+        c.load_interactives(entries)
+        q = build.Page('section', 0, len(T))
+        q.slug, q.label = 'ch/s1', 'section_A'
+        build.render_page(q, c, Parser(T), {'section': ['2.1'], 'subsection': ['2.1.1', '2.1.2'],
+                                            'subsubsection': ['2.1.1.1'], 'footnote': ['1']})
+        return q, c
+    frame = lambda mod, lab: f'<div class="dg-web dg-interactive" role="group" data-module="{mod}" data-for="{lab}" '
+    q, c = at_end_page([{'label': 'sub_1', 'at': 'end', 'module': 'm1'}, {'label': 'sub_2', 'module': 'm2'}])
+    h = q.html
+    i1, i2 = h.find(frame('m1', 'sub_1')), h.find('\x01H2|sub_2|')
+    check('D57: "at": "end" on a subsection followed by another: after its last block (its subsubsection and list '
+          'included), right before the next heading of the same level',
+          h.count('dg-interactive"') == 2 and h.rfind('last item of one', 0, i1) != -1 and h.find('</ul>', h.find('last item of one')) < i1
+          and h[i1:i2].endswith('<div class="dg-interactive-body"></div></div>') and h.find('\x01H3|subsub_1|') < i1 < i2, h)
+    check('D57: an entry without "at" is still placed right after its heading (D15)',
+          h.find('\x01', h.find('\x01H2|sub_2|') + 1) + 1 == h.find(frame('m2', 'sub_2')), h[i2:i2 + 200])
+    check('D57: both panels count as placed', c.interactives_used == {('sub_1', 'm1'), ('sub_2', 'm2')}, c.interactives_used)
+    q, c = at_end_page([{'label': 'section_A', 'at': 'end', 'module': 'm3'}, {'label': 'sub_2', 'at': 'end', 'module': 'm4'}])
+    h = q.html
+    i4, i3 = h.find(frame('m4', 'sub_2')), h.find(frame('m3', 'section_A'))
+    check('D57: a section and a subsection that run to the end of the page: both panels after its last list, at the end '
+          'of the page\'s text (the footnotes are kept apart; write_page puts them and previous/next after it)',
+          h.find('</ul>', h.find('last item of the page')) < i4 and h.endswith('<div class="dg-interactive-body"></div></div>') and h.count('dg-interactive"') == 2
+          and h[h.find('</ul>', h.find('last item of the page')) + 5:].strip().startswith(frame('m4', 'sub_2'))
+          and q.footnotes and 'A note.' not in h, h[-700:])
+    check('D57: where both close at the same point the subsection\'s panel comes first (inner before outer)', -1 < i4 < i3, (i4, i3))
+    for bad, why in [({'label': 'fig_A', 'at': 'end', 'module': 'm5'}, 'on a figure label'),
+                     ({'label': 'subsub_1', 'at': 'end', 'module': 'm5'}, 'on a subsubsection label'),
+                     ({'label': 'sub_1', 'at': 'start', 'module': 'm5'}, 'with another value ("start")')]:
+        try:
+            at_end_page([bad])
+            check(f'D57: "at" {why} stops the build', False, 'no error')
+        except SystemExit as e:
+            check(f'D57: "at" {why} stops the build ({str(e)[:90]}...)', 'D57' in str(e))
 
     print('ALL PASSED' if not FAIL else f'{len(FAIL)} FAILED')
     return 1 if FAIL else 0

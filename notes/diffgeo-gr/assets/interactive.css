@@ -135,3 +135,22 @@
   display: inline-grid; gap: 0.1rem 0.8rem; padding: 0.15rem 0.45rem; font-variant-numeric: tabular-nums; text-align: right;
   border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 6px;
 }
+
+/* ---- transformation laws (laws, B24, end of §2.3): the two bases side by side, then each law of §2.3 next to the
+   same relation in numbers (one column on narrow panels) ---- */
+.dg-laws { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-laws .dg-legend { margin-top: 0; }
+.dg-laws-comp { flex-direction: column; gap: 0.15rem; margin-top: 0.35rem; padding-left: 0.2rem; }
+.dg-laws-level { font-size: 12px; font-family: system-ui, sans-serif; }
+.dg-laws-eqs {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.35rem 1rem;
+  padding-top: 0.5rem; border-top: 1px solid var(--dg-rule);
+}
+.dg-laws-eqs .dg-eqrow { justify-content: flex-start; margin-top: 0; }
+.dg-laws-tex { overflow-x: auto; overflow-y: hidden; }
+.dg-laws-pair { font-variant-numeric: tabular-nums; }
+@media (max-width: 767.98px) {
+  .dg-laws-eqs { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  .dg-laws-eqs .dg-eqrow { justify-content: center; flex-wrap: nowrap; gap: 0.3rem; margin-bottom: 0.45rem; font-size: 0.85rem; }
+  .dg-laws-eqs .dg-mat { gap: 0.1rem 0.5rem; padding: 0.1rem 0.3rem; }
+}

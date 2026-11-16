@@ -175,25 +175,71 @@ class Ctx:
         self.assets = {}              # figure label -> asset dict (for the landing page)
         self.captions = {}            # figure label -> {'num', 'page', 'caption', 'frac'} (chapter opening pages)
         path = os.path.join(REPO, '_port', 'interactives.json')
-        self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None)
+        self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None, 'end' or None)
         self.interactives_used = set()
         if os.path.exists(path):
-            for it in json.load(open(path, encoding='utf-8'))['interactives']:
-                nb = it.get('notebook')
-                if nb is not None and not re.fullmatch(r'notebooks/[\w./-]+\.ipynb', nb):
-                    raise SystemExit(f'_port/interactives.json: notebook {nb!r} of {it["module"]} is not a path notebooks/<...>.ipynb')
-                self.interactives.setdefault(it['label'], []).append((it['module'], nb))
+            self.load_interactives(json.load(open(path, encoding='utf-8'))['interactives'])
 
-    def interactive(self, label):
-        """Web-layer placeholders for the interactive figures attached to a LaTeX label."""
+    def load_interactives(self, entries: list):
+        """The entries of _port/interactives.json. 'at': 'end' (D57) puts the panel at the end of a section's or
+        subsection's content instead of right after the label; on any other label kind, or with another value,
+        the build stops. (A label that LaTeX does not know is left to the warning for unplaced interactives.)"""
+        for it in entries:
+            nb = it.get('notebook')
+            if nb is not None and not re.fullmatch(r'notebooks/[\w./-]+\.ipynb', nb):
+                raise SystemExit(f'_port/interactives.json: notebook {nb!r} of {it["module"]} is not a path notebooks/<...>.ipynb')
+            at = it.get('at')
+            if at is not None:
+                if at != 'end':
+                    raise SystemExit(f'_port/interactives.json: "at": {at!r} of {it["module"]} (label {it["label"]}): '
+                                     f'the only placement is "end" (D57)')
+                kind = self.aux.get(it['label'], {}).get('kind')
+                if it['label'] in self.aux and kind not in ('section', 'subsection'):
+                    raise SystemExit(f'_port/interactives.json: "at": "end" of {it["module"]} names {it["label"]}, a {kind} label; '
+                                     f'it closes a section or subsection only (D57)')
+            self.interactives.setdefault(it['label'], []).append((it['module'], nb, at))
+
+    def interactive(self, label, end=False):
+        """Web-layer placeholders for the interactive figures attached to a LaTeX label: those placed right after
+        the figure or heading (end=False), or those that close the label's (sub)section (end=True, D57)."""
         out = []
-        for module, nb in self.interactives.get(label, []):
+        for module, nb, at in self.interactives.get(label, []):
+            if (at == 'end') != end:
+                continue
             self.interactives_used.add((label, module))
             nb = f' data-notebook="{esc(PACKAGE_BLOB + nb)}"' if nb else ''
             out.append(f'<div class="dg-web dg-interactive" role="group" data-module="{module}" data-for="{esc(label)}"{nb} '
                        f'aria-label="Interactive figure"><div class="dg-interactive-bar"><span class="dg-badge">Interactive</span>'
                        f'</div><div class="dg-interactive-body"></div></div>')
         return ''.join(out)
+
+    def place_at_end(self, html: str, anchors: dict) -> str:
+        """D57: the panels with "at": "end" whose label this page defines, after the last block of that
+        (sub)section's content: before the next in-page heading of the same or a higher level, or at the end of
+        the page's text (the footnotes and previous/next come after it) when the (sub)section runs to the end.
+        Where several close at the same point, the innermost comes first (a subsection ends before its section)."""
+        cuts = []                                      # (position, level of the closing heading, frames)
+        for label in self.interactives:
+            if label not in anchors:
+                continue
+            frames = self.interactive(label, end=True)
+            if not frames:
+                continue
+            hid = anchors[label]
+            if hid == '':                              # the page's own heading: its content is the whole page
+                cuts.append((len(html), 1, frames))
+                continue
+            head = next((m for m in HEAD_MARK.finditer(html) if m.group(2) == hid), None)
+            if head is None:
+                raise ConvertError(f'interactives.json: "at": "end" on {label}, which is not an in-page heading here (D57)')
+            lvl = int(head.group(1))
+            nxt = next((m for m in HEAD_MARK.finditer(html, head.end()) if int(m.group(1)) <= lvl), None)
+            cuts.append((nxt.start() if nxt else len(html), lvl, frames))
+        # from the back, so that the positions stay valid; at a shared point the outer one goes in first, so that
+        # the inner one, inserted after it at the same position, ends up before it
+        for cut, _, frames in sorted(cuts, key=lambda c: (-c[0], c[1])):
+            html = html[:cut] + frames + html[cut:]
+        return html
 
     def review(self, kind, pos, text):
         self.review_items.append({'kind': kind, 'where': self.src.where(pos), 'text': text})
@@ -394,7 +440,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
         if isinstance(nodes[i], Cmd):
             r.anchors[nodes[i].args[0].strip()] = ''          # the page itself
         i += 1
-    body = r.flow(nodes[i:])
+    body = ctx.place_at_end(r.flow(nodes[i:]), r.anchors)       # panels that close a (sub)section (D57)
     left = {c: q for c, q in records.items() if q and c in CHECKED}
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
@@ -1313,7 +1359,7 @@ def main():
         write_page(p, ctx, where, order, files, cfg, search, chapters)
     write_landing(front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
-        mods = [m for m, _ in mods]
+        mods = [m for m, _, _ in mods]
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:
                 print(f'  WARNING interactive "{mod}" is attached to label {label}, which no converted page defines')

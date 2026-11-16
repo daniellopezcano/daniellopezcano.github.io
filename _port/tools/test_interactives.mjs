@@ -2,8 +2,9 @@
 //   node _port/tools/test_interactives.mjs [--shots DIR]      exit code 0 = all checks passed, 1 = failures
 // Serves docs/ (render the pages first), drives each interactive at 1280 px and 390 px, asserts that it
 // mounts without console errors of its own and reacts to its controls, cross-checks the numbers of the
-// variations module against the closed forms of Appendix C.6 and those of the tpm module against the
-// transformation law of §4.1.1 (finite differences of the chart maps), checks touch on a phone (D56: a swipe
+// variations module against the closed forms of Appendix C.6, those of the tpm module against the
+// transformation law of §4.1.1 (finite differences of the chart maps) and those of the laws module against the laws
+// of §2.3 (components through J and J⁻¹, the pairing over 200 random bases; its place at the end of §2.3, D57), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -16,6 +17,7 @@ if (shots) fs.mkdirSync(shots, { recursive: true });
 const MAPS = 'notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html';
 const VAR = 'notes/diffgeo-gr/examples/example-variations.html';
 const TPM = 'notes/diffgeo-gr/tangent-spaces/tangent-space.html';
+const LAWS = 'notes/diffgeo-gr/vector-spaces/basis-components-transformations.html';
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -35,8 +37,9 @@ async function open(url, width, { breakModule, touch } = {}) {
   if (breakModule) await page.route('**/assets/interactive/' + breakModule, r => r.fulfill({ status: 200, contentType: 'text/javascript', body: 'export default function () { throw new Error("broken on purpose"); }' }));
   await page.goto(base + '/' + url, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => document.documentElement.classList.contains('dg-math-ready'), null, { timeout: 30000 });
-  // bring the figure the frame follows into view, so that course.js loads the module
-  await page.evaluate(() => { const f = document.querySelector('.dg-interactive'); (f.previousElementSibling || f).scrollIntoView({ block: 'center', behavior: 'instant' }); });
+  // bring the figure the frame follows into view (the frame itself when it closes a section, D57: what comes
+  // before it can be taller than the screen), so that course.js loads the module
+  await page.evaluate(() => { const f = document.querySelector('.dg-interactive'), s = f.previousElementSibling; (s && s.matches('figure') ? s : f).scrollIntoView({ block: 'center', behavior: 'instant' }); });
   return { page, errors };
 }
 const ready = page => page.waitForSelector('.dg-interactive.dg-ready', { timeout: 20000 }).then(() => page.waitForTimeout(400));
@@ -53,21 +56,24 @@ const center = async loc => {
   const b = await loc.boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2];
 };
 
-// the panel's footer (D55): Reset re-mounts (one body, one set of controls), the static-figure link
-// names the figure and scrolls to it, the notebook link where interactives.json gives one
+// the panel's footer (D55): Reset re-mounts (one body: one instruction line), the static-figure link names the
+// figure and scrolls to it (figId null: a panel that is not attached to a figure has no such link, D57), the
+// notebook link where interactives.json gives one
 async function panelFoot(page, fr, figId, figName, notebook) {
   const foot = fr.locator('.dg-interactive-foot');
   check(await foot.count() === 1, 'panel footer present');
   const stat = foot.locator('a.dg-ia-static');
-  check(await stat.textContent() === figName && await stat.getAttribute('href') === '#' + figId, `static-figure link "${figName}" -> #${figId}`);
+  if (figId) check(await stat.textContent() === figName && await stat.getAttribute('href') === '#' + figId, `static-figure link "${figName}" -> #${figId}`);
+  else check(await stat.count() === 0, 'no static-figure link (the panel is not attached to a figure)');
   const nb = foot.locator('a.dg-ia-notebook');
   if (notebook) check(await nb.count() === 1 && (await nb.getAttribute('href')).endsWith('/' + notebook), `notebook link -> ${notebook}`);
   else check(await nb.count() === 0, 'no notebook link');
   await foot.locator('button.dg-ia-reset').click();
   await page.waitForFunction(f => !f.querySelector('.dg-ia-reset').disabled, await fr.elementHandle());
   await page.waitForTimeout(300);
-  check(await fr.locator('.dg-interactive-body > .dg-controls').count() >= 1 && await fr.locator('.dg-interactive-foot').count() === 1, 'Reset leaves one body and one footer');
+  check(await fr.locator('.dg-interactive-body > .dg-note').count() === 1 && await fr.locator('.dg-interactive-foot').count() === 1, 'Reset leaves one body and one footer');
   check(await page.evaluate(() => document.activeElement && document.activeElement.classList.contains('dg-ia-reset')), 'focus stays on Reset');
+  if (!figId) return;
   await stat.click();
   await page.waitForTimeout(700);
   const top = await page.locator('#' + figId).evaluate(e => e.getBoundingClientRect().top);
@@ -334,6 +340,123 @@ async function tpmCrossChecks(page) {
   check(wH < 1e-12, `embedding height vs the notebook's formula: ${wH.toExponential(1)}`);
 }
 
+// ---- laws (end of §2.3, D57): closed forms of §2.3, written here independently of the module. The plane's own
+// coordinates: X = (2, 1), the covector X(v) = (1/2) v^1 + v^2; a basis is a pair of vectors (the columns of B).
+const LAWS_VEC = [2, 1], LAWS_COV = [0.5, 1];
+const m2 = {
+  inv: ([[a, b], [c, d]]) => { const D = a * d - b * c; return [[d / D, -b / D], [-c / D, a / D]]; },
+  mul: (A, B) => [0, 1].map(i => [0, 1].map(j => A[i][0] * B[0][j] + A[i][1] * B[1][j])),
+  app: (A, v) => [0, 1].map(i => A[i][0] * v[0] + A[i][1] * v[1]),
+  T: A => [[A[0][0], A[1][0]], [A[0][1], A[1][1]]],
+  cols: ([b1, b2]) => [[b1[0], b2[0]], [b1[1], b2[1]]]
+};
+// J from  x̂_i = Σ_j J^j_i ŷ_j  (J = Y⁻¹ X); x^i from 𝒳 = Σ x^i x̂_i; 𝚡_i = 𝖷(x̂_i); then the laws of §2.3:
+// y^i = Σ_j J^i_j x^j,  𝚢_j = Σ_i (J⁻¹)^i_j 𝚡_i  (i.e. 𝚡_j = Σ_i J^i_j 𝚢_i)
+function lawsExpect({ x, y }) {
+  const X = m2.cols(x), Y = m2.cols(y), J = m2.mul(m2.inv(Y), X), Jinv = m2.inv(J);
+  const cx = m2.app(m2.inv(X), LAWS_VEC), kx = x.map(b => LAWS_COV[0] * b[0] + LAWS_COV[1] * b[1]);
+  const cy = m2.app(J, cx), ky = m2.app(m2.T(Jinv), kx);
+  return { J, Jinv, cx, kx, cy, ky, pair: [kx[0] * cx[0] + kx[1] * cx[1], ky[0] * cy[0] + ky[1] * cy[1]] };
+}
+const sinAngle = ([a, b]) => Math.abs(a[0] * b[1] - a[1] * b[0]) / (Math.hypot(...a) * Math.hypot(...b));
+
+async function testLaws(width) {
+  console.log(`laws @ ${width}px`);
+  const { page, errors } = await open(LAWS, width);
+  await ready(page);
+  const fr = page.locator('.dg-interactive');
+  // place (D57): after the last list of §2.3's text, before the footnotes, the "read" toggle and previous/next
+  const place = await fr.evaluate(f => {
+    const prev = f.previousElementSibling, next = f.nextElementSibling, all = [...document.querySelectorAll('main *')];
+    const after = sel => { const e = document.querySelector(sel); return !!e && all.indexOf(e) > all.indexOf(f); };
+    return { prev: prev && prev.matches('ul.dg-itemize') && /This generalizes the transformation rules previously seen for vectors/.test(prev.lastElementChild.textContent),
+      next: next && next.matches('.dg-footnotes'), nav: after('.dg-prevnext'), frames: document.querySelectorAll('.dg-interactive').length, for: f.dataset.for,
+      fnInside: !!f.querySelector('.dg-fn'), height: f.getBoundingClientRect().height };
+  });
+  check(place.prev && place.next && place.nav && place.frames === 1 && place.for === 'section_Basis_Components_Transformations' && !place.fnInside,
+    `panel at the end of §2.3: after its last list item, before the footnotes and previous/next (${JSON.stringify(place)})`);
+  if (width >= 1000) check(place.height <= 800, `panel height ${Math.round(place.height)} px <= 800 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-laws').getAttribute('data-state'));
+  const panel = k => fr.locator('.dg-laws .dg-panel').nth(k);
+  const nums = s => (s.match(/[−-]?\d+\.\d+/g) || []).map(num);
+  async function numbers(what) {
+    const st = await state(), e = lawsExpect(st);
+    const ro = (await fr.locator('.dg-readout-value').allTextContents()).map(nums);
+    const ms = await fr.locator('.dg-laws-eqs .dg-mat').evaluateAll(ms => ms.map(m => [...m.children].map(c => c.textContent)));
+    const mats = ms.map(m => m.map(num)), pr = (await fr.locator('.dg-laws-pair').allTextContents()).map(num);
+    const text = (await fr.locator('.dg-interactive-body').textContent());
+    // order on the panel: x^i, 𝚡_i | y^i, 𝚢_i ; J, J⁻¹ ; y = J x ; 𝚡 = 𝚢 J ; pairing, pairing
+    const shown = [ro[0], ro[1], ro[2], ro[3], mats[0], mats[1], mats[2], mats[3], mats[4], mats[5], mats[6], mats[7], pr];
+    const want = [e.cx, e.kx, e.cy, e.ky, e.J.flat(), e.Jinv.flat(), e.cy, e.J.flat(), e.cx, e.kx, e.ky, e.J.flat(), e.pair];
+    const err = Math.max(...shown.flatMap((a, k) => a.length === want[k].length ? a.map((v, i) => Math.abs(v - want[k][i])) : [Infinity]));
+    check(err <= 5.1e-4 && !/NaN|Infinity/.test(text) && sinAngle(st.x) > 0.169 && sinAngle(st.y) > 0.169,
+      `${what}: x (${ro[0]}) ${'\u{1D6A1}'} (${ro[1]}) y (${ro[2]}) ${'\u{1D6A2}'} (${ro[3]}) J (${mats[0]}) pairing ${pr.join(' = ')}; max deviation from the closed forms ${err.toExponential(1)}`);
+    return st;
+  }
+  await shot(page, `laws-${width}.png`);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  check(await fr.locator('.dg-laws-tex mjx-container').count() === 5, 'the laws of §2.3 and the pairing typeset (5 formulas)');
+  const tops = await fr.locator('.dg-laws .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 50 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'basis panels stacked' : 'basis panels side by side');
+  const st0 = await numbers('start');
+  check(JSON.stringify(st0) === JSON.stringify({ x: [[1, 0], [0, 1]], y: [[1.5, 0.5], [-0.5, 1]] }), 'starts at x̂ = (1, 0), (0, 1); ŷ = (1.5, 0.5), (−0.5, 1)');
+  // mouse: drag the tip of ŷ_1
+  let [x, y] = await center(panel(1).locator('[data-key="h0"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 40, y - 30, { steps: 5 }); await page.mouse.up();
+  const st1 = await numbers('after dragging ŷ₁');
+  check(st1.y[0][0] > st0.y[0][0] + 0.2 && st1.y[0][1] > st0.y[0][1] + 0.2 && JSON.stringify(st1.x) === JSON.stringify(st0.x), `ŷ₁ moved to (${st1.y[0].map(v => v.toFixed(3))}), x̂ unchanged`);
+  // mouse: drag ŷ_2 onto the line of ŷ_1 (a degenerate basis): the tip stops before
+  [x, y] = await center(panel(1).locator('[data-key="h1"]'));
+  const [tx, ty] = await panel(1).locator('[data-key="h0"]').evaluate(h => { const b = h.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; });
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(tx, ty, { steps: 12 }); await page.mouse.up();
+  const st2 = await numbers('after dragging ŷ₂ onto ŷ₁');
+  check(sinAngle(st2.y) < 0.2 && Math.hypot(st2.y[1][0] - st1.y[1][0], st2.y[1][1] - st1.y[1][1]) > 0.2,
+    `ŷ₂ stops where the basis would degenerate (|sin angle| ${sinAngle(st2.y).toFixed(3)}, the limit is 0.17)`);
+  // mouse: x̂_2 too
+  [x, y] = await center(panel(0).locator('[data-key="h1"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 35, y + 10, { steps: 5 }); await page.mouse.up();
+  const st3 = await numbers('after dragging x̂₂');
+  check(st3.x[1][0] < -0.2, `x̂₂ moved to (${st3.x[1].map(v => v.toFixed(3))})`);
+  // keyboard: arrow keys on focused handles
+  await panel(0).locator('[data-key="h0"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp');
+  const st4 = await numbers('ArrowUp x2 on x̂₁');
+  check(st4.x[0][1] > st3.x[0][1] + 0.05 && near(st4.x[0][0], st3.x[0][0], 1e-9), 'ArrowUp moves the tip of x̂₁ up');
+  await panel(1).locator('[data-key="h1"]').focus(); await page.keyboard.press('ArrowLeft'); await page.keyboard.press('ArrowLeft'); await page.keyboard.press('ArrowLeft');
+  const st5 = await numbers('ArrowLeft x3 on ŷ₂');
+  check(st5.y[1][0] < st4.y[1][0] - 0.1, 'ArrowLeft moves the tip of ŷ₂ to the left');
+  await shot(page, `laws-moved-${width}.png`);
+  await panelFoot(page, fr, null, null, null);
+  check(JSON.stringify(await state()) === JSON.stringify(st0), 'Reset -> the starting bases again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await lawsCrossChecks(page);
+  await page.close();
+}
+
+async function lawsCrossChecks(page) {
+  console.log('laws: the module against the laws of §2.3 (200 random bases)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/laws.js');
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const vec = () => { const a = 2 * Math.PI * rnd(), n = 0.3 + 2.5 * rnd(); return [n * Math.cos(a), n * Math.sin(a)]; };
+    const out = [];
+    while (out.length < 200) { const x = [vec(), vec()], y = [vec(), vec()]; if (m.admissible(x) && m.admissible(y)) out.push({ x, y, r: m.laws(x, y) }); }
+    return { out, VEC: m.VEC, COV: m.COV };
+  });
+  check(JSON.stringify(r.VEC) === JSON.stringify(LAWS_VEC) && JSON.stringify(r.COV) === JSON.stringify(LAWS_COV), '𝒳 and 𝖷 as in the test');
+  let w = 0, wp = 0, wJ = 0;
+  for (const { x, y, r: q } of r.out) {
+    const e = lawsExpect({ x, y });
+    for (const k of ['cx', 'kx', 'cy', 'ky']) w = Math.max(w, ...q[k].map((v, i) => Math.abs(v - e[k][i])));
+    wJ = Math.max(wJ, ...[0, 1].flatMap(i => [0, 1].map(j => Math.max(Math.abs(q.J[i][j] - e.J[i][j]), Math.abs(q.Jinv[i][j] - e.Jinv[i][j])))));
+    // the pairing does not depend on the basis: X(𝒳) = Σ 𝚡_i x^i = Σ 𝚢_i y^i = 2
+    wp = Math.max(wp, Math.abs(q.pair[0] - q.pair[1]), Math.abs(q.pair[0] - 2), Math.abs(e.pair[1] - 2));
+  }
+  check(w < 1e-9, `components x^i, 𝚡_i, y^i = J^i_j x^j, 𝚢_j = (J⁻¹)^i_j 𝚡_i vs the module: max difference ${w.toExponential(2)}`);
+  check(wJ < 1e-9, `J (x̂_i = J^j_i ŷ_j) and J⁻¹ vs the module: max difference ${wJ.toExponential(2)}`);
+  check(wp < 1e-9, `pairing Σ 𝚡_i x^i = Σ 𝚢_i y^i = 𝖷(𝒳) = 2 over 200 random bases: max deviation ${wp.toExponential(2)}`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -408,6 +531,36 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // laws (B24): a finger drag that starts 10 px off the tip of ŷ₁ (drawn radius 8) moves it; a vertical swipe elsewhere scrolls
+  {
+    const { page, errors } = await open(LAWS, 390, { touch: true });
+    await ready(page);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive');
+    const state = () => fr.locator('.dg-laws').getAttribute('data-state');
+    const svg = fr.locator('.dg-laws .dg-panel').nth(1).locator('svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="h0"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'laws: touch-action pan-y pinch-zoom on the drawing, none on the handles');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="h0"]').boundingBox(), hx = hb.x + hb.width / 2 + 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 20, hy - 30]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(s1 !== s0 && y1 === y0, `laws: a swipe starting 10 px from the tip of ŷ₁ drags it (ŷ₁ ${JSON.parse(s0).y[0].map(v => v.toFixed(3))} -> ${JSON.parse(s1).y[0].map(v => v.toFixed(3))}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'laws: found an empty point of the drawing');
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && await state() === s0, `laws: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -441,7 +594,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); }
   await testTouch();
   await testBroken();
 } catch (e) {
