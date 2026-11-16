@@ -11,8 +11,13 @@ layer text changed are listed for information. Exit code 0 when (a) holds on eve
     --nbsp   accept, in (a), a no-break space (U+00A0) where --rev has a space (U+0020) and nothing else: the
              texts must have the same length and differ only at such positions (proof for the fix of D9's `~`,
              unit B10); the number of such positions is reported.
+    --mathref  accept, in (a), a reference number inside a formula that became a MathJax link, `X` ->
+             `\\href{<url>}{X}`, and nothing else: with every `\\href{..}{X}` replaced by its X the texts are
+             identical, and every \\href of --rev is still there (proof for the links of D7 rewrite 2, units
+             B12-B17); the number of new links is reported.
 """
-import argparse, os, subprocess, sys
+import argparse, os, re, subprocess, sys
+from collections import Counter
 from html.parser import HTMLParser
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -71,13 +76,27 @@ def only_nbsp(a: str, b: str):
     return k
 
 
+HREF = re.compile(r'\\href\{([^{}]*)\}\{([^{}]*)\}')
+
+
+def only_mathref(a: str, b: str):
+    """Number of \\href{..}{X} links that b adds around a text X of a, if that is the only difference; else None."""
+    if HREF.sub(r'\2', a) != HREF.sub(r'\2', b):
+        return None
+    old, new = Counter(m.group(0) for m in HREF.finditer(a)), Counter(m.group(0) for m in HREF.finditer(b))
+    if old - new:
+        return None
+    return sum((new - old).values())
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--rev', default='HEAD')
     ap.add_argument('--nbsp', action='store_true', help='accept U+0020 -> U+00A0 and nothing else (D9 fix, B10)')
+    ap.add_argument('--mathref', action='store_true', help='accept X -> \\href{url}{X} inside formulas and nothing else (B12-B17)')
     args = ap.parse_args()
     rev = args.rev
-    bad, web, n, nb, nbp = [], [], 0, 0, 0
+    bad, web, n, nb, nbp, mr, mrp = [], [], 0, 0, 0, 0, 0
     for root, _, names in os.walk(COURSE):
         for name in sorted(names):
             if not name.endswith('.html'):
@@ -91,7 +110,12 @@ def main():
                 continue
             n += 1
             a, b = texts(old), texts(open(path, encoding='utf-8').read())
-            if a[0] != b[0] and args.nbsp and only_nbsp(a[0], b[0]) is not None:
+            if a[0] != b[0] and args.mathref and only_mathref(a[0], b[0]) is not None:
+                mr += only_mathref(a[0], b[0])
+                mrp += 1
+                if only_mathref(a[1], b[1]) is None:
+                    web.append(rel)
+            elif a[0] != b[0] and args.nbsp and only_nbsp(a[0], b[0]) is not None:
                 nb += only_nbsp(a[0], b[0])
                 nbp += 1
                 if only_nbsp(a[1], b[1]) is None:
@@ -105,6 +129,8 @@ def main():
         print('FAIL', line)
     if web:
         print(f'web layer text changed on {len(web)} page(s): ' + ', '.join(os.path.relpath(w, 'notes/diffgeo-gr') for w in web))
+    if args.mathref:
+        print(f'--mathref: {mr} reference number(s) inside formulas became links on {mrp} page(s); no other change of the notes\' text there')
     if args.nbsp:
         print(f'--nbsp: {nb} space(s) became no-break spaces on {nbp} page(s); no other change of the notes\' text there')
     print(f'{n - len(bad)} of {n} pages: text of <main> without the web layer identical to {rev}')

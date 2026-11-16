@@ -480,6 +480,21 @@ def rel(from_slug: str, target: str) -> str:
 
 
 def resolve(html: str, page: Page, ctx: Ctx, where: dict) -> str:
+    def target(label):
+        slug, frag = where[label]
+        if slug == page.slug:
+            return '#' + frag if frag else '#'
+        return rel(page.slug, slug + '.html') + ('#' + frag if frag else '')
+
+    def mref(m):
+        """A reference inside math (D7 rewrite 2): the number, as a MathJax link to its target (the PDF's
+        hyperref link); the text of a math span is HTML-escaped TeX."""
+        label, style = m.group(1), m.group(2)
+        n = esc(ctx.aux[label]['num'])
+        if label in where:
+            n = '\\href{' + esc(target(label)) + '}{' + n + '}'
+        return f'({n})' if style == 'eqref' else n
+
     def ref(m):
         label, style = m.group(1), m.group(2)
         info = ctx.aux.get(label)
@@ -488,10 +503,7 @@ def resolve(html: str, page: Page, ctx: Ctx, where: dict) -> str:
             return '<span class="dg-inprep" title="This part of the notes is in preparation">in preparation</span>'
         num = esc(info['page'] if style == 'pageref' else info['num'])     # \pageref: the PDF's page (D47)
         if label in where:
-            slug, frag = where[label]
-            href = rel(page.slug, slug + '.html') + ('#' + frag if frag else '')
-            if slug == page.slug:
-                href = '#' + frag if frag else '#'
+            href = target(label)
             a = f'<a class="dg-xref" href="{href}" data-kind="{info["kind"]}" data-label="{esc(label)}">{num}</a>'
         else:
             a = f'<span class="dg-xref dg-xref-pending" data-label="{esc(label)}">{num}</span>'
@@ -510,6 +522,7 @@ def resolve(html: str, page: Page, ctx: Ctx, where: dict) -> str:
         return f'({n})' if m.group(2) == 'eqref' else n
 
     html = re.sub('\x02N\\|([^|\x02]+)\\|([a-z]+)\x02', num, html)
+    html = re.sub('\x02M\\|([^|\x02]+)\\|([a-z]+)\x02', mref, html)
     html = re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', ref, html)
     return re.sub('\x02U\\|([^\x02]+)\x02', url, html)
 
@@ -611,13 +624,18 @@ def glue(html: str) -> str:
 def nolinks(html: str) -> str:
     """A title that will sit inside an <a>: its own cross-references become plain numbers
     (nested links are invalid HTML and break the outer one)."""
-    return re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', lambda m: f'\x02N|{m.group(1)}|{m.group(2)}\x02', html or '')
+    return re.sub('\x02[RM]\\|([^|\x02]+)\\|([a-z]+)\x02', lambda m: f'\x02N|{m.group(1)}|{m.group(2)}\x02', html or '')
+
+
+def math_plain(html: str) -> str:
+    """References inside math as plain numbers (search index, page description: their text is the number)."""
+    return re.sub('\x02M\\|([^|\x02]+)\\|([a-z]+)\x02', lambda m: f'\x02N|{m.group(1)}|{m.group(2)}\x02', html or '')
 
 
 def plain(html: str) -> str:
     """Title for <title>, the sidebar and search: tags dropped, math kept as its TeX source."""
     t = re.sub(r'<span class="math inline">\\\((.*?)\\\)</span>', r'$\1$', html)
-    t = re.sub(r'\x02R\|([^|]+)\|([a-z]+)\x02', lambda m: PLAIN_NUM.get((m.group(1), 'page') if m.group(2) == 'pageref'
+    t = re.sub(r'\x02[RM]\|([^|]+)\|([a-z]+)\x02', lambda m: PLAIN_NUM.get((m.group(1), 'page') if m.group(2) == 'pageref'
                                                                else m.group(1), '…'), t)
     t = re.sub(r'<[^>]+>', '', t)
     return t.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
@@ -1146,12 +1164,14 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
         body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
                  f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
                  f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
+    text_body = resolve(math_plain(body), p, ctx, where) if '\x02M|' in body else None
     head, body = resolve(head, p, ctx, where), resolve(body, p, ctx, where)
+    text_body = text_body or body              # what the search index and the description read (math refs as numbers)
 
     title = (f'{p.number} ' if p.number else '') + plain(p.title_html)
     href = f'{COURSE}/{p.slug}.html'
     if p.role != 'defs':              # D53: not in the search index (every term is found on its own page)
-        search += search_entries(href, re.sub(r'\$(.+?)\$', r'\\(\1\\)', title), body)    # math delimited as in the text
+        search += search_entries(href, re.sub(r'\$(.+?)\$', r'\\(\1\\)', title), text_body)    # math delimited as in the text
     chap = p if p.kind == 'chapter' else p.parent
     home = rel(p.slug, 'index.html')
     crumbs = [f'<a href="{home}">{esc(shell.course_label(cfg))}</a>']
@@ -1163,7 +1183,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     src_files = p.source or ', '.join(sorted({ctx.src.loc(o)[0] for o in (p.a, p.b - 1)}))
     text = shell.document(cfg=cfg, slug=p.slug, source=src_files,
                           title=f'{title.replace("$", "")} – {shell.COURSE_TITLE} – {shell.SITE_NAME}',
-                          desc=shell.description(text_of(body)), crumbs=crumbs, tree=tree,
+                          desc=shell.description(text_of(text_body)), crumbs=crumbs, tree=tree,
                           main=glue(headings(head + '\n' + body)), pos=(k + 1) / len(order), chapter=p.kind == 'chapter')
     write(os.path.join(OUT, p.slug + '.html'), text, files)
 
@@ -1401,7 +1421,7 @@ def main():
             path = os.path.join(root, n)
             if n.endswith('.html') and path not in files and MARK in open(path, encoding='utf-8').read(400):
                 os.remove(path)
-    report['math'] = [{'page': p.slug, 'tex': t} for p in done for t in p.math]
+    report['math'] = [{'page': p.slug, 'tex': resolve(t, p, ctx, where)} for p in done for t in p.math]
     report['review'] = ctx.review_items
     json.dump(report, open(os.path.join(REPO, '_port', '.work', 'report.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)

@@ -10,6 +10,8 @@ of our own.
 Placeholders left in the output and resolved by build.py once all pages exist:
     \\x02R|<label>|<style>\\x02   cross reference   (style: ref | eqref | pageref)
     \\x02U|<slug>#<frag>\\x02      URL of another course page, made relative
+    \\x02M|<label>|<style>\\x02   cross reference inside math (style: ref | eqref): the number as a
+                                 MathJax \\href to its target, a link like the PDF's (D7 rewrite 2)
 Headings inside a page are emitted as  \\x01H<level>|<id>|<html>\\x01  so that
 build.py can find them: it writes them as <h2>/<h3> elements and builds the
 page outline (course tree) and the search index (one entry per section) from them.
@@ -55,7 +57,7 @@ HEAD_LEVEL = {'subsection': 2, 'subsubsection': 3}
 NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'}
 
 _WS = re.compile(r'[^\S\u00a0]+')     # any whitespace but the no-break space of ~ (D9): it must survive
-_REF_IN_MATH = re.compile(r'\\(eqref|ref)\*?\s*\{([^}]+)\}')
+_REF_IN_MATH = re.compile(r'\\(eqref|ref)(\*?)\s*\{([^}]+)\}')
 _LABEL = re.compile(r'\\label\s*\{([^}]+)\}')
 _TIKZ_REF = re.compile(r'\\ref\*?\s*\{([^}]+)\}')
 
@@ -480,7 +482,7 @@ class Renderer:
             return v['page'] if kind == 'pageref' else f'({v["num"]})' if kind == 'eqref' else v['num']
         t = re.sub(r'<sup class="dg-fnref">.*?</sup>', '', caption, flags=re.S)
         t = re.sub(r'<span class="math inline">\\\((.*?)\\\)</span>', lambda m: m.group(1).strip(), t, flags=re.S)
-        t = re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', ref, t)
+        t = re.sub('\x02[RM]\\|([^|\x02]+)\\|([a-z]+)\x02', ref, t)
         t = html.unescape(re.sub(r'<[^>]+>', '', t))
         return ' '.join(t.split())
 
@@ -704,7 +706,9 @@ class Renderer:
         """Emit math as the exact source. The only rewrites, all forced by the web
         (cross-page numbering, no LaTeX counters), are:
           1. \\label{x} in a numbered environment -> \\tag{<number from the LaTeX build>}
-          2. \\ref{x} / \\eqref{x} inside math      -> the number
+          2. \\ref{x} / \\eqref{x} inside math      -> the number, as \\href{<its URL>}{<number>} (a link in
+                                                 the reference colour, as hyperref makes it in the PDF;
+                                                 build.py writes the URL; \\ref* stays a plain number)
           3. \\hyperlink{t}{..}                     -> \\href{#t}{..}   (hand-placed footnote marks)
           4. macros \\edef'ed to a footnote number  -> that number
         """
@@ -792,10 +796,12 @@ class Renderer:
         return rows
 
     def ref_in_math(self, m, pos: int) -> str:
-        label = m.group(2).strip()
+        label = m.group(3).strip()
         self.refs.append(label)
         num = self.ctx.aux.get(label)
         if num is None:
             self.ctx.review('undefined-ref', pos, label)
             return '(in preparation)'       # refs in math sit inside \\text{..} in the notes
-        return f'({num["num"]})' if m.group(1) == 'eqref' else num['num']
+        if m.group(2):                      # \\ref*: hyperref prints the number without a link
+            return f'({num["num"]})' if m.group(1) == 'eqref' else num['num']
+        return f'\x02M|{label}|{m.group(1)}\x02'      # build.py: \\href{<URL>}{<number>} (D7 rewrite 2)

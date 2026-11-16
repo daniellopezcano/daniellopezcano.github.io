@@ -64,14 +64,17 @@ function fetchPage(href) {
 
 /** Make a copied fragment safe to insert: no duplicate ids, links and images relative to `base`. */
 function adopt(node, base) {
+  const rebase = v => !/^(#|[a-z]+:)/i.test(v) ? new URL(v, base).href : v.startsWith('#') ? base.split('#')[0] + v : v;
   for (const el of [node, ...node.querySelectorAll('*')]) {
     el.removeAttribute('id');
     if (!base) continue;
     for (const attr of ['src', 'href']) {
       const v = el.getAttribute(attr);
-      if (v != null && !/^(#|[a-z]+:)/i.test(v)) el.setAttribute(attr, new URL(v, base).href);
-      else if (v != null && v.startsWith('#') && attr === 'href') el.setAttribute(attr, base.split('#')[0] + v);
+      if (v != null && (attr === 'href' || !v.startsWith('#'))) el.setAttribute(attr, rebase(v));
     }
+    // a formula not typeset yet: the links it will make (\href, D7) are relative to its own page too
+    if (el.matches('.math') && !el.querySelector('mjx-container') && el.textContent.includes('\\href{'))
+      el.textContent = el.textContent.replace(/\\href\{([^{}]*)\}/g, (m, u) => `\\href{${rebase(u)}}`);
   }
   node.querySelectorAll('.dg-interactive, .dg-anchor, script').forEach(n => n.remove());
   return node;
@@ -82,7 +85,8 @@ function adopt(node, base) {
 // <a class="dg-cite">, previewing their entry of the Bibliography page (D52).
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
-// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6).
+// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6), unless
+// its footnote is not a sidenote (D60).
 const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href], a.dg-cite[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
@@ -91,10 +95,15 @@ let tapWasOpen = false;
 const H = document.documentElement;
 const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
 
+// a footnote mark of the page whose footnote is shown in the margin (D60: not every footnote is a sidenote)
+const inMargin = a => sidenotesOn() && !a.closest('.dg-inline')
+  && !!document.getElementById(decodeURIComponent(a.hash.slice(1)))?.classList.contains('dg-fn-margin');
+
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
   if (!t || t.closest('.dg-pop, dialog')) return null;           // a modal dialog would cover the popover
-  return sidenotesOn() && t.matches('.dg-fnref > a') ? null : t;
+  if (t.matches('.dg-fnref > a') && sidenotesOn() && (t.closest('.dg-inline') || inMargin(t))) return null;
+  return t;
 }
 
 function popEl() {
@@ -711,9 +720,10 @@ function drawDecor() {
 // ---- narrow screens: inline formulas wider than their line --------------------------------------
 // MathJax 3 cannot break an inline formula; one wider than the column would widen the whole page.
 // Only those (measured after typesetting) scroll sideways in place, like the display equations.
-// In a sidenote (D59) such a formula is first set smaller until it fits, never below 75 % of the note's
-// text size; only one still too wide then scrolls in place (with the shadow cue of D45).
-const MIN_SIDENOTE_SCALE = 0.75;
+// In a sidenote such a formula is first set smaller until it fits, never below 85 % of the note's text size
+// (D60, as displays in the text, D59); one still too wide scrolls in place (with the shadow cue of D45), and
+// its footnote is then no sidenote (initSidenotes).
+const MIN_SIDENOTE_SCALE = 0.85;
 // font size of a formula scaled by s, on top of the size MathJax gave it (kept in data-dg-fs)
 function scaleMath(m, s) {
   if (m.dataset.dgFs === undefined) m.dataset.dgFs = m.style.fontSize;
@@ -753,7 +763,7 @@ function fitWideInlineMath(root = document.querySelector('main')) {
   }
 }
 // A display equation is set at the text size at every width (D59). One wider than its box is set smaller
-// until it fits, never below 85 % of the text size (75 % in a sidenote); only what is still too wide scrolls
+// until it fits, never below 85 % of the text size (in a sidenote too, D60); only what is still too wide scrolls
 // inside its own box, which shows a soft shadow at the edge where more is hidden (D45; CSS only, course.css).
 // Class dg-math-scroll marks it. Tables keep D48's rule (never below 80 %).
 const MIN_DISPLAY_SCALE = 0.85, MIN_TABLE_SCALE = 0.8;
@@ -769,6 +779,12 @@ function fitDisplayMath(root = document.querySelector('main')) {
     }
     const scrolls = d.scrollWidth > d.clientWidth + 1;
     d.classList.toggle('dg-math-scroll', scrolls);
+    // its equation number stays in view (sticky, course.css); its shadow goes when the end is reached
+    if (scrolls && !d.dgEnd && d.querySelector('mjx-labels')) {
+      d.dgEnd = () => d.classList.toggle('dg-scroll-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 1);
+      d.addEventListener('scroll', d.dgEnd, { passive: true });
+    }
+    if (d.dgEnd) d.dgEnd();
     if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
     else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
   }
@@ -968,7 +984,12 @@ function initScroll() {
 
 /** Footnotes as sidenotes (D33): from 1000 px each footnote is copied into the margin at the height of
  *  its mark (pushed down when it would overlap the previous one); the list at the foot of the page is
- *  hidden then, and stays the form used below 1000 px, without JavaScript and in print. */
+ *  hidden then, and stays the form used below 1000 px, without JavaScript and in print.
+ *  D60: a footnote is a sidenote only if all its math fits the note, set smaller to 85 % at most (MIN_SIDENOTE_SCALE);
+ *  otherwise its mark opens the popover, as below 1000 px, and it stays in the list at the foot of the page
+ *  (the only entries the list then shows). Decided after typesetting, at every width and on resize. The
+ *  page contains its sidenotes: when the last one ends below the text, <main> grows so that the footer
+ *  starts below it. */
 function initSidenotes() {
   const main = document.getElementById('dg-main');
   const notes = main ? [...main.querySelectorAll('.dg-footnotes .dg-fn')] : [];
@@ -992,28 +1013,39 @@ function initSidenotes() {
     main.append(box);
   };
   const layout = () => {
+    main.style.minHeight = '';
     if (!wide.matches) { H.classList.remove('dg-has-sidenotes'); return; }
     if (!box) build();
     H.classList.add('dg-has-sidenotes');
-    // the math of the notes obeys D27 in the margin too (D45 a): displays scroll in their own box, inline
-    // formulas wider than the note scroll in place; done before the heights are measured
+    // every footnote is tried in the margin: its math is set smaller until it fits the note, never below
+    // 85 % (D60); a footnote with a formula that still does not fit is no sidenote. Before heights are measured.
+    for (const n of box.children) n.hidden = false;
     fitDisplayMath(box);
     fitWideInlineMath(box);
+    for (const n of box.children) {
+      const off = !!n.querySelector('.math.display.dg-math-scroll, mjx-container.dg-math-wide');
+      n.hidden = off;
+      document.getElementById(n.dataset.for)?.classList.toggle('dg-fn-margin', !off);
+    }
     const top0 = main.getBoundingClientRect().top;
-    let floor = 0;
+    let floor = 0, end = 0;
     for (const n of box.children) {
       const ref = mark(n.dataset.for);
-      if (!ref) continue;
+      if (!ref || n.hidden) continue;
       const y = Math.max(ref.getBoundingClientRect().top - top0 - 4, floor);
       n.style.top = `${y}px`;
-      floor = y + n.offsetHeight + 14;
+      end = y + n.offsetHeight;
+      floor = end + 14;
     }
+    // the page contains its sidenotes (D60): the last one ends as far above the footer as the text does
+    const need = end ? Math.ceil(end + parseFloat(getComputedStyle(main).paddingBottom)) : 0;
+    if (need > main.offsetHeight) main.style.minHeight = `${need}px`;
   };
   // a footnote mark points at its sidenote: highlighted while the mark is hovered or focused
   const note = a => box && box.querySelector(`.dg-sidenote[data-for="${CSS.escape(a.hash.slice(1))}"]`);
   const hot = (e, on) => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn() && !a.closest('.dg-inline')) note(a)?.classList.toggle('dg-hot', on);
+    if (a && inMargin(a)) note(a)?.classList.toggle('dg-hot', on);
   };
   document.addEventListener('pointerover', e => hot(e, true));
   document.addEventListener('pointerout', e => hot(e, false));
@@ -1021,7 +1053,7 @@ function initSidenotes() {
   document.addEventListener('focusout', e => hot(e, false));
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn() && !a.closest('.dg-inline')) e.preventDefault();         // the note is beside the mark: no jump to the hidden list
+    if (a && inMargin(a)) e.preventDefault();         // the note is beside the mark: no jump to the hidden list entry
   });
   let t = 0;
   const later = () => { clearTimeout(t); t = setTimeout(layout, 120); };

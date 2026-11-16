@@ -15,6 +15,8 @@
 // Unit R10c: read marks after the delay (window.__dgReadDelay), the course tree scrolled to the current entry,
 // previews inside the viewport, search snippets without raw TeX, and on every page at 1440 and 390 px no line
 // break between a formula / reference and its punctuation (D44) and sidenote math within its note (D45).
+// Units B12-B17 (D60, D45): which footnotes are sidenotes (math fits at 85 % at most, else popover + list), sidenotes
+// never over previous/next or the footer (1000, 1280, 1440 px); equation numbers in view at rest; edge shadows.
 // Unit B5 (D52): a citation previews its Bibliography entry; a List of Figures number previews its figure.
 import { chromium, serveDocs } from './shot.mjs';
 
@@ -699,25 +701,45 @@ try {
   }
   // R10c (D44, D45 a): on every page at 1440 and 390 px, no rendered line of the notes' text begins with , . ; : ) ]
   // or a hyphen right after an inline formula or a reference (or with a footnote mark after one), and none ends
-  // with a lone ( or [ before one; at 1440, no math in a sidenote is wider than the note unless it is in a scroll box,
-  // and no two sidenotes overlap. D59: a display of the text is at the text size or shrunk to fit, never below 85 %,
-  // and scrolls only at 85 %; math in a sidenote is shrunk to fit, never below 75 %, and scrolls only at 75 %.
+  // with a lone ( or [ before one. D59: a display of the text is at the text size or shrunk to fit, never below 85 %,
+  // and scrolls only at 85 %. D60 (B12-B17), at 1000, 1280 and 1440 px: every footnote is either a sidenote whose
+  // math fits the note (shrunk to 85 % at most, never scrolling) or no sidenote, shown in the list at the foot of
+  // the page, with a mark that opens the popover; no two sidenotes overlap, and none overlaps previous/next or the
+  // footer. D45 (B12-B17), at 1440 and 390 px: every equation number is inside its box and the viewport at rest;
+  // every box that scrolls sideways (displays, arrays, tables, wide inline formulas) has the edge shadow layers.
   {
     const { coursePages, pool } = await import('./course_pages.mjs');
     const all = coursePages();
     const audit = () => {
-      const main = document.getElementById('dg-main'), out = { breaks: [], notes: [], sizes: [] };
+      const main = document.getElementById('dg-main'), out = { breaks: [], notes: [], sizes: [], tags: [], cues: [], off: [], fns: 0 };
       // D59: the scale course.js applied (display: its font-size; inline: over MathJax's own size, data-dg-fs)
       const scaleOf = m => m.matches('.math.display') ? (parseFloat(m.style.fontSize) || 100) / 100
         : (parseFloat(m.style.fontSize) || 100) / (parseFloat(m.dataset.dgFs) || 100);
+      const scrolls = m => (m.matches('.math.display') || m.classList.contains('dg-math-wide')) && m.scrollWidth > m.clientWidth + 1;
       const sizeRule = (m, floor, where) => {
-        const s = scaleOf(m), scrolls = (m.matches('.math.display') || m.classList.contains('dg-math-wide')) && m.scrollWidth > m.clientWidth + 1;
+        const s = scaleOf(m);
         if (s < floor - 0.002) out.sizes.push(`${where}: math at ${s.toFixed(3)} < ${floor}`);
-        if (scrolls && s > floor + 0.002) out.sizes.push(`${where}: math scrolls at ${s.toFixed(3)} before reaching ${floor}`);
+        if (scrolls(m) && s > floor + 0.002) out.sizes.push(`${where}: math scrolls at ${s.toFixed(3)} before reaching ${floor}`);
       };
       for (const d of main.querySelectorAll('.math.display')) {
         if (d.closest('.dg-sidenotes, .dg-pop') || !d.getBoundingClientRect().width) continue;
         sizeRule(d, 0.85, 'text display');
+        // D45: the equation numbers of the display are inside its box and the viewport at rest
+        if (d.scrollLeft !== 0) continue;
+        const b = d.getBoundingClientRect();
+        for (const l of d.querySelectorAll('mjx-labels mjx-mtd')) {
+          const r = l.getBoundingClientRect();
+          if (!r.width) continue;
+          if (r.left < b.left - 1 || r.right > b.right + 1 || r.left < -1 || r.right > innerWidth + 1)
+            out.tags.push(`${d.id || 'display'}: number "${(l.textContent || l.closest('mjx-container').querySelector('mjx-assistive-mml')?.textContent || '').trim().slice(0, 12)}" at ${Math.round(r.left)}-${Math.round(r.right)}, box ${Math.round(b.left)}-${Math.round(b.right)}`);
+        }
+      }
+      // D45 b: every box that scrolls sideways shows the edge shadow (CSS background layers)
+      for (const el of main.querySelectorAll('.math.display, mjx-container.dg-math-wide, .dg-table-wrap')) {
+        if (!el.getBoundingClientRect().width || el.scrollWidth <= el.clientWidth + 1 || el.closest('.dg-sidenote[hidden]')) continue;
+        const cs = getComputedStyle(el), n = (cs.backgroundImage.match(/linear-gradient/g) || []).length;
+        if (n < 4 || !/scroll/.test(cs.backgroundAttachment) || !/local/.test(cs.backgroundAttachment))
+          out.cues.push(`${el.matches('.dg-table-wrap') ? 'table' : el.querySelector('mjx-mtable') ? 'array/display' : 'formula'} ${el.id || ''} scrolls without the shadow layers`);
       }
       const BLOCK = 'p, li, div, h1, h2, h3, figcaption, td, th, blockquote';
       const tw = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
@@ -743,37 +765,80 @@ try {
           if (c && c.width && c.right > a.left + 3 && c.top < a.top - 2) out.breaks.push(`line ends with a lone "${q.data.slice(-1)}" before ${words(el)}`);
         }
       }
-      let last = null;
-      for (const note of main.querySelectorAll('.dg-sidenote')) {
-        const r = note.getBoundingClientRect();
-        if (!r.width) continue;
-        if (last && r.top < last.bottom - 1) out.notes.push(`sidenote ${note.dataset.n} overlaps the one before`);
-        last = r;
-        for (const m of note.querySelectorAll('mjx-container, .math.display')) {
-          const box = m.closest('.math.display') || (m.matches('mjx-container.dg-math-wide') ? m : null);
-          const mr = (box || m).getBoundingClientRect();
-          if (mr.right > r.right + 1 || mr.left < r.left - 1) out.notes.push(`sidenote ${note.dataset.n}: math wider than the note${box ? ' (its scroll box too)' : ''}`);
-          if (m.matches('.math.display') || (m.matches('mjx-container') && !m.closest('.math.display'))) sizeRule(m, 0.75, `sidenote ${note.dataset.n}`);
+      // D60: sidenotes
+      if (document.documentElement.classList.contains('dg-has-sidenotes')) {
+        const avoid = [...document.querySelectorAll('.dg-sitefoot, #dg-main > .dg-prevnext, #dg-main > .dg-readbar')].map(e => [e.className.split(' ')[0], e.getBoundingClientRect()]);
+        const meet = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+        let last = null;
+        for (const fn of main.querySelectorAll(':scope > .dg-footnotes > .dg-fn')) {
+          out.fns++;
+          const note = main.querySelector(`.dg-sidenote[data-for="${CSS.escape(fn.id)}"]`);
+          const shown = note && !note.hidden && note.getBoundingClientRect().width > 0;
+          if (!shown) {
+            out.off.push(fn.id);
+            if (!fn.getBoundingClientRect().height) out.notes.push(`${fn.id} is neither a sidenote nor shown in the list at the foot`);
+            continue;
+          }
+          if (fn.getBoundingClientRect().height) out.notes.push(`${fn.id} is a sidenote and also shown in the list`);
+          const r = note.getBoundingClientRect();
+          if (last && r.top < last.bottom - 1) out.notes.push(`sidenote ${note.dataset.n} overlaps the one before`);
+          last = r;
+          for (const [what, a] of avoid) if (meet(r, a)) out.notes.push(`sidenote ${note.dataset.n} overlaps ${what}`);
+          for (const m of note.querySelectorAll('mjx-container, .math.display')) {
+            const inDisplay = m.matches('mjx-container') && m.closest('.math.display');
+            const mr = (inDisplay ? m.closest('.math.display') : m).getBoundingClientRect();
+            if (mr.right > r.right + 1 || mr.left < r.left - 1) out.notes.push(`sidenote ${note.dataset.n}: math wider than the note`);
+            if (!inDisplay) {
+              if (scrolls(m)) out.notes.push(`sidenote ${note.dataset.n}: math scrolls`);
+              sizeRule(m, 0.85, `sidenote ${note.dataset.n}`);
+            }
+          }
         }
       }
       return out;
     };
-    for (const width of [1440, 390]) {
+    const offTotal = {};
+    for (const width of [1440, 1280, 1000, 390]) {
       const res = await pool(all, 6, async slug => {
         const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 900 } });
         await page.goto(`${base}/${C}${slug}.html`, { waitUntil: 'networkidle' });
         await page.waitForFunction(() => document.documentElement.classList.contains('dg-math-ready'), null, { timeout: 30000 }).catch(() => {});
         await page.waitForTimeout(600);
         const r = await page.evaluate(audit);
+        // D60: the mark of a footnote that is no sidenote opens the popover (hover)
+        r.pops = [];
+        if (width >= 1000) for (const id of r.off) {
+          const mk = page.locator(`#dg-main .dg-fnref > a[href="#${id}"]`).first();
+          if (!(await mk.count())) { r.pops.push(`${id}: no mark`); continue; }
+          await mk.scrollIntoViewIfNeeded();
+          await mk.hover();
+          const t = await waitPop(page);
+          if (!t) r.pops.push(`${id}: no popover`);
+          await page.mouse.move(2, 2); await page.waitForTimeout(350);
+        }
         await page.close();
         return [slug, r];
       });
-      const breaks = res.filter(([, r]) => r.breaks.length), notes = res.filter(([, r]) => r.notes.length);
-      ok(!breaks.length, `@${width} D44: no line of the notes' text begins with punctuation after a formula or reference, or ends with a lone bracket before one (${all.length} pages)${breaks.length ? ': ' + breaks.slice(0, 6).map(([s, r]) => `${s}: ${r.breaks.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
-      if (width >= 1000) ok(!notes.length, `@${width} D45: sidenote math stays within its note (or scrolls in its own box), no overlapping sidenotes${notes.length ? ': ' + notes.slice(0, 6).map(([s, r]) => `${s}: ${r.notes.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
-      const sizes = res.filter(([, r]) => r.sizes.length);
-      ok(!sizes.length, `@${width} D59: displays at the text size or shrunk to fit (floor 85 %, sidenotes 75 %), scrolling only at the floor${sizes.length ? ': ' + sizes.slice(0, 6).map(([s, r]) => `${s}: ${r.sizes.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
+      const list = (key, n = 2) => res.filter(([, r]) => r[key].length).slice(0, 6).map(([s, r]) => `${s}: ${r[key].slice(0, n).join('; ')}`).join(' | ');
+      const breaks = res.filter(([, r]) => r.breaks.length);
+      if (width === 1440 || width === 390) {
+        ok(!breaks.length, `@${width} D44: no line of the notes' text begins with punctuation after a formula or reference, or ends with a lone bracket before one (${all.length} pages)${breaks.length ? ': ' + list('breaks') : ''}`);
+        const sizes = res.filter(([, r]) => r.sizes.length);
+        ok(!sizes.length, `@${width} D59/D60: displays at the text size or shrunk to fit (floor 85 %, sidenotes too), scrolling only at the floor${sizes.length ? ': ' + list('sizes') : ''}`);
+        const tags = res.filter(([, r]) => r.tags.length);
+        ok(!tags.length, `@${width} D45: every equation number inside its box and the viewport at rest${tags.length ? ': ' + list('tags') : ''}`);
+        const cues = res.filter(([, r]) => r.cues.length);
+        ok(!cues.length, `@${width} D45 b: every box that scrolls sideways (displays, arrays, tables, wide formulas) shows the edge shadow${cues.length ? ': ' + list('cues') : ''}`);
+      }
+      if (width >= 1000) {
+        const notes = res.filter(([, r]) => r.notes.length), pops = res.filter(([, r]) => r.pops.length);
+        const fns = res.reduce((s, [, r]) => s + r.fns, 0), off = res.filter(([, r]) => r.off.length);
+        offTotal[width] = off.map(([s, r]) => `${s}: ${r.off.join(', ')}`);
+        ok(!notes.length, `@${width} D60: every footnote a sidenote whose math fits at 85 % at most, or listed at the foot; no sidenote overlaps another, previous/next or the footer${notes.length ? ': ' + list('notes') : ''}`);
+        ok(!pops.length, `@${width} D60: the mark of every footnote that is no sidenote opens the popover (${off.reduce((s, [, r]) => s + r.off.length, 0)} of ${fns} footnotes)${pops.length ? ': ' + list('pops') : ''}`);
+      }
     }
+    console.log(`     D60 footnotes that are no sidenote: ${JSON.stringify(offTotal)}`);
   }
   // console errors and horizontal overflow
   for (const width of [1280, 390]) {
