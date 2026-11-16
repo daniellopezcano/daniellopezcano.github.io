@@ -13,6 +13,7 @@
  *     data-tex and "Copy LaTeX" keep the notes' source). "black" is the text colour, so mixes with black
  *     stay legible in the dark theme.
  *   - \AA (inside \text{}) is the Angstrom sign.
+ *   - ``…" and ``…'' are TeX's curly quotes “…” (inside \mathrm{} in Eq. (4.1)).
  * _port/tools/math_check.mjs evaluates this file in Node and typesets every equation of the pages with this
  * tex block, so keep it a plain script that only assigns window.MathJax (and the dg-js classes below).
  */
@@ -38,6 +39,9 @@ if (typeof document !== 'undefined') {
   function prefilter(data) {
     // \AA: the Angstrom sign (MathJax's text mode has no \AA; the notes use it inside \text{})
     data.math.math = data.math.math.replace(/\\AA(?![A-Za-z])/g, '\u00c5');
+    // ``…" and ``…'' (TeX's quotes, used inside \mathrm{} in the notes, Eq. (4.1)): the curly quotes TeX prints, as
+    // text (in math MathJax would take them for primes)
+    data.math.math = data.math.math.replace(/``([^`"']*?)(?:"|'')/g, '\\text{\u201c}$1\\text{\u201d}');
     data.math.math = data.math.math.replace(/\\(textcolor|color)\s*\{([^{}]*!+[^{}]*)\}/g, function (all, cmd, expr) {
       var c = xcolor(expr);
       if (!c) return all;

@@ -35,7 +35,10 @@ The gas of panels 2, 3 and 7 is a stated toy (L25); everything from the gas to t
 
 ## 3. What waits for you in `REVIEW.md`
 
-REVIEWSUMMARY
+- **Decisions taken for you** (8 rows): the cut after § 5 (L1), appendices A–C, no bibliography, "working draft" kept, the Teaching card's "Download PDF" label, the deleted old Lyα PDF and thumbnail (how to restore them), the first course's thumbnail no longer shown, and your CV PDF still listing OJALÁ as a preprint (not edited).
+- **Author material left out**: the four title-page items and the running header, by macro.
+- **Typos and slips** (6 rows): "the remaining of" ×2, a capital "Limiting", equation references written with `\ref` (no parentheses) and appendix references without "Appendix", and Figure 1's caption mentioning a Λ analytic solution the text does not give. None is corrected on the web (rule 1).
+- **Words written for the web layer**: every interface word, the landing page's buttons, and each panel's instruction, labels and screen-reader names, with the toy model of panels 2, 3 and 7 (L25).
 
 ## 4. How to rebuild after editing the LaTeX
 

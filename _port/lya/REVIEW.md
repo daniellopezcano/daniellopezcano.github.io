@@ -30,6 +30,12 @@ No acknowledgement and no passage naming a co-author exists in the converted par
 
 | Where | What |
 |---|---|
+| `sec_flux.tex:21` (§ 3, opening) | "For the remaining of this section" — probably "For the remainder of this section". |
+| `sec_flux.tex:507` (§ 3.6) | "In the remaining of this subsection" — probably "In the remainder of this subsection". |
+| `sec_cosmology.tex:116` (§ 2.3.1) | "In simple Limiting cases" — capital L. |
+| `sec_cosmology.tex:108, 116, 130`; `sec_flux.tex:49, 86, 183, 667, 785–787` | Equations referred to with `\ref` instead of `\eqref` print without parentheses ("Eq. 2.5", "Equation 2.5", "Eq. 3.5", …) while most references print "Eq. (2.3)". The web prints them as the PDF does. |
+| `sec_flux.tex:157, 195, 199, 286` | `see~\ref{subsec:app_…}` / `on~\ref{…}` print a bare number ("see B.1", "proof on B.1", "see 3.2") with no "Appendix"/"Sec." before it. |
+| `sec_cosmology.tex:108` (Figure 1 caption) | The caption mentions analytic (dashed) curves for the radiation-, matter- and Λ-dominated cases; § 2.3.1 gives the analytic solutions for matter and radiation only (the Λ one, a = 1/(1 − H0 x/c), is not written in the converted part). |
 
 ## Words written for the web layer
 
