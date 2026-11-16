@@ -4,7 +4,9 @@
 // mounts without console errors of its own and reacts to its controls, cross-checks the numbers of the
 // variations module against the closed forms of Appendix C.6, those of the tpm module against the
 // transformation law of §4.1.1 (finite differences of the chart maps) and those of the laws module against the laws
-// of §2.3 (components through J and J⁻¹, the pairing over 200 random bases; its place at the end of §2.3, D57), checks touch on a phone (D56: a swipe
+// of §2.3 (components through J and J⁻¹, the pairing over 200 random bases; its place at the end of §2.3, D57), those of the
+// transport module against the closed forms of Appendix C.5 (parallel transport, autoparallels, torsion, curvature, the
+// coefficients in the chart Y; its place at the end of C.5, D57), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -18,6 +20,7 @@ const MAPS = 'notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html';
 const VAR = 'notes/diffgeo-gr/examples/example-variations.html';
 const TPM = 'notes/diffgeo-gr/tangent-spaces/tangent-space.html';
 const LAWS = 'notes/diffgeo-gr/vector-spaces/basis-components-transformations.html';
+const TR = 'notes/diffgeo-gr/examples/example-connection-torsion-curvature.html';
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -457,6 +460,216 @@ async function lawsCrossChecks(page) {
   check(wp < 1e-9, `pairing Σ 𝚡_i x^i = Σ 𝚢_i y^i = 𝖷(𝒳) = 2 over 200 random bases: max deviation ${wp.toExponential(2)}`);
 }
 
+// ---- transport (end of Appendix C.5, D57): closed forms of C.5, written here independently of the module. In the chart
+// X: ∇^E keeps the cartesian components constant; ∇^W keeps the components w^a in the frame e_1 = (a, b)/ρ,
+// e_2 = (−b, a)/ρ constant (along δ_r0: the polar components, i.e. (z¹ cos λ − r0 z² sin λ, z¹ sin λ + r0 z² cos λ));
+// ∇^κ keeps z² and changes z¹ by −κ z² ∫ a db along the loop (rectangle: −κ x1 z² Δb up the right side, +κ x0 z² Δb
+// down the left side, Δz¹ = −κ z² (x1 − x0) Δb; circle: ∫ a db = r0² (λ + π + sin λ cos λ)/2, our integral, not the
+// notes'). Torsion T^i_12: (−b, a)/ρ² for ∇^W, 0 otherwise; Riem^1_212 = κ for ∇^κ, all others 0.
+const trPos = (st, l) => {
+  if (st.loop === 'delta') return [st.r0 * Math.cos(l), st.r0 * Math.sin(l)];
+  const [x0, x1, b0, db] = st.rect, w = x1 - x0;
+  if (l <= w) return [x0 + l, b0];
+  if (l <= w + db) return [x1, b0 + l - w];
+  if (l <= 2 * w + db) return [x1 - (l - w - db), b0 + db];
+  return [x0, b0 + db - (l - 2 * w - db)];
+};
+const trPolar = ([a, b], z) => { const r2 = a * a + b * b, r = Math.sqrt(r2); return [(a * z[0] + b * z[1]) / r, (-b * z[0] + a * z[1]) / r2]; };
+function trZ(st, l) {                                   // 𝒵 at λ, components in X
+  const p = trPos(st, st.loop === 'delta' ? -Math.PI : 0), q = trPos(st, l), z = st.z0;
+  if (st.conn === 'E') return z.slice();
+  if (st.conn === 'W') {
+    const e = ([a, b]) => { const r = Math.hypot(a, b); return [[a / r, b / r], [-b / r, a / r]]; }, [e1, e2] = e(p), [f1, f2] = e(q);
+    const w = [z[0] * e1[0] + z[1] * e1[1], z[0] * e2[0] + z[1] * e2[1]];
+    return [w[0] * f1[0] + w[1] * f2[0], w[0] * f1[1] + w[1] * f2[1]];
+  }
+  let I;                                                // ∫ a db from the start to λ
+  if (st.loop === 'delta') I = st.r0 * st.r0 * (l + Math.PI + Math.sin(l) * Math.cos(l)) / 2;
+  else { const [x0, x1, b0, db] = st.rect, w = x1 - x0; I = x1 * Math.min(db, Math.max(0, l - w)) - x0 * Math.min(db, Math.max(0, l - 2 * w - db)); }
+  return [z[0] - st.kappa * z[1] * I, z[1]];
+}
+function trExpect(st) {
+  const l = st.lam, q = trPos(st, l), zl = trZ(st, l), L = st.loop === 'delta' ? Math.PI : 2 * (st.rect[1] - st.rect[0]) + 2 * st.rect[3];
+  const zE = trZ(st, L), r2 = q[0] * q[0] + q[1] * q[1];
+  const T = st.conn === 'W' ? [-q[1] / r2, q[0] / r2] : [0, 0], R = [[0, st.conn === 'k' ? st.kappa : 0], [0, 0]];
+  let F = null, val = null;
+  if (st.loop === 'delta' && st.conn === 'E') { const c = st.z0; F = [c[0] * Math.cos(l) + c[1] * Math.sin(l), (-c[0] * Math.sin(l) + c[1] * Math.cos(l)) / st.r0]; }
+  if (st.loop === 'delta' && st.conn === 'W') F = zl;
+  if (st.loop === 'rect' && st.conn === 'k') val = -st.kappa * st.z0[1] * (st.rect[1] - st.rect[0]) * st.rect[3];
+  if (st.conn === 'k' && st.loop === 'rect') check(Math.abs(zE[0] - st.z0[0] - val) < 1e-12, 'test: Δz¹ of the side-by-side sum = the notes\' −κ z² (x1 − x0) Δb');
+  return { zl, zY: trPolar(q, zl), dz: [zE[0] - st.z0[0], zE[1] - st.z0[1]], F, val, T, R };
+}
+
+async function testTransport(width) {
+  console.log(`transport @ ${width}px`);
+  const { page, errors } = await open(TR, width);
+  await ready(page);
+  const fr = page.locator('.dg-interactive');
+  // place (D57): after the last paragraph of C.5 (the end of the subsection on ∇^κ), before "Mark as read" and previous/next
+  const place = await fr.evaluate(f => {
+    const all = [...document.querySelectorAll('main *')], i = all.indexOf(f);
+    const lastP = all.slice(0, i).filter(e => e.matches('p')).pop(), after = sel => { const e = document.querySelector(sel); return !!e && all.indexOf(e) > i; };
+    const heads = all.slice(0, i).filter(e => e.matches('h2, h3, h4'));
+    return { lastP: !!lastP && /Repeating the computation for/.test(lastP.textContent) && /loops must avoid the origin/.test(lastP.textContent),
+      lastHead: heads.length && heads.pop().textContent.includes('A curved, torsion-free connection'),
+      nav: after('.dg-prevnext') && after('.dg-readbar'), frames: document.querySelectorAll('.dg-interactive').length, for: f.dataset.for, height: f.getBoundingClientRect().height };
+  });
+  check(place.lastP && place.lastHead && place.nav && place.frames === 1 && place.for === 'subsection_Example_Connections_curved',
+    `panel at the end of C.5 (after the subsection on ∇^κ and its last paragraph, before previous/next) (${JSON.stringify(place)})`);
+  if (width >= 1000) check(place.height <= 850, `panel height ${Math.round(place.height)} px <= 850 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-transport').getAttribute('data-state'));
+  const svg = fr.locator('.dg-transport svg.dg-plot-svg');
+  const pick = (group, k) => fr.locator('.dg-choice').nth(group).locator('label').nth(k).click();
+  async function numbers(what) {
+    const st = await state(), e = trExpect(st);
+    const ms = await fr.locator('.dg-tr-out .dg-mat').evaluateAll(ms => ms.map(m => ({ hidden: !m.offsetParent, v: [...m.children].map(c => c.textContent) })));
+    const vals = ms.map(m => m.v.map(num)), fv = await fr.locator('.dg-tr-val').textContent(), rowF = await fr.locator('.dg-tr-out .dg-tr-row').nth(2).isVisible();
+    const shown = [vals[0], vals[1], vals[2], vals[4], vals[5]], want = [e.zl, e.zY, e.dz, e.T, e.R.flat()];
+    if (e.F) { shown.push(vals[3]); want.push(e.F); }
+    if (e.val != null) { shown.push([num(fv)]); want.push([e.val]); }
+    const err = Math.max(...shown.map((a, k) => a.length === want[k].length ? Math.max(...a.map((v, i) => Math.abs(v - want[k][i]))) : Infinity));
+    const formOk = (e.F ? !ms[3].hidden : ms[3].hidden) && rowF === (st.loop === 'rect' || st.conn !== 'k');
+    const text = await fr.locator('.dg-interactive-body').textContent();
+    check(err <= 5.1e-4 && formOk && !/NaN|Infinity/.test(text),
+      `${what} (${st.conn}, ${st.loop}, λ = ${st.lam.toFixed(3)}): 𝒵 in X (${vals[0]}) in Y (${vals[1]}) Δz (${vals[2]}) T (${vals[4]}) Riem (${vals[5]})${e.F ? ' closed form (' + vals[3] + ')' : ''}${e.val != null ? ' Δz¹ = ' + fv : ''}; max deviation from the closed forms ${err.toExponential(1)}`);
+    return st;
+  }
+  await shot(page, `transport-${width}.png`);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  check(await fr.locator('.dg-choice label mjx-container').count() === 5 && await fr.locator('.dg-slider .dg-ctl-label mjx-container').count() === 2, 'options and slider labels typeset');
+  const tops = await fr.locator('.dg-transport .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 50 : tops[1] < tops[0] + 300, width < 700 ? 'chart above the numbers' : 'chart and numbers side by side');
+  const st0 = await numbers('start');
+  check(JSON.stringify(st0) === JSON.stringify({ conn: 'E', loop: 'delta', k: 300, z0: [0.5, 0.7], r0: 1, rect: [0.5, 2, -0.9, 1.6], kappa: 1, lam: Math.PI / 2 }), 'starts with ∇^E, δ_r0 (r0 = 1), 𝒵 = (0.5, 0.7) at p, λ = π/2');
+  check(await fr.locator('.dg-tr-kappa input').isDisabled(), 'κ slider disabled for ∇^E');
+  await pick(0, 1); await numbers('∇^W');
+  await pick(0, 2); await numbers('∇^κ');
+  check(!(await fr.locator('.dg-tr-kappa input').isDisabled()), 'κ slider enabled for ∇^κ');
+  await pick(1, 1); await numbers('∇^κ, rectangle');
+  await shot(page, `transport-curved-${width}.png`);
+  await pick(0, 0); await numbers('∇^E, rectangle');
+  await pick(0, 1); await numbers('∇^W, rectangle');
+  await pick(0, 2);
+  // mouse: the opposite corner, then p, of the rectangle
+  let [x, y] = await center(svg.locator('[data-key="q"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 25, y - 30, { steps: 5 }); await page.mouse.up();
+  const s1 = await numbers('after dragging the opposite corner');
+  check(s1.rect[1] > 2.1 && s1.rect[3] > 1.7 && s1.rect[0] === 0.5 && s1.rect[2] === -0.9, `corner moved: rectangle ${s1.rect.map(v => v.toFixed(3))}`);
+  [x, y] = await center(svg.locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 200, y, { steps: 8 }); await page.mouse.up();
+  const s2 = await numbers('after dragging p to the left');
+  check(near(s2.rect[0], 0.25, 1e-9), `p stops at a = 0.25 (the rectangle stays away from the origin): ${s2.rect.map(v => v.toFixed(3))}`);
+  // keyboard: λ and κ sliders
+  await fr.locator('.dg-tr-lambda input').focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
+  const s3 = await numbers('ArrowRight x2 on λ');
+  check(s3.k === 302, `ArrowRight moves λ by two steps (k = ${s3.k})`);
+  await fr.locator('.dg-tr-kappa input').focus(); await page.keyboard.press('ArrowRight');
+  const s4 = await numbers('ArrowRight on κ');
+  check(near(s4.kappa, 1.05, 1e-9), `κ = ${s4.kappa}`);
+  // circle: drag the tip of 𝒵 and p; arrow keys on both
+  await pick(1, 0);
+  [x, y] = await center(svg.locator('[data-key="tip"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 30, y + 40, { steps: 5 }); await page.mouse.up();
+  const s5 = await numbers('after dragging the tip of 𝒵');
+  check(s5.z0[0] > 0.6 && s5.z0[1] < 0.5, `𝒵 at p = (${s5.z0.map(v => v.toFixed(3))})`);
+  [x, y] = await center(svg.locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 40, y, { steps: 5 }); await page.mouse.up();
+  const s6 = await numbers('after dragging p outwards');
+  check(s6.r0 > 1.2, `r0 = ${s6.r0.toFixed(3)}`);
+  await svg.locator('[data-key="p"]').focus(); await page.keyboard.press('ArrowRight');
+  const s7 = await numbers('ArrowRight on p');
+  check(near(s7.r0, Math.round((s6.r0 - 0.05) * 100) / 100, 1e-9), `ArrowRight on p makes the circle smaller (r0 ${s6.r0.toFixed(3)} -> ${s7.r0})`);
+  await svg.locator('[data-key="tip"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp');
+  const s8 = await numbers('ArrowUp x2 on the tip of 𝒵');
+  check(s8.z0[1] > s7.z0[1] + 0.05, `ArrowUp moves the tip of 𝒵 up (z² ${s7.z0[1].toFixed(3)} -> ${s8.z0[1].toFixed(3)})`);
+  for (const k of [1, 0]) { await pick(0, k); await numbers(['∇^E', '∇^W'][k] + ' after the changes'); }
+  await shot(page, `transport-moved-${width}.png`);
+  await panelFoot(page, fr, null, null, null);
+  check(JSON.stringify(await state()) === JSON.stringify(st0), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await transportCrossChecks(page);
+  await page.close();
+}
+
+async function transportCrossChecks(page) {
+  console.log('transport: the module against the closed forms of C.5 (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/transport.js');
+    let seed = 7; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const tr = [], ap = [], tc = [], G = [];
+    for (let n = 0; n < 60; n++) for (const conn of ['E', 'W', 'k']) for (const loop of ['delta', 'rect']) {
+      const x0 = rnd(0.25, 1.5), b0 = rnd(-2.3, 1), st = { conn, loop, z0: [rnd(-1.2, 1.2), rnd(-1.2, 1.2)], r0: rnd(0.4, 2), rect: [x0, rnd(x0 + 0.3, 2.45), b0, rnd(0.3, 2.45 - b0)], kappa: rnd(0.1, 2) };
+      const L = m.loopOf(loop, st.r0, st.rect), lam = rnd(L.l0, L.l1);
+      const [zl, zE] = m.transport(conn, L, st.z0, [lam, L.l1], st.kappa);
+      tr.push({ st: { ...st, lam }, zl, zE, at: m.at(L, lam) });
+    }
+    for (let n = 0; n < 60; n++) for (const conn of ['E', 'W', 'k']) {
+      const p = [rnd(-2, 2), rnd(-2, 2)], v = [rnd(-1, 1), rnd(-1, 1)], kappa = rnd(0.1, 2), lam = rnd(-1, 1);
+      if (conn === 'W' && Math.hypot(...p) < 0.5) continue;
+      ap.push({ conn, p, v, kappa, lam, s: m.autoparallel(conn, p, v, lam, kappa) });
+      const tcv = m.torsionCurvature(conn, p, kappa);
+      tc.push({ conn, p, kappa, ...tcv });
+      G.push({ conn, p, kappa, G: m.Gamma(conn, p, kappa) });
+    }
+    return { tr, ap, tc, G, START: m.START };
+  });
+  check(JSON.stringify(r.START) === JSON.stringify({ conn: 'E', loop: 'delta', k: 300, z0: [0.5, 0.7], r0: 1, rect: [0.5, 2, -0.9, 1.6], kappa: 1 }), 'starting state as in the test');
+  // transport: 𝒵(λ) and after the full loop, every connection on both loops
+  const w = {};
+  for (const { st, zl, zE, at } of r.tr) {
+    const L = st.loop === 'delta' ? Math.PI : 2 * (st.rect[1] - st.rect[0]) + 2 * st.rect[3], key = st.conn + ' ' + st.loop;
+    const q = trPos(st, st.lam), e = trZ(st, st.lam), eE = trZ(st, L);
+    w[key] = Math.max(w[key] || 0, Math.hypot(at[0] - q[0], at[1] - q[1]), Math.abs(zl[0] - e[0]), Math.abs(zl[1] - e[1]), Math.abs(zE[0] - eE[0]), Math.abs(zE[1] - eE[1]));
+    if (st.conn !== 'k') w[key] = Math.max(w[key], Math.abs(zE[0] - st.z0[0]), Math.abs(zE[1] - st.z0[1]));   // flat: Δz = 0 on every loop
+    if (st.conn === 'W' && st.loop === 'delta') {                                                              // the notes' formula along δ_r0
+      const [z1, z2] = trPolar([-st.r0, 0], st.z0), l = st.lam;
+      w[key] = Math.max(w[key], Math.abs(zl[0] - (z1 * Math.cos(l) - st.r0 * z2 * Math.sin(l))), Math.abs(zl[1] - (z1 * Math.sin(l) + st.r0 * z2 * Math.cos(l))));
+    }
+  }
+  for (const [k, v] of Object.entries(w)) check(v < 1e-6, `parallel transport, ${k}: 𝒵(λ) and 𝒵 after the full loop vs the closed form, max difference ${v.toExponential(2)} (60 random states)`);
+  // autoparallels: ∇^E straight lines; ∇^W γ¹ = r0 + uλ, γ² = φ0 + (w/u) ln(1 + uλ/r0) (or φ0 + (w/r0) λ); ∇^κ γ² = b0 + vλ, γ¹ = A cos(√κ v λ + ψ)
+  const wa = { E: 0, W: 0, k: 0 };
+  for (const { conn, p, v, kappa, lam, s } of r.ap) {
+    let e;
+    if (conn === 'E') e = [p[0] + lam * v[0], p[1] + lam * v[1]];
+    else if (conn === 'W') {
+      const r0 = Math.hypot(...p), f0 = Math.atan2(p[1], p[0]), u = (p[0] * v[0] + p[1] * v[1]) / r0, wv = (p[0] * v[1] - p[1] * v[0]) / r0;
+      if (r0 + u * lam < 0.2) continue;
+      const f = Math.abs(u) < 1e-12 ? f0 + wv / r0 * lam : f0 + wv / u * Math.log(1 + u * lam / r0), rr = r0 + u * lam;
+      e = [rr * Math.cos(f), rr * Math.sin(f)];
+    } else {
+      const om = Math.sqrt(kappa) * v[1];
+      if (Math.abs(om) < 0.05) continue;
+      const A = Math.hypot(p[0], v[0] / om), psi = Math.atan2(-v[0] / om, p[0]);
+      e = [A * Math.cos(om * lam + psi), p[1] + v[1] * lam];
+    }
+    wa[conn] = Math.max(wa[conn], Math.abs(s[0] - e[0]), Math.abs(s[1] - e[1]));
+  }
+  check(wa.E < 1e-6 && wa.W < 1e-6 && wa.k < 1e-6, `autoparallels vs the notes' closed forms (lines, circles/radial lines/logarithmic spirals, sinusoids): max differences ${wa.E.toExponential(1)}, ${wa.W.toExponential(1)}, ${wa.k.toExponential(1)}`);
+  // torsion and curvature
+  let wt = 0;
+  for (const { conn, p, kappa, T, R } of r.tc) {
+    const r2 = p[0] * p[0] + p[1] * p[1], eT = conn === 'W' ? [-p[1] / r2, p[0] / r2] : [0, 0], eR = [[0, conn === 'k' ? kappa : 0], [0, 0]];
+    wt = Math.max(wt, ...T.map((v, i) => Math.abs(v - eT[i])), ...R.flatMap((row, i) => row.map((v, j) => Math.abs(v - eR[i][j]))));
+  }
+  check(wt < 1e-6, `T^i_12 (∇^W: (−b, a)/(a² + b²)) and Riem^i_j12 (∇^κ: Riem^1_212 = κ) vs the notes: max difference ${wt.toExponential(2)}`);
+  // the coefficients in X, carried to the chart Y by the transformation law, give the notes' coefficients in Y
+  let wg = 0;
+  for (const { conn, p, G: Gx } of r.G) {
+    if (conn === 'k') continue;
+    const b1 = Math.hypot(...p), b2 = Math.atan2(p[1], p[0]), c = Math.cos(b2), s = Math.sin(b2);
+    const dX = [[c, -b1 * s], [s, b1 * c]], dY = [[c, s], [-s / b1, c / b1]], dd = [[[0, -s], [-s, -b1 * c]], [[0, c], [c, -b1 * s]]];   // ∂X^s/∂Y^j, ∂Y^i/∂X^l, ∂²X^s/∂Y^k∂Y^j
+    const want = [[[0, 0], [0, conn === 'E' ? -b1 : 0]], [[0, conn === 'E' ? 1 / b1 : 0], [1 / b1, 0]]];
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
+      let g = 0;
+      for (let S = 0; S < 2; S++) { g += dY[i][S] * dd[S][k][j]; for (let l = 0; l < 2; l++) for (let mm = 0; mm < 2; mm++) g += dY[i][S] * dX[l][j] * dX[mm][k] * Gx[S][l][mm]; }
+      wg = Math.max(wg, Math.abs(g - want[i][j][k]));
+    }
+  }
+  check(wg < 1e-12, `Γ in X carried to Y gives the notes' (Γ^E_y)^1_22 = −β1, (Γ^E_y)^2_12 = (Γ^E_y)^2_21 = 1/β1, (Γ^W_y)^2_21 = 1/β1, all others 0: max difference ${wg.toExponential(2)}`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -561,6 +774,36 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // transport (B25): a finger drag that starts 10 px off p (drawn radius 6.5) changes r0; a vertical swipe elsewhere scrolls
+  {
+    const { page, errors } = await open(TR, 390, { touch: true });
+    await ready(page);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive');
+    const state = () => fr.locator('.dg-transport').getAttribute('data-state');
+    const svg = fr.locator('.dg-transport svg.dg-plot-svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'transport: touch-action pan-y pinch-zoom on the drawing, none on the handles');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 30, hy - 10]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(JSON.parse(s1).r0 > JSON.parse(s0).r0 + 0.2 && y1 === y0, `transport: a swipe starting 10 px from p drags it (r0 ${JSON.parse(s0).r0} -> ${JSON.parse(s1).r0.toFixed(3)}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'transport: found an empty point of the drawing');
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && await state() === s0, `transport: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -594,7 +837,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

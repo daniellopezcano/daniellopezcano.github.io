@@ -4,6 +4,7 @@
     {"label": "fig_maps_examples", "module": "maps", "notebook": "notebooks/1_vector_spaces.ipynb"},
     {"label": "section_Basis_Components_Transformations", "at": "end", "module": "laws"},
     {"label": "fig_TpM_curves_velocities_and_chart_transitions", "module": "tpm", "notebook": "notebooks/2_3_TpM.ipynb"},
+    {"label": "subsection_Example_Connections_curved", "at": "end", "module": "transport"},
     {"label": "fig_Example_Variations_length", "module": "variations"}
   ]
 }

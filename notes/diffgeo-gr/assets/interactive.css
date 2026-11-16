@@ -154,3 +154,17 @@
   .dg-laws-eqs .dg-eqrow { justify-content: center; flex-wrap: nowrap; gap: 0.3rem; margin-bottom: 0.45rem; font-size: 0.85rem; }
   .dg-laws-eqs .dg-mat { gap: 0.1rem 0.5rem; padding: 0.1rem 0.3rem; }
 }
+
+/* ---- parallel transport (transport, B25, end of Appendix C.5): the chart X with the loop, next to the numbers ---- */
+.dg-transport [hidden] { display: none !important; }
+.dg-transport .dg-two { grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); align-items: center; }
+.dg-tr-out { display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.92rem; }
+.dg-tr-row { justify-content: flex-start; margin-top: 0; gap: 0.35rem 0.5rem; }
+.dg-tr-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-tr-val { font-variant-numeric: tabular-nums; }
+/* a disabled slider: only the track fades (its label and value keep the contrast of text, D56) */
+.dg-slider.dg-disabled input { opacity: 0.4; cursor: default; }
+.dg-tr-pair { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; }
+.dg-controls .dg-tr-lambda { flex: 1 1 9rem; }
+.dg-controls .dg-tr-kappa { flex: 0 1 11rem; }
+.dg-tr-lambda input[type="range"], .dg-tr-kappa input[type="range"] { min-width: 5rem; }
