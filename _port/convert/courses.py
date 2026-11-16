@@ -49,6 +49,8 @@ COURSES: dict[str, dict] = {
         'last': None,                                       # L1: label of the last main-text section converted
         'appendices': 'all',                                # L2: 'all' or 'referenced'
         'shared_from': None,                                # L11: course whose design files this one copies
+        'open_here': None,                                  # L23: None = course.js's rule (D35), 'appendices'
+        'read_key': None,                                   # L24: localStorage key of the read marks (None: 'dg-read')
     },
     'lya-forest': {
         'dir': 'notes/lya-forest',
@@ -80,6 +82,8 @@ COURSES: dict[str, dict] = {
         'last': 'sec:xi1D',                                 # L1: up to the end of section 5, xi1D
         'appendices': 'referenced',                         # L2
         'shared_from': 'diffgeo-gr',                        # L11
+        'open_here': 'appendices',                          # L23: every page of an included appendix opens in place
+        'read_key': 'dg-read:lya-forest',                   # L24: its own read marks
     },
 }
 

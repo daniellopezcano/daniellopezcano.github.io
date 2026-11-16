@@ -1,40 +1,49 @@
 // Hand-written tool (DECISIONS D37, DESIGN § 4 "Accessibility"): axe-core on the course pages and a keyboard pass,
 // on the rendered site in docs/ (throw-away static server; MathJax and Lato from their CDNs).
-//   node _port/tools/a11y_check.mjs [--page <slug>]... [--jobs N] [--no-keyboard | --keyboard] [--verbose]   (exit code 0 = passed)
+//   node _port/tools/a11y_check.mjs [--course NAME] [--page <slug>]... [--jobs N] [--no-keyboard | --keyboard] [--verbose]   (exit code 0 = passed)
+//   (without --course: every course of _port/convert/courses.py, one after the other; --page alone: the first course)
 // 1. axe-core (_port/node_modules/axe-core, default rule set) after the math is typeset:
 //    every page (or the --page ones) at 1280×900 in the light and in the dark theme (localStorage 'dg-theme'),
-//    and the pages of NARROW (landing, chapter opening pages, the heaviest section pages, appendix items)
+//    and the pages of NARROW[course] (landing, chapter opening pages, the heaviest section pages, appendix items)
 //    and every page with an interactive panel at 390×844 in the light theme. A violation of impact "serious" or
 //    "critical" fails; one line per page and rule, with the number of nodes and the first selector.
 //    No exclusion is needed today; MathJax output is checked like everything else.
 //    Panels (D56): a panel stays hidden until its module mounts (D15), so before axe runs every
 //    .dg-interactive[data-module] is scrolled into view and must become .dg-ready within 20 s (else a failure);
 //    axe then checks the mounted panels with the rest of the page, in every run of that page.
-// 2. Keyboard (skipped with --page unless --keyboard is given, or with --no-keyboard) on KEYS: from the top of the page, Tab reaches the skip
-//    link first, then the site navbar, the course-bar buttons, the course-tree links and the links of the
+// 2. Keyboard (skipped with --page unless --keyboard is given, or with --no-keyboard) on KEYS[course]: from the top of the page, Tab reaches the skip
+//    link first, then the site navbar, the course-bar buttons, the course-tree links (on the first page of KEYS) and the links of the
 //    text, in that order; every element that receives focus shows a visible focus indicator (outline or
 //    box-shadow, not transparent, element on screen); the search and the map dialogs open from the
 //    keyboard, Esc closes them and focus returns to the button.
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium, serveDocs } from './shot.mjs';
-import { REPO, COURSE, coursePages, selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
+import { REPO, COURSE, COURSE_NAME, coursePages, selectPages, pool, ready, url, hasFlag, eachCourse } from './course_pages.mjs';
 
+eachCourse(import.meta.url);
 const args = process.argv.slice(2);
 const jobs = +(args[args.indexOf('--jobs') + 1] || 0) || 6;
 const verbose = hasFlag(args, '--verbose');
 const filtered = args.includes('--page') && !args.includes('--keyboard');
 const pages = selectPages(args);
 const all = new Set(coursePages());
-const NARROW = ['index', 'vector-spaces/index', 'metric/index', 'appendix-examples/index', 'examples/example-fields',
-  'examples/example-connection-torsion-curvature', 'examples/example-variations', 'tangent-spaces/tangent-space',
-  'proofs-and-additional-material/metric-properties', 'fields/vector-fields', 'gr/spacetime',
-  'proofs-and-additional-material/proof-sylvester', 'vector-spaces/foundations-sets-maps', 'computational-ressources/index']
-  .filter(s => all.has(s) && pages.includes(s));
+const NARROW = ({
+  'diffgeo-gr': ['index', 'vector-spaces/index', 'metric/index', 'appendix-examples/index', 'examples/example-fields',
+    'examples/example-connection-torsion-curvature', 'examples/example-variations', 'tangent-spaces/tangent-space',
+    'proofs-and-additional-material/metric-properties', 'fields/vector-fields', 'gr/spacetime',
+    'proofs-and-additional-material/proof-sylvester', 'vector-spaces/foundations-sets-maps', 'computational-ressources/index'],
+  'lya-forest': ['index', 'cosmo-background/index', 'flux/index', 'xi-decomposition/index', 'xi1d/index', 'flux/overflux',
+    'xi1d/from-per-sample-to-ensemble-estimates-ergodicity-and-averaging-over-sightlines', 'flux/observed-wavelength-velocity',
+    'flux/top-down-summary', 'odes/index', 'velocity-units-example/app-relative-line-centered-velocity-units',
+    'velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra'],
+}[COURSE_NAME] || []).filter(s => all.has(s) && pages.includes(s));
 // every page with an interactive panel is also checked at 390 px (D56); read from the rendered HTML
 const PANELS = pages.filter(s => fs.readFileSync(path.join(REPO, 'docs', COURSE, s + '.html'), 'utf8').includes('data-module='));
 for (const s of PANELS) if (!NARROW.includes(s)) NARROW.push(s);
-const KEYS = ['metric/length-geodesics', 'index', 'fields/index'];
+// the first page of KEYS is a section page: there Tab must also reach the course tree
+const KEYS = { 'diffgeo-gr': ['metric/length-geodesics', 'index', 'fields/index'], 'lya-forest': ['flux/line-profile', 'index', 'flux/index'] }[COURSE_NAME];
+if (!KEYS) { console.error(`a11y_check.mjs: no NARROW/KEYS pages for course ${COURSE_NAME}; add them`); process.exit(2); }
 const AXE = path.join(REPO, '_port', 'node_modules', 'axe-core', 'axe.min.js');
 const BAD = new Set(['serious', 'critical']);
 
@@ -110,7 +119,7 @@ async function keyboard(slug) {
     if (!seq.length) { fail('Tab focuses nothing'); return; }
     if (seq[0].group !== 'skip') fail(`first Tab stop is ${seq[0].desc}, not the skip link`);
     const first = g => seq.findIndex(x => x.group === g);
-    const want = ['skip', 'sitenav', 'bar', ...(slug === 'metric/length-geodesics' ? ['tree'] : []), 'main'];
+    const want = ['skip', 'sitenav', 'bar', ...(slug === KEYS[0] ? ['tree'] : []), 'main'];
     let prev = -1;
     for (const g of want) {
       const k = first(g);
@@ -149,12 +158,12 @@ try {
     for (const s of KEYS.filter(k => all.has(k))) {
       try { await keyboard(s); } catch (e) { failures.push(`${s} keyboard: crashed: ${e.message.split('\n')[0]}`); }
     }
-    console.log(`keyboard: ${KEYS.length} pages`);
+    console.log(`keyboard: ${KEYS.filter(k => all.has(k)).length} pages`);
   }
 } finally {
   await browser.close();
   server.close();
 }
 for (const f of failures) console.log('FAIL ' + f);
-console.log(`${failures.length ? failures.length + ' failures' : 'all passed'} (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
+console.log(`${COURSE}: ${failures.length ? failures.length + ' failures' : 'all passed'} (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 process.exit(failures.length ? 1 : 0);

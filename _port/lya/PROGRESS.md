@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L8 — tools and `check.sh` for both courses: `check.sh` (branch `course-lya`, notes fingerprint for the Lyα notes, converter both courses, `course_unchanged.py`, shared design files identical), then each tool with a course argument (links_check, page_check, a11y_check, navbar_check incl. the dropdown, render_intact, fidelity, main_text_diff, test_page_script, pilot addresses for the first course only). Delegate the mechanical tool changes to `port-worker`, review its diff.
+**Next action:** L10–L15 — wire panels 2–7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -16,7 +16,7 @@
 | L5 | Landing page, accent, cover | in progress | landing renders (title, subtitle, version, abstract, keywords, contents; no authors); teal accent; spectrum cover. Review in L17 | (this commit) |
 | L6 | Navbar dropdown | done | first course: 82 pages differ only in the navbar (`course_unchanged.py`); behaviour/look checks added to `navbar_check` in L8 | 34f7805 |
 | L7 | Site updates (Teaching, old PDF, OJALÁ) | done | full `quarto render`; `site_unchanged.py` passes with exactly these changes (L19), fails on others | (this commit) |
-| L8 | Tools and `check.sh` for both courses | todo | | |
+| L8 | Tools and `check.sh` for both courses | done | `check.sh` covers both courses (L22); "open here" for the Lyα appendices (L23), read marks per course (L24); `test_page_script` Lyα block; first course unchanged except navbar | (this commit) |
 | L9 | Panel 1: line profile | todo | | |
 | L10 | Panel 2: optical depth along a sightline | todo | | |
 | L11 | Panel 3: transmission and saturation | todo | | |

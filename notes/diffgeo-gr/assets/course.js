@@ -1285,6 +1285,14 @@ function announce(text) {
 // time, so the panel cannot disagree with the page. The buttons are copied with the footnotes into the
 // sidenotes and the footnote popover; all of them work through one delegated click handler.
 const APPENDIX_PAGE = /^(proofs-and-additional-material|examples)\/(?!index\.html$)[^/]+\.html$/;
+// Lyα DECISIONS L23: a course whose pages carry <body data-dg-open="dir/ dir/ …"> (the converter writes the
+// directories of its appendices there) opens every page of those directories in place, from a reference to the
+// page itself (not to an equation or a figure on it); without the attribute the rule above holds (D35).
+const OPEN_DIRS = (document.body.dataset.dgOpen || '').split(' ').filter(Boolean);
+const PAGE_KINDS = new Set(['chapter', 'appendix', 'section', 'subsection']);
+const openable = (a, path) => OPEN_DIRS.length
+  ? PAGE_KINDS.has(a.dataset.kind) && !new URL(a.href).hash && OPEN_DIRS.some(d => path.startsWith(d))
+  : a.dataset.kind === 'section' && APPENDIX_PAGE.test(path);
 // .dg-lof: the List of Figures is a list; its numbers preview the figures (D52), its captions open nothing
 const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, .dg-lof, nav, .dg-web';
 const panels = new Set();
@@ -1293,9 +1301,9 @@ let panelSeq = 0;
 function initPanels() {
   const main = document.getElementById('dg-main');
   if (!main) return;
-  for (const a of main.querySelectorAll('a.dg-xref[data-kind="section"][href]')) {
+  for (const a of main.querySelectorAll(OPEN_DIRS.length ? 'a.dg-xref[data-kind][href]' : 'a.dg-xref[data-kind="section"][href]')) {
     const path = coursePath(a.href);
-    if (!path || !APPENDIX_PAGE.test(path) || a.closest(NOT_OPENABLE) || pageKey(a.href) === pageKey(location.href)) continue;
+    if (!path || !openable(a, path) || a.closest(NOT_OPENABLE) || pageKey(a.href) === pageKey(location.href)) continue;
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'dg-open-here dg-web';
@@ -1908,7 +1916,8 @@ function initMapDialog() {
 // during this visit. Kept in this browser only: localStorage['dg-read'] = JSON array of page slugs (the page's
 // path in the course without .html, <body data-dg-slug>). The checks after the section titles (tree, sections
 // of the chapter opening pages, landing page's contents) are in the HTML, hidden; this only shows them.
-const READ_KEY = 'dg-read';
+// Lyα DECISIONS L24: a second course on the same site keeps its marks under its own key (<body data-dg-read-key>)
+const READ_KEY = document.body.dataset.dgReadKey || 'dg-read';
 const READ_DELAY = 20000;                              // ms on the page before the end can mark it (D40)
 /** The stored slugs, or null when the storage cannot be read (private mode, blocked, corrupt). */
 function readStored() {

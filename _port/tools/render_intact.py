@@ -2,14 +2,16 @@
 """Hand-written tool (DECISIONS D29, D37): the published course is exactly the committed course, and the
 converter is idempotent.
 
-    python3 _port/tools/render_intact.py [--page <slug>]... [--no-rerun]     (exit code 0 = intact)
+    python3 _port/tools/render_intact.py [--course NAME] [--page <slug>]... [--no-rerun]     (exit code 0 = intact)
+    (without --course: every course of _port/convert/courses.py, one after the other; --page alone: the first
+    course)
 
-1. docs/notes/diffgeo-gr/ is file-for-file and byte-for-byte identical to notes/diffgeo-gr/ (what a
+1. docs/notes/<course>/ is file-for-file and byte-for-byte identical to notes/<course>/ (what a
    `quarto render` copies through the `resources` glob, after the course build): no file missing, extra
    or different on either side. With --page, only those pages are compared (a slug, 'index' for the
    landing page, or a prefix ending in '/').
-2. Unless --no-rerun: running the converter once more (`_port/convert/build.py`, which writes
-   notes/diffgeo-gr/ in place) leaves every file of notes/diffgeo-gr/ byte-identical (SHA-256 of every
+2. Unless --no-rerun: running the converter once more for that course (`_port/convert/build.py --course NAME`,
+   which writes notes/<course>/ in place) leaves every file of notes/<course>/ byte-identical (SHA-256 of every
    file before and after; the converter only rewrites a file whose content changed).
 Run it after the converter and the render (check.sh does). Output: one line per differing file.
 """
@@ -17,8 +19,8 @@ import hashlib, subprocess, sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-COURSE = 'notes/diffgeo-gr'
-SRC, PUB = REPO / COURSE, REPO / 'docs' / COURSE
+sys.path.insert(0, str(REPO / '_port' / 'convert'))
+import courses  # noqa: E402
 IGNORE = {'__pycache__', '.DS_Store'}          # nothing the converter writes; never published either
 
 
@@ -28,6 +30,21 @@ def tree(root: Path) -> dict:
 
 
 def main(argv) -> int:
+    argv = list(argv)
+    if '--course' in argv:
+        k = argv.index('--course')
+        name = argv[k + 1]
+        del argv[k:k + 2]
+    elif '--page' in argv:
+        name = 'diffgeo-gr'
+    else:                                   # every course, one after the other
+        rc = 0
+        for name in courses.COURSES:
+            print(f'== {name}', flush=True)
+            rc = main(['--course', name] + argv) or rc
+        return rc
+    COURSE = courses.get(name)['dir']
+    SRC, PUB = REPO / COURSE, REPO / 'docs' / COURSE
     want = [argv[i + 1].removesuffix('.html') for i, a in enumerate(argv) if a == '--page' and i + 1 < len(argv)]
     keep = (lambda k: any(k == w + '.html' or (w.endswith('/') and k.startswith(w)) for w in want)) if want else (lambda k: True)
     bad = 0
@@ -49,7 +66,8 @@ def main(argv) -> int:
     print(f'docs/{COURSE} vs {COURSE}: {len(a)} files compared, {bad} differences')
     if '--no-rerun' not in argv:
         before = tree(SRC)
-        r = subprocess.run([sys.executable, str(REPO / '_port' / 'convert' / 'build.py')], cwd=REPO, capture_output=True, text=True)
+        r = subprocess.run([sys.executable, str(REPO / '_port' / 'convert' / 'build.py'), '--course', name], cwd=REPO,
+                           capture_output=True, text=True)
         if r.returncode != 0:
             print('converter failed on the second run:', (r.stdout + r.stderr).strip().splitlines()[-1:])
             return 1

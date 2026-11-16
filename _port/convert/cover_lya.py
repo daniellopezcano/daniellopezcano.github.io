@@ -31,7 +31,8 @@ _PIECES = [
     ('date', r'\{\\normalsize\s*\\notedate\\par\}'),
     ('email', r'\{\\footnotesize\s*Contact email:\s*\\noteemails\\par\s*\}'),
     ('abstract', r'\\begin\{abstract\}(?P<abstract>.*?)\\end\{abstract\}'),
-    ('keywords', r'\\noindent\\textbf\{Keywords:\}(?P<keywords>[^\n]*)\n'),
+    # the keywords line with its bold label "Keywords:", as the notes print it (lya.css: p.dg-keywords strong)
+    ('keywords', r'\\noindent(?P<keywords>\\textbf\{Keywords:\}[^\n]*)\n'),
 ]
 _LAYOUT = re.compile(r'(?:\s|\\centering|\\vspace\*?\{[^{}]*\})*')
 _FRONT_REST = re.compile(r'\s*(?:\\pagenumbering\{(?:roman|arabic)\}|\\tableofcontents|\\bigskip|\\newpage|\\clearpage|\s)*')

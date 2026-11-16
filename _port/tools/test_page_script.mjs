@@ -23,6 +23,8 @@
 // Unit B33: roadmap badges clickable over their whole box; the "Zoom" button where a figure's text is below 8 px (and not elsewhere,
 // and after a resize); Figure 10.3 opens fitted to its width; the viewer (pinch, drag, close) and the map dialog on a phone;
 // previews of Figure 10.3 never leave the viewport; nothing page-level copied into an appendix panel.
+// Lyα course (L11, L23, L24), at 1280 and 390 px: "open here" on the references to its appendix pages and the panel,
+// an equation preview, its own search index, no console errors; read marks under its own key, the theme under the site's.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -1107,6 +1109,77 @@ try {
       await page.close();
     }
     ok(cut === 0, `previews of Figure 10.3 from §10.2: all ${n} inside the viewport (${scroll} of them scroll inside their height)`);
+  }
+
+  // ---- Lyα course (Lyα DECISIONS L11, L23, L24): the shared course.js on the second course's pages ----
+  {
+    const L = 'notes/lya-forest/';
+    const lopen = async (p, width) => { const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 900 } });
+      const errors = []; page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); }); page.on('pageerror', e => errors.push(e.message));
+      await page.goto(`${base}/${L}${p}`, { waitUntil: 'networkidle' });
+      await page.waitForFunction(() => document.documentElement.classList.contains('dg-math-ready') || !window.MathJax, null, { timeout: 30000 }).catch(() => errors.push('math never ready'));
+      await page.waitForTimeout(400); return { page, errors }; };
+    for (const width of [1280, 390]) {
+      const W = `Lyα @${width}`;
+      const { page, errors } = await lopen('flux/observed-wavelength-velocity.html', width);
+      // "open here" on the references to the appendix pages (B, B.1, B.2, C), not on an equation's
+      const opens = await page.$$eval('#dg-main .dg-open-here', bs => bs.map(b => b.previousElementSibling.dataset.label));
+      ok(opens.includes('app:velocity_units_example') && opens.includes('subsec:app_redshift_independent_line_separation')
+        && opens.includes('app:velocity_units_snapshot_approx') && !opens.some(l => /^eq:/.test(l)),
+        `${W} "open here" on the references to Appendices B, B.1, C and on no equation (${opens.length} buttons)`);
+      const b = page.locator('#dg-main .dg-open-here').filter({ has: page.locator('xpath=preceding-sibling::a[@data-label="subsec:app_redshift_independent_line_separation"]') }).filter({ visible: true }).first();
+      await b.scrollIntoViewIfNeeded(); await b.click();
+      await page.waitForSelector('#dg-main .dg-inline:not(.dg-inline-raw)', { timeout: 10000 }).catch(() => {});
+      const info = await page.evaluate(() => { const box = document.querySelector('#dg-main .dg-inline');
+        return box && { head: box.querySelector('.dg-inline-head').textContent, mjx: box.querySelectorAll('mjx-container').length,
+          raw: [...box.querySelectorAll('.math')].filter(m => !m.querySelector('mjx-container')).length,
+          page: box.querySelectorAll('.dg-readbar, .dg-readtoggle, .dg-prevnext, .dg-head, .dg-chapter-web').length }; });
+      ok(info && /^Appendix B/.test(info.head) && /B\.1/.test(info.head) && info.mjx > 0 && info.raw === 0 && info.page === 0,
+        `${W} the B.1 panel opens in place: named, math typeset (${info && info.mjx}), nothing page-level`);
+      ok(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 0, `${W} no horizontal page scroll with the panel open`);
+      if (width >= 1000) {
+        const x = page.locator('#dg-main > p a.dg-xref[data-kind="equation"]').first();
+        await page.locator('#dg-main .dg-inline-tools button').click(); await page.waitForTimeout(200);
+        await x.scrollIntoViewIfNeeded(); await x.hover();
+        ok((await waitPop(page, t => /\(3\.\d+\)|Equation/.test(t) || t.length > 0)).length > 0 && (await popMath(page)) > 0, `${W} an equation reference shows its typeset preview`);
+        await page.mouse.move(5, 500); await page.waitForTimeout(300);
+      }
+      // the course's search index
+      await page.locator('.dg-bar [data-act="search"]').click(); await page.waitForTimeout(200);
+      await page.keyboard.type('Voigt profile');
+      await page.waitForFunction(() => document.querySelectorAll('.dg-search-list [role="option"]').length > 0, null, { timeout: 8000 }).catch(() => {});
+      const hits = await page.$$eval('.dg-search-list [role="option"] a', as => as.map(a => a.href));
+      ok(hits.length > 0 && hits.every(h => h.includes('/notes/lya-forest/')) && /\/flux\/line-profile\.html/.test(hits[0]),
+        `${W} search: "Voigt profile" finds ${hits[0] && hits[0].replace(/^.*\/notes\//, '')} first, only pages of this course`);
+      await page.keyboard.press('Escape');
+      ok(errors.length === 0, `${W} no console errors (${errors.slice(0, 2).join(' | ')})`);
+      await page.close();
+    }
+    // read marks under the course's own key; the theme under the site's key
+    {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      const page = await ctx.newPage();
+      await page.goto(`${base}/${L}flux/line-profile.html`, { waitUntil: 'networkidle' });
+      ok(await page.evaluate(() => document.body.dataset.dgReadKey) === 'dg-read:lya-forest', 'Lyα read marks: the page names its own storage key');
+      await page.locator('.dg-readtoggle').scrollIntoViewIfNeeded(); await page.locator('.dg-readtoggle').click(); await page.waitForTimeout(200);
+      const st = await page.evaluate(() => [localStorage.getItem('dg-read'), localStorage.getItem('dg-read:lya-forest')]);
+      ok(st[0] === null && JSON.parse(st[1] || '[]').includes('flux/line-profile'), `Lyα read marks: stored under dg-read:lya-forest, not under the first course's key (${st})`);
+      await page.goto(`${base}/${L}flux/index.html`, { waitUntil: 'networkidle' }); await page.waitForTimeout(300);
+      ok(await page.evaluate(() => { const m = document.querySelector('.dg-chapter-sections a[href$="line-profile.html"] .dg-readmark'); return !!m && m.classList.contains('dg-on'); }),
+        'Lyα read marks: the chapter opening page shows the check');
+      const secs = await page.$$eval('.dg-chapter-sections li a', as => as.length);
+      ok(secs === 7, `Lyα § 3 opening page lists its 7 subsections (${secs})`);
+      await page.locator('.dg-bar [data-act="theme"]').click(); await page.waitForTimeout(150);
+      const th = await page.evaluate(() => [document.documentElement.dataset.theme, localStorage.getItem('dg-theme')]);
+      ok(th[0] && th[0] === th[1], `Lyα theme switch: stored under the site's key dg-theme (${th})`);
+      await page.goto(`${base}/${L}index.html`, { waitUntil: 'networkidle' }); await page.waitForTimeout(300);
+      const land = await page.evaluate(() => ({ theme: document.documentElement.dataset.theme,
+        start: [...document.querySelectorAll('.dg-landing-actions a')].map(a => a.href)[0] || '',
+        kw: (document.querySelector('.dg-keywords') || {}).textContent || '' }));
+      ok(land.theme === th[0] && /\/introduction-and-scope\/(index\.html)?$/.test(land.start) && /^Keywords:/.test(land.kw.trim()),
+        `Lyα landing: theme kept, "Start reading" leads to § 1, keywords line (${land.kw.trim().slice(0, 30)}…)`);
+      await ctx.close();
+    }
   }
 } catch (err) {
   ok(false, `exception: ${err.stack || err}`);

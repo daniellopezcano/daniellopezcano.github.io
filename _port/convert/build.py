@@ -270,6 +270,26 @@ class Ctx:
             html = html[:cut] + frames + html[cut:]
         return html
 
+    def place_after_equations(self, html: str, anchors: dict) -> str:
+        """Lyα DECISIONS L21: a panel attached to the label of a numbered equation goes right after the paragraph
+        that holds the equation (the first </p> after its anchor, with no other paragraph opening before it); an
+        equation outside a paragraph stops the page ("teach the converter")."""
+        for label in self.interactives:
+            if self.aux.get(label, {}).get('kind') != 'equation' or label not in anchors:
+                continue
+            frames = self.interactive(label)
+            if not frames:
+                continue
+            m = re.search(r'\sid="' + re.escape(anchors[label]) + '"', html)
+            if not m:
+                raise ConvertError(f'interactives.json: equation {label} has no element on this page (L21)')
+            end = html.find('</p>', m.end())
+            if end == -1 or '<p' in html[m.end():end]:
+                raise ConvertError(f'interactives.json: equation {label} is not inside a paragraph: no placement rule (L21)')
+            end += len('</p>')
+            html = html[:end] + frames + html[end:]
+        return html
+
     def review(self, kind, pos, text):
         self.review_items.append({'kind': kind, 'where': self.src.where(pos), 'text': text})
 
@@ -545,6 +565,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
             r.anchors[nodes[i].args[0].strip()] = ''          # the page itself
         i += 1
     body = ctx.place_at_end(r.flow(nodes[i:]), r.anchors)       # panels that close a (sub)section (D57)
+    body = ctx.place_after_equations(body, r.anchors)           # panels after an equation's paragraph (L21)
     left = {c: q for c, q in records.items() if q and c in CHECKED}
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
@@ -1661,6 +1682,9 @@ def main():
         shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
     files: set = set()
     search: list = []
+    if COURSE_CFG.get('open_here') == 'appendices':     # L23: the directories of the included appendices
+        shell.OPEN_DIRS = sorted({p.slug.rsplit('/', 1)[0] + '/' for p in pages
+                                  if p.kind == 'chapter' and p.number and p.number[0].isalpha() and '/' in p.slug})
     for p in done:
         write_page(p, ctx, where, order, files, cfg, search, chapters)
     check_math_macros(src, done)

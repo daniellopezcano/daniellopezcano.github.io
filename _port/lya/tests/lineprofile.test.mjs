@@ -32,7 +32,7 @@ export async function run({ page, frame, state, assert }) {
   await set(1, 30); await check('b_turb = 30 km/s');
   await set(2, 3); await check('A_coll = 999 A_j');
   for (const [k, label] of [[1, 'Ly β'], [2, 'Si III']]) {
-    await frame.locator('.dg-controls input[type=radio]').nth(k).check({ force: true });
+    await frame.locator('.dg-controls .dg-seg label').nth(k).click();
     await page.waitForTimeout(150);
     await check(label);
   }

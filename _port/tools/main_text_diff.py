@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Hand-written tool: proves that a converter change added markup only (DECISIONS D44).
 
-    python3 _port/tools/main_text_diff.py [--rev HEAD]
+    python3 _port/tools/main_text_diff.py [--rev HEAD] [--course NAME]
 
-For every generated course page (notes/diffgeo-gr/**/*.html) compares the text content of <main> as it is
+(--course: one course of _port/convert/courses.py, default diffgeo-gr.) For every generated page of the course
+(notes/<course>/**/*.html) compares the text content of <main> as it is
 now with the same page at git revision --rev (default HEAD): (a) the notes' text, i.e. <main> without the
 web layer (elements with class dg-web), must be identical character for character; (b) pages whose web
 layer text changed are listed for information. Exit code 0 when (a) holds on every page.
@@ -24,7 +25,9 @@ from collections import Counter
 from html.parser import HTMLParser
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-COURSE = os.path.join(REPO, 'notes', 'diffgeo-gr')
+sys.path.insert(0, os.path.join(REPO, '_port', 'convert'))
+import courses  # noqa: E402
+COURSE = None                  # set in main(): REPO/notes/<course>
 VOID = {'area', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
 
 
@@ -120,7 +123,10 @@ def main():
     ap.add_argument('--nbsp', action='store_true', help='accept U+0020 -> U+00A0 and nothing else (D9 fix, B10)')
     ap.add_argument('--mathref', action='store_true', help='accept X -> \\href{url}{X} inside formulas and nothing else (B12-B17)')
     ap.add_argument('--dlc', action='store_true', help='accept a space removed before punctuation or a line break and nothing else (B18-B22)')
+    ap.add_argument('--course', default='diffgeo-gr', help='a course of _port/convert/courses.py')
     args = ap.parse_args()
+    global COURSE
+    COURSE = os.path.join(REPO, courses.get(args.course)['dir'])
     rev = args.rev
     bad, web, n, nb, nbp, mr, mrp, dl, dlp = [], [], 0, 0, 0, 0, 0, 0, 0
     for root, _, names in os.walk(COURSE):
@@ -159,7 +165,7 @@ def main():
     for line in bad:
         print('FAIL', line)
     if web:
-        print(f'web layer text changed on {len(web)} page(s): ' + ', '.join(os.path.relpath(w, 'notes/diffgeo-gr') for w in web))
+        print(f'web layer text changed on {len(web)} page(s): ' + ', '.join(os.path.relpath(w, os.path.relpath(COURSE, REPO)) for w in web))
     if args.mathref:
         print(f'--mathref: {mr} reference number(s) inside formulas became links on {mrp} page(s); no other change of the notes\' text there')
     if args.dlc:

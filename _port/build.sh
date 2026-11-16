@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One command after editing the LaTeX notes: recompile the scratch copy, regenerate the course pages
-# and publish them into docs/. Hand-written, part of the web port.
-#   _port/build.sh            scratch LaTeX build + converter + copy of the course into docs/ (seconds)
+# and publish them into docs/ (every course of _port/convert/courses.py). Hand-written, part of the web port.
+#   _port/build.sh            scratch LaTeX build + converter + copy of the courses into docs/ (seconds)
 #   _port/build.sh --site     ... and a full `quarto render` of the whole site instead of the copy
 #   _port/build.sh --no-tex   skip the LaTeX build (the notes did not change)
 # The course pages are complete HTML files (DECISIONS D29): Quarto only copies them (project resources),
@@ -18,8 +18,10 @@ node _port/tools/math_check.mjs | tail -n 3 || echo "math check reported failure
 if [ "$SITE" = 1 ]; then
   quarto render
 else
-  mkdir -p docs/notes/diffgeo-gr
-  rsync -a --delete notes/diffgeo-gr/ docs/notes/diffgeo-gr/
+  for d in $(python3 -c "import sys; sys.path.insert(0, '_port/convert'); import courses; print(' '.join(c['dir'] for c in courses.COURSES.values()))"); do
+    mkdir -p "docs/$d"
+    rsync -a --delete "$d/" "docs/$d/"
+  done
   python3 _port/tools/post_render.py
 fi
-echo "done. Preview: quarto preview   (then open /notes/diffgeo-gr/)"
+echo "done. Preview: quarto preview   (then open /notes/diffgeo-gr/ or /notes/lya-forest/)"

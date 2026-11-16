@@ -1,6 +1,7 @@
 // Hand-written tool (DECISIONS D37, DESIGN § 4): the all-pages browser pass and the weight budget per page,
 // on the rendered site in docs/ (served by a throw-away static server; MathJax and Lato come from their CDNs).
-//   node _port/tools/page_check.mjs [--page <slug>]... [--jobs N] [--verbose]     (exit code 0 = all passed)
+//   node _port/tools/page_check.mjs [--course NAME] [--page <slug>]... [--jobs N] [--verbose]     (exit code 0 = all passed)
+//   (without --course: every course of _port/convert/courses.py, one after the other; --page alone: the first course)
 // For every course page (or the --page ones; a slug such as metric/length-geodesics, 'index' for the landing
 // page, or a prefix ending in '/'):
 //   * weight: loaded once at 1440×900 with an empty cache and no interaction, until the math is typeset
@@ -22,14 +23,15 @@
 //     is checked in the same run (links_check.py checks all links statically, before scripts); focusing the
 //     first visible reference (a.dg-xref) of <main> opens its preview; every interactive frame
 //     (.dg-interactive[data-module]) scrolled into view becomes .dg-ready (a module error is a console error).
-//   * (D56, once per run) the interactive modules on disk, docs/notes/diffgeo-gr/assets/interactive/*.js (raw bytes):
+//   * (D56, once per run) the interactive modules on disk, docs/notes/<course>/assets/interactive/*.js (raw bytes):
 //     dg.js (the shared library) <= 50 kB, every other module <= 20 kB.
 // Output: a three-line weight summary (largest page per class), then one line per failing page.
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium, serveDocs } from './shot.mjs';
-import { REPO, COURSE, selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
+import { REPO, COURSE, selectPages, pool, ready, url, hasFlag, eachCourse } from './course_pages.mjs';
 
+eachCourse(import.meta.url);
 const args = process.argv.slice(2);
 const jobs = +(args[args.indexOf('--jobs') + 1] || 0) || 6;
 const verbose = hasFlag(args, '--verbose');
@@ -55,8 +57,7 @@ const fmt = b => b >= 1e6 ? (b / 1e6).toFixed(2) + ' MB' : Math.round(b / KB) + 
 //            is not in the live DOM;
 //   ids / out: every id of the page, and its same-course links with a fragment to another page (checked
 //            against that page's live ids once all pages ran).
-function liveDom() {
-  const COURSE = '/notes/diffgeo-gr/';
+function liveDom(COURSE) {   // COURSE: '/notes/<course>/'
   const out = { mathErr: [], untyped: 0, raw: [], missing: [], ids: [], out: [], formulas: 0 };
   const short = s => s.replace(/\s+/g, ' ').trim().slice(0, 60);
   for (const e of document.querySelectorAll('mjx-merror, .MathJax_Error, [data-mjx-error]')) out.mathErr.push(short(e.getAttribute('data-mjx-error') || e.textContent));
@@ -160,7 +161,7 @@ async function checkPage(slug) {
 
     // 1b. still at 1440, after scripts ran (unit B7): math, live links, one preview, interactive frames
     phase = 'checks';
-    const live = await page.evaluate(liveDom);
+    const live = await page.evaluate(liveDom, `/${COURSE}/`);
     if (live.mathErr.length) problems.push(`math errors: ${[...new Set(live.mathErr)].slice(0, 3).join('; ')}`);
     if (live.untyped) problems.push(`${live.untyped} .math element(s) in <main> not typeset`);
     if (live.raw.length) problems.push(`raw TeX left in <main>: ${live.raw.slice(0, 3).join('; ')}`);
@@ -251,5 +252,5 @@ const mods = fs.existsSync(IDIR) ? fs.readdirSync(IDIR).filter(f => f.endsWith('
 const over = mods.filter(([f, n]) => n > (MODULE_BUDGET[f] || MODULE_BUDGET.other));
 console.log(`interactive modules (raw, on disk; dg.js <= ${fmt(MODULE_BUDGET['dg.js'])}, others <= ${fmt(MODULE_BUDGET.other)}): ${mods.map(([f, n]) => `${f} ${(n / KB).toFixed(1)} kB`).join(', ')}`);
 for (const [f, n] of over) console.log(`FAIL module budget: ${f} is ${(n / KB).toFixed(1)} kB > ${fmt(MODULE_BUDGET[f] || MODULE_BUDGET.other)}`);
-console.log(`${results.length - bad.length} of ${results.length} pages pass (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
+console.log(`${COURSE}: ${results.length - bad.length} of ${results.length} pages pass (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 process.exit(bad.length || over.length ? 1 : 0);
