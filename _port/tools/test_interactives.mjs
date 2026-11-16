@@ -11,7 +11,8 @@
 // the rotating and pointmass modules against the closed forms of C.8 (free worldlines in the inertial and co-rotating charts: ᛖ_𝒰𝒱,
 // the involute, Γ_𝒴 from the transformation law; radial fall, the falling chart and the tidal acceleration), those of the lightcones
 // and schwarzschild modules against Chapter 10 and C.9 (proper time, the observer's frame, the causal character of 𝒳_p; the radial
-// length ∫ dr/√f and the circles of Figure C.19a), checks touch on a phone (D56: a swipe
+// length ∫ dr/√f and the circles of Figure C.19a), those of the fields module against C.4 (𝒳⌊f⌉, 𝒴⌊f⌉ in both charts, from the curves
+// and as df⌈·⌋; finite differences of f along γ_x0, δ_r0; the drawing in pixels and its raster), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -1404,6 +1405,196 @@ async function schwarzschildCrossChecks(page) {
   check(ws < 1e-3, `a short segment (r2 − r1 = 10⁻⁴): the ratio to r2 − r1 is 1/√f(r1) (the notes' estimate), relative difference ${ws.toExponential(2)}`);
 }
 
+// ---- fields (Figure C.8, B29): closed forms of C.4 (example_fields.tex), written here independently of the module: f = cos a cos b + 1,
+// the components of (df)_p in both charts, the component functions of 𝒳 (X^i = (0, 1), Y^i = (b/r, a/r²)) and 𝒴 (X̃^i = (−b, a),
+// Ỹ^i = (0, 1)), the actions 𝒳⌊f⌉ = −cos a sin b and 𝒴⌊f⌉ = b sin a cos b − a cos a sin b; 𝒱 = ℳ \ {a <= 0, b = 0}.
+const fdF = (a, b) => Math.cos(a) * Math.cos(b) + 1;
+function fdExpect({ field, p: [a, b] }) {
+  const r = Math.hypot(a, b), inV = !(b === 0 && a <= 0), sa = Math.sin(a), ca = Math.cos(a), sb = Math.sin(b), cb = Math.cos(b);
+  const act = field === 'X' ? -ca * sb : b * sa * cb - a * ca * sb;
+  return { inV, act, beta: inV ? [r, Math.atan2(b, a)] : null, c: field === 'X' ? [a, b] : [r, r > 0 ? Math.atan2(b, a) : null],
+    A: field === 'X' ? [0, 1] : [-b, a], x: [-sa * cb, -ca * sb], B: !inV ? null : field === 'X' ? [b / r, a / (r * r)] : [0, 1],
+    y: inV ? [-(a * sa * cb + b * ca * sb) / r, b * sa * cb - a * ca * sb] : null };
+}
+const FD = 'notes/diffgeo-gr/examples/example-fields.html';
+const FD_START = { field: 'X', colour: 'f', p: [2, Math.sqrt(Math.PI ** 2 - 4)] };
+
+// the drawing in pixels: p where (a, b) is, 𝒳_p along the field's components, the integral curve through p (a = x0 or |q| = r0),
+// the raster under the frame, its colours those of the colouring at sample points away from its level sets and arrows
+async function fdGeometry(fr, st, what) {
+  const g = await fr.locator('.dg-fd svg.dg-plot-svg').evaluate(async svg => {
+    const nums = d => d.match(/-?\d+(\.\d+)?/g).map(Number), R = e => ['x', 'y', 'width', 'height'].map(k => +e.getAttribute(k));
+    const frame = R(svg.querySelector('rect.dg-frame')), im = svg.querySelector('image.dg-fd-bg'), h = svg.querySelector('[data-key="p"]');
+    const Xp = svg.querySelector('g.dg-fd-Xp'), curves = [...svg.querySelectorAll('path.dg-fd-curve')].map(e => nums(e.getAttribute('d')));
+    const img = new Image(); img.src = im.getAttribute('href'); await img.decode();
+    const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+    const ctx = cv.getContext('2d'); ctx.drawImage(img, 0, 0);
+    const m = await import('/notes/diffgeo-gr/assets/interactive/fields.js'), st = JSON.parse(svg.closest('.dg-fd').dataset.state);
+    const S = 14, W = cv.width, u = S / W, samples = [];
+    for (let k = -6; k <= 5; k++) for (let j = -6; j <= 5; j++) for (const [oa, ob] of [[0.5, 0.5], [0.25, 0.5], [0.75, 0.5], [0.5, 0.25], [0.5, 0.75]]) {
+      const a = k + oa, b = j + ob, fv = m.f(a, b), gr = Math.hypot(Math.sin(a) * Math.cos(b), Math.cos(a) * Math.sin(b));
+      if (Math.min(...[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75].map(L => Math.abs(fv - L))) < 2.5 * u * gr) continue;   // on a level set (the arrows sit on the integer grid, >= 0.55 away)
+      const i = Math.floor((a + 7) / u), jj = Math.floor((7 - b) / S * cv.height), px = [...ctx.getImageData(i, jj, 1, 1).data].slice(0, 3);
+      samples.push({ px, want: m.cmap(st.colour, m.shade(st, a, b)) });
+    }
+    return { frame, image: R(im), size: [img.naturalWidth, img.naturalHeight], p: [+h.getAttribute('cx'), +h.getAttribute('cy')],
+      Xp: Xp && nums(Xp.children[0].getAttribute('d')), curves, samples };
+  });
+  const [fx, fy, fw, fh] = g.frame, sx = a => fx + (a + 7) / 14 * fw, sy = b => fy + (7 - b) / 14 * fh, e = fdExpect(st);
+  const dp = Math.hypot(g.p[0] - sx(st.p[0]), g.p[1] - sy(st.p[1]));
+  let dir = 0, n = Math.hypot(...e.A);
+  if (g.Xp) { const v = [g.Xp[2] - g.Xp[0], g.Xp[3] - g.Xp[1]], L = Math.hypot(...v); dir = Math.abs(v[0] * -e.A[1] - v[1] * e.A[0]) / (L * n) + (v[0] * e.A[0] - v[1] * e.A[1] > 0 ? 0 : 1); }
+  let wc = 0, inside = true;
+  for (const c of g.curves) for (let k = 0; k < c.length; k += 2) {
+    const [x, y] = [c[k], c[k + 1]];
+    wc = Math.max(wc, st.field === 'X' ? Math.abs(x - g.p[0]) : Math.abs(Math.hypot(x - sx(0), y - sy(0)) - Math.hypot(...st.p) * fw / 14));
+    inside = inside && x >= fx - 0.6 && x <= fx + fw + 0.6 && y >= fy - 0.6 && y <= fy + fh + 0.6;
+  }
+  const wcol = Math.max(...g.samples.map(s => Math.max(...s.px.map((c, i) => Math.abs(c - s.want[i])))));
+  const noArrow = n === 0;
+  check(dp <= 0.6 && Math.abs(fw - fh) <= 1 && (noArrow ? !g.Xp : dir < 0.01) && (noArrow || g.curves.length >= 1) && wc <= 0.8 && inside
+    && JSON.stringify(g.image) === JSON.stringify(g.frame) && g.samples.length > 150 && wcol <= 6,
+    `${what}: p drawn at (a, b) (${dp.toFixed(2)} px), equal scales (${fw.toFixed(1)} × ${fh.toFixed(1)} px); ${noArrow ? 'no arrow (𝒴_p = 0)' : `${st.field === 'X' ? '𝒳' : '𝒴'}_p along its components (${dir.toExponential(1)})`}; ` +
+    `integral curve ${st.field === 'X' ? 'a = x₀' : '|q| = r₀'} within ${wc.toFixed(2)} px, inside the frame; raster ${g.size.join(' × ')} on the frame, colours at ${g.samples.length} points = the colouring (max channel difference ${wcol})`);
+}
+
+async function testFields(width) {
+  console.log(`fields @ ${width}px`);
+  const { page, errors } = await open(FD, width, { module: 'fields' });
+  await ready(page, 'fields');
+  const fr = page.locator('.dg-interactive[data-module="fields"]');
+  const pl = await placedAfter(fr, 'fig_Example_Fields_action');
+  check(pl.after, 'panel right after Figure C.8 (fig_Example_Fields_action)');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-fd').getAttribute('data-state'));
+  const svg = fr.locator('.dg-fd svg.dg-plot-svg');
+  async function numbers(what) {
+    const st = await state(), e = fdExpect(st);
+    const shown = await fr.locator('.dg-fd-out').evaluate(o => {
+      const out = {};
+      for (const s of o.querySelectorAll('[data-k]')) { let h = false; for (let x = s; x && x !== o; x = x.parentElement) if (x.hidden) h = true; out[s.dataset.k] = h ? null : s.textContent; }
+      out.notV = [...o.querySelectorAll('.dg-fd-tex')].filter(t => !t.hidden && /notin/.test(t.dataset.tex || '')).length;
+      out.text = o.textContent; return out;
+    });
+    const pr = s => s.replace(/[()]/g, '').split(',').map(num);
+    const want = { p: st.p, c1: [e.c[0]], c2: e.c[1] == null ? null : [e.c[1]], dcur: [e.act], A1: [e.A[0]], A2: [e.A[1]], x1: [e.x[0]], x2: [e.x[1]], vX: [e.act], df: [e.act],
+      beta: e.beta, B1: e.B && [e.B[0]], B2: e.B && [e.B[1]], y1: e.y && [e.y[0]], y2: e.y && [e.y[1]], vY: e.inV ? [e.act] : null };
+    let err = 0, vis = true;
+    for (const [k, w] of Object.entries(want)) {
+      if (w == null) { vis = vis && shown[k] == null; continue; }
+      if (shown[k] == null) { vis = false; continue; }
+      pr(shown[k]).forEach((x, i) => { err = Math.max(err, Math.abs(x - w[i]) / 5.1e-4); });
+    }
+    check(err <= 1 && vis && shown.notV === (e.inV ? 0 : 2) && !/NaN|Infinity|undefined/.test(shown.text),
+      `${what} (${st.field === 'X' ? '𝒳' : '𝒴'}, p = (${st.p.map(x => x.toFixed(3))})): ${st.field === 'X' ? '𝒳' : '𝒴'}⌊f⌉(p) = ${shown.dcur} from the curve, ${shown.vX} in (𝒰, 𝒳), ${e.inV ? shown.vY + ' in (𝒱, 𝒴)' : 'p ∉ 𝒱 shown'}, df⌈·⌋(p) = ${shown.df}; largest deviation / tolerance ${err.toFixed(2)}`);
+    return { st, shown };
+  }
+  await shot(page, `fields-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-fd .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 150 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'numbers below the drawing' : 'the drawing and the numbers side by side');
+  const { st: st0 } = await numbers('start (the point p = (2, √(π² − 4)) of Figure C.6)');
+  check(JSON.stringify(st0) === JSON.stringify(FD_START), 'starting state');
+  await fdGeometry(fr, st0, 'start');
+  // 𝒴 at the same point: the caption of Figure C.6 gives v_δ,p(f) ≈ −1.11
+  await fr.locator('.dg-choice label').nth(1).click(); await page.waitForTimeout(300);
+  let { st, shown } = await numbers('𝒴 chosen');
+  check(st.field === 'Y' && Math.abs(num(shown.dcur) + 1.11) < 0.005, `𝒴⌊f⌉(p) = ${shown.dcur} ≈ −1.11 (v_δ,p(f) in the caption of Figure C.6)`);
+  await fdGeometry(fr, st, '𝒴, coloured by f');
+  await fr.locator('.dg-toggle input').check(); await page.waitForTimeout(400);
+  st = await state();
+  const cb = (await fr.locator('.dg-fd-cbar').textContent()).replace(/\s+/g, ' ');
+  check(st.colour === 'act' && /−6\.5/.test(cb) && /6\.5/.test(cb) && await fr.locator('.dg-toggle input').getAttribute('aria-label') === '𝒴⌊f⌉', `colouring by 𝒴⌊f⌉ (colour bar "${cb.trim()}", switch named 𝒴⌊f⌉)`);
+  await fdGeometry(fr, st, '𝒴, coloured by 𝒴⌊f⌉');
+  // mouse: p to (−3, 4)
+  let [x, y] = await center(svg.locator('[data-key="p"]'));
+  let fb = await svg.locator('rect.dg-frame').boundingBox();
+  await page.mouse.move(x, y); await page.mouse.down();
+  await page.mouse.move(fb.x + (4 / 14) * fb.width, fb.y + (3 / 14) * fb.height, { steps: 6 }); await page.mouse.up();
+  ({ st } = await numbers('after dragging p to about (−3, 4)'));
+  check(Math.abs(st.p[0] + 3) < 0.08 && Math.abs(st.p[1] - 4) < 0.08, `p = (${st.p.map(v => v.toFixed(3))})`);
+  await fdGeometry(fr, st, 'after the drag');
+  // keys: down onto the branch cut (p ∉ 𝒱), right onto the origin (𝒴_p = 0), right again (off the cut)
+  const hp = svg.locator('[data-key="p"]');
+  await hp.focus();
+  for (let k = 0; k < 60 && (await state()).p[1] !== 0; k++) await page.keyboard.press('ArrowDown');
+  ({ st } = await numbers('ArrowDown onto the branch cut {a <= 0, b = 0}'));
+  check(st.p[1] === 0 && st.p[0] < 0, `p = (${st.p}) on the cut: p ∉ 𝒱`);
+  for (let k = 0; k < 60 && (await state()).p[0] !== 0; k++) await page.keyboard.press('ArrowRight');
+  ({ st } = await numbers('ArrowRight onto the origin'));
+  check(JSON.stringify(st.p) === '[0,0]', `p = (${st.p}): 𝒴_p = 0, λ₀ not shown`);
+  await fdGeometry(fr, st, 'origin');
+  await page.keyboard.press('ArrowRight');
+  ({ st } = await numbers('ArrowRight off the origin'));
+  check(JSON.stringify(st.p) === '[0.1,0]', `p = (${st.p}) in 𝒱 again`);
+  await fr.locator('.dg-choice label').nth(0).click(); await page.waitForTimeout(300);
+  ({ st } = await numbers('𝒳 at (0.1, 0)'));
+  await fdGeometry(fr, st, '𝒳, coloured by 𝒳⌊f⌉');
+  await shot(page, `fields-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_Example_Fields_action', 'Figure C.8', 'notebooks/exercises_and_example_figures/exercise_C3.ipynb');
+  check(JSON.stringify(await state()) === JSON.stringify(FD_START), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await fieldsCrossChecks(page);
+  await page.close();
+}
+
+async function fieldsCrossChecks(page) {
+  console.log('fields: the module against C.4 (random points, both fields)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/fields.js');
+    let seed = 29; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const f = (a, b) => Math.cos(a) * Math.cos(b) + 1, Y = ([a, b]) => [Math.hypot(a, b), Math.atan2(b, a)];
+    const d5 = (g, l, h) => (g(l - 2 * h) - 8 * g(l - h) + 8 * g(l + h) - g(l + 2 * h)) / (12 * h);   // 5-point central difference
+    const out = [], places = [];
+    for (let n = 0; n < 2000; n++) {
+      const field = n % 2 ? 'Y' : 'X', k = n % 50;
+      const p = k === 0 ? [0, 0] : k === 1 ? [-rnd(0, 7), 0] : k === 2 ? [rnd(0, 7), 0] : k === 3 ? [rnd(-1e-6, 1e-6), rnd(-1e-6, 1e-6)] : [rnd(-7, 7), rnd(-7, 7)];
+      const st = { field, colour: 'f', p }, a = m.at(st), c = m.curveAt(field, p), l0 = c.l0 ?? 0, h = 1e-3;
+      const q0 = c.at(l0), fd = d5(l => f(...c.at(l)), l0, h), vel = [0, 1].map(i => d5(l => c.at(l)[i], l0, h));
+      let velY = null;
+      if (a.inV && Math.abs(Y(c.at(l0 + 2 * h))[1] - Y(c.at(l0 - 2 * h))[1]) < 1) velY = [0, 1].map(i => d5(l => Y(c.at(l))[i], l0, h));
+      out.push({ st, a, q0, fd, vel, velY, sh: m.shade(st, ...p), act: m.action(field, ...p) });
+    }
+    for (let n = 0; n < 500; n++) { const q = [rnd(-8, 8), n % 3 ? rnd(-8, 8) : rnd(-0.2, 0.2)]; places.push({ q, d: m.place(q), k: m.place(q, m.SNAPKEY) }); }
+    return { out, places, ends: [m.cmap('f', 0), m.cmap('f', 1), m.cmap('act', 0), m.cmap('act', 1), m.cmap('f', 0.5), m.cmap('act', 0.5)] };
+  });
+  let wc = 0, wfd = 0, wv = 0, wlaw = 0, wq = 0, nY = 0, finite = true;
+  const J = ([a, b]) => { const r = Math.hypot(a, b); return [[a / r, b / r], [-b / (r * r), a / (r * r)]]; };          // (ᛞ_VU)^i_j, C.4.2
+  for (const { st, a, q0, fd, vel, velY, sh, act } of r.out) {
+    const e = fdExpect(st), [pa, pb] = st.p;
+    const vals = [a.vCurve, a.vX, a.vDf, ...a.A, ...a.x, act];
+    finite = finite && vals.every(Number.isFinite) && (a.inV ? [a.vY, ...a.B, ...a.y, ...a.beta].every(Number.isFinite) : a.vY === null && a.B === null && a.y === null && a.beta === null);
+    const diffs = [a.vCurve - e.act, a.vX - e.act, a.vDf - e.act, act - e.act, a.A[0] - e.A[0], a.A[1] - e.A[1], a.x[0] - e.x[0], a.x[1] - e.x[1], sh - fdF(pa, pb) / 2];
+    if (a.inV) { diffs.push(a.vY - e.act, a.B[0] - e.B[0], a.B[1] - e.B[1], a.y[0] - e.y[0], a.y[1] - e.y[1], a.beta[0] - e.beta[0], a.beta[1] - e.beta[1]); nY++; }
+    wc = Math.max(wc, ...diffs.map(Math.abs));
+    wq = Math.max(wq, Math.hypot(q0[0] - pa, q0[1] - pb));
+    wfd = Math.max(wfd, Math.abs(fd - e.act));
+    wv = Math.max(wv, Math.abs(vel[0] - e.A[0]), Math.abs(vel[1] - e.A[1]));
+    if (velY) wv = Math.max(wv, ...[0, 1].map(i => Math.abs(velY[i] - e.B[i]) / Math.max(1, Math.abs(e.B[i]))));
+    if (a.inV) {                                                       // the transformation laws of C.4.2 / C.4.7
+      const j = J(st.p), r = Math.hypot(pa, pb);
+      wlaw = Math.max(wlaw, ...[0, 1].map(i => Math.abs(a.B[i] - (j[i][0] * a.A[0] + j[i][1] * a.A[1]))),
+        Math.abs(a.y[0] - (pa / r * a.x[0] + pb / r * a.x[1])), Math.abs(a.y[1] - (-pb * a.x[0] + pa * a.x[1])));
+    }
+  }
+  check(finite, `no NaN or ∞ anywhere (2000 points, among them the origin, points of the branch cut and points within 10⁻⁶ of the origin); outside 𝒱 nothing of (𝒱, 𝒴) is computed`);
+  check(wc < 1e-9, `every number against the closed forms of C.4 (both fields; ${nY} points in 𝒱), max difference ${wc.toExponential(2)}`);
+  check(wq < 1e-12, `the curve of the family passes through p at λ₀ (γ_{x₀}(b), δ_{r₀}(atan2(b, a))): max distance ${wq.toExponential(2)}`);
+  check(wfd < 1e-6, `𝒳⌊f⌉(p), 𝒴⌊f⌉(p) against finite differences of f along γ_{x₀}, δ_{r₀} (5 points, h = 10⁻³): max difference ${wfd.toExponential(2)}`);
+  check(wv < 1e-6, `the components X^i, Y^i (X̃^i, Ỹ^i) against finite differences of the charts along the curve: max difference (relative where a component exceeds 1) ${wv.toExponential(2)}`);
+  check(wlaw < 1e-9, `Y^i = (ᛞ_VU)^i_j X^i and 𝚢_j = (∂𝒳^i/∂𝒴^j) 𝚡_i (C.4.2, C.4.7): max difference ${wlaw.toExponential(2)}`);
+  const okPlace = r.places.every(({ q, d, k }) => [d, k].every((s, i) => {
+    const sn = i ? 0.05 : 0.12, x = Math.max(-6.9, Math.min(6.9, q[0])), y = Math.max(-6.9, Math.min(6.9, q[1]));
+    const onCut = Math.abs(y) <= sn && x <= sn, origin = onCut && Math.abs(x) <= sn;
+    return !Object.is(s[1], -0) && !Object.is(s[0], -0) && s[1] === (onCut ? 0 : y) && s[0] === (origin ? 0 : x);
+  }));
+  check(okPlace, 'p stays in the drawing and snaps onto the branch cut (within 0.12 on a drag, 0.05 by keys) and the origin; never −0 (500 random)');
+  const [f0, f1, a0, a1, fm, am] = r.ends;
+  check(f0[0] > f0[2] && f1[2] > f1[0] && a0[2] > a0[0] && a1[0] > a1[2] && Math.min(...fm, ...am) > 240,
+    'colours as in Figures C.6/C.8: f low red, high blue (RdBu); the action negative blue, positive red (red: the field climbs f), white at the middle');
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -1641,6 +1832,36 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // fields (B29): a finger 10 px off p (drawn radius 6.5) drags it; a vertical swipe from an empty point of the drawing scrolls the page
+  {
+    const { page, errors } = await open(FD, 390, { touch: true, module: 'fields' });
+    await ready(page, 'fields');
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive[data-module="fields"]');
+    const state = async () => JSON.parse(await fr.locator('.dg-fd').getAttribute('data-state'));
+    const svg = fr.locator('.dg-fd svg.dg-plot-svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'fields: touch-action pan-y pinch-zoom on the drawing, none on the handle');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 40, hy + 30]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(s1.p[0] < s0.p[0] - 0.5 && s1.p[1] < s0.p[1] - 0.5 && y1 === y0, `fields: a swipe starting 10 px from p drags it (p ${s0.p.map(v => v.toFixed(3))} -> ${s1.p.map(v => v.toFixed(3))}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'fields: found an empty point of the drawing');
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && JSON.stringify(await state()) === JSON.stringify(s0), `fields: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -1674,7 +1895,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

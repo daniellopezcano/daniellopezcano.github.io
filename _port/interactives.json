@@ -10,6 +10,7 @@
     {"label": "fig_Example_Newtonian_Rotating", "module": "rotating"},
     {"label": "fig_Example_Newtonian_Tidal", "module": "pointmass"},
     {"label": "fig_light_cones", "module": "lightcones"},
-    {"label": "fig_Example_Schwarzschild", "module": "schwarzschild"}
+    {"label": "fig_Example_Schwarzschild", "module": "schwarzschild"},
+    {"label": "fig_Example_Fields_action", "module": "fields", "notebook": "notebooks/exercises_and_example_figures/exercise_C3.ipynb"}
   ]
 }

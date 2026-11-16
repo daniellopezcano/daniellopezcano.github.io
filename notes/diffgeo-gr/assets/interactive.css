@@ -223,3 +223,17 @@
 /* on a chapter opening page (D38) a panel is as wide as the notes' text, like the figure it follows */
 body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-gr-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- vector fields acting on a scalar field (fields, after Figure C.8, B29): the chart (U, X) coloured by f or by the
+   action, with its colour bar and legend, at the left; the notes' formulas with the numbers at p at the right (under it on phones) ---- */
+.dg-fd [hidden] { display: none !important; }
+.dg-fd .dg-two { align-items: start; }
+.dg-fd .dg-legend { margin-top: 0.2rem; }
+.dg-fd-out { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.86rem; }
+.dg-fd-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.6rem; }
+.dg-fd-pair { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.35rem; max-width: 100%; }
+.dg-fd-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-fd-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dg-fd-cbar { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.35rem; font-size: 0.8rem; color: var(--dg-text-soft); }
+.dg-fd-ramp { width: 9rem; height: 0.6rem; border-radius: 2px; }
+.dg-fd-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
