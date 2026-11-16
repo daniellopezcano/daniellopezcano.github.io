@@ -1,12 +1,24 @@
-// Hand-written: behaviour of the course pages (web layer). Loaded as a module by assets/_head.html.
+// Hand-written: behaviour of the course pages (web layer). Loaded as a module by every course page
+// (the page shell is written by _port/convert/shell.py; DECISIONS D29-D33).
 // Everything here is progressive enhancement: without it the pages still show the notes in full
-// (footnotes at the foot of the page, cross-references as plain links, figures as images).
+// (footnotes at the foot of the page, cross-references as plain links, figures as images, the course
+// tree in the page on wide screens).
 //
-//   1. popovers: footnotes (D11) and cross-reference previews (D25), one shared .dg-pop
-//   2. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
-//   3. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c)
-//   4. landing page: the master roadmap is inlined so its badges are links; cover decorations
+//   1. popovers: footnotes below 1000 px (D11) and cross-reference previews (D25), one shared .dg-pop
+//   2. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c); inlineSvg and
+//      linkify are exported for the interactive that shows Figure 10.3 step by step (ehsteps, D58)
+//   3. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
+//   4. roadmaps inlined so their badges are links (landing page; chapter opening pages, lazily, with the
+//      chapter's badges ringed, D38); cover decorations
 //   5. interactive figures (D15)
+//   6. page shell: course tree as a drawer, theme switch (D32), reading progress, outline scroll-spy,
+//      sidenotes (D33), keyboard previous/next, site navbar toggle on phones
+//   7. interface words and helpers of 8-11
+//   8. appendix content in place: "open here" on references to Appendix B / C pages (D35)
+//   9. copy LaTeX on display equations (D39)
+//  10. search dialog, course index and site index (D36, D39)
+//  11. map dialog: the master roadmap with the current chapter ringed (D39)
+//  12. "read" marks: the toggle at the foot of a section page and the checks in the lists (D40)
 
 export const ROOT = new URL('..', import.meta.url);          // URL of notes/diffgeo-gr/
 
@@ -52,32 +64,47 @@ function fetchPage(href) {
 
 /** Make a copied fragment safe to insert: no duplicate ids, links and images relative to `base`. */
 function adopt(node, base) {
+  const rebase = v => !/^(#|[a-z]+:)/i.test(v) ? new URL(v, base).href : v.startsWith('#') ? base.split('#')[0] + v : v;
   for (const el of [node, ...node.querySelectorAll('*')]) {
     el.removeAttribute('id');
     if (!base) continue;
     for (const attr of ['src', 'href']) {
       const v = el.getAttribute(attr);
-      if (v != null && !/^(#|[a-z]+:)/i.test(v)) el.setAttribute(attr, new URL(v, base).href);
-      else if (v != null && v.startsWith('#') && attr === 'href') el.setAttribute(attr, base.split('#')[0] + v);
+      if (v != null && (attr === 'href' || !v.startsWith('#'))) el.setAttribute(attr, rebase(v));
     }
+    // a formula not typeset yet: the links it will make (\href, D7) are relative to its own page too
+    if (el.matches('.math') && !el.querySelector('mjx-container') && el.textContent.includes('\\href{'))
+      el.textContent = el.textContent.replace(/\\href\{([^{}]*)\}/g, (m, u) => `\\href{${rebase(u)}}`);
   }
   node.querySelectorAll('.dg-interactive, .dg-anchor, script').forEach(n => n.remove());
   return node;
 }
 
 // ---- 1. popovers ----------------------------------------------------------------------------
-// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">.
+// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">; citations:
+// <a class="dg-cite">, previewing their entry of the Bibliography page (D52).
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
-const TRIGGER = '.dg-fnref > a[href*="#"], a.dg-xref[href]';   // Quarto makes the #fn-N hrefs absolute
+// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6), unless
+// its footnote is not a sidenote (D60).
+const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href], a.dg-cite[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
 let lastPointer = 'mouse';
 let tapWasOpen = false;
+const H = document.documentElement;
+const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
+
+// a footnote mark of the page whose footnote is shown in the margin (D60: not every footnote is a sidenote);
+// a mark inside an appendix panel (D35) never is: its footnote is in the panel's own list, shown at its end
+const inMargin = a => sidenotesOn() && !a.closest('.dg-inline')
+  && !!document.getElementById(decodeURIComponent(a.hash.slice(1)))?.classList.contains('dg-fn-margin');
 
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
-  return t && !t.closest('.dg-pop, .dg-viewer') ? t : null;
+  if (!t || t.closest('.dg-pop, dialog')) return null;           // a modal dialog would cover the popover
+  if (t.matches('.dg-fnref > a') && inMargin(t)) return null;
+  return t;
 }
 
 function popEl() {
@@ -123,16 +150,20 @@ async function show(t) {
   try { content = await popContent(t); } catch (err) { content = null; }
   if (token !== pop.token || !content) { if (token === pop.token) pop.trigger = null; return; }
   const el = popEl();
-  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : 'footnote';
+  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : t.matches('a.dg-cite') ? 'cite' : 'footnote';
   el.replaceChildren(content);
   el.hidden = false;
-  if (t.matches('a.dg-xref')) t.setAttribute('aria-describedby', 'dg-pop');
+  if (t.matches('a.dg-xref, a.dg-cite')) t.setAttribute('aria-describedby', 'dg-pop');
   place();
   if (content.classList.contains('dg-pop-raw')) {
     try { await typeset(content); } catch (err) { /* the TeX source stays readable */ }
     content.classList.remove('dg-pop-raw');
-    if (token === pop.token) place();
+    if (token !== pop.token) return;
+    place();
   }
+  // a wide equation is set a little smaller and then scrolls inside the preview, as in the text (D45 c)
+  fitDisplayMath(content);
+  place();
 }
 
 /** Builds (or reuses) the popover content for a trigger; null when there is nothing to show. */
@@ -166,7 +197,7 @@ function extract(doc, id, base) {
     for (const p of root.querySelectorAll('p')) {
       if (out.length >= n) break;
       if (after && after.contains(p)) continue;
-      if (p.closest('.dg-web, .dg-footnotes, #title-block-header, .dg-head, figure, nav, .dg-motivation-title')) continue;
+      if (p.closest('.dg-web, .dg-footnotes, .dg-head, figure, nav, .dg-motivation-title')) continue;
       if (!p.textContent.trim()) continue;
       out.push(p);
     }
@@ -185,18 +216,19 @@ function extract(doc, id, base) {
   }
   let el = doc.getElementById(id);
   if (!el) return null;
-  if (el.matches('section')) {                           // a subsection: its heading and first lines
-    const head = el.querySelector('h1, h2, h3, h4, h5, h6');
-    if (head) {
-      const h = document.createElement('p');
-      h.className = 'dg-pop-title';
-      h.append(...adopt(document.importNode(head, true), base).childNodes);
-      box.append(h);
-    }
-    firstParas(el, head, 2).forEach(add);
+  // an anchor, or a defined term (id term-<k>, the chips of the definitions page, D53): the block that holds it
+  if (el.matches('.dg-anchor, a:empty, span:empty, .dg-term')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
+  if (el && el.matches('h2, h3, h4')) {                  // a subsection: its heading and first lines
+    const h = document.createElement('p');
+    h.className = 'dg-pop-title';
+    h.append(...adopt(document.importNode(el, true), base).childNodes);
+    box.append(h);
+    // the subsection runs until the next heading of the same or a higher level
+    const level = +el.tagName[1], part = document.createElement('div');
+    for (let n = el.nextElementSibling; n && !(/^H[1-4]$/.test(n.tagName) && +n.tagName[1] <= level); n = n.nextElementSibling) part.append(document.importNode(n, true));
+    firstParas(part, null, 2).forEach(add);
     return box;
   }
-  if (el.matches('.dg-anchor, a:empty, span:empty')) el = el.closest('figure, li, .dg-fn-body, p') || el.parentElement;
   if (el.matches('.dg-fn')) el = el.querySelector('.dg-fn-body') || el;
   if (!el || el === doc.body || el === main) return null;
   add(el);
@@ -208,41 +240,48 @@ function place() {
   if (!el || el.hidden || !t || !t.isConnected) return;
   const rects = t.getClientRects();
   const r = rects.length ? rects[0] : t.getBoundingClientRect();
-  const col = (t.closest('main') || document.querySelector('main') || document.body).getBoundingClientRect();
   const vw = document.documentElement.clientWidth, vh = window.innerHeight, m = 8, gap = 6;
-  const header = document.getElementById('quarto-header');
+  const mainR = (t.closest('main') || document.querySelector('main') || document.body).getBoundingClientRect();
+  // a reference in a sidenote (margin column): the popover may use the text column and the margin
+  const col = t.closest('.dg-sidenote') ? { left: mainR.left, right: vw - m, width: vw - m - mainR.left } : mainR;
+  const header = document.getElementById('dg-bar');                 // the sticky course bar
   const hb = header ? header.getBoundingClientRect().bottom : 0;
   const topLimit = Math.max(m, hb > 0 ? hb + m : m);
   // a lone display equation lays out its tag against the box width: give it the column's width
   const eq = !!el.querySelector('.math.display') && !el.querySelector('p');
-  const maxW = Math.max(200, Math.min(col.width, vw - 2 * m, eq ? 1e4 : 560));
+  const maxW = Math.floor(Math.max(200, Math.min(col.width, vw - 2 * m, eq ? 1e4 : 560)));
   el.style.maxWidth = `${maxW}px`;
   el.style.width = eq ? `${maxW}px` : '';
   const below = vh - r.bottom - gap - m, above = r.top - gap - topLimit;
-  el.style.maxHeight = `${Math.max(120, Math.min(vh * 0.6, Math.max(below, above)))}px`;
+  const maxH = Math.max(120, Math.min(vh * 0.6, Math.max(below, above)));
+  el.style.maxHeight = `${maxH}px`;
+  // a figure is scaled down until the preview (figure and caption) fits that height, so that it never has to
+  // be scrolled to be seen whole; it scrolls only if it would have to shrink below 45 % of the preview (D45 c)
+  const paper = el.querySelector('figure .dg-paper'), img = paper && paper.querySelector('img, svg');
+  if (paper && img) {
+    paper.style.maxWidth = '';
+    const over = el.scrollHeight - el.clientHeight, ih = img.getBoundingClientRect().height;
+    if (over > 1 && ih > 0) {
+      const pw = paper.getBoundingClientRect().width;
+      paper.style.maxWidth = `${Math.max(pw * 0.45, pw * (ih - over - 2) / ih)}px`;
+    }
+  }
   const w = el.offsetWidth, h = el.offsetHeight;
   let lo = Math.max(m, col.left), hi = Math.min(vw - m, col.right) - w;
-  if (hi < lo) { lo = m; hi = Math.max(m, vw - m - w); }
+  if (hi < lo - 2) { lo = m; hi = Math.max(m, vw - m - w); }          // wider than the column: the viewport
+  else hi = Math.max(hi, lo);                                            // (sub-pixel widths)
   const left = clamp(r.left + r.width / 2 - w / 2, lo, hi);
-  const top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  // below when it fits there or there is more room below, else above; the height limit above makes it fit the side
+  // it opens on, and the clamp keeps it inside the viewport even when neither side has the minimum height (B33)
+  let top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  top = Math.max(topLimit, Math.min(top, vh - m - h));
   el.style.left = `${left + window.scrollX}px`;
   el.style.top = `${top + window.scrollY}px`;
 }
 
-/** Quarto attaches its own tippy popup to a[role="doc-noteref"] (option footnotes-hover); ours replaces it. */
-function dropQuartoFootnoteTips() {
-  for (const a of document.querySelectorAll('.dg-fnref > a')) {
-    if (a._tippy) { a._tippy.destroy(); a.removeAttribute('aria-expanded'); }
-  }
-}
-
 function initPopovers() {
-  // Quarto's handlers run on DOMContentLoaded, possibly after this module: undo them then too
-  dropQuartoFootnoteTips();
-  document.addEventListener('DOMContentLoaded', () => setTimeout(dropQuartoFootnoteTips, 0));
-  window.addEventListener('load', dropQuartoFootnoteTips);
   // footnote marks are described by their footnote (always in the page, already typeset)
-  for (const a of document.querySelectorAll('.dg-fnref > a[href*="#"]')) {
+  for (const a of document.querySelectorAll('.dg-fnref > a[href^="#"]')) {
     const body = document.getElementById(decodeURIComponent(a.hash.slice(1)))?.querySelector('.dg-fn-body');
     if (!body) continue;
     body.id ||= `dg-${a.hash.slice(1)}-body`;
@@ -304,7 +343,7 @@ function labels() {
 /** Fetches one of our SVG figures and returns it as a DOM node for this document.
  *  Scripts and event attributes are dropped; ids get a per-copy prefix, because dvisvgm
  *  names its glyphs alike in every file (g0-42, ...) and two inlined copies would collide. */
-async function inlineSvg(url) {
+export async function inlineSvg(url) {
   if (!svgTexts.has(url)) {
     svgTexts.set(url, fetch(url).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
       .catch(err => { svgTexts.delete(url); throw err; }));
@@ -331,36 +370,104 @@ async function inlineSvg(url) {
   return document.importNode(svg, true);
 }
 
-/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. */
-async function linkify(svg) {
+/** The badge box (a filled shape drawn around the reference, as the white rounded rectangles of the roadmaps)
+ *  of each reference in `gs`, as Map g -> {box, refs}: refs are the references that share that box, in reading
+ *  order, so that they can split it between them. A reference outside any such box is not in the map. Measured
+ *  on the rendered SVG (screen rectangles); a shape counts as a badge when it is filled, contains the reference
+ *  and is at most BADGE_H times its height (a card's header strip around a badge is taller). */
+const BADGE_H = 2.4;
+function badgeBoxes(svg, gs) {
+  const out = new Map();
+  const refs = gs.map(g => ({ g, r: g.getBoundingClientRect() })).filter(x => x.r.width > 0 && x.r.height > 0);
+  if (!refs.length) return out;
+  const hMax = Math.max(...refs.map(x => x.r.height)) * BADGE_H;
+  const shapes = [];
+  for (const el of svg.querySelectorAll('path, rect')) {
+    if (el.closest('defs, clipPath, mask, a.dg-svg-link, g.dg-xref')) continue;
+    const f = el.closest('[fill]');
+    if (f && f.getAttribute('fill') === 'none') continue;
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.height <= hMax) shapes.push({ el, r });
+  }
+  const inside = (a, b) => a.left >= b.left - 0.5 && a.right <= b.right + 0.5 && a.top >= b.top - 0.5 && a.bottom <= b.bottom + 0.5;
+  const groups = new Map();
+  for (const x of refs) {
+    let best = null;
+    for (const s of shapes) {
+      if (s.r.height > x.r.height * BADGE_H || !inside(x.r, s.r)) continue;
+      if (!best || s.r.width * s.r.height < best.r.width * best.r.height) best = s;
+    }
+    if (!best) continue;
+    if (!groups.has(best.el)) groups.set(best.el, { box: best.r, refs: [] });
+    groups.get(best.el).refs.push(x);
+  }
+  for (const grp of groups.values()) {
+    grp.refs.sort((a, b) => a.r.left - b.r.left);
+    grp.refs.forEach(x => out.set(x.g, grp));
+  }
+  return out;
+}
+
+/** A screen rectangle in the user units of `node` (an untransformed or scaled/translated SVG element). */
+function toUser(node, r) {
+  const m = node.getScreenCTM();
+  if (!m) return null;
+  const inv = m.inverse(), p = new DOMPoint(r.left, r.top).matrixTransform(inv), q = new DOMPoint(r.right, r.bottom).matrixTransform(inv);
+  return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), width: Math.abs(q.x - p.x), height: Math.abs(q.y - p.y) };
+}
+
+/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. Its hit area is the
+ *  whole badge the reference sits in (the box drawn around "Ch. 3", "§ 4.1", "Eq. (6.1)"), shared out between
+ *  the references of one badge at the midpoints between them; a reference outside any badge gets the short
+ *  text it sits in, or its number, with generous padding (B33). */
+export async function linkify(svg) {
   const map = await labels();
-  for (const g of svg.querySelectorAll('g.dg-xref[data-label]')) {
+  const gs = [...svg.querySelectorAll('g.dg-xref[data-label]')].filter(g => {
     const info = map[g.getAttribute('data-label')];
-    if (!info || !info.url || g.parentNode.closest('a')) continue;   // page not converted yet: inert
+    return info && info.url && !g.parentNode.closest('a');                // page not converted yet: inert
+  });
+  let badges = new Map();
+  try { badges = badgeBoxes(svg, gs); } catch (err) { /* not rendered: the fallback below */ }
+  const plan = [];
+  for (const g of gs) {
     let own;
     try { own = g.getBBox(); } catch (err) { continue; }
     if (!own.width && !own.height) continue;
+    const parent = g.parentNode, grp = badges.get(g);
+    let box = null, rx = 0;
+    if (grp) {                                           // the badge, or this reference's share of it
+      const i = grp.refs.findIndex(x => x.g === g), b = grp.box, rs = grp.refs;
+      const left = i ? (rs[i - 1].r.right + rs[i].r.left) / 2 : b.left, right = i < rs.length - 1 ? (rs[i].r.right + rs[i + 1].r.left) / 2 : b.right;
+      box = toUser(parent, { left, right, top: b.top, bottom: b.bottom });
+      if (box) rx = Math.min(box.height * 0.22, box.width / 2);
+    }
+    if (!box) {
+      // the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short text node of its own,
+      // otherwise the number itself; generous padding either way
+      let t = own;
+      if (parent.querySelectorAll('g.dg-xref').length === 1) {
+        const pb = parent.getBBox();
+        if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) t = pb;
+      }
+      const pad = Math.max(own.height * 0.5, 1.5);
+      box = { x: t.x - pad, y: t.y - pad, width: t.width + 2 * pad, height: t.height + 2 * pad };
+      rx = pad;
+    }
+    plan.push({ g, parent, box, rx, info: map[g.getAttribute('data-label')] });
+  }
+  for (const { g, parent, box, rx, info } of plan) {
     const a = document.createElementNS(SVGNS, 'a');
     a.setAttribute('href', new URL(info.url, ROOT).href);
     a.setAttribute('class', 'dg-svg-link');
     const title = document.createElementNS(SVGNS, 'title');
     title.textContent = info.num;
-    // hit area: the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short
-    // text node of its own, otherwise the number itself; generous padding either way
-    let box = own;
-    const parent = g.parentNode;
-    if (parent.querySelectorAll('g.dg-xref').length === 1) {
-      const pb = parent.getBBox();
-      if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) box = pb;
-    }
-    const pad = Math.max(own.height * 0.5, 1.5);
     const rect = document.createElementNS(SVGNS, 'rect');
     rect.setAttribute('class', 'dg-svg-hit');
-    rect.setAttribute('x', box.x - pad);
-    rect.setAttribute('y', box.y - pad);
-    rect.setAttribute('width', box.width + 2 * pad);
-    rect.setAttribute('height', box.height + 2 * pad);
-    rect.setAttribute('rx', pad);
+    rect.setAttribute('x', box.x);
+    rect.setAttribute('y', box.y);
+    rect.setAttribute('width', box.width);
+    rect.setAttribute('height', box.height);
+    rect.setAttribute('rx', rx);
     parent.insertBefore(a, g);
     a.append(title, rect, g);
   }
@@ -376,7 +483,7 @@ const ICONS = {
 };
 const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 
-const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, opener: null,
+const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, text: 13.33, opener: null,
   pointers: new Map(), dragged: false, start: null, pinch: null, lastTap: null, raf: 0, seq: 0 };
 
 function buildViewer() {
@@ -496,10 +603,27 @@ function zoomAt(f, px, py) {
   V.x = px - (px - V.x) * k; V.y = py - (py - V.y) * k; V.s = s;
   apply();
 }
-function fitView() {
+/** The part of the stage a fitted figure may use: a margin all round, and on phones the room of the toolbar
+ *  at the bottom kept free, so that no part of the figure starts under the buttons. */
+function fitBox() {
   const W = V.stage.clientWidth, H = V.stage.clientHeight, m = W < 600 ? 12 : 40;
-  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (H - 2 * m) / V.h));
-  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = (H - V.h * V.s) / 2;
+  const tools = V.dlg.querySelector('.dg-viewer-tools'), st = V.stage.getBoundingClientRect(), tr = tools.getBoundingClientRect();
+  const low = tr.height && tr.top > st.top + H / 2 ? Math.max(m, st.bottom - tr.top + 8) : m;
+  return { W, H, m, top: m, bottom: H - low };
+}
+function fitView() {
+  const { W, m, top, bottom } = fitBox();
+  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (bottom - top) / V.h));
+  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = top + (bottom - top - V.h * V.s) / 2;
+  apply();
+}
+/** The view a figure opens with: the whole figure, except where its text would then be too small to read and the
+ *  figure is held by its height (a tall flowchart, Figure 10.3): then fitted to the width, its top in view (B33). */
+function initialView() {
+  fitView();
+  const { W, m, top } = fitBox(), sw = (W - 2 * m) / V.w;
+  if (V.text * V.s >= TINY_TEXT_PX || sw <= V.s * 1.05) return;
+  V.s = sw; V.x = (W - V.w * V.s) / 2; V.y = top;
   apply();
 }
 function toggleZoom(px, py) {
@@ -533,40 +657,98 @@ async function openViewer(paper) {
   const kind = paper.dataset.dgKind || (img && img.dataset.kind) || '';
   V.w = +(paper.dataset.dgW || (img && (img.getAttribute('width') || img.naturalWidth))) || 1000;
   V.h = +(paper.dataset.dgH || (img && (img.getAttribute('height') || img.naturalHeight))) || 750;
+  V.text = +(paper.dataset.dgText || (img && img.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
   const alt = paper.dataset.dgAlt ?? (img ? img.getAttribute('alt') : '');
   V.dlg.setAttribute('aria-label', alt || 'Figure');
   const pic = document.createElement('img');
   pic.src = src; pic.alt = alt || ''; pic.decoding = 'async';
   V.paper.replaceChildren(pic);
-  V.opener = paper.matches('[tabindex], button') ? paper : (paper.querySelector('.dg-expand') || document.activeElement);
+  const zb = paper.querySelector(':scope > .dg-zoom:not([hidden])'), small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand:not([hidden])');
+  V.opener = paper.matches('[tabindex], button') ? paper : (zb || small || document.activeElement);
   if (!V.dlg.open) V.dlg.showModal();
   document.documentElement.classList.add('dg-viewer-open');
   V.stage.focus({ preventScroll: true });
-  fitView();
+  initialView();
   if (kind !== 'svg') return;
   const seq = ++V.seq;
   try {
     const svg = await inlineSvg(src);
     if (seq !== V.seq || !V.dlg.open) return;
-    if (alt) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', alt); }
+    if (alt) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', alt); }   // 'group', not 'img': linkify() puts links inside
     V.paper.replaceChildren(svg);
     await linkify(svg);
   } catch (err) { /* the image stays */ }
 }
 
-function initFigures() {
-  for (const paper of document.querySelectorAll('main .dg-paper')) {
-    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive')) continue;
+/** Figure cards inside `root` become buttons that open the viewer (and get the zoom control, below). */
+function enableFigures(root) {
+  for (const paper of root.querySelectorAll('.dg-paper')) {
+    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('data-dg-zoom')) continue;
     const img = paper.querySelector('img');
     if (!img) continue;
-    paper.tabIndex = 0;
-    paper.setAttribute('role', 'button');
-    const alt = img.getAttribute('alt');
-    paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : 'Enlarge figure');
+    paper.dataset.dgZoom = 'card';
+    zoomControl(paper);
   }
+}
+
+// ---- 3b. zoom control (B33, D10 f) ----------------------------------------------------------------
+// The converter writes on each figure's <img> the size of its ordinary text at the image's intrinsic size
+// (data-dg-text, CSS px; figtext.py); a figure without it is taken to have the notes' body size (10 pt) at the
+// PDF's scale. Where that text, shown at the figure's current width, falls below TINY_TEXT_PX, the figure gets a
+// visible labelled "Zoom" button over its top-right corner (web layer) instead of the quiet controls: the card is
+// then no button of its own (a click on it still opens the viewer), and a roadmap's small expand button hides.
+// Elsewhere nothing changes: the card is the button (and a roadmap keeps its small expand button). Measured again
+// whenever the figure changes size.
+const TINY_TEXT_PX = 8, BODY_TEXT_PX = 96 / 72 * 10;
+let zoomRO = null;
+function shownTextPx(paper) {
+  const pic = paper.querySelector(':scope > img, :scope > svg');
+  const W = +(paper.dataset.dgW || (pic && pic.getAttribute('width'))) || 0;
+  const t = +(paper.dataset.dgText || (pic && pic.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
+  const w = pic ? pic.getBoundingClientRect().width : 0;
+  return W && w ? t * w / W : Infinity;
+}
+function zoomControl(paper) {
+  if (!paper.querySelector(':scope > .dg-zoom')) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-zoom dg-web';
+    b.hidden = true;
+    const pic = paper.querySelector('img, svg');
+    const alt = paper.dataset.dgAlt || (pic && pic.getAttribute('alt')) || '';
+    b.setAttribute('aria-label', alt ? `${WORDS.zoom}: ${alt}` : WORDS.zoom);
+    b.innerHTML = `${icon('fit')}<span>${WORDS.zoom}</span>`;
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openViewer(paper); });
+    paper.append(b);
+  }
+  updateZoom(paper);
+  if (!('ResizeObserver' in window)) return;
+  zoomRO ||= new ResizeObserver(entries => { for (const e of entries) updateZoom(e.target); });
+  zoomRO.observe(paper);
+}
+function updateZoom(paper) {
+  const tiny = shownTextPx(paper) < TINY_TEXT_PX, b = paper.querySelector(':scope > .dg-zoom');
+  paper.classList.toggle('dg-tiny', tiny);
+  if (b) b.hidden = !tiny;
+  if (paper.dataset.dgZoom === 'card') {
+    if (tiny) { paper.removeAttribute('role'); paper.removeAttribute('tabindex'); paper.removeAttribute('aria-label'); }
+    else if (paper.getAttribute('role') !== 'button') {
+      const img = paper.querySelector('img'), alt = img && img.getAttribute('alt');
+      paper.tabIndex = 0;
+      paper.setAttribute('role', 'button');
+      paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : WORDS.enlarge);
+    }
+  } else {
+    const small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand');
+    if (small) small.hidden = tiny;
+  }
+}
+
+function initFigures() {
+  enableFigures(document.querySelector('main') || document.body);
   document.addEventListener('click', e => {
-    const paper = e.target.closest && e.target.closest('.dg-paper[role="button"]');
-    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href]')) return;
+    const paper = e.target.closest && e.target.closest('.dg-paper[data-dg-zoom="card"]');
+    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href], button')) return;
     e.preventDefault();
     openViewer(paper);
   });
@@ -577,33 +759,61 @@ function initFigures() {
   });
 }
 
-// ---- 4. landing page --------------------------------------------------------------------------
-/** The master roadmap is inlined in place, so that its badges are links on the page itself. */
-async function initMaps() {
-  for (const paper of document.querySelectorAll('.dg-paper[data-map]')) {
-    const img = paper.querySelector('img');
-    if (!img) continue;
-    Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
-      dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '' });
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'dg-icon-btn dg-expand dg-web';
-    btn.setAttribute('aria-label', 'Enlarge figure');
-    btn.title = 'Enlarge figure';
-    btn.innerHTML = icon('fit');
-    btn.addEventListener('click', () => openViewer(paper));
-    paper.after(btn);                                    // outside the figure: it hides no badge
-    if (img.dataset.kind !== 'svg') continue;
-    try {
-      const svg = await inlineSvg(img.src);
-      const w = +img.getAttribute('width'), h = +img.getAttribute('height');
-      if (w && h) svg.style.aspectRatio = `${w} / ${h}`;
-      svg.setAttribute('class', 'dg-map-svg');
-      if (img.getAttribute('alt')) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', img.getAttribute('alt')); }
-      img.replaceWith(svg);
-      paper.classList.add('dg-map-live');
-      await linkify(svg);
-    } catch (err) { /* the image stays; the viewer still opens */ }
+// ---- 4. landing page and chapter opening pages ----------------------------------------------------
+/** Roadmaps (.dg-paper[data-map]) are inlined in place, so that their badges are links on the page itself:
+ *  the master roadmap of the landing page at once, the roadmap of a chapter opening page (data-map="lazy",
+ *  D38) only when it comes near the viewport. With data-ring, the badges that point into the current
+ *  chapter are ringed, as in the map dialog (section 11). */
+function initMaps() {
+  const papers = [...document.querySelectorAll('.dg-paper[data-map]')];
+  const lazy = papers.filter(p => p.dataset.map === 'lazy');
+  for (const paper of papers) if (paper.dataset.map !== 'lazy') liveMap(paper);
+  if (!lazy.length) return;
+  if (!('IntersectionObserver' in window)) { lazy.forEach(liveMap); return; }
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); liveMap(e.target); }
+  }, { rootMargin: '800px 0px' });
+  lazy.forEach(p => io.observe(p));
+}
+
+async function liveMap(paper) {
+  const img = paper.querySelector('img');
+  if (!img) return;
+  Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
+    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '', dgText: img.getAttribute('data-dg-text') || '' });
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dg-icon-btn dg-expand dg-web';
+  btn.setAttribute('aria-label', 'Enlarge figure');
+  btn.title = 'Enlarge figure';
+  btn.innerHTML = icon('fit');
+  btn.addEventListener('click', () => openViewer(paper));
+  paper.after(btn);                                    // outside the figure: it hides no badge
+  paper.dataset.dgZoom = 'map';
+  zoomControl(paper);                                  // where its text is tiny: the labelled button instead (3b)
+  if (img.dataset.kind !== 'svg') return;
+  try {
+    const svg = await inlineSvg(img.src);
+    const w = +img.getAttribute('width'), h = +img.getAttribute('height');
+    if (w && h) svg.style.aspectRatio = `${w} / ${h}`;
+    svg.setAttribute('class', 'dg-map-svg');
+    if (img.getAttribute('alt')) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', img.getAttribute('alt')); }   // its badges are links
+    img.replaceWith(svg);
+    paper.classList.add('dg-map-live');
+    await linkify(svg);
+    if (paper.hasAttribute('data-ring')) ringChapter(svg, await labels());
+  } catch (err) { /* the image stays; the viewer still opens */ }
+}
+
+/** Rings the linked badges of an inlined roadmap that point into the chapter of the current page
+ *  (same directory of the course). Nothing is ringed outside a chapter directory. */
+function ringChapter(svg, map) {
+  const here = (coursePath(location.href) || '').split('/');
+  const dir = here.length > 1 ? here[0] : null;
+  if (!dir) return;
+  for (const g of svg.querySelectorAll('a.dg-svg-link g.dg-xref[data-label]')) {
+    const u = (map[g.getAttribute('data-label')] || {}).url || '';
+    if (u.split('/')[0] === dir) g.closest('a.dg-svg-link').classList.add('dg-here');
   }
 }
 
@@ -654,35 +864,84 @@ function drawDecor() {
 // ---- narrow screens: inline formulas wider than their line --------------------------------------
 // MathJax 3 cannot break an inline formula; one wider than the column would widen the whole page.
 // Only those (measured after typesetting) scroll sideways in place, like the display equations.
-function fitWideInlineMath() {
-  const all = document.querySelectorAll('main mjx-container[jax="CHTML"]:not([display="true"])');
-  all.forEach(m => m.classList.remove('dg-math-wide'));
+// In a sidenote such a formula is first set smaller until it fits, never below 85 % of the note's text size
+// (D60, as displays in the text, D59); one still too wide scrolls in place (with the shadow cue of D45), and
+// its footnote is then no sidenote (initSidenotes).
+const MIN_SIDENOTE_SCALE = 0.85;
+// font size of a formula scaled by s, on top of the size MathJax gave it (kept in data-dg-fs)
+function scaleMath(m, s) {
+  if (m.dataset.dgFs === undefined) m.dataset.dgFs = m.style.fontSize;
+  const base = m.dataset.dgFs, pct = base.endsWith('%') ? parseFloat(base) : 100;
+  m.style.fontSize = s === 1 ? base : (pct * s).toFixed(1) + '%';
+}
+function fitWideInlineMath(root = document.querySelector('main')) {
+  if (!root) return;
+  const all = root.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
+  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; if (m.dataset.dgFs !== undefined) scaleMath(m, 1); });
   for (const m of all) {
     const block = m.closest('p, li, td, th, figcaption, div');
     if (!block || m.closest('.math.display, .dg-pop')) continue;
-    const r = m.getBoundingClientRect(), b = block.getBoundingClientRect();
-    if (r.width && (r.right > b.right + 0.5 || r.left < b.left - 0.5)) m.classList.add('dg-math-wide');
+    // the run the converter glued around the formula (D44: brackets, punctuation, a footnote mark) has to
+    // fit the line as a whole: the formula scrolls within what the rest of the run leaves
+    const run = m.closest('.dg-nb');
+    const measure = () => {
+      const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
+      return { r, rr, b, wide: r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5) };
+    };
+    let { r, rr, b, wide } = measure();
+    if (wide && m.closest('.dg-sidenote')) {
+      const room = b.width - (rr.width - r.width) - 1;           // what the rest of the glued run leaves
+      scaleMath(m, Math.max(MIN_SIDENOTE_SCALE, Math.min(1, room / r.width)));
+      ({ r, rr, b, wide } = measure());
+    }
+    if (wide) {
+      m.classList.add('dg-math-wide');
+      const extra = Math.ceil(rr.width - r.width);
+      if (run && extra > 0) m.style.maxWidth = `calc(100% - ${extra}px)`;
+    }
+  }
+  // a formula that scrolls can be scrolled from the keyboard too (as the display equations)
+  for (const m of all) {
+    if (m.classList.contains('dg-math-wide') && m.scrollWidth > m.clientWidth + 1) { m.tabIndex = 0; m.dataset.dgTab = '1'; }
+    else if (m.dataset.dgTab) { m.removeAttribute('tabindex'); delete m.dataset.dgTab; }
   }
 }
-// A display equation slightly wider than the column is set a little smaller so that it fits
-// (never below 80% of the text size); only what is still too wide scrolls, with a fade at the
-// edge where more is hidden (class dg-math-scroll / dg-math-end, styled in course.css).
-const MIN_DISPLAY_SCALE = 0.8;
-function fitDisplayMath() {
-  for (const d of document.querySelectorAll('main .math.display')) {
-    if (d.closest('.dg-pop')) continue;
+// A display equation is set at the text size at every width (D59). One wider than its box is set smaller
+// until it fits, never below 85 % of the text size (in a sidenote too, D60); only what is still too wide scrolls
+// inside its own box, which shows a soft shadow at the edge where more is hidden (D45; CSS only, course.css).
+// Class dg-math-scroll marks it. Tables keep D48's rule (never below 80 %).
+const MIN_DISPLAY_SCALE = 0.85, MIN_TABLE_SCALE = 0.8;
+function fitDisplayMath(root = document.querySelector('main')) {
+  if (!root) return;
+  for (const d of root.querySelectorAll('.math.display')) {
     d.style.fontSize = '';
-    const need = d.scrollWidth, have = d.clientWidth;
-    if (need > have + 1 && have > 0) {
-      d.style.fontSize = (Math.max(MIN_DISPLAY_SCALE, (have - 2) / need) * 100).toFixed(1) + '%';
+    const min = d.closest('.dg-sidenote') ? MIN_SIDENOTE_SCALE : MIN_DISPLAY_SCALE;
+    let scale = 1;
+    for (let k = 0; k < 3 && d.scrollWidth > d.clientWidth + 1 && d.clientWidth > 0 && scale > min; k++) {
+      scale = Math.max(min, scale * (d.clientWidth - 2) / d.scrollWidth);      // rules and rounding: not exactly linear
+      d.style.fontSize = (scale * 100).toFixed(1) + '%';
     }
     const scrolls = d.scrollWidth > d.clientWidth + 1;
     d.classList.toggle('dg-math-scroll', scrolls);
-    if (scrolls && !d.dataset.dgScroll) {
-      d.dataset.dgScroll = '1';
-      d.tabIndex = 0;                                   // keyboard users can scroll it too
-      d.addEventListener('scroll', () => d.classList.toggle('dg-math-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 2), { passive: true });
+    // its equation number stays in view (sticky, course.css); its shadow goes when the end is reached
+    if (scrolls && !d.dgEnd && d.querySelector('mjx-labels')) {
+      d.dgEnd = () => d.classList.toggle('dg-scroll-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 1);
+      d.addEventListener('scroll', d.dgEnd, { passive: true });
     }
+    if (d.dgEnd) d.dgEnd();
+    if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
+    else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
+  }
+  for (const t of root.querySelectorAll('.dg-table-wrap')) {             // tables follow the same rule (D48)
+    const tb = t.firstElementChild;
+    tb.style.fontSize = '';
+    let scale = 1;
+    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_TABLE_SCALE; k++) {
+      scale = Math.max(MIN_TABLE_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
+      tb.style.fontSize = (scale * 100).toFixed(1) + '%';
+    }
+    if (t.scrollWidth > t.clientWidth + 1) { t.tabIndex = 0; t.dataset.dgScroll = '1'; }
+    else if (t.dataset.dgScroll) { t.removeAttribute('tabindex'); delete t.dataset.dgScroll; }
   }
 }
 async function initWideMath() {
@@ -698,6 +957,49 @@ async function initWideMath() {
 // _port/interactives.json attaches one. The module assets/interactive/<name>.js is imported only
 // when its frame comes near the viewport; it exports `default async function mount(body, frame)`.
 // A frame becomes visible (class dg-ready) only after its module mounted without error.
+// The panel (D55): badge bar, the module's body, and a footer built here: Reset (empties the body and
+// mounts the module again, so every module gets it without code of its own), a link back to the static
+// figure the panel accompanies (labelled with the figure's own number, read from its caption), and the
+// notebook of the Python package (data-notebook, from _port/interactives.json) where there is one.
+function panelFooter(frame, mount) {
+  const body = frame.querySelector('.dg-interactive-body');
+  const foot = document.createElement('div');
+  foot.className = 'dg-interactive-foot';
+  const reset = document.createElement('button');
+  reset.type = 'button'; reset.className = 'dg-btn dg-ia-reset'; reset.textContent = 'Reset';
+  reset.addEventListener('click', async () => {
+    reset.disabled = true;
+    try {
+      const { dispose } = await import(new URL('assets/interactive/dg.js', ROOT));
+      dispose(body);
+      if (window.MathJax && MathJax.typesetClear) { try { MathJax.typesetClear([body]); } catch (_) { /* nothing typeset */ } }
+      body.replaceChildren();
+      await mount();
+    } catch (err) {
+      console.error(`interactive "${frame.dataset.module}" failed:`, err);
+    } finally { reset.disabled = false; reset.focus(); }
+  });
+  foot.append(reset);
+  const fig = frame.dataset.for && document.getElementById(frame.dataset.for);
+  const num = fig && fig.matches('figure') && fig.querySelector('.dg-fignum');
+  if (num) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-static'; a.href = '#' + fig.id;
+    a.textContent = num.textContent.replace(/[:.\s]+$/, '');
+    a.title = 'Static figure';
+    a.addEventListener('click', e => { e.preventDefault(); fig.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); history.replaceState(null, '', '#' + fig.id); });
+    foot.append(a);
+  }
+  if (frame.dataset.notebook) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-notebook'; a.href = frame.dataset.notebook;
+    a.innerHTML = '<i class="dg-i dg-i-github" aria-hidden="true"></i> Notebook';
+    a.title = decodeURIComponent(frame.dataset.notebook.split('/').pop());
+    foot.append(a);
+  }
+  frame.append(foot);
+}
+
 function loadInteractives() {
   const frames = document.querySelectorAll('.dg-interactive[data-module]');
   if (!frames.length) return;
@@ -705,7 +1007,10 @@ function loadInteractives() {
     try {
       const mod = await import(new URL(`assets/interactive/${frame.dataset.module}.js`, ROOT));
       await mathReady();
-      await mod.default(frame.querySelector('.dg-interactive-body'), frame);
+      const body = frame.querySelector('.dg-interactive-body');
+      const mount = () => mod.default(body, frame);
+      await mount();
+      panelFooter(frame, mount);
       frame.classList.add('dg-ready');
     } catch (err) {
       console.error(`interactive "${frame.dataset.module}" failed:`, err);
@@ -717,13 +1022,968 @@ function loadInteractives() {
   frames.forEach(f => io.observe(f));
 }
 
+// ---- 6. page shell ---------------------------------------------------------------------------
+const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/** Course tree: in the grid from 1360 px, a drawer below (opened by the Contents button of the course bar);
+ *  a drawer at every width on chapter opening pages (D38).
+ *  Opening moves the focus into it and keeps it there; Escape, a click outside or a link closes it and the
+ *  focus returns to the button. */
+function initDrawer() {
+  const tree = document.getElementById('dg-tree'), btn = document.querySelector('.dg-bar-menu');
+  if (!tree || !btn) return;
+  const drawer = window.matchMedia(document.body.classList.contains('dg-page-chapter') ? 'all' : '(max-width: 1359.98px)');
+  const isOpen = () => H.classList.contains('dg-nav-open');
+  const open = () => {
+    H.classList.add('dg-nav-open');
+    btn.setAttribute('aria-expanded', 'true');
+    revealCurrent(tree);
+    requestAnimationFrame(() => (tree.querySelector('[aria-current="page"]') || tree.querySelector('a[href]'))?.focus());
+  };
+  const close = (restore = true) => {
+    if (!isOpen()) return;
+    const inside = tree.contains(document.activeElement);
+    H.classList.remove('dg-nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (restore && inside) btn.focus();
+  };
+  btn.addEventListener('click', () => (isOpen() ? close() : open()));
+  document.addEventListener('click', e => {
+    if (!isOpen() || e.target.closest('.dg-bar-menu')) return;
+    if (!tree.contains(e.target)) close(false);
+    else if (e.target.closest('a[href]')) close(false);
+  });
+  document.addEventListener('keydown', e => {
+    if (!isOpen()) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [...tree.querySelectorAll(FOCUSABLE)].filter(n => n.getClientRects().length);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1], cur = document.activeElement;
+    if (e.shiftKey && (cur === first || !tree.contains(cur))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (cur === last || !tree.contains(cur))) { e.preventDefault(); first.focus(); }
+  });
+  drawer.addEventListener('change', () => { if (!drawer.matches) close(false); });
+}
+
+/** Scrolls the course tree (never the page) so that the current page's entry is in view: left alone if it is
+ *  already within the part of the tree that can be seen, otherwise centred in it. Run on load (the sticky
+ *  column and the closed drawer) and when the drawer opens. */
+function revealCurrent(tree = document.getElementById('dg-tree')) {
+  const cur = tree && tree.querySelector('[aria-current="page"]');
+  if (!cur) return;
+  const t = tree.getBoundingClientRect(), c = cur.getBoundingClientRect();
+  const seen = Math.max(0, Math.min(tree.clientHeight, window.innerHeight - Math.max(t.top, 0)));   // the part of the tree on screen
+  const top = c.top - t.top + tree.scrollTop - tree.clientTop;     // the entry's offset in the tree's content
+  if (top >= tree.scrollTop && top + c.height <= tree.scrollTop + seen) return;
+  tree.scrollTop = Math.max(0, top - (seen - c.height) / 2);
+}
+
+/** Light or dark (D32): the head script applies the stored choice before the first paint. */
+function initTheme() {
+  for (const b of document.querySelectorAll('[data-act="theme"]')) {
+    b.addEventListener('click', () => {
+      const t = H.dataset.theme === 'dark' ? 'light' : 'dark';
+      H.dataset.theme = t;
+      try { localStorage.setItem('dg-theme', t); } catch (err) { /* private mode: the choice lasts for this page */ }
+    });
+  }
+}
+
+/** Site navbar on phones: the toggle shows and hides the links. */
+function initSiteNav() {
+  const nav = document.getElementById('dg-sitenav'), b = nav && nav.querySelector('.dg-sitenav-toggle');
+  if (!b) return;
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', String(nav.classList.toggle('dg-open'))));
+}
+
+/** Reading progress (the dark hairline of the course bar) and the outline entry of the heading being read. */
+function initScroll() {
+  const bar = document.querySelector('.dg-bar-progress b');
+  const main = document.getElementById('dg-main');
+  const links = [...document.querySelectorAll('.dg-tree-outline a')];
+  const heads = main ? [...main.querySelectorAll(':scope > h2[id], :scope > h3[id]')] : [];
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    if (bar) {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = `${(h > 0 ? Math.min(1, window.scrollY / h) : 0) * 100}%`;
+    }
+    if (!links.length || !heads.length) return;
+    const limit = (document.getElementById('dg-bar')?.getBoundingClientRect().bottom || 0) + 80;
+    let cur = null;
+    for (const h of heads) { if (h.getBoundingClientRect().top < limit) cur = h.id; else break; }
+    for (const a of links) {
+      const on = a.getAttribute('href') === `#${cur}`;
+      a.classList.toggle('dg-on', on);
+      if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    }
+  };
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  update();
+}
+
+/** Footnotes as sidenotes (D33): from 1000 px each footnote is copied into the margin at the height of
+ *  its mark (pushed down when it would overlap the previous one); the list at the foot of the page is
+ *  hidden then, and stays the form used below 1000 px, without JavaScript and in print.
+ *  D60: a footnote is a sidenote only if all its math fits the note, set smaller to 85 % at most (MIN_SIDENOTE_SCALE);
+ *  otherwise its mark opens the popover, as below 1000 px, and it stays in the list at the foot of the page
+ *  (the only entries the list then shows). Decided after typesetting, at every width and on resize. The
+ *  page contains its sidenotes: when the last one ends below the text, <main> grows so that the footer
+ *  starts below it. */
+function initSidenotes() {
+  const main = document.getElementById('dg-main');
+  const notes = main ? [...main.querySelectorAll('.dg-footnotes .dg-fn')] : [];
+  if (!notes.length || !document.body.classList.contains('dg-page-reading')) return;
+  const wide = window.matchMedia('(min-width: 1000px)');
+  let box = null;
+  const mark = id => main.querySelector(`.dg-fnref > a[href="#${CSS.escape(id)}"]`);
+  const build = () => {
+    box = document.createElement('div');
+    box.className = 'dg-sidenotes dg-web';
+    for (const fn of notes) {
+      const body = fn.querySelector('.dg-fn-body');
+      if (!body) continue;
+      const n = document.createElement('div');
+      n.className = 'dg-sidenote';
+      n.dataset.n = fn.querySelector('.dg-fn-num')?.textContent.trim() || '';
+      n.dataset.for = fn.id;
+      n.append(...adopt(body.cloneNode(true), null).childNodes);
+      box.append(n);
+    }
+    main.append(box);
+  };
+  const layout = () => {
+    main.style.minHeight = '';
+    if (!wide.matches) { H.classList.remove('dg-has-sidenotes'); return; }
+    if (!box) build();
+    H.classList.add('dg-has-sidenotes');
+    // every footnote is tried in the margin: its math is set smaller until it fits the note, never below
+    // 85 % (D60); a footnote with a formula that still does not fit is no sidenote. Before heights are measured.
+    for (const n of box.children) n.hidden = false;
+    fitDisplayMath(box);
+    fitWideInlineMath(box);
+    for (const n of box.children) {
+      const off = !!n.querySelector('.math.display.dg-math-scroll, mjx-container.dg-math-wide');
+      n.hidden = off;
+      document.getElementById(n.dataset.for)?.classList.toggle('dg-fn-margin', !off);
+    }
+    const top0 = main.getBoundingClientRect().top;
+    let floor = 0, end = 0;
+    for (const n of box.children) {
+      const ref = mark(n.dataset.for);
+      if (!ref || n.hidden) continue;
+      const y = Math.max(ref.getBoundingClientRect().top - top0 - 4, floor);
+      n.style.top = `${y}px`;
+      end = y + n.offsetHeight;
+      floor = end + 14;
+    }
+    // the page contains its sidenotes (D60): the last one ends as far above the footer as the text does
+    const need = end ? Math.ceil(end + parseFloat(getComputedStyle(main).paddingBottom)) : 0;
+    if (need > main.offsetHeight) main.style.minHeight = `${need}px`;
+  };
+  // a footnote mark points at its sidenote: highlighted while the mark is hovered or focused
+  const note = a => box && box.querySelector(`.dg-sidenote[data-for="${CSS.escape(a.hash.slice(1))}"]`);
+  const hot = (e, on) => {
+    const a = e.target.closest && e.target.closest('.dg-fnref > a');
+    if (a && inMargin(a)) note(a)?.classList.toggle('dg-hot', on);
+  };
+  document.addEventListener('pointerover', e => hot(e, true));
+  document.addEventListener('pointerout', e => hot(e, false));
+  document.addEventListener('focusin', e => hot(e, true));
+  document.addEventListener('focusout', e => hot(e, false));
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('.dg-fnref > a');
+    if (a && inMargin(a)) e.preventDefault();         // the note is beside the mark: no jump to the hidden list entry
+  });
+  let t = 0;
+  const later = () => { clearTimeout(t); t = setTimeout(layout, 120); };
+  mathReady().then(() => {
+    layout();
+    wide.addEventListener('change', layout);
+    window.addEventListener('resize', later);
+    if (window.ResizeObserver) new ResizeObserver(later).observe(main);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  });
+}
+
+/** ← / → go to the previous / next page, unless a field, an overlay, a scrollable formula or an
+ *  interactive figure has the focus (they use the arrow keys themselves). */
+function initKeys() {
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const f = document.activeElement;
+    if (f && f !== document.body && (f.isContentEditable
+      || f.closest('input, textarea, select, dialog, .dg-pop, .dg-interactive, .math.display'))) return;
+    if (document.querySelector('dialog[open]') || H.classList.contains('dg-nav-open') || (pop.el && !pop.el.hidden)) return;
+    const a = document.querySelector(`.dg-prevnext a[rel="${e.key === 'ArrowLeft' ? 'prev' : 'next'}"]`);
+    if (a) { e.preventDefault(); window.location.href = a.href; }
+  });
+}
+
+// ---- 7. web-layer words and small helpers of sections 8-11 -----------------------------------------
+// Every word of interface text below is listed in _port/REVIEW.md.
+const WORDS = {
+  openHere: 'open here', openPage: 'open page', close: 'close', closeLabel: 'Close',
+  copy: 'Copy LaTeX', copied: 'Copied',
+  search: 'Search', searchNotes: 'Search the notes', searchSite: 'Search the site',
+  scopeNotes: 'These notes', scopeSite: 'Whole site', results: 'Results', noResults: 'No results',
+  map: 'Course map', enlarge: 'Enlarge figure', zoom: 'Zoom', leftOut: '[…]',
+};
+const ICON = name => `<i class="dg-i dg-i-${name}" aria-hidden="true"></i>`;
+const escHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const typing = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+/** The site root (the page shell writes it, relative to the page, in <body data-dg-site>). */
+const siteRoot = () => new URL(document.body.dataset.dgSite || '../../', location.href);
+/** Path of a course URL inside the course directory ('tangent-spaces/tangent-space.html'), or null. */
+function coursePath(href) {
+  const u = new URL(href, location.href);
+  return u.origin === ROOT.origin && u.pathname.startsWith(ROOT.pathname) ? decodeURI(u.pathname.slice(ROOT.pathname.length)) : null;
+}
+let srEl = null;
+/** Says `text` to screen readers (a polite live region). */
+function announce(text) {
+  if (!srEl) {
+    srEl = document.createElement('div');
+    srEl.className = 'dg-sr-only dg-web';
+    srEl.setAttribute('role', 'status');
+    document.body.append(srEl);
+  }
+  srEl.textContent = '';
+  setTimeout(() => { srEl.textContent = text; }, 30);
+}
+
+// ---- 8. appendix content in place (D35) -----------------------------------------------------------
+// A reference to a section page of Appendix B (proofs) or C (worked examples) gets an "open here" button.
+// It opens the target page's content in a panel after the block that holds the reference (for a reference
+// in a footnote: after the block that holds the footnote mark). Fetched at run time, never copied at build
+// time, so the panel cannot disagree with the page. The buttons are copied with the footnotes into the
+// sidenotes and the footnote popover; all of them work through one delegated click handler.
+const APPENDIX_PAGE = /^(proofs-and-additional-material|examples)\/(?!index\.html$)[^/]+\.html$/;
+// .dg-lof: the List of Figures is a list; its numbers preview the figures (D52), its captions open nothing
+const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, .dg-lof, nav, .dg-web';
+const panels = new Set();
+let panelSeq = 0;
+
+function initPanels() {
+  const main = document.getElementById('dg-main');
+  if (!main) return;
+  for (const a of main.querySelectorAll('a.dg-xref[data-kind="section"][href]')) {
+    const path = coursePath(a.href);
+    if (!path || !APPENDIX_PAGE.test(path) || a.closest(NOT_OPENABLE) || pageKey(a.href) === pageKey(location.href)) continue;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-open-here dg-web';
+    b.setAttribute('aria-expanded', 'false');
+    b.innerHTML = `${ICON('expand')}<span>${WORDS.openHere}</span>`;
+    const keep = document.createElement('span');          // the reference and its button stay on one line
+    keep.className = 'dg-xref-open';
+    a.before(keep);
+    keep.append(a, b);
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.dg-open-here');
+    if (b) { e.preventDefault(); togglePanel(b); }
+  });
+}
+
+/** The block after which the panel of button `b` goes (null if it cannot be found). */
+function panelBlock(b) {
+  const main = document.getElementById('dg-main');
+  let from = b.previousElementSibling;
+  const note = b.closest('.dg-sidenote, .dg-fn, .dg-pop');
+  if (note) {                                            // a footnote: the block that holds its mark
+    const id = note.matches('.dg-pop') ? (pop.trigger && pop.trigger.matches('.dg-fnref > a') ? decodeURIComponent(pop.trigger.hash.slice(1)) : '')
+      : (note.dataset.for || note.id);
+    from = id ? main.querySelector(`.dg-fnref > a[href="#${CSS.escape(id)}"]`) : null;
+  }
+  if (!from) return null;
+  let block = from.closest('p, li, figcaption, td, th, blockquote, .dg-motivation, main') || from.parentElement;
+  if (block.matches('figcaption')) block = block.closest('figure') || block;
+  else if (block.matches('td, th')) block = block.closest('table') || block;
+  return block === main ? from : block;
+}
+
+const panelTarget = b => pageKey(b.previousElementSibling.href);
+const findPanel = (target, block) => [...panels].find(p => p.dgTarget === target && p.dgBlock === block);
+function syncButtons() {
+  for (const b of document.querySelectorAll('.dg-open-here')) {
+    const block = panelBlock(b), box = block && findPanel(panelTarget(b), block);
+    b.setAttribute('aria-expanded', String(!!box));
+    if (box) b.setAttribute('aria-controls', box.id); else b.removeAttribute('aria-controls');
+  }
+}
+
+function closePanel(box, focusTo) {
+  panels.delete(box);
+  box.remove();
+  syncButtons();
+  if (focusTo && focusTo.isConnected && focusTo.getClientRects().length) focusTo.focus({ preventScroll: true });
+}
+
+async function togglePanel(b) {
+  const a = b.previousElementSibling;
+  const block = panelBlock(b);
+  if (!a || !block) { if (a) location.href = a.href; return; }
+  const target = panelTarget(b);
+  const open = findPanel(target, block);
+  if (open) { closePanel(open, b.isConnected ? b : null); return; }
+  if (b.dataset.busy) return;
+  b.dataset.busy = '1';
+  const far = !!b.closest('.dg-fn, .dg-pop');            // the panel opens away from the button
+  let doc;
+  try { doc = await fetchPage(target); } catch (err) { delete b.dataset.busy; location.href = a.href; return; }
+  delete b.dataset.busy;
+  if (findPanel(target, block)) return;
+  const box = buildPanel(doc, target);
+  box.dgTarget = target;
+  box.dgBlock = block;
+  let at = block;                                        // after the panels already open at this block
+  while (at.nextElementSibling && at.nextElementSibling.matches('.dg-inline')) at = at.nextElementSibling;
+  at.after(box);
+  panels.add(box);
+  box.dgOpener = b.closest('.dg-pop') ? pop.trigger : b;
+  if (b.closest('.dg-pop')) hide();
+  syncButtons();
+  if (far) {
+    box.scrollIntoView({ block: 'nearest' });
+    box.focus({ preventScroll: true });
+  }
+  const body = box.querySelector('.dg-inline-body');
+  keepTex(body);
+  try { await typeset(box); } catch (err) { /* the TeX source stays readable */ }
+  box.classList.remove('dg-inline-raw');
+  enableFigures(body);
+  initCopy(body);
+  fitDisplayMath();
+  fitWideInlineMath();
+}
+
+/** The panel: the item's kicker, number and title from its own page, "open page", "close", and the
+ *  children of its <main> except the page header and previous/next (ids removed, URLs rebased). */
+function buildPanel(doc, target) {
+  const main = doc.querySelector('main') || doc.body;
+  const id = `dg-inline-${++panelSeq}`;
+  const box = document.createElement('div');
+  box.className = 'dg-inline dg-inline-raw dg-web';
+  box.id = id;
+  box.tabIndex = -1;
+  box.setAttribute('role', 'region');
+  box.setAttribute('aria-labelledby', `${id}-t`);
+  const head = document.createElement('div');
+  head.className = 'dg-inline-head';
+  const kicker = main.querySelector('.dg-head .dg-kicker');
+  const title = main.querySelector('.dg-head .dg-title');
+  const k = document.createElement('span');
+  k.className = 'dg-inline-kicker';
+  k.textContent = kicker ? kicker.textContent.replace(/\s+/g, ' ').trim() : '';
+  const t = document.createElement('span');
+  t.className = 'dg-inline-title';
+  t.id = `${id}-t`;
+  if (title) t.append(...adopt(document.importNode(title, true), target).childNodes);
+  const tools = document.createElement('span');
+  tools.className = 'dg-inline-tools';
+  tools.innerHTML = `<a href="${escHtml(target)}">${WORDS.openPage}${ICON('arrow-up-right')}</a>`
+    + `<button type="button">${WORDS.close}${ICON('x')}</button>`;
+  tools.querySelector('button').addEventListener('click', () => closePanel(box, box.dgOpener));
+  head.append(k, t, tools);
+  const body = document.createElement('div');
+  body.className = 'dg-inline-body';
+  body.tabIndex = 0;                                      // it scrolls: keyboard users can scroll it too
+  body.setAttribute('aria-labelledby', `${id}-t`);
+  // the item's content only: nothing that belongs to the page (header, "Mark as read", previous/next, sidenotes, B33)
+  const kept = [...main.children].filter(el => !el.matches('.dg-head, .dg-readbar, .dg-prevnext, .dg-sidenotes, .dg-chapter-web, .dg-chapter-map, script'));
+  for (const el of kept) body.append(adopt(document.importNode(el, true), target));
+  panelFootnotes(kept, body, id);
+  box.append(head, body);
+  return box;
+}
+
+/** The footnotes of a panel stay in the panel, at every width: each mark and its entry in the panel's own
+ *  list (shown at its end, never in the margin) get ids of the panel, so the mark opens the popover with that
+ *  footnote and a click jumps to it, as below 1000 px on the page (D11). `src`: the elements of the fetched
+ *  page copied into `body`, whose marks and entries correspond one to one with the copies (adopt removed
+ *  their ids); if they do not, the marks stay links to the item's page. */
+function panelFootnotes(src, body, id) {
+  const all = sel => src.flatMap(el => [...(el.matches(sel) ? [el] : []), ...el.querySelectorAll(sel)]);
+  const marks = all('.dg-fnref > a[href^="#"]'), copies = [...body.querySelectorAll('.dg-fnref > a')];
+  const fns = all('.dg-footnotes .dg-fn[id]'), fnCopies = [...body.querySelectorAll('.dg-footnotes .dg-fn')];
+  if (marks.length !== copies.length || fns.length !== fnCopies.length) return;      // not the page's structure
+  const local = new Map();                                 // the page's footnote id -> the panel's
+  fns.forEach((fn, i) => {
+    const c = fnCopies[i];
+    c.id = `${id}-${fn.id}`;
+    local.set(fn.id, c.id);
+    const b = c.querySelector('.dg-fn-body');
+    if (b) b.id = `${c.id}-body`;
+  });
+  marks.forEach((a, i) => {
+    const to = local.get(decodeURIComponent(a.hash.slice(1))), c = copies[i];
+    if (!to) return;
+    c.setAttribute('href', `#${to}`);
+    if (a.id) c.id = `${id}-${a.id}`;
+    c.setAttribute('aria-describedby', `${to}-body`);
+    const back = body.querySelector(`#${CSS.escape(to)} > a.dg-fn-num`);
+    if (back && a.id) back.setAttribute('href', `#${c.id}`);
+  });
+}
+
+// ---- 9. copy LaTeX (D39) ------------------------------------------------------------------------
+// Every display equation gets a small button that copies its TeX as it stands in the notes: data-tex,
+// written by the converter where it rewrote the source (\label -> \tag, \ref -> number) and kept by
+// mathjax-config.js from the element's text before typesetting everywhere else. The button shows on
+// hover and keyboard focus (one tab stop per display: at most ~60 on the longest page); on touch-only
+// screens, when the equation is tapped.
+/** Keeps the TeX of the display equations of a fragment that is about to be typeset. */
+function keepTex(root) {
+  for (const d of root.querySelectorAll('.math.display:not([data-tex])')) {
+    if (!d.querySelector('mjx-container')) d.dataset.tex = d.textContent;
+  }
+}
+
+function initCopy(root) {
+  for (const d of root.querySelectorAll('.math.display')) {
+    if (d.closest('.dg-pop, .dg-eq') || !(d.dataset.tex || !d.querySelector('mjx-container'))) continue;
+    const w = document.createElement('span');
+    w.className = 'dg-eq';
+    d.before(w);
+    w.append(d);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-copy dg-web';
+    b.setAttribute('aria-label', WORDS.copy);
+    b.title = WORDS.copy;
+    b.innerHTML = `${ICON('clipboard')}${ICON('check')}<span class="dg-copy-msg" aria-hidden="true">${WORDS.copied}</span>`;
+    w.append(b);
+  }
+}
+
+function initCopyEvents() {
+  const touchOnly = window.matchMedia('(hover: none)');
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.dg-copy');
+    if (b) {
+      const d = b.parentElement.querySelector('.math.display');
+      const tex = d && (d.dataset.tex || d.textContent);
+      if (!tex || !navigator.clipboard || !navigator.clipboard.writeText) return;     // silently: nothing to copy with
+      navigator.clipboard.writeText(tex).then(() => {
+        b.classList.add('dg-done');
+        announce(WORDS.copied);
+        clearTimeout(b.dgTimer);
+        b.dgTimer = setTimeout(() => b.classList.remove('dg-done'), 1600);
+      }).catch(() => { /* clipboard refused: silently */ });
+      return;
+    }
+    if (!touchOnly.matches) return;
+    const w = e.target.closest && e.target.closest('.dg-eq');
+    for (const o of document.querySelectorAll('.dg-eq.dg-on')) if (o !== w) o.classList.remove('dg-on');
+    if (w && !e.target.closest('a[href]')) w.classList.toggle('dg-on');
+  });
+}
+
+async function initCopyButtons() {
+  await mathReady();
+  const main = document.getElementById('dg-main');
+  if (main) initCopy(main);
+}
+
+// ---- 10. search (D36, D39) -----------------------------------------------------------------------
+// One dialog, two indexes: "Search" in the course bar and the / key search the course's own index
+// (assets/search.json); the search button of the site navbar searches the site's index (<site>/search.json,
+// which post_render.py extends with the course), as it does on every other page of the site. Each index is
+// loaded on first use. Every word of the query must occur (case and accents ignored); ranking: title, then
+// section, then text. Results are grouped by page; the formulas of page titles and section names are typeset
+// as in the course tree (R10); the text lines keep their short inline formulas whole and typeset them too, and
+// never cut through a formula (snippet() below).
+const S = { dlg: null, input: null, list: null, empty: null, scope: 'notes', idx: {}, opener: null, hits: [], active: -1, seq: 0, timer: 0, mathTimer: 0 };
+const MAX_HITS = 30;
+const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+function loadIndex(scope) {
+  if (!S.idx[scope]) {
+    const url = scope === 'site' ? new URL('search.json', siteRoot()) : new URL('assets/search.json', ROOT);
+    S.idx[scope] = fetch(url).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(list => list.map((e, i) => ({ e, i, t: fold(e.title || ''), s: fold(e.section || ''), x: fold(e.text || '') })))
+      .catch(err => { delete S.idx[scope]; throw err; });
+  }
+  return S.idx[scope];
+}
+
+function rank(index, query) {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  const phrase = words.join(' ');
+  const hits = [];
+  for (const r of index) {
+    let score = 0;
+    for (const w of words) {
+      const inT = r.t.includes(w), inS = r.s.includes(w), inX = r.x.includes(w);
+      if (!inT && !inS && !inX) { score = -1; break; }
+      score += (inT ? 100 : 0) + (inS ? 20 : 0) + (inX ? 1 : 0);
+    }
+    if (score < 0) continue;
+    if (words.length > 1) score += r.t.includes(phrase) ? 50 : r.s.includes(phrase) ? 10 : r.x.includes(phrase) ? 2 : 0;
+    hits.push({ r, score });
+  }
+  hits.sort((a, b) => b.score - a.score || a.r.i - b.r.i);
+  // the best MAX_HITS, grouped by page (pages in the order of their best hit, sections in page order)
+  const top = hits.slice(0, MAX_HITS), order = new Map();
+  for (const h of top) { const k = h.r.e.href.split('#')[0]; if (!order.has(k)) order.set(k, order.size); }
+  return top.sort((a, b) => order.get(a.r.e.href.split('#')[0]) - order.get(b.r.e.href.split('#')[0]) || a.r.i - b.r.i);
+}
+
+/** `text` as HTML with every occurrence of the query words in <mark> (accents and case ignored). */
+function marked(text, words) {
+  let low = '';
+  const map = [];
+  for (let i = 0; i < text.length; i++) { const f = fold(text[i]); for (let j = 0; j < f.length; j++) map.push(i); low += f; }
+  const spans = [];
+  for (const w of words) {
+    for (let k = low.indexOf(w); k >= 0; k = low.indexOf(w, k + w.length)) spans.push([map[k], map[k + w.length - 1] + 1]);
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  let out = '', at = 0;
+  for (const [a, b] of spans) {
+    if (a < at) continue;
+    out += escHtml(text.slice(at, a)) + `<mark>${escHtml(text.slice(a, b))}</mark>`;
+    at = b;
+  }
+  return out + escHtml(text.slice(at));
+}
+
+/** A page title or section name as HTML: its words marked as above, its formulas (\(..\), as in the index)
+ *  left whole and unmarked so that MathJax can typeset them as the course tree shows them. */
+function markedTitle(text, words) {
+  return text.split(/(\\\(.*?\\\))/s).map((part, i) => (i % 2
+    ? `<span class="math inline">${escHtml(part)}</span>` : marked(part, words))).join('');
+}
+
+/** Typesets the formulas of the result titles, section names and text lines, once the list has stopped changing; until then they are hidden. Without MathJax the TeX stays readable. */
+function typesetHits(seq) {
+  clearTimeout(S.mathTimer);
+  const els = [...S.list.querySelectorAll('.dg-search-page, .dg-search-sec, .dg-search-text')].filter(el => el.querySelector('.math'));
+  if (!els.length) { S.list.classList.remove('dg-search-raw'); return; }
+  S.list.classList.add('dg-search-raw');
+  S.mathTimer = setTimeout(async () => {
+    await mathReady();
+    if (seq !== S.seq) return;
+    try { if (window.MathJax && MathJax.typesetPromise) await MathJax.typesetPromise(els); } catch (err) { /* the TeX stays */ }
+    if (seq === S.seq) S.list.classList.remove('dg-search-raw');
+  }, 60);
+}
+
+/** The formulas of an index text, whose math is its TeX source as in the notes (D36): [start, end, display],
+ *  display for \[..\] and a top-level \begin{..}..\end{..}, inline for \(..\). */
+function formulas(text) {
+  const out = [];
+  let i = 0;
+  while (i < text.length) {
+    const j = text.indexOf('\\', i);
+    if (j < 0) break;
+    let end = -1, display = false;
+    if (text.startsWith('\\(', j)) { const e = text.indexOf('\\)', j + 2); end = e < 0 ? text.length : e + 2; }
+    else if (text.startsWith('\\[', j)) { const e = text.indexOf('\\]', j + 2); end = e < 0 ? text.length : e + 2; display = true; }
+    else if (text.startsWith('\\begin{', j)) {
+      const name = text.slice(j + 7, text.indexOf('}', j + 7));
+      const re = /\\(begin|end)\{([^}]*)\}/g;
+      re.lastIndex = j;
+      let depth = 0;
+      for (let m; (m = re.exec(text));) {
+        if (m[2] !== name) continue;
+        depth += m[1] === 'begin' ? 1 : -1;
+        if (!depth) { end = re.lastIndex; break; }
+      }
+      if (end < 0) end = text.length;
+      display = true;
+    }
+    if (end < 0) { i = j + 1; continue; }
+    out.push([j, end, display]);
+    i = end;
+  }
+  return out;
+}
+
+const SNIPPET_MATH = 80;                                // inline formulas longer than this are left out ("[…]")
+/** One line of `text` around the first match of the query words, as HTML. It never cuts through a formula: the
+ *  window is moved outward to the formulas' boundaries. Inline formulas of up to SNIPPET_MATH characters are kept
+ *  whole for MathJax (as in the titles: <mark> only outside math); a display, an environment or a longer formula
+ *  becomes "[…]", unless the match lies inside it: then its TeX source is shown as it is, in a monospace span
+ *  (around the match, if it is long). */
+function snippet(text, words) {
+  let low = '';
+  const map = [];
+  for (let i = 0; i < text.length; i++) { const f = fold(text[i]); for (let j = 0; j < f.length; j++) map.push(i); low += f; }
+  let k = -1;
+  for (const w of words) { const i = low.indexOf(w); if (i >= 0 && (k < 0 || map[i] < k)) k = map[i]; }
+  const F = formulas(text), at = p => F.find(f => p > f[0] && p < f[1]);
+  let a = k < 0 ? 0 : Math.max(0, k - 60), b = k < 0 ? Math.min(text.length, 160) : Math.min(text.length, k + 120);
+  if (k >= 0 && a > 0) { const sp = text.indexOf(' ', a); a = sp >= 0 && sp < k ? sp + 1 : a; }
+  if (k >= 0 && b < text.length) { const sp = text.lastIndexOf(' ', b); b = sp > k ? sp : b; }
+  const fa = at(a), fb = at(b);
+  if (fa) a = fa[0];
+  if (fb) b = fb[1];
+  const hit = k >= 0 ? F.find(f => k >= f[0] && k < f[1]) : null;
+  let out = a > 0 ? '… ' : '', pos = a;
+  for (const f of F) {
+    if (f[1] <= a || f[0] >= b) continue;
+    out += marked(text.slice(pos, f[0]), words);
+    const src = text.slice(f[0], f[1]);
+    if (!f[2] && src.length <= SNIPPET_MATH) out += `<span class="math inline">${escHtml(src)}</span>`;
+    else if (f === hit) {
+      const long = src.length > 160, s0 = long ? Math.max(0, k - f[0] - 60) : 0, s1 = long ? Math.min(src.length, k - f[0] + 100) : src.length;
+      out += `<code class="dg-search-tex">${s0 > 0 ? '…' : ''}${marked(src.slice(s0, s1), words)}${s1 < src.length ? '…' : ''}</code>`;
+    } else out += WORDS.leftOut;
+    pos = f[1];
+  }
+  out += marked(text.slice(pos, b), words);
+  return out + (b < text.length ? ' …' : '');
+}
+
+function buildSearch() {
+  const d = document.createElement('dialog');
+  d.className = 'dg-search dg-dlg dg-web';
+  d.setAttribute('aria-label', WORDS.search);
+  d.innerHTML = `<div class="dg-search-head">${ICON('search')}
+      <input type="search" class="dg-search-input" role="combobox" aria-expanded="false" aria-controls="dg-search-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+      <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
+    <div class="dg-search-scope"><button type="button" data-scope="notes">${WORDS.scopeNotes}</button><button type="button" data-scope="site">${WORDS.scopeSite}</button></div>
+    <ul class="dg-search-list" id="dg-search-list" role="listbox" aria-label="${WORDS.results}"></ul>
+    <p class="dg-search-empty" hidden>${WORDS.noResults}</p>`;
+  document.body.append(d);
+  Object.assign(S, { dlg: d, input: d.querySelector('input'), list: d.querySelector('ul'), empty: d.querySelector('.dg-search-empty') });
+  d.querySelector('.dg-dlg-close').addEventListener('click', () => d.close());
+  d.querySelector('.dg-search-scope').addEventListener('click', e => {
+    const b = e.target.closest('button[data-scope]');
+    if (b && b.dataset.scope !== S.scope) { setScope(b.dataset.scope); S.input.focus(); }
+  });
+  d.addEventListener('click', e => {
+    if (e.target === d) d.close();                       // a click on the backdrop
+    else if (e.target.closest('a[href]')) d.close();     // a result: leave the dialog, follow the link
+  });
+  d.addEventListener('close', () => {
+    const o = S.opener; S.opener = null;
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+  });
+  S.input.addEventListener('input', () => { clearTimeout(S.timer); S.timer = setTimeout(runSearch, 90); });
+  S.input.addEventListener('keydown', e => {
+    const opts = [...S.list.querySelectorAll('[role="option"]')];
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!opts.length) return;
+      e.preventDefault();
+      const n = S.active < 0 ? (e.key === 'ArrowDown' ? 0 : opts.length - 1)
+        : (S.active + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+      setActive(n);
+    } else if (e.key === 'Escape') {                    // a search field would clear itself first
+      e.preventDefault();
+      d.close();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const o = opts[S.active >= 0 ? S.active : 0];
+      const a = o && o.querySelector('a[href]');
+      if (a) { d.close(); location.href = a.href; }
+    }
+  });
+}
+
+function setActive(n) {
+  const opts = [...S.list.querySelectorAll('[role="option"]')];
+  opts.forEach((o, i) => o.setAttribute('aria-selected', String(i === n)));
+  S.active = n;
+  if (opts[n]) { S.input.setAttribute('aria-activedescendant', opts[n].id); opts[n].scrollIntoView({ block: 'nearest' }); }
+  else S.input.removeAttribute('aria-activedescendant');
+}
+
+function setScope(scope) {
+  S.scope = scope;
+  const label = scope === 'site' ? WORDS.searchSite : WORDS.searchNotes;
+  S.input.placeholder = label;
+  S.input.setAttribute('aria-label', label);
+  for (const b of S.dlg.querySelectorAll('.dg-search-scope button')) b.setAttribute('aria-pressed', String(b.dataset.scope === scope));
+  runSearch();
+}
+
+async function runSearch() {
+  const seq = ++S.seq, q = S.input.value.trim();
+  if (!q) { renderHits([], ''); return; }
+  let index;
+  try { index = await loadIndex(S.scope); } catch (err) { index = []; }
+  if (seq !== S.seq) return;
+  renderHits(rank(index, q), q);
+}
+
+function renderHits(hits, q) {
+  const words = fold(q).split(/\s+/).filter(Boolean);
+  const base = siteRoot();
+  if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([S.list]);     // forget the formulas of the old list
+  S.list.replaceChildren();
+  let group = null, key = null, n = 0;
+  for (const { r } of hits) {
+    const e = r.e, k = e.href.split('#')[0];
+    if (k !== key) {
+      key = k;
+      const li = document.createElement('li');
+      li.className = 'dg-search-group';
+      li.setAttribute('role', 'group');
+      li.setAttribute('aria-labelledby', `dg-sr-g${n}`);
+      li.innerHTML = `<div class="dg-search-page" id="dg-sr-g${n}">${markedTitle(e.title || '', words)}</div><ul role="presentation"></ul>`;
+      S.list.append(li);
+      group = li.querySelector('ul');
+    }
+    const text = snippet(e.text || '', words);
+    const o = document.createElement('li');
+    o.id = `dg-sr-${n++}`;
+    o.setAttribute('role', 'option');
+    o.setAttribute('aria-selected', 'false');
+    o.innerHTML = `<a href="${escHtml(new URL(e.href, base).href)}" tabindex="-1">`
+      + (e.section ? `<span class="dg-search-sec">${markedTitle(e.section, words)}</span>` : '')
+      + `<span class="dg-search-text">${text}</span></a>`;
+    group.append(o);
+  }
+  S.active = -1;
+  S.input.removeAttribute('aria-activedescendant');
+  S.input.setAttribute('aria-expanded', String(hits.length > 0));
+  S.empty.hidden = !(q && !hits.length);
+  typesetHits(S.seq);
+}
+
+function openSearch(scope, opener) {
+  if (!S.dlg) buildSearch();
+  S.opener = opener || document.activeElement;
+  setScope(scope);
+  if (!S.dlg.open) S.dlg.showModal();
+  S.input.focus();
+  S.input.select();
+}
+
+function initSearch() {
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('[data-act="search"]');
+    if (b && !b.closest('dialog')) { e.preventDefault(); openSearch(b.dataset.scope === 'site' ? 'site' : 'notes', b); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+    if (typing(document.activeElement) || document.querySelector('dialog[open]') || H.classList.contains('dg-nav-open')) return;
+    e.preventDefault();
+    openSearch('notes', document.activeElement);
+  });
+}
+
+// ---- 11. course map (D39) ------------------------------------------------------------------------
+// "Map" in the course bar opens the master roadmap (the figure fig_roadmap_master of §1.1) in a dialog:
+// fetched on first use with its caption from its own page, inlined so its badges are links (section 2),
+// the badges that point into the current chapter ringed, and a link to the section that holds it.
+// Without JavaScript "Map" stays a link to the roadmap on the landing page; on the landing page it scrolls
+// to it, as the link does.
+const M = { dlg: null, paper: null, opener: null, ready: null, w: 1423, h: 1588 };
+
+function buildMap() {
+  const d = document.createElement('dialog');
+  d.className = 'dg-mapdlg dg-dlg dg-web';
+  d.setAttribute('aria-label', WORDS.map);
+  d.innerHTML = `<div class="dg-mapdlg-head"><span class="dg-mapdlg-sec"></span>
+      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}<span class="dg-zoom-word">${WORDS.zoom}</span></button>
+      <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
+    <div class="dg-mapdlg-body"><div class="dg-mapdlg-fig"><div class="dg-paper dg-mapdlg-paper"></div></div><div class="dg-mapdlg-cap"></div></div>`;
+  document.body.append(d);
+  M.dlg = d;
+  M.paper = d.querySelector('.dg-mapdlg-paper');
+  d.querySelector('.dg-dlg-close').addEventListener('click', () => d.close());
+  d.querySelector('.dg-expand').addEventListener('click', () => { if (M.paper.dataset.dgSrc) openViewer(M.paper); });
+  d.addEventListener('click', e => {
+    if (e.target === d) d.close();
+    else if (e.target.closest('a[href]') && !e.target.closest('.dg-viewer')) d.close();
+  });
+  d.addEventListener('close', () => {
+    const o = M.opener; M.opener = null;
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+  });
+  window.addEventListener('resize', () => { if (d.open) fitMap(); });
+}
+
+/** Scales the roadmap to the space the dialog gives it (both dimensions). */
+function fitMap() {
+  const svg = M.paper.querySelector('svg, img');
+  if (!svg) return;
+  const fig = M.dlg.querySelector('.dg-mapdlg-fig'), body = M.dlg.querySelector('.dg-mapdlg-body');
+  const side = getComputedStyle(body).gridTemplateColumns.split(' ').length > 1;
+  const pad = 2 * (parseFloat(getComputedStyle(M.paper).paddingLeft) || 0) + 2;
+  const W = fig.clientWidth - pad, Hh = (side ? fig.clientHeight : body.clientHeight - 12) - pad;
+  const s = Math.max(0.05, Math.min(W / M.w, Hh / M.h));
+  svg.style.width = `${Math.floor(M.w * s)}px`;
+  svg.style.height = `${Math.floor(M.h * s)}px`;
+  // its text too small to read at this size (phones): the enlarge button shows its word, as figures do (3b)
+  const t = (+M.paper.dataset.dgText || BODY_TEXT_PX) * s;
+  M.dlg.querySelector('.dg-expand').classList.toggle('dg-tiny', t < TINY_TEXT_PX);
+}
+
+async function fillMap() {
+  const map = await labels();
+  const info = map.fig_roadmap_master;
+  if (!info || !info.url) throw new Error('fig_roadmap_master not in labels.json');
+  const url = new URL(info.url, ROOT).href, page = pageKey(url);
+  const doc = await fetchPage(url);
+  const fig = doc.getElementById('fig_roadmap_master'), img = fig && fig.querySelector('img');
+  if (!img) throw new Error('fig_roadmap_master has no image');
+  const src = new URL(img.getAttribute('src'), page).href;
+  M.w = +img.getAttribute('width') || M.w;
+  M.h = +img.getAttribute('height') || M.h;
+  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h),
+    dgText: img.getAttribute('data-dg-text') || '' });
+  // the link to the section that holds the figure, with the notes' own number and title
+  const title = doc.querySelector('.dg-head .dg-title');
+  const sec = M.dlg.querySelector('.dg-mapdlg-sec');
+  if (title) {
+    const a = document.createElement('a');
+    a.href = page;
+    a.append(...adopt(document.importNode(title, true), page).childNodes);
+    sec.replaceChildren(a);
+  }
+  const cap = fig.querySelector('figcaption');
+  const capBox = M.dlg.querySelector('.dg-mapdlg-cap');
+  if (cap) { capBox.replaceChildren(...adopt(document.importNode(cap, true), page).childNodes); keepTex(capBox); }
+  const pic = document.createElement('img');
+  pic.src = src; pic.alt = img.getAttribute('alt') || ''; pic.width = M.w; pic.height = M.h;
+  M.paper.replaceChildren(pic);
+  fitMap();
+  typeset(capBox).catch(() => {}).then(() => fitMap());
+  if (img.dataset.kind !== 'svg') return;
+  const svg = await inlineSvg(src);
+  svg.setAttribute('class', 'dg-map-svg');
+  if (pic.alt) { svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', pic.alt); }   // its badges are links
+  M.paper.replaceChildren(svg);
+  fitMap();
+  await linkify(svg);
+  ringChapter(svg, map);                                // the badges that point into the current chapter
+}
+
+async function openMap(opener) {
+  if (!M.dlg) buildMap();
+  M.opener = opener;
+  if (!M.dlg.open) M.dlg.showModal();
+  M.dlg.querySelector('.dg-dlg-close').focus({ preventScroll: true });
+  M.ready ||= fillMap().catch(err => { M.ready = null; throw err; });
+  try { await M.ready; } catch (err) { M.dlg.close(); if (opener && opener.href) location.href = opener.href; return; }
+  fitMap();
+}
+
+function initMapDialog() {
+  if (document.body.classList.contains('dg-page-landing')) return;     // the roadmap is on the page: the link scrolls to it
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[data-act="map"]');
+    if (!a || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    openMap(a);
+  });
+}
+
+// ---- 12. "read" marks (D40) ----------------------------------------------------------------------
+// A section page counts as read once its previous/next block is in the viewport after at least 20 seconds on
+// the page (D40 as amended), or when the toggle
+// at its foot is pressed; pressing it again clears the mark, and then reaching the end does not set it again
+// during this visit. Kept in this browser only: localStorage['dg-read'] = JSON array of page slugs (the page's
+// path in the course without .html, <body data-dg-slug>). The checks after the section titles (tree, sections
+// of the chapter opening pages, landing page's contents) are in the HTML, hidden; this only shows them.
+const READ_KEY = 'dg-read';
+const READ_DELAY = 20000;                              // ms on the page before the end can mark it (D40)
+/** The stored slugs, or null when the storage cannot be read (private mode, blocked, corrupt). */
+function readStored() {
+  try {
+    const v = JSON.parse(localStorage.getItem(READ_KEY) || '[]');
+    return new Set(Array.isArray(v) ? v.filter(s => typeof s === 'string') : []);
+  } catch (err) { return null; }
+}
+function storeRead(slug, on) {
+  try {
+    const s = readStored() || new Set();               // merged with what other tabs stored meanwhile
+    if (on) s.add(slug); else s.delete(slug);
+    localStorage.setItem(READ_KEY, JSON.stringify([...s]));
+  } catch (err) { /* storage unavailable: the mark lasts for this page */ }
+}
+const slugOf = href => { const p = coursePath(href); return p && p.endsWith('.html') ? p.slice(0, -5) : null; };
+function showReadMarks(set) {
+  for (const m of document.querySelectorAll('.dg-readmark')) {
+    const a = m.closest('a[href]'), s = a && slugOf(a.href);
+    m.classList.toggle('dg-on', !!s && set.has(s));
+  }
+}
+
+function initRead() {
+  const read = readStored() || new Set();
+  showReadMarks(read);
+  window.addEventListener('pageshow', e => {           // back/forward cache: another page may have been read
+    const s = e.persisted && readStored();
+    if (s) { read.clear(); s.forEach(x => read.add(x)); showReadMarks(read); sync(); }
+  });
+  const btn = document.querySelector('.dg-readtoggle'), slug = document.body.dataset.dgSlug;
+  const sync = () => { if (btn && slug) btn.setAttribute('aria-pressed', String(read.has(slug))); };
+  if (!btn || !slug || !document.body.classList.contains('dg-page-reading')) return;
+  let unmarked = false;                                // the reader cleared the mark during this visit
+  const set = on => {
+    if (on) read.add(slug); else read.delete(slug);
+    storeRead(slug, on);
+    sync();
+    showReadMarks(read);
+  };
+  sync();
+  btn.addEventListener('click', () => {
+    const on = !read.has(slug);
+    if (!on) unmarked = true;
+    set(on);
+  });
+  // the automatic mark (D40 as amended): the end of the page in view AND at least READ_DELAY on the page (time
+  // while the page is visible), whichever comes last; the toggle is not affected. Tests shorten the delay by
+  // setting window.__dgReadDelay (milliseconds) before this script runs; nothing else uses it.
+  const end = document.querySelector('#dg-main .dg-prevnext') || btn;
+  if (!('IntersectionObserver' in window)) return;
+  const delay = Number.isFinite(window.__dgReadDelay) ? window.__dgReadDelay : READ_DELAY;
+  let inView = false, timeOk = false, spent = 0, timer = 0;
+  let since = document.visibilityState === 'hidden' ? null : performance.now();
+  const io = new IntersectionObserver(entries => {
+    inView = entries.some(e => e.isIntersecting);
+    check();
+  });
+  const check = () => {
+    if (unmarked) { io.disconnect(); clearTimeout(timer); return; }
+    if (inView && timeOk) { io.disconnect(); if (!read.has(slug)) set(true); }
+  };
+  const arm = () => {
+    clearTimeout(timer);
+    if (since === null || timeOk) return;
+    timer = setTimeout(() => { timeOk = true; check(); }, Math.max(0, delay - spent));
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { if (since !== null) { spent += performance.now() - since; since = null; } clearTimeout(timer); }
+    else if (since === null) { since = performance.now(); arm(); }
+  });
+  io.observe(end);
+  arm();
+}
+
 function init() {
-  const run = (name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
+  const run =(name, f) => { try { const r = f(); if (r && r.catch) r.catch(err => console.warn(`${name}:`, err)); } catch (err) { console.warn(`${name}:`, err); } };
+  run('drawer', initDrawer);
+  run('tree', () => revealCurrent());
+  run('theme', initTheme);
+  run('site navbar', initSiteNav);
+  run('scroll', initScroll);
+  run('sidenotes', initSidenotes);
+  run('keys', initKeys);
   run('decor', drawDecor);
   run('popovers', initPopovers);
   run('figures', initFigures);
   run('maps', initMaps);
   run('wide math', initWideMath);
+  run('panels', initPanels);
+  run('copy', initCopyEvents);
+  run('copy buttons', initCopyButtons);
+  run('search', initSearch);
+  run('map', initMapDialog);
+  run('read', initRead);
   loadInteractives();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

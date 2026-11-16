@@ -39,9 +39,9 @@ export default async function mount(body) {
 
   body.append(note('Drag from an element of \\(\\mathcal{M}\\) to an element of \\(\\mathcal{N}\\) to add an arrow of \\(\\phi\\); click an arrow to remove it.'));
   const top = controls(body);
-  const sM = stepper({ label: '\\(\\mathcal{M}\\)', min: 2, max: 5, value: st.m, onChange: v => { st.m = v; st.arrows = st.arrows.filter(a => a[0] < v); refresh(); } });
-  const sN = stepper({ label: '\\(\\mathcal{N}\\)', min: 2, max: 5, value: st.n, onChange: v => { st.n = v; st.arrows = st.arrows.filter(a => a[1] < v); refresh(); } });
-  const inv = toggle({ label: '\\(\\phi^{-1}\\)', onChange: v => { st.showInv = v; plot.update(); } });
+  const sM = stepper({ label: '\\(\\mathcal{M}\\)', aria: '𝓜', min: 2, max: 5, value: st.m, onChange: v => { st.m = v; st.arrows = st.arrows.filter(a => a[0] < v); refresh(); } });
+  const sN = stepper({ label: '\\(\\mathcal{N}\\)', aria: '𝓝', min: 2, max: 5, value: st.n, onChange: v => { st.n = v; st.arrows = st.arrows.filter(a => a[1] < v); refresh(); } });
+  const inv = toggle({ label: '\\(\\phi^{-1}\\)', aria: 'φ⁻¹', onChange: v => { st.showInv = v; plot.update(); } });
   top.append(sM.el, sN.el, inv.el);
 
   const status = el('div', { class: 'dg-status', role: 'status', 'aria-live': 'polite' });
@@ -51,7 +51,7 @@ export default async function mount(body) {
   const R = 9;                                            // dot radius in px, as in the figure
   const plot = new Plot2D(stage, {
     xlim: [-0.75, 1.75], ylim: [-2.6, 3.0], aspect: 0.85, maxWidth: 380, axes: false, margin: { l: 0, r: 0, t: 0, b: 0 },
-    label: 'Figure 2.1', draw
+    role: 'group', label: 'Figure 2.1', draw
   });
   function draw(p) {
     const cls = classify(st.m, st.n, st.arrows);

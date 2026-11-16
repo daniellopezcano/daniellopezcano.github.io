@@ -132,7 +132,7 @@ One web page per row. "Status" is what `build.py --status` says today.
 | 9.5 | Gravity in the Connection | `newtonian/gravity-connection` | `Chapters/Newtonian_Gravity.tex` | 2 | 0 | 0 | 0 | converts |
 | 10 | General Relativity | `gr/index` | `Chapters/GR.tex` | 0 | 1 | 0 | 0 | converts |
 | 10.1 | Spacetime | `gr/spacetime` | `Chapters/GR.tex` | 1 | 1 | 1 | 4 | converts |
-| 10.2 | The Einstein Equations from an Action | `gr/einstein-hilbert` | `Chapters/GR.tex` | 2 | 1 | 0 | 5 | pending: unknown command \colorlet |
+| 10.2 | The Einstein Equations from an Action | `gr/einstein-hilbert` | `Chapters/GR.tex` | 2 | 1 | 0 | 5 | converts |
 | 10.3 | Coupling to Matter | `gr/matter` | `Chapters/GR.tex` | 0 | 0 | 0 | 0 | converts |
 | A | Computational ressources | `computational-ressources/index` | `main.tex` | 0 | 0 | 0 | 0 | converts |
 | B | Proofs \& Comments | `proofs-and-additional-material/index` | `main.tex` | 0 | 0 | 0 | 0 | converts |
@@ -150,13 +150,13 @@ One web page per row. "Status" is what `build.py --status` says today.
 | B.12 | Sylvester's law of inertia (\S\ref{subsection_Metric_Signature}) | `proofs-and-additional-material/proof-sylvester` | `Appendices/proofs_and_comments/proof_sylvester.tex` | 0 | 0 | 0 | 0 | converts |
 | B.13 | Reparametrization invariance of the length (\S\ref{section_Length_Geodesics}) | `proofs-and-additional-material/proof-length-reparametrization` | `Appendices/proofs_and_comments/proof_length_reparametrization.tex` | 0 | 0 | 0 | 0 | converts |
 | B.14 | Euler--Lagrange equations (\S\ref{subsection_Variations_Euler_Lagrange}) | `proofs-and-additional-material/proof-euler-lagrange` | `Appendices/proofs_and_comments/proof_euler_lagrange.tex` | 0 | 0 | 0 | 0 | converts |
-| B.15 | Higher-order Lagrangians (\S\ref{subsection_Variations_Euler_Lagrange}) | `proofs-and-additional-material/proof-higher-order-el` | `Appendices/proofs_and_comments/higher_order_lagrangians.tex` | 0 | 0 | 0 | 0 | pending: \setcounter: declared in texparse.CMDS but has no handler in render.py |
+| B.15 | Higher-order Lagrangians (\S\ref{subsection_Variations_Euler_Lagrange}) | `proofs-and-additional-material/proof-higher-order-el` | `Appendices/proofs_and_comments/higher_order_lagrangians.tex` | 0 | 0 | 0 | 0 | converts |
 | B.16 | Derivation of the geodesic equation (\S\ref{section_Length_Geodesics}) | `proofs-and-additional-material/proof-geodesic-equation` | `Appendices/proofs_and_comments/proof_geodesic_equation.tex` | 0 | 0 | 0 | 0 | converts |
 | B.17 | The Levi-Civita theorem (\S\ref{section_Levi_Civita_Connection}) | `proofs-and-additional-material/proof-metric-compatibility` | `Appendices/proofs_and_comments/proof_levi_civita_theorem.tex` | 0 | 0 | 0 | 0 | converts |
 | B.18 | Properties of $g$ and of the L.C. connection (\S\S\ref{section_Levi_Civita_Connection}--\ref{section_Curvature_Metric}) | `proofs-and-additional-material/metric-properties` | `Appendices/proofs_and_comments/metric_properties.tex` | 11 | 0 | 1 | 0 | converts |
 | B.19 | Compactness and the integral over a region (\S\ref{section_Integration_Manifolds}) | `proofs-and-additional-material/support-integrals` | `Appendices/proofs_and_comments/supports_and_compactness.tex` | 0 | 1 | 0 | 2 | converts |
 | B.20 | Partitions of unity, paracompactness and second countability (\S\ref{subsection_Integral_Whole_Manifold}) | `proofs-and-additional-material/partitions-of-unity` | `Appendices/proofs_and_comments/partitions_of_unity.tex` | 0 | 0 | 0 | 1 | converts |
-| B.21 | Geometric Formulations of Newtonian Gravity (\S\ref{section_Newtonian_Spacetime}) | `proofs-and-additional-material/newtonian-formulations` | `Appendices/proofs_and_comments/newtonian_formulations.tex` | 4 | 0 | 0 | 5 | pending: \renewcommand: declared in texparse.CMDS but has no handler in render. |
+| B.21 | Geometric Formulations of Newtonian Gravity (\S\ref{section_Newtonian_Spacetime}) | `proofs-and-additional-material/newtonian-formulations` | `Appendices/proofs_and_comments/newtonian_formulations.tex` | 4 | 0 | 0 | 5 | converts |
 | B.22 | Torsion in Newton-Cartan Theory (\S\ref{section_Newtonian_Spacetime}) | `proofs-and-additional-material/torsion-newton` | `Appendices/proofs_and_comments/torsion_newton_cartan.tex` | 5 | 0 | 0 | 1 | converts |
 | C | Examples | `examples/index` | `main.tex` | 0 | 0 | 0 | 0 | converts |
 | C.1 | Example of Vector Spaces (\S\S\ref{section_Vectors_Duals_Tensors}--\ref{section_Basis_Components_Transformations}) | `examples/example-vector-space` | `Appendices/examples_and_exercises/example_vector_spaces.tex` | 4 | 3 | 0 | 0 | converts |
@@ -166,7 +166,7 @@ One web page per row. "Status" is what `build.py --status` says today.
 | C.5 | Examples of Connections, Torsion and Curvature (\S\S\ref{section_Connections_Affine_Manifolds}--\ref{section_Torsion_Curvature}) | `examples/example-connection-torsion-curvature` | `Appendices/examples_and_exercises/example_connections_torsion_curvature.tex` | 4 | 0 | 0 | 0 | converts |
 | C.6 | Example of Variations and Euler--Lagrange Equations (\S\ref{subsection_Variations_Euler_Lagrange}) | `examples/example-variations` | `Appendices/examples_and_exercises/example_variations_euler_lagrange.tex` | 5 | 4 | 0 | 0 | converts |
 | C.7 | Example of Integration (\S\S\ref{section_Volume_Forms_Orientation}--\ref{section_Metric_Volume_Form}) | `examples/example-integration` | `Appendices/examples_and_exercises/example_integration.tex` | 0 | 1 | 0 | 0 | converts |
-| C.8 | Example of Newton--Cartan Theory (\S\S\ref{section_Newtonian_Spacetime}--\ref{section_Gravity_Connection}) | `examples/example-newtonian` | `Appendices/examples_and_exercises/example_newton_cartan.tex` | 4 | 5 | 0 | 1 | pending: content before the first \item in itemize |
+| C.8 | Example of Newton--Cartan Theory (\S\S\ref{section_Newtonian_Spacetime}--\ref{section_Gravity_Connection}) | `examples/example-newtonian` | `Appendices/examples_and_exercises/example_newton_cartan.tex` | 4 | 5 | 0 | 1 | converts |
 | C.9 | Example: the Schwarzschild metric (\S\ref{subsection_EH_variation}) | `examples/example-schwarzschild` | `Appendices/examples_and_exercises/example_GR.tex` | 0 | 1 | 0 | 0 | converts |
 
 ## Figures
@@ -225,7 +225,7 @@ Macros defined inside chapter files (not in the preamble): `\EHG`, `\EHGs`, `\EH
 
 Runic letters used as mathematical symbols (always written `\textrm{\runic X}`): ᛊ ×286, ᛉ ×198, ᚱ ×99, ᛞ ×72, ᛖ ×61, ᛇ ×52, ᚹ ×45, ᛏ ×19.
 
-Text-mode commands the converter knows: 117; environments: 9 parsed, 8 raw, 14 math. Anything else stops the conversion of that page with file:line.
+Text-mode commands the converter knows: 121; environments: 9 parsed, 8 raw, 14 math. Anything else stops the conversion of that page with file:line.
 
 ## Hard to convert (and how each is handled)
 

@@ -1,0 +1,30 @@
+/* Hand-written (design prototype C, "Atlas"): light, sans-serif, the text on a white sheet;
+ * the chapters as a line of stops in the course bar, the contents tree in a drawer, and a wide
+ * context pane on the right that shows what the reader points at (footnote, proof, example). */
+html.dir-c {
+  --text-font: var(--ui);
+  --dg-bg: #ffffff; --shell-bg: #eef1f7; --bar-bg: #ffffff; --dg-surface: #f3f5fa; --dg-surface-2: #e8ecf5; --dg-rule: rgba(20, 40, 100, 0.15);
+  --dg-text: #1c2333; --dg-text-soft: #55607a; --dg-heading: #142864; --dg-accent: #2f55c4; --dg-accent-hover: #142864; --on-accent: #fff;
+  --ui-hover: rgba(20, 40, 100, 0.07); --ui-current: rgba(47, 85, 196, 0.10); --web-bg: #ffffff; --web-rule: rgba(47, 85, 196, 0.55);
+  --dg-color-blue-0: #142864;
+  --dg-color-blue-1: #3859bd;   --dg-color-green-1: #1d861d;  --dg-color-purple-1: #6c026c; --dg-color-orange-1: #a86a00;
+  --dg-color-red-1: #d60202;    --dg-color-yellow-1: #7c7c00; --dg-color-brown-1: #753b11;  --dg-color-teal-1: #007979;
+  --dg-color-rose-1: #ad1457;   --dg-color-olive-1: #5f6c10;  --dg-color-indigo-1: #3949ab;
+  --dg-tex-red: #d60202; --dg-tex-blue: #3859bd; --dg-tex-gray: #6b7280;
+}
+.dir-c body.reading main.content { font-size: 1.09rem; line-height: 1.7; background: #fff; border: 1px solid var(--dg-rule); border-radius: 14px; padding: 2.2rem 2.6rem 3.5rem; margin: 1.6rem 0 3rem; box-shadow: 0 1px 2px rgba(20, 40, 100, 0.05); }
+.dir-c .dg-paper { box-shadow: none; border: 1px solid var(--dg-rule); }
+.dir-c .cn-outline { display: none; }
+.dir-c .cb { box-shadow: 0 1px 0 var(--dg-rule); }
+/* the chapter line */
+.dir-c .cb-line { display: flex; list-style: none; margin: 0 0.8rem 0 0; padding: 0; align-items: center; }
+.dir-c .cb-line li { display: flex; align-items: center; }
+.dir-c .cb-line li + li::before { content: ""; width: 12px; height: 2px; background: var(--dg-rule); }
+.dir-c .cb-line a { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--dg-rule); font: 700 0.68rem var(--ui); color: var(--dg-text-soft); text-decoration: none; background: #fff; }
+.dir-c .cb-line a:hover { border-color: var(--dg-accent); color: var(--dg-accent); }
+.dir-c .cb-line .cur a { background: var(--dg-accent); border-color: var(--dg-accent); color: #fff; }
+@media (min-width: 1100px) {
+  .dir-c body.reading .shell { display: grid; grid-template-columns: minmax(0, 51rem) 24rem; column-gap: 1.6rem; justify-content: center; }
+  .dir-c .cx { display: block; padding: 1.6rem 0.2rem 3rem 0; }
+}
+@media (max-width: 1099.98px) { .dir-c .cb-line { display: none; } .dir-c body.reading main.content { border-radius: 0; border-width: 0; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; } }

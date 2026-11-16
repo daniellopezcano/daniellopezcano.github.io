@@ -1,0 +1,18 @@
+/* Hand-written (design prototypes): the few base rules the course pages used to get from Bootstrap. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 4.5rem; }
+body { margin: 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, video { max-width: 100%; height: auto; }
+h1, h2, h3, h4 { margin: 0 0 0.5rem; line-height: 1.2; }
+p { margin: 0 0 1rem; }
+ul, ol { margin: 0 0 1rem; padding-left: 2rem; }
+ul ul, ol ol, ul ol, ol ul { margin-bottom: 0; }
+a { text-underline-offset: 0.16em; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+table { border-collapse: collapse; }
+figure { margin: 0 0 1rem; }
+sup, sub { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; } sup { top: -0.5em; } sub { bottom: -0.25em; }
+hr { border: 0; border-top: 1px solid currentColor; opacity: 0.25; margin: 1rem 0; }
+:focus-visible { outline: 2px solid var(--dg-accent, #4f7fe6); outline-offset: 2px; border-radius: 2px; }
+.skip { position: absolute; left: -999px; top: 0; z-index: 100; background: #fff; color: #000; padding: 0.5rem 1rem; }
+.skip:focus { left: 0; }

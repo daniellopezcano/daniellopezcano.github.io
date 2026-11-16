@@ -1,0 +1,1244 @@
+{
+ "key": "ila",
+ "home": {
+  "error": null,
+  "loadMs": 1980,
+  "finalUrl": "https://textbooks.math.gatech.edu/ila/",
+  "title": "Front Matter"
+ },
+ "page": "https://textbooks.math.gatech.edu/ila/vectors.html",
+ "desktop": {
+  "error": null,
+  "loadMs": 2223,
+  "net": {
+   "requests": 21,
+   "totalBytes": 551691,
+   "by": {
+    "html": {
+     "n": 2,
+     "bytes": 28973
+    },
+    "images": {
+     "n": 1,
+     "bytes": 14790
+    },
+    "css": {
+     "n": 2,
+     "bytes": 21659
+    },
+    "js": {
+     "n": 2,
+     "bytes": 315413
+    },
+    "fonts": {
+     "n": 14,
+     "bytes": 170856
+    },
+    "big": [
+     "https://textbooks.math.gatech.edu/ila/demos/js/demo.js?vers=77646a 284631"
+    ]
+   },
+   "fontUrls": [
+    "data:application/font-woff;base64,d09GRk9UVE8AAAXIAAoAAAAACDwAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADrAAAAfQAAAH71XKLv0ZGVE0AAAWgAAAAGgAAAByHWDMbT1MvMgAAAVAAAABHAAAAYFmeZFdjbWFwAAADVAAAAEQAAAFKA60C5mhlYWQAAAD0AAAANAAAADYTOTDfaGhlYQAAASgAAAAfAAAAJAWqAodobXR4AAAFvAAAAAwAAAAMBpUAGW1heHAAAAFIAAAABgAAAAYAA1AAbmFtZQAAAZgAAAG7AAADPGu39OZwb3N0AAADmAAAABMAAAAg/2kAWnicY2BkYGBgYmAQ19d/Gc9v85WBm/kFUIThxtayjTD6/6//P5m2MM0HcjlAahkYAHWJDrF4nGNgZGBgmv//J0MUkPz1/zXTFgagCApgBgDMPwgzAAAAUAAAAwAAeJxjYGYKYNrDwMrAwNQFpBkYeiA04wMGQ0YmoCgDBzMDDDAyIIGANNcUIBXEUMas8N+CIYppPgM7TA3jMyBPAQgZAT1QC6kAeJyNUk1vEzEUHG/TCiSE6AVxQXrizEa72yA1vTUrBfXIJQdum66brLr1RrbTNkf+UE+IE/+Jv8DYsSiIImFrn8fvYzzPawAv8QCF/fiMbwkrHKsPCWcYqU8JH6BS3xMe4XX2NuFDvMoWCR/hRfaFmWr0nLuvsSpghXfqOOEMz9THhA/QqkXCI7xXPxI+hGSThI/wJluhxoANdrDosMIaHoISU86CqIGL1tBuaTe0S/TMdczVaOm/I4PFNdGSPIIZo55xT69m7Q19F6y9xJjonNU918fzXNxprprrbWQNmUGZwRXzWvoMMzuy9YyhHjY7263WXsrptJDGSWNkazbbZd+5tW7lbrDXstzJrPPOW93cyIW5HMt530usc2K10/ZWt2OpB3PVtdr4runJ/ZT8mkIb7n2UiEfWet1Yr4OLYnsKxWzoaedRu4+rZZ+aJBWVhzs9+8cd/XmI/KLcV5Q4RY4TfhVZwh/CfDB+PtiVlmpcyJn8JUuCGAbK0/wkr4py+j/dyW+9PEkILGKiI9UQX8a+s5yq9h1ioa3rBhN05SW1gQ8nnBdOuGfKflaYMGC11/cFRzXBT2XBmIMAeJxjYGBgZoBgGQZGBhBwAfIYwXwWBg0gzQakGRmYGIIYyv7/B/LB9P/1/3ug6oGAkY0BwaEaIMZEJqrbSi4AAHQQCZJ4nGNgZgCD/2kMUQxYAAAo8QHDAHicY2RgYWFgZGTkLShKLUmtMAACIxMGRiYGRgbDH9IMP2QYf8gy/ZBj/iHC8puRh/kpD0try0+Pn8asMgyP+WUYGARkGF4IyjBoyzBeEGJgAWnjYEhiqGDoNNIz0DXUM3DOL6gsykzPKFEwtLQ0UEgsVkjMUyjNKyhNyskszkhNUSjPL8pWSKpUcMosKS4pSk3MVfDMS9ZTcMzJUQDrK1YoSi1OLSpLTdFTcM7PS8tMSc0ryUzM0UNocM5ILCpJLVJwys9JwRBlAAJjhnAGZkZG5ZWPXnbv/eG6l3Hv3u8H9jLvFfuh8mPlHxW2vX/KRX+4fj/wx5Wdr3vP964j32cdYfz6Xex72HcF5lU/jUW7o461za7t/rOyujqgrTvq+7ru7j1+E6pnd38vndPN+qF7acIqndnRU+L2Jy+u2FC/rXtV99q+dRM4dtexe3Tnzio7VLG3+WDO9pLVmfOip31nXXDsaPdzju/M1sd/68tpBInuZHuzL9ZSPyJRQb6hu767roeD71v3/B+WOxlbf2xgbv1RLdode7z1u8kf96fd3x1+uB2d1L3zd1B3d+y+tsm1v9l+b1f+vmPajP0TWHey8/00FvmhJVo9+0fVzO/2s/f3s/3O72aX42Kepvqfh3MSD1cPD/cBru983N08fACgeM/3eJxjYGBgZACCq29dd4DoG1vLNsJoAFdaCCkAAAH0AAACnwAfAgH/+g==",
+    "data:application/font-woff;base64,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",
+    "data:application/font-woff;base64,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",
+    "data:application/font-woff;base64,d09GRk9UVE8AAAVcAAoAAAAAB7AAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADgAAAAakAAAHJZ1554EZGVE0AAAUsAAAAGgAAAByHWDMbT1MvMgAAAVAAAABFAAAAYFZeX4NjbWFwAAADIAAAAEsAAAFSAEQEOmhlYWQAAAD0AAAAMgAAADYTmjCHaGhlYQAAASgAAAAeAAAAJAYwAlpobXR4AAAFSAAAABQAAAAUCuwA4G1heHAAAAFIAAAABgAAAAYABVAAbmFtZQAAAZgAAAGIAAAC0Iz6RShwb3N0AAADbAAAABMAAAAg/4YANnicY2BkYGAA4s1Zey7G89t8ZeBmfgEUYbixtWwjnLb478J0g+kPkMvBwAQSBQCMWw4HAAB4nGNgZGBg+vPfhSGKWYABCJhuMDAyoAJWAGBDA5AAAAAAUAAABQAAeJxjYGayY5zAwMrAwNTFtIeBgaEHQjM+YDBkZAKKMrAyM8AAIwMSCEhzTQFSGgy2zAr/LRiimP4w7EFRowCEjAAjCAqOAAAAeJyNkc9Kw0AQxr9tqyL+uSkiHuZYwZRsFGx7bam9SIuIZ2Nc0kBISpqAR9/B99C74CN4FB/DB/Dil3VREBE3bOY3mZlvZrMANnEPhc/l48qxwgYeHDewgmfHTXTVieMW9tSj4yWsqTfHy1hvbDFTtVbpXdqqmhV2cee4wb5PjpuY48Vxi/q3jpewrV4dL2NHvaONCPsQBJzUxxFpihAVUksJozPrFzDWHvB7hQzX9AtyybihjdmxrkltjWFG/e4A7WhfAt8/kmlYpTJNollYFSasDqTKrk0h5cxIPE8lTSKTRYYVp2xUyw4psKBcTDEPA4wZCsvZ0CySOPMGdM+YEdthQw6DMxNXaUgYIWdNaW3BDGMP2OEBBX3u3zqI7SA/NAUTnEPT6q9qjS7nOeSuf5pGjw3zrBzlRWwk6PjSl+85ZTAWN5dMzrXoOqy73qEX+Lr3+2H/Mwr+agFc2OupBXMrqO3pcWGKRZJnojt05vZSS+4be/n1E+CYgcKU5sbnCo7xASLpeph4nGNgYGBmgGAZBkYGEPAB8hjBfBYGAyDNAYRMQFqTQZvB9v9/IEsDwvp/8/+N/8ehusCAkY0BmYsXMDKBbUUFLERqHsQAAKuIC3sAeJxjYGYAg//NDGYMWAAAKJgBvAB4nEWLT2sTURTF38tMZ9L0dfyDI4LP8oQsrNo4KQExXdZANiVBXAkuhjgkgSGUmGG6djuLSqlFEB1wUexs3Fgwi5GaLOZDFIr0E3TV+4YbwRdEPBwuh3PPjxJdJ5TS5e2hN/J2HKX1x4QWCCUVeZtKXpB3NHlLX2XaT6ZPsZ37+dsFTr5e4YRc5eT7NU4ecPrpOtHmTJVskRf3Oqti3XFqou0Gvmj3Oz03GHpu8FAEg1feUIx6nuhu+8Lvd7xBx6tsuaPeU+91vzsQm03xzOsGvjsUredVUXX+/9Y2m0RpkZQIIytkgdKyG0/OsBGlspHSNIWTVEtvyrI8mpWNdBbasgEns4ZpYXucX4zp9JcGd+GbHcHhKXAw4+LYxHqIBlYinCiDSlAP57UZbwBXw+I/GHYVvTun8XADOZph8aUJ9RgMqEQwUUaVsB7PazM8Ra6GResHHGQUzjMNzuHAxiSDBJIM1WlhgknryLQu4X4GTkansmDntex3zcAv+t9gSX4jf2K/2ZfBO2h+MFZK9P0jtrjHShFbOi4df2TsbCn7zJYjZv0B5um/lQAAAHicY2BgYGQAgqtvXXeA6BtbyzbCaABXWggpAAAB9AAAAYgAOAGIADgC2AA4AxAAOA==",
+    "data:application/font-woff;base64,d09GRk9UVE8AAAYAAAoAAAAACLAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADgAAAAkYAAAKvz7TN/EZGVE0AAAXIAAAAGgAAAByHWDMbT1MvMgAAAVAAAABHAAAAYGK/XOFjbWFwAAADKAAAAEEAAAFCCBAG8mhlYWQAAAD0AAAAMgAAADYTYiG7aGhlYQAAASgAAAAeAAAAJAM39hdobXR4AAAF5AAAABoAAAAaDa8BgW1heHAAAAFIAAAABgAAAAYAB1AAbmFtZQAAAZgAAAGOAAAC9DMiecVwb3N0AAADbAAAABMAAAAg/4YANnicY2BkYGAA4ryXdy7H89t8ZeBmfgEUYbixtWwjnLb4bMG0gMEGyOVgYAKJAgCPeg1RAAB4nGNgZGBgsPlswRDFdAPIYmBawAASQQZsAFVGA0YAAAAAUAAABwAAeJxjYGYKZpzAwMrAwNTFtIeBgaEHQjM+YDBkZAKKMrAyM8AAIwMSCEhzTQFSjgxuzAr/LRiiGGx4TiCpsWFQAEJGACJBClcAeJyVks1Kw0AUhU/SVhF/NoKIGy+uKtiSpC7aLty0lm6EUsG1MQ5pICQlTaALn0LfQ5/AR3Ap+C5uPDMOKlIQJ0zmu5lz/2YCYAePcPA5PNxYdrCNJ8su1vFiuYYz59JyHUfOm+UGNt1dy2vYcntUOvUNWtfGS7ODAzxYdpn32XINd3i1XMfQubfcwJ7zbnkN++4hmohwDEHASj2ckiYIUSE1lHB3ZuwCyqwn/F4hwy3tglxyX3GNMTc+qfFRVOh3G2hGxxJ43qlMwiqVSRLNwqpQYXUiVXarCilnSuJ5KmkSqSxS9LhgIh12yAALhosZrIUBxtwKy9lQLZI4aw1oTqmITbEhi8FUxVUaEkbI6VOataBCmQbbbFDQ51yVQUwG+RVTcI4ltbohrcyN0v+K5KPL2jqc+gB99Jg8z8pRXsRKgrYnffmuWQZjsTXK+bJU2SLJM/G1yO+2Oq3A83ur2/9vcfg7KXBlrvCnoz4hXKniU9KmMTcXr1MszQ+in4A9Y16oUi09jqCLD/GkhTAAAHicY2BgYGaAYBkGRgYQsAHyGMF8FgYFIM0ChCC+2///QNLx////B6AqGRjZGGBM8gEjEzMLKxulpgwYAACR1AcNAAAAeJxjYGYAg//NDGYMWAAAKJgBvAB4nE2QQUgUURzG33O2nWl33EraNugVQ23WYtms7MG7bshaKQVCrIfWcdhd2iZZd9j1Gp0aukhiEB2cLnlZQvQiDFjB6rV7uBBY4lGh/1vfKP2ni/75Dh8fv+978CgJhQiltHumatbMho43MEhoF6Gkn1+hnHXxqxK/HEqp0lc19J0dDHYym2cYWTvHCDnPyLcLjPSxrtc9RAo6afKEPLttpLQBXc9o4wW7oo2XjVLBrpoF+45mW9NmVauVTK04U9EqZcO0DLP/YaFWGjZny0VLGxrRHptFu1KoatlGzbRmyy8tLa2fEHeHRgjedXKDJMlN0ktuETl4OEkM8on8oX30Bf0iuh2PZz3qebDhSd4lnuTLfjLs+fU4z8KGn5VjTOgeC3326I9fEqT97bjDozuQh8SS4skiVxM9wnL8FArQQa4WxImlNOQRVE7qsIz95aDvR9MiLxK28lSGnAs9YDk8hRLoRM4N4oS9I/IIKrG/+JFbTH2zRSG0L8Fz1lmPO4cNGOMtcNeVLVm0p8Scv+ccL6IAHbSngthdF8ggenqDL+xLfOH/xnFDjPkt4U4qj2Ror8Ic33MOF1ECnWivBrE7CcggqsTeMsi0mDLfor93JXhw/DPudIZB52GorygtWTRLYsLvdY4MFKCDZimI6ysCGURPL/DRXYmPBhNHw0L3w6I+rYzL0GzCBO91OgZKoBPNZhDXpwEZRJUYv3+xQ+Ov3nF7AUY+hK9F6Pt76tl5NeKo0bXI2kdV3Y5uumq3o8b+AUhbMnoAAHicY2BgYGQAgqtvXXeA6BtbyzbCaABXWggpAAAB9AAAAbIARgGyADgC2ABwAtgAOAJvAFsAOAAA",
+    "data:application/font-woff;base64,d09GRk9UVE8AAATMAAoAAAAABuwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADdAAAAS8AAAEvsTMFbUZGVE0AAASkAAAAGgAAAByHWDMbT1MvMgAAAVAAAABMAAAAYFWSf7djbWFwAAADHAAAAD8AAAFKQ4DiFWhlYWQAAAD0AAAAMQAAADYTYTCIaGhlYQAAASgAAAAgAAAAJARoBCBobXR4AAAEwAAAAAwAAAAMBeQAZG1heHAAAAFIAAAABgAAAAYAA1AAbmFtZQAAAZwAAAF+AAACuH+tWu1wb3N0AAADXAAAABcAAAAg/5EANnicY2BkYGAA4sOVddzx/DZfGbiZXwBFGG5sLdsIpyUYHjIdYEwAcjkYmECiAFUfC+sAAAB4nGNgZGBgTGB4yBDFdIMBCJgOMKT8f8uADJgBdzAFjQAAUAAAAwAAeJxjYGb8wTiBgZWBgamLac//Zww9IJohmvEBgyEjE1CUgZWZAQaAfAYHGCcgzTUFSG1XEmJW+G/BEMWY8F8eyGeEq1YAQkYAMnYOE3icfZHPSsNAEMa/tbUi/jmKeJqjQls2SQ+tFw8t4kUoHno2xiUJhCSkCfQ9fAeP+gTiE3gUH8DnEPyyLgpS3bDZ32RmvpnJAtjHAxS+lsaNY4U9PDrewBZeHHcwUmeOuzhU9443saPeHPewqz4YqbrbtK5tVssKR7hzvMG6T447SPDquAutasebOFDPjnus9Y5jRDiBwGenGiPSHCEaZJZSehNrVzD27PN7gxy3tCtyTb/hGaO0OZnNMYxo30PgODoRX+uRzMMmk3kaJWFTmbDpS5PfmkrqxEhcZpKlkckjw4xLFmplZxRYUi6m2ABTXNAV1snMLNM4H0xpXjEits2GbAZXJm6ykHCOgjm1PStGGDvgkAMKTrnXVRBbQX5pCrzvLA9j9hFwtz/Lw4SFirw+L6rYiD/Ucio//cn0Qlw/4rUubzwIBr72JusH/K88/pIFFvYaWpHCinh2SixMtUyLXLwhjdJeXs29spfcPkEbVVamNivNFWh8ApQmdxsAAHicY2BgYGaAYBkGRgYQcAHyGMF8FgYNIM0GpBkZmBi2Kwn9/w/kg+n/3nffQ9UDASMbA4IzXAETfmkAm0MJtAB4nGNgZmBg4GZg+N/MYMaABQAAKcEBxwABAAQEAAEBAQ1wcmV0ZXgwMDAwMzAAAQIAAQAx+BsB+BwC+B0D+BgElgwCKQwDwQwEo/d1+VT39AUcAK4PHAAAEBwAsxEcACscAQQSAAMCAAEAMQBJAFYoYykgMjAwNCBQYXVsIFBpY2hhdXJlYXUsIHVuZGVyIHRoZSBncGwgbGljZW5jZS5NYXRoRGVzaWduIENIIFJlZ3VsYXIgMTBNYXRoRGVzaWduLUNIAAAAAKYAcgADAQEkM0v324u9+EW9Ab2998C9A70W+CT4qfwkBr38dxX4RffA/EUHDveWxwGj95YV+TzH/TwGDvb3X/e0Fa5vqGhobm5oaKhvrq6np64eDvlsFPdBFYKU+HWV90ibBh4KAZgvDAmSDAqLDAu1CrWdDAzeC8eiDA2LDA4AeJxjYGBgZACCq29dd4DoG1vLNsJoAFdaCCkAAAH0AAAC2AAYARgATA==",
+    "data:application/font-woff;base64,d09GRk9UVE8AAAUAAAoAAAAAB3gAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAADjAAAAUoAAAFQ8Viq8UZGVE0AAATYAAAAGgAAAByHWDMbT1MvMgAAAVAAAABJAAAAYFlrX4tjbWFwAAADLAAAAEQAAAFKAGcC12hlYWQAAAD0AAAAMgAAADYSgjCQaGhlYQAAASgAAAAgAAAAJAUrAaJobXR4AAAE9AAAAAoAAAAKBAwAOG1heHAAAAFIAAAABgAAAAYAA1AAbmFtZQAAAZwAAAGOAAADJAKu5K1wb3N0AAADcAAAABkAAAAg/5AAN3icY2BkYGAA4v3TFTbF89t8ZeBmfgEUYbixtWwjnJb578J4h5kVyOVgYAKJAgBqIAx2AAB4nGNgZGBgZv3vwhDF+IMBCBjvMKT8f8eADJgAfZgF0AAAUAAAAwAAeJxjYGb8wTiBgZWBgamLac//Fww9IJohmPEBgyEjE1CUgZWTAQYYGZBAQJprCpDSZ3BkVvhvwRDFzMqwB6EGyFMAQkYAB9UMpAAAAHicpZLLTsJAFIb/FtAYL0tjXJ0lKJC2sBC2EAILIzGGtWOZlCZNS0qb+BDufAsX+gQ+gkvfx7/jRKJxYeI00/nOnPtpARzhGQ4+l4c7yw4O8WLZxS7eLNcwcULLdZy5sNzAvjuyvIMDN6alU9+jdGu8KnZwikfLLvO+Wq7hAe+W67hxniw3cOyeW97BiXuFJkK0IAhYqYc+aQ6FEomhmNqVkXNoc7Z5XyLFknJOLqjXPCOsjU9ifDQtqncXaIYtCTyvL3NVJjKPw5Uqc63KtpTpUudSrLRE60SSONRpqOlxyURV2DEDbBguYrAORphSpYrVWG/iKO2MKF7TIjLFKhaDax2ViSJMkNGnMGdOC20a7LJBwZD7twxiMsiPmIIZLZVta+v5/db/iuzjgrX2uKuB+hiwmCwtJlkeaQm6ngxl24OMpmJrllmhOAGjtOhXxv5Fp9cJPH/w+1j+WzT+XgywMJ+8Sp2Z1L6ZKBY638RZKn6Xwtr8KAX3vfmhqieoprDOdaHvPa5ggA9OEo7YAAB4nGNgYGBmgGAZBkYGEHAB8hjBfBYGDSDNBqQZGZgY9Bkc//8H8sH0/0v/D0LVAwEjGwOCQxzAVM5EmgGDDQAAEE8JOnicY2BmYGDgYmD438xgBmQxMqABACm3AccAAAB4nGNkYGFhYGRk5C0oSi1JrTAAAiNLBkYmBkYGkx/SjD9kmH7IMv+QYOnhYZzKw6TJw3yQh2X574AfBT9nssowHOaXYWAQkGE4ISjDoCXDqCbEwAzSacgQzZChkaypYGRgYKIQkFiaoxCQmZyRWFqUmliqo1Cal5JapFCSkaqQXpCjkJOZnJqXnKrnm1iS4ZJanJmep+DsoRCUml6ak1ik4FmSCFSgAJKEMg0NECp1nT0YgECAQYmBmZFRySKie+8P172Me/d+P7KXea/YD40fK/9osO39Uy76w/X7kT+u7Hy/A8p+JZYz/gj5OUHUp/v33X8+p7pZ+X5yH2dc/pNb9PuLbu+U1QnfFT53z/qt8CU74XTK7xdA+R89It2iTVN+lPV/953OJsfFOEOfh3MSD1c3D/dWrq1zeXgecB9fwsPbzcMHAHl7dY0AAHicY2BgYGQAgqtvXXeA6BtbyzbCaABXWggpAAAB+AAAAfgAOAAcAAA=",
+    "https://textbooks.math.gatech.edu/ila/static/fonts/CharterBT-Roman.woff",
+    "https://textbooks.math.gatech.edu/ila/static/fonts/CharterBT-Bold.woff",
+    "https://textbooks.math.gatech.edu/ila/static/fonts/CharterBT-Italic.woff",
+    "https://textbooks.math.gatech.edu/ila/static/fonts/CharterBT-BoldItalic.woff",
+    "https://textbooks.math.gatech.edu/ila/static/fonts/ionicons.woff",
+    "https://textbooks.math.gatech.edu/ila/demos/css/fonts/KaTeX_Size3-Regular.woff2",
+    "https://textbooks.math.gatech.edu/ila/demos/css/fonts/KaTeX_Main-Regular.woff2"
+   ],
+   "loadMs": 2223,
+   "finalUrl": "https://textbooks.math.gatech.edu/ila/vectors.html"
+  },
+  "measure": {
+   "title": "Vectors",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 91,
+    "avgGlyphPx": 7.45,
+    "textLines": 4,
+    "sample": "A scalar multiple of a vector v has the same (or opposite) direction, but a diff",
+    "fontFamily": "CharterBT, \"PT Serif\", \"Times New Roman\", Times, serif",
+    "firstFamily": "CharterBT",
+    "resolvedFamilyNote": null,
+    "fontSize": "18px",
+    "lineHeight": "22.5px",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 675,
+    "pLeft": 383,
+    "lines": 6,
+    "chars": 320,
+    "charsPerLine": 58,
+    "containerTag": "DIV#content.mathbook-content"
+   },
+   "headings": {
+    "h1": {
+     "text": "Interactive Linear Algebra",
+     "family": "CharterBT",
+     "size": "31.5px",
+     "weight": "700",
+     "color": "rgb(255, 255, 255)",
+     "lineHeight": "45px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "body",
+     "id": "",
+     "cls": "mathbook-book has-toc has-sidebar-left",
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 6974,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "header",
+     "id": "masthead",
+     "cls": "smallbuttons CtldfGR3pIpi9V0RFUE2p",
+     "x": 351,
+     "y": 0,
+     "w": 739,
+     "h": 140,
+     "position": "relative",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "gt-navbar",
+     "cls": "navbar container",
+     "x": 351,
+     "y": 103,
+     "w": 739,
+     "h": 37,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "hidden"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "navbar-top-buttons toolbar",
+     "x": 351,
+     "y": 104,
+     "w": 739,
+     "h": 35,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "hidden"
+    },
+    {
+     "tag": "main",
+     "id": "",
+     "cls": "main",
+     "x": 351,
+     "y": 140,
+     "w": 739,
+     "h": 6835,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 383,
+     "y": 173,
+     "w": 675,
+     "h": 68,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "objectives-4",
+     "cls": "objectives",
+     "x": 383,
+     "y": 267,
+     "w": 675,
+     "h": 164,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 383,
+     "y": 453,
+     "w": 675,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-13",
+     "cls": "definition-like",
+     "x": 383,
+     "y": 612,
+     "w": 675,
+     "h": 563,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 1243,
+     "w": 402,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "bluebox-9",
+     "cls": "bluebox",
+     "x": 383,
+     "y": 1834,
+     "w": 675,
+     "h": 65,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "remark-like",
+     "x": 385,
+     "y": 2011,
+     "w": 96,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "vectors-diff-pts",
+     "cls": "remark-like",
+     "x": 383,
+     "y": 2051,
+     "w": 675,
+     "h": 283,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 383,
+     "y": 2390,
+     "w": 675,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-14",
+     "cls": "definition-like",
+     "x": 383,
+     "y": 2525,
+     "w": 675,
+     "h": 366,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 2913,
+     "w": 103,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-6",
+     "cls": "paragraphs",
+     "x": 383,
+     "y": 2953,
+     "w": 675,
+     "h": 554,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 3485,
+     "w": 509,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-7",
+     "cls": "paragraphs",
+     "x": 383,
+     "y": 3560,
+     "w": 675,
+     "h": 461,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 4000,
+     "w": 298,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-8",
+     "cls": "paragraphs",
+     "x": 383,
+     "y": 4075,
+     "w": 675,
+     "h": 491,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 4544,
+     "w": 321,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 383,
+     "y": 4622,
+     "w": 675,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-15",
+     "cls": "definition-like",
+     "x": 383,
+     "y": 4735,
+     "w": 675,
+     "h": 159,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 5006,
+     "w": 103,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 5546,
+     "w": 465,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "specialcase-16",
+     "cls": "example-like",
+     "x": 383,
+     "y": 5590,
+     "w": 675,
+     "h": 515,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "specialcase-17",
+     "cls": "example-like",
+     "x": 383,
+     "y": 6127,
+     "w": 675,
+     "h": 559,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 385,
+     "y": 6709,
+     "w": 536,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 0,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 1,
+    "figures": 1,
+    "figcaptions": 1,
+    "imgs": 1,
+    "canvases": 0,
+    "svgs": 78,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 1,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Prev",
+     "cls": "previous-button toolbar-item button",
+     "x": 851,
+     "y": 104,
+     "w": 83,
+     "h": 35
+    },
+    {
+     "text": "Next",
+     "cls": "next-button button toolbar-item",
+     "x": 1004,
+     "y": 104,
+     "w": 85,
+     "h": 35
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 612,
+     "y": 657,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 612,
+     "y": 944,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 608,
+     "y": 1592,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 574,
+     "y": 3172,
+     "w": 292,
+     "h": 295
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 608,
+     "y": 3757,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 475,
+     "y": 4189,
+     "w": 491,
+     "h": 337
+    },
+    {
+     "tag": "div",
+     "id": "mathbox-14",
+     "cls": "mathbox",
+     "x": 383,
+     "y": 5046,
+     "w": 675,
+     "h": 400
+    },
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "",
+     "x": 383,
+     "y": 5046,
+     "w": 675,
+     "h": 400
+    }
+   ],
+   "fontsLoaded": [
+    "CharterBT normal",
+    "CharterBT 700",
+    "CharterBT normal italic",
+    "CharterBT 700 italic",
+    "Ionicons 400",
+    "fJtPtCj7wnhzRKrCZ6yG_ normal",
+    "fsD4msEeasGHOqMGxqKju normal",
+    "f5aBQ42tg3uH0KiGwIZFq normal",
+    "fZSQiVR1xVXOZlvfEoiM9 normal",
+    "fuPjnzK4XIav2alGemGjd normal",
+    "fVNXC7nI_10ONvDKGt9mc normal",
+    "fGrJVmASLYvECZL6bmNKD normal"
+   ],
+   "scrollWidth": 1440,
+   "scrollHeight": 6974,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgb(84, 84, 84)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": ".mathbox",
+   "y": 5046
+  },
+  "fixedAfterScroll": [
+   {
+    "tag": "nav",
+    "cls": "navbar container",
+    "pos": "fixed",
+    "x": 351,
+    "y": 0,
+    "w": 739,
+    "h": 36
+   }
+  ]
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 3152,
+  "measure": {
+   "title": "Vectors",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 49,
+    "avgGlyphPx": 7.45,
+    "textLines": 8,
+    "sample": "A scalar multiple of a vector v has the same (or opposite) direction, but a diff",
+    "fontFamily": "CharterBT, \"PT Serif\", \"Times New Roman\", Times, serif",
+    "firstFamily": "CharterBT",
+    "resolvedFamilyNote": null,
+    "fontSize": "18px",
+    "lineHeight": "22.5px",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 368,
+    "pLeft": 10,
+    "lines": 11,
+    "chars": 320,
+    "charsPerLine": 30,
+    "containerTag": "ARTICLE#paragraphs-8.paragraphs"
+   },
+   "headings": {
+    "h1": {
+     "text": "Interactive Linear Algebra",
+     "family": "CharterBT",
+     "size": "23.625px",
+     "weight": "700",
+     "color": "rgb(255, 255, 255)",
+     "lineHeight": "33.75px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "body",
+     "id": "",
+     "cls": "mathbook-book has-toc has-sidebar-left",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 8002,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "header",
+     "id": "masthead",
+     "cls": "smallbuttons CtldfGR3pIpi9V0RFUE2p",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 161,
+     "position": "relative",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "gt-navbar",
+     "cls": "navbar container",
+     "x": 0,
+     "y": 799,
+     "w": 390,
+     "h": 45,
+     "position": "fixed",
+     "top": "798.812px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "navbar-bottom-buttons toolbar",
+     "x": 0,
+     "y": 799,
+     "w": 390,
+     "h": 44,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "main",
+     "id": "",
+     "cls": "main",
+     "x": 0,
+     "y": 161,
+     "w": 390,
+     "h": 7841,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 10,
+     "y": 192,
+     "w": 370,
+     "h": 68,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "objectives-4",
+     "cls": "objectives",
+     "x": 10,
+     "y": 286,
+     "w": 370,
+     "h": 254,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 10,
+     "y": 563,
+     "w": 370,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-13",
+     "cls": "definition-like",
+     "x": 10,
+     "y": 766,
+     "w": 370,
+     "h": 586,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 10,
+     "y": 1444,
+     "w": 266,
+     "h": 43,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "bluebox-9",
+     "cls": "bluebox",
+     "x": 10,
+     "y": 2124,
+     "w": 370,
+     "h": 87,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "remark-like",
+     "x": 12,
+     "y": 2368,
+     "w": 96,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "vectors-diff-pts",
+     "cls": "remark-like",
+     "x": 10,
+     "y": 2408,
+     "w": 370,
+     "h": 305,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 10,
+     "y": 2769,
+     "w": 370,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-14",
+     "cls": "definition-like",
+     "x": 10,
+     "y": 2927,
+     "w": 370,
+     "h": 455,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 12,
+     "y": 3404,
+     "w": 103,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-6",
+     "cls": "paragraphs",
+     "x": 10,
+     "y": 3444,
+     "w": 370,
+     "h": 664,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 10,
+     "y": 4065,
+     "w": 342,
+     "h": 43,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-7",
+     "cls": "paragraphs",
+     "x": 10,
+     "y": 4162,
+     "w": 370,
+     "h": 506,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 12,
+     "y": 4646,
+     "w": 298,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "paragraphs-8",
+     "cls": "paragraphs",
+     "x": 10,
+     "y": 4722,
+     "w": 370,
+     "h": 581,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 12,
+     "y": 5281,
+     "w": 321,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "",
+     "x": 10,
+     "y": 5358,
+     "w": 370,
+     "h": 67,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "definition-15",
+     "cls": "definition-like",
+     "x": 10,
+     "y": 5493,
+     "w": 370,
+     "h": 204,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 12,
+     "y": 5855,
+     "w": 103,
+     "h": 21,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 10,
+     "y": 6462,
+     "w": 369,
+     "h": 43,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "specialcase-16",
+     "cls": "example-like",
+     "x": 10,
+     "y": 6528,
+     "w": 370,
+     "h": 583,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "specialcase-17",
+     "cls": "example-like",
+     "x": 10,
+     "y": 7133,
+     "w": 370,
+     "h": 625,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "article",
+     "id": "",
+     "cls": "example-like",
+     "x": 10,
+     "y": 7780,
+     "w": 356,
+     "h": 43,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [
+    {
+     "tag": "nav",
+     "id": "gt-navbar",
+     "cls": "navbar container",
+     "position": "fixed",
+     "x": 0,
+     "y": 799,
+     "w": 390,
+     "h": 45
+    }
+   ],
+   "math": {
+    "mathjaxVersion": null,
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 0,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 0,
+    "imgMath": 0,
+    "scripts": []
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 1,
+    "figures": 1,
+    "figcaptions": 1,
+    "imgs": 1,
+    "canvases": 0,
+    "svgs": 78,
+    "iframes": 1,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 0,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 1,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Prev",
+     "cls": "previous-button toolbar-item button",
+     "x": 98,
+     "y": 799,
+     "w": 98,
+     "h": 44
+    },
+    {
+     "text": "Next",
+     "cls": "next-button button toolbar-item",
+     "x": 293,
+     "y": 799,
+     "w": 98,
+     "h": 44
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 87,
+     "y": 834,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 87,
+     "y": 1121,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 83,
+     "y": 1881,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 49,
+     "y": 3752,
+     "w": 292,
+     "h": 295
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 83,
+     "y": 4404,
+     "w": 224,
+     "h": 224
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "pretex",
+     "x": 10,
+     "y": 4926,
+     "w": 491,
+     "h": 337
+    },
+    {
+     "tag": "div",
+     "id": "mathbox-14",
+     "cls": "mathbox",
+     "x": 10,
+     "y": 5895,
+     "w": 370,
+     "h": 400
+    },
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "",
+     "x": 10,
+     "y": 5895,
+     "w": 370,
+     "h": 400
+    }
+   ],
+   "fontsLoaded": [
+    "CharterBT normal",
+    "CharterBT 700",
+    "CharterBT normal italic",
+    "CharterBT 700 italic",
+    "Ionicons 400",
+    "fJtPtCj7wnhzRKrCZ6yG_ normal",
+    "fsD4msEeasGHOqMGxqKju normal",
+    "f5aBQ42tg3uH0KiGwIZFq normal",
+    "fZSQiVR1xVXOZlvfEoiM9 normal",
+    "fuPjnzK4XIav2alGemGjd normal",
+    "fVNXC7nI_10ONvDKGt9mc normal",
+    "fGrJVmASLYvECZL6bmNKD normal"
+   ],
+   "scrollWidth": 501,
+   "scrollHeight": 8002,
+   "overflow": true,
+   "wideEls": [
+    {
+     "tag": "svg",
+     "cls": "",
+     "right": 501,
+     "w": 491,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 499,
+     "w": 489,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 499,
+     "w": 489,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 499,
+     "w": 489,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 499,
+     "w": 222,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 458,
+     "w": 141,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 458,
+     "w": 141,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 458,
+     "w": 141,
+     "clippedBy": "body.mathbook-book has-toc has-side hidden"
+    }
+   ],
+   "bodyBg": "rgb(84, 84, 84)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

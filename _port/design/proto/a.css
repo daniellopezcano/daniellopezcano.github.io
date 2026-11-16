@@ -1,0 +1,55 @@
+/* Hand-written (design prototype A, "Paper"): light paper surface, the notes' own typeface
+ * (New Computer Modern Book = the notes' Latin Modern, drawn slightly heavier for screens),
+ * the notes' own colours as printed, footnotes as sidenotes in the margin, course tree on the left
+ * with the page outline inside it. A dark theme is one click away (data-theme="dark"). */
+@font-face { font-family: "NewCM"; font-weight: 400; font-style: normal; font-display: swap; src: url("/design/fonts/newcm-book.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 400; font-style: italic; font-display: swap; src: url("/design/fonts/newcm-bookitalic.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 700; font-style: normal; font-display: swap; src: url("/design/fonts/newcm-bold.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 700; font-style: italic; font-display: swap; src: url("/design/fonts/newcm-bolditalic.woff2") format("woff2"); }
+html.dir-a {
+  --text-font: "NewCM", "Latin Modern Roman", "Computer Modern Serif", Georgia, "Times New Roman", serif;
+  --margin-w: 18.5rem;
+  --dg-bg: #fbfaf6; --dg-surface: #f4f2ea; --dg-surface-2: #ece9de; --dg-rule: rgba(20, 40, 100, 0.17);
+  --dg-text: #1a2030; --dg-text-soft: #4b556b; --dg-heading: #142864; --dg-accent: #3152b8; --dg-accent-hover: #142864; --on-accent: #fff;
+  --ui-hover: rgba(20, 40, 100, 0.07); --ui-current: rgba(49, 82, 184, 0.10); --web-bg: rgba(49, 82, 184, 0.035); --web-rule: rgba(49, 82, 184, 0.55);
+  /* the notes' colours as printed (color_<name>_1 in main.tex); four are darkened just enough to be legible on paper */
+  --dg-color-blue-0: #142864;
+  --dg-color-blue-1: #3859bd;   --dg-color-green-1: #1d861d;  --dg-color-purple-1: #6c026c; --dg-color-orange-1: #a86a00;
+  --dg-color-red-1: #d60202;    --dg-color-yellow-1: #7c7c00; --dg-color-brown-1: #753b11;  --dg-color-teal-1: #007979;
+  --dg-color-rose-1: #ad1457;   --dg-color-olive-1: #5f6c10;  --dg-color-indigo-1: #3949ab;
+  --dg-tex-red: #d60202; --dg-tex-blue: #3859bd; --dg-tex-gray: #6b7280;
+}
+html.dir-a[data-theme="dark"] {
+  --dg-bg: #0e1524; --dg-surface: #141d31; --dg-surface-2: #1a2640; --dg-rule: rgba(189, 201, 237, 0.2);
+  --dg-text: #e4e9f5; --dg-text-soft: #aebbd6; --dg-heading: #cbd9ff; --dg-accent: #8eadff; --dg-accent-hover: #c3d3ff; --on-accent: #0e1524;
+  --ui-hover: rgba(189, 201, 237, 0.09); --ui-current: rgba(142, 173, 255, 0.14); --web-bg: rgba(142, 173, 255, 0.05); --web-rule: rgba(142, 173, 255, 0.5);
+  --dg-color-blue-0: #cbd9ff;
+  --dg-color-blue-1: #86a8ff;   --dg-color-green-1: #58cf58;  --dg-color-purple-1: #d98ad9; --dg-color-orange-1: #f2a933;
+  --dg-color-red-1: #ff6b6b;    --dg-color-yellow-1: #dcdc4a; --dg-color-brown-1: #cf9a6c;  --dg-color-teal-1: #3cc6c6;
+  --dg-color-rose-1: #f2709f;   --dg-color-olive-1: #b7c94a;  --dg-color-indigo-1: #9ba8f5;
+  --dg-tex-red: #ff6b6b; --dg-tex-blue: #86a8ff; --dg-tex-gray: #9aa7c2;
+}
+.dir-a body.reading main.content { font-size: 1.17rem; line-height: 1.58; }
+.dir-a main.content p { margin-bottom: 0.7rem; hanging-punctuation: first; }
+.dir-a main.content a { color: var(--dg-accent); text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, var(--dg-accent) 45%, transparent); }
+.dir-a .dg-kicker { font-size: 1.05rem; letter-spacing: 0.05em; }
+.dir-a h1.dg-title { font-weight: 700; letter-spacing: -0.005em; }
+.dir-a .dg-head-chapter h1.dg-title { font-size: 2.7rem; border-bottom: 2px solid var(--dg-heading); }
+.dir-a .dg-head-section h1.dg-title { font-size: 2.05rem; border-bottom: 1px solid var(--dg-rule); }
+.dir-a main.content h2 { font-size: 1.5rem; margin-top: 2.6rem; }
+.dir-a main.content h3 { font-size: 1.22rem; }
+.dir-a .dg-paper { box-shadow: none; border: 1px solid var(--dg-rule); border-radius: 4px; }
+.dir-a figcaption { font-size: 0.9em; line-height: 1.45; color: var(--dg-text-soft); }
+.dir-a .dg-fignum { color: var(--dg-heading); font-weight: 700; }
+.dir-a .dg-fnref a { font-family: var(--ui); font-weight: 700; text-decoration: none; padding: 0 0.12em; }
+.dir-a .cn { border-right: 1px solid var(--dg-rule); }
+.dir-a .cx { display: none; }
+@media (min-width: 1000px) {
+  .dir-a body.reading .shell { grid-template-columns: minmax(0, 45em) var(--margin-w); justify-content: center; font-size: 1.17rem; }
+  .dir-a body.reading main.content { font-size: 1em; }
+}
+@media (min-width: 1360px) {
+  .dir-a body.reading .shell { grid-template-columns: 16.5rem minmax(0, 45em) var(--margin-w); column-gap: 2.6rem; justify-content: start; }
+}
+@media (min-width: 1700px) { .dir-a body.reading .shell { justify-content: center; } }
+.dir-a .dg-prevnext a { font-family: var(--ui); }

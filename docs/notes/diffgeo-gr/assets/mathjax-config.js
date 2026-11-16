@@ -12,6 +12,7 @@
  *   - \coloneq: mathtools 1.29 (the notes' TeX Live 2023) prints := like \coloneqq;
  *     MathJax 3's mathtools still prints the legacy :-.
  * Typesetting waits for the runic font, so the glyph widths MathJax measures are the real ones.
+ * Before typesetting, the TeX of every display equation is kept in data-tex (for "Copy LaTeX").
  * _port/tools/math_check.mjs evaluates this file in Node and typesets every equation of
  * the pages with this tex block, so keep it a plain script that only assigns window.MathJax.
  */
@@ -45,10 +46,25 @@ window.MathJax = {
   },
   options: {
     skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-    renderActions: { addMenu: [] }
+    renderActions: (function () {
+      // A link inside a formula (\hyperlink to a footnote) sits in MathJax's visual output, which is
+      // aria-hidden (screen readers read the assistive MathML copy instead). A focusable element inside
+      // aria-hidden is announced as nothing (axe: aria-hidden-focus), so it is taken out of the Tab order;
+      // the pointer still follows it, and the footnote is in the list / the margin of the page.
+      function untab(math) {
+        var root = math.typesetRoot;
+        if (root && root.querySelectorAll) root.querySelectorAll('[aria-hidden="true"] a[href]').forEach(function (a) { a.setAttribute('tabindex', '-1'); });
+      }
+      return { addMenu: [], untabHiddenLinks: [210, function (doc) { Array.from(doc.math).forEach(untab); }, untab] };
+    })()
   },
   startup: {
     pageReady: function () {
+      // "Copy LaTeX" (course.js, D39): a display equation's text is the notes' source until it is
+      // typeset; keep it (the converter already wrote data-tex where its source was rewritten)
+      document.querySelectorAll('.math.display:not([data-tex])').forEach(function (el) {
+        el.setAttribute('data-tex', el.textContent);
+      });
       var font = document.fonts && document.fonts.load
         ? document.fonts.load('16px "Noto Sans Runic"', 'ᛊ').catch(function () {})
         : Promise.resolve();

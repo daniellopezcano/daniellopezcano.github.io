@@ -1,6 +1,6 @@
 /* Hand-written (not generated): style of the interactive figures of the course pages (web layer, D14/D15).
- * The frame (.dg-interactive, emitted by the converter after the figure it accompanies) is styled for the
- * dark page: accent border, "Interactive" badge, controls on the dark surface. The drawing areas are
+ * The frame (.dg-interactive, emitted by the converter after the figure it accompanies) takes its colours
+ * from the tokens of course.css (both themes): accent border, "Interactive" badge, controls on the surface. The drawing areas are
  * white, like the paper cards of the static figures, so that colours read the same as in the figures.
  * A frame is shown only once its module mounted (course.js adds .dg-ready): if JavaScript fails,
  * only the static figure is there. The hidden frame is collapsed rather than display:none, because
@@ -11,13 +11,8 @@
   height: 0; min-height: 0; margin: 0; padding: 0; border: 0; overflow: hidden; visibility: hidden;
 }
 
-/* the frame is a <div> (an <aside> would be moved to the margin column by Quarto); keep it in the body column */
-main.content .dg-interactive, .page-columns .dg-interactive {
-  grid-column: body-content-start / body-content-end !important;
-  float: none; width: auto; max-width: none;
-  font-size: 0.93rem;
-}
 .dg-interactive {
+  font-size: 0.93rem;
   margin: 0.4rem 0 1.8rem;
   padding: 0.55rem 0.8rem 0.8rem;
   border: 1px solid var(--dg-accent);
@@ -39,9 +34,13 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 .dg-ctl { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2rem; }
 .dg-ctl-label { color: var(--dg-text); white-space: nowrap; }
 .dg-value { font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; color: var(--dg-text); }
-.dg-slider { flex: 1 1 14rem; }
+/* one rule for every slider of every panel (B33): the track starts at 7rem and a row's sliders share its spare width
+ * equally (equal growth on equal bases, so the tracks of one row stay equal whatever their labels); a slider alone on a
+ * row stops at 26rem; values keep a fixed width so nothing moves while dragging */
+.dg-slider { flex: 1 1 auto; max-width: 26rem; }
 .dg-slider label { display: inline-flex; align-items: center; }
-.dg-slider input[type="range"] { flex: 1 1 auto; min-width: 8rem; accent-color: var(--dg-accent); height: 1.6rem; cursor: pointer; }
+.dg-slider input[type="range"] { flex: 1 1 auto; width: 7rem; min-width: 6rem; accent-color: var(--dg-accent); height: 1.6rem; cursor: pointer; }
+.dg-slider .dg-value { min-width: 3.1em; }
 
 .dg-btn {
   font: inherit; font-size: 0.86rem; line-height: 1.2; color: var(--dg-text); background: var(--dg-surface-2);
@@ -58,7 +57,8 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 .dg-seg label { padding: 0.25rem 0.75rem; min-height: 2rem; display: inline-flex; align-items: center; cursor: pointer; color: var(--dg-text-soft); background: transparent; }
 .dg-seg label + input + label, .dg-seg input + label ~ label { border-left: 1px solid var(--dg-rule); }
 .dg-seg input:checked + label { background: var(--dg-accent); color: var(--dg-bg); }
-.dg-seg input:focus-visible + label { outline: 2px solid #fff; outline-offset: -3px; }
+.dg-seg input:focus-visible + label { outline: 2px solid var(--dg-accent); outline-offset: -3px; }
+.dg-seg input:checked:focus-visible + label { outline-color: var(--dg-bg); }   /* on the accent fill */
 
 .dg-toggle input { width: 1.05rem; height: 1.05rem; accent-color: var(--dg-accent); cursor: pointer; margin: 0; }
 .dg-toggle label { cursor: pointer; }
@@ -77,7 +77,10 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 /* ---- drawing areas (white, like the figures' paper cards) ---- */
 .dg-paperbox { background: var(--dg-paper); border-radius: 6px; color: #222; }
 .dg-plot { position: relative; display: flex; justify-content: center; overflow: hidden; }
-.dg-plot-svg { display: block; overflow: visible; touch-action: none; }
+/* touch (D56): a swipe over a drawing scrolls the page; only what is dragged takes the gesture (the effective
+   touch action is the intersection with the ancestors', so a touch that starts on a handle drags it). Chromium
+   ignores touch-action on SVG shapes, so dg.js also cancels the touchstart of draggable handles. */
+.dg-plot-svg { display: block; overflow: visible; touch-action: pan-y pinch-zoom; }
 .dg-plot-labels { position: absolute; top: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
 .dg-plot-label { position: absolute; white-space: nowrap; color: #222; font-size: 0.95rem; line-height: 1; }
 .dg-axis-label { font-size: 0.9rem; }
@@ -86,10 +89,10 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 .dg-frame { fill: none; stroke: #444; stroke-width: 1; }
 .dg-ticklabel { fill: #333; font-size: 11px; font-family: system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 .dg-svgtext { font-size: 13px; }
-.dg-handle { cursor: grab; }
+.dg-handle, .dg-handle-hit { cursor: grab; touch-action: none; }
 .dg-handle:focus { outline: none; }
 .dg-handle:focus-visible { stroke: var(--dg-accent) !important; stroke-width: 3px !important; }
-.dg-target { cursor: default; }
+.dg-target { cursor: default; touch-action: auto; }
 .dg-arrow.dg-removable { cursor: pointer; }
 .dg-arrow.dg-removable:hover .dg-shaft, .dg-arrow.dg-removable:focus-visible .dg-shaft { stroke: #EE6677; }
 .dg-arrow.dg-removable:hover .dg-head, .dg-arrow.dg-removable:focus-visible .dg-head { fill: #EE6677; }
@@ -97,7 +100,7 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 .dg-arrow.dg-inert { pointer-events: none; }
 
 .dg-scene { position: relative; overflow: hidden; }
-.dg-canvas { display: block; touch-action: none; cursor: grab; }
+.dg-canvas { display: block; touch-action: pan-y pinch-zoom; cursor: grab; }   /* on touch, horizontal drags rotate (dg.js) */
 .dg-canvas.dg-grabbing { cursor: grabbing; }
 
 .dg-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.15rem 1rem; font-size: 0.85rem; color: var(--dg-text-soft); margin-top: 0.3rem; }
@@ -113,4 +116,174 @@ main.content .dg-interactive, .page-columns .dg-interactive {
 @media (max-width: 767.98px) {
   .dg-interactive { padding: 0.5rem 0.55rem 0.7rem; }
   .dg-controls { gap: 0.45rem 0.9rem; }
+}
+
+/* ---- footer of the panel (D55): Reset, the static figure, the notebook ---- */
+.dg-interactive-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem;
+  margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-rule);
+  font-size: 0.86rem;
+}
+.dg-interactive-foot a { color: var(--dg-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.dg-interactive-foot a:hover { text-decoration-thickness: 2px; }
+.dg-ia-static::before { content: "\2191\00a0"; text-decoration: none; display: inline-block; }
+.dg-ia-notebook { margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem; }
+.dg-ia-notebook .dg-i { width: 1em; height: 1em; }
+
+/* ---- tangent space (tpm, B23): the 3D view centred above the two chart panels; numeric matrices ---- */
+.dg-tpm { display: flex; flex-direction: column; gap: 0.7rem; }
+.dg-tpm-scene { width: 100%; max-width: 640px; margin: 0 auto; }
+.dg-eqrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.3rem; }
+.dg-law { text-align: center; overflow-x: auto; }
+.dg-mat {
+  display: inline-grid; gap: 0.1rem 0.8rem; padding: 0.15rem 0.45rem; font-variant-numeric: tabular-nums; text-align: right;
+  border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 6px;
+}
+
+/* ---- transformation laws (laws, B24, end of §2.3): the two bases side by side, then each law of §2.3 next to the
+   same relation in numbers (one column on narrow panels) ---- */
+.dg-laws { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-laws .dg-legend { margin-top: 0; }
+.dg-laws-comp { flex-direction: column; gap: 0.15rem; margin-top: 0.35rem; padding-left: 0.2rem; }
+.dg-laws-level { font-size: 12px; font-family: system-ui, sans-serif; }
+.dg-laws-eqs {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.35rem 1rem;
+  padding-top: 0.5rem; border-top: 1px solid var(--dg-rule);
+}
+.dg-laws-eqs .dg-eqrow { justify-content: flex-start; margin-top: 0; }
+.dg-laws-tex { overflow-x: auto; overflow-y: hidden; }
+.dg-laws-pair { font-variant-numeric: tabular-nums; }
+@media (max-width: 767.98px) {
+  .dg-laws-eqs { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  .dg-laws-eqs .dg-eqrow { justify-content: center; flex-wrap: nowrap; gap: 0.3rem; margin-bottom: 0.45rem; font-size: 0.85rem; }
+  .dg-laws-eqs .dg-mat { gap: 0.1rem 0.5rem; padding: 0.1rem 0.3rem; }
+}
+
+/* ---- parallel transport (transport, B25, end of Appendix C.5): the chart X with the loop, next to the numbers ---- */
+.dg-transport [hidden] { display: none !important; }
+.dg-transport .dg-two { grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); align-items: center; }
+.dg-tr-out { display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.92rem; }
+.dg-tr-row { justify-content: flex-start; margin-top: 0; gap: 0.35rem 0.5rem; }
+.dg-tr-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-tr-val { font-variant-numeric: tabular-nums; }
+/* a disabled slider: only the track fades (its label and value keep the contrast of text, D56) */
+.dg-slider.dg-disabled input { opacity: 0.4; cursor: default; }
+/* transport: κ only means something for ∇ᵏ; for the other connections its slider is not shown, its place kept (B33) */
+.dg-slider.dg-tr-off { visibility: hidden; }
+.dg-tr-pair { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; }
+
+/* ---- charts and transition maps (charts, B26, after Figure 3.1): the 3D view centred above the two chart panels, the
+   transition maps between them (Figure 3.1's arrow), the label of p under each chart; stacked, with vertical arrows, on phones ---- */
+.dg-charts [hidden] { display: none !important; }
+.dg-charts { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-charts-scene { width: 100%; max-width: 560px; margin: 0 auto; }
+.dg-ch-plabel { font-size: 0.9rem; }
+.dg-ch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.5rem 0.6rem; }
+.dg-ch-end { display: flex; justify-content: center; margin-top: 0.3rem; min-height: 1.6em; }
+.dg-ch-end .dg-readout-value { min-width: 0; }
+.dg-ch-arrows { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; font-size: 1.05rem; transition: opacity 0.15s; }
+.dg-ch-arrows.dg-ch-off { opacity: 0.3; }
+.dg-ch-arrows .dg-ch-arr { color: var(--dg-color-green-1); }   /* on the surface, both themes: >= 4.2:1 (B33) */
+.dg-ch-v { display: none; }
+@media (max-width: 767.98px) {
+  .dg-ch-row { grid-template-columns: minmax(0, 1fr); }
+  .dg-ch-h { display: none; }
+  .dg-ch-v { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+}
+
+/* ---- Newton–Cartan (rotating, after Figure C.15; pointmass, after Figure C.17; B27): two drawings side by side, the numbers
+   of each under it (stacked on phones) ---- */
+.dg-nc [hidden] { display: none !important; }
+.dg-nc .dg-two { align-items: start; }
+.dg-nc .dg-legend { margin: 0 0 0.7rem; }   /* clear of the chart titles under it (B33) */
+.dg-nc-out { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; font-size: 0.86rem; }
+.dg-nc-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.7rem; }
+.dg-nc-pair { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; }
+.dg-nc-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-nc-val { font-variant-numeric: tabular-nums; }
+.dg-nc-term { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.dg-nc-cap, .dg-nc-tick, .dg-nc-title { font-size: 0.78rem; color: #333; }
+.dg-nc-cap { color: var(--dg-text-soft); }
+.dg-nc-faint { color: #555; font-size: 0.85rem; }
+.dg-nc-tide { display: grid; grid-template-columns: auto repeat(3, auto); align-items: center; justify-items: center; justify-content: start; gap: 0.25rem 0.8rem; }
+.dg-nc-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; }
+
+/* ---- general relativity (lightcones, after Figure 10.1; schwarzschild, after Figure C.19; B28): the drawing at the left,
+   the numbers at the right (under it on phones) ---- */
+.dg-gr .dg-two { align-items: start; }
+.dg-gr .dg-legend { margin-top: 0.3rem; }
+.dg-gr-out { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.86rem; }
+.dg-gr-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.7rem; }
+.dg-gr-pair { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; }
+.dg-gr-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-gr-val { font-variant-numeric: tabular-nums; }
+.dg-gr-small { font-size: 0.82rem; }
+.dg-gr-status { font-weight: 700; color: var(--dg-heading); }
+/* on a chapter opening page (D38) a panel is as wide as the notes' text, like the figure it follows */
+body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
+.dg-gr-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- vector fields acting on a scalar field (fields, after Figure C.8, B29): the chart (U, X) coloured by f or by the
+   action, with its colour bar and legend, at the left; the notes' formulas with the numbers at p at the right (under it on phones) ---- */
+.dg-fd [hidden] { display: none !important; }
+.dg-fd .dg-two { align-items: start; }
+.dg-fd .dg-legend { margin-top: 0.2rem; }
+.dg-fd-out { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.86rem; }
+.dg-fd-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.6rem; }
+.dg-fd-pair { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.35rem; max-width: 100%; }
+.dg-fd-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-fd-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dg-fd-cbar { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.35rem; font-size: 0.8rem; color: var(--dg-text-soft); }
+.dg-fd-ramp { width: 9rem; height: 0.6rem; border-radius: 2px; }
+.dg-fd-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- cotangent space (cotangent, after Figure 4.3, B30): the two charts side by side (stacked on phones), each with its count of
+   the lines of (df)_p crossed; under them the legend, the readouts and the notes' formulas of §4.2.1 next to the numbers ---- */
+.dg-cot { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-cot .dg-two { align-items: start; }
+.dg-cot .dg-legend { margin-top: 0; }
+.dg-cot-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.1rem 1rem; margin-top: 0.3rem; font-size: 0.86rem; }
+.dg-cot-val { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.dg-cot-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-cot-readouts { justify-content: center; }
+.dg-cot-law { font-size: 0.9rem; }
+.dg-cot-law .dg-eqrow { gap: 0.3rem 0.9rem; }
+.dg-cot-num { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.35rem; }
+.dg-cot-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- integration with a partition of unity (integration, after Figure 8.1, B31): the circle of C.7 coloured by ᚹ₁, ᚹ₂ at the
+   left, the numbers at the right; under them the two chart images, each with its term (stacked on phones) ---- */
+.dg-ig { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-ig .dg-two { align-items: start; }
+.dg-ig [hidden] { display: none !important; }
+.dg-ig-top { align-items: center !important; }
+.dg-ig-out { display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.9rem; }
+.dg-ig-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.9rem; }
+.dg-ig-term { margin-top: 0.3rem; font-size: 0.9rem; }
+.dg-ig-pair { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.35rem; max-width: 100%; }
+.dg-ig-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-ig-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dg-ig-small { font-size: 0.82rem; }
+.dg-ig-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- Figure 10.3 step by step (ehsteps, after Figure 10.3, B32, D58): the figure's own SVG inlined, its viewBox on one panel,
+   a veil in the paper's colour with a hole over that panel; the stage keeps the proportions of the tallest step ---- */
+.dg-ehs { display: flex; flex-direction: column; gap: 0.55rem; }
+.dg-ehs-bar { justify-content: space-between; gap: 0.5rem 1rem; }
+.dg-ehs-step { gap: 0.5rem; }
+.dg-ehs-pos { min-width: 7.2em; text-align: center; white-space: nowrap; }
+.dg-ehs .dg-btn[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.dg-ehs .dg-btn[aria-pressed="true"] { background: var(--dg-accent); color: var(--dg-bg); border-color: var(--dg-accent); }
+/* the stage is as high as the svg, which keeps the proportions of the tallest step (--dg-ehs-ar) up to 80vh; the svg is at
+ * least --dg-ehs-minw wide (a panel's text at 8 px, B33), so on a phone the stage is taller (up to 80vh) and scrolls sideways */
+.dg-ehs-stage { width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; touch-action: pan-x pan-y pinch-zoom; }
+.dg-ehs-svg { display: block; width: max(100%, var(--dg-ehs-minw, 0px)); max-width: none; height: auto; aspect-ratio: var(--dg-ehs-ar); max-height: 72vh;
+  touch-action: pan-x pan-y pinch-zoom; }
+@media (max-width: 599.98px) { .dg-ehs-svg { max-height: 80vh; } }
+.dg-ehs-svg:focus { outline: none; }
+.dg-ehs-svg:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: -2px; }
+.dg-ehs-veil { fill: var(--dg-paper); fill-opacity: 0.74; pointer-events: none; }
+@media (max-width: 479.98px) {
+  .dg-ehs-step { flex: 1 1 100%; justify-content: space-between; }
+  .dg-ehs-pos { min-width: 0; }
 }

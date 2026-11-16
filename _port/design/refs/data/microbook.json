@@ -1,0 +1,1587 @@
+{
+ "key": "microbook",
+ "home": {
+  "error": null,
+  "loadMs": 605,
+  "finalUrl": "https://darciogm.github.io/micro-book/",
+  "title": "Index - Darcio Genicolo-Martins"
+ },
+ "page": "https://darciogm.github.io/micro-book/cap01/maximizacao/",
+ "desktop": {
+  "error": null,
+  "loadMs": 1364,
+  "net": {
+   "requests": 38,
+   "totalBytes": 6897962,
+   "by": {
+    "html": {
+     "n": 3,
+     "bytes": 29845
+    },
+    "css": {
+     "n": 6,
+     "bytes": 36628
+    },
+    "js": {
+     "n": 9,
+     "bytes": 687456
+    },
+    "images": {
+     "n": 6,
+     "bytes": 0
+    },
+    "fonts": {
+     "n": 11,
+     "bytes": 418193
+    },
+    "big": [
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js 205584",
+     "https://darciogm.github.io/search/search_index.json 5678794",
+     "https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js 204389",
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js 203549"
+    ],
+    "other": {
+     "n": 3,
+     "bytes": 5725840
+    },
+    "otherBig": [
+     "https://darciogm.github.io/search/search_index.json 5678794",
+     "https://webr.r-wasm.org/main/webr-worker.js 41069"
+    ]
+   },
+   "fontUrls": [
+    "https://darciogm.github.io/assets/fonts/cmunti.woff2",
+    "https://darciogm.github.io/assets/fonts/cmunbx.woff2",
+    "https://darciogm.github.io/assets/fonts/cmunrm.woff2",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Math-Italic.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Main-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Main-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Math-Italic.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_Size1-Regular.woff",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2/MathJax_AMS-Regular.woff"
+   ],
+   "loadMs": 1364,
+   "finalUrl": "https://darciogm.github.io/micro-book/cap01/maximizacao/"
+  },
+  "measure": {
+   "title": "1.7 Maximização de Lucro - Darcio Genicolo-Martins",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 123,
+    "avgGlyphPx": 7.61,
+    "textLines": 5,
+    "sample": "Chega de filosofia — vamos ver um modelo em ação. A demonstração a seguir é o \"H",
+    "fontFamily": "\"CMU Serif\", \"Computer Modern\", Georgia, serif",
+    "firstFamily": "CMU Serif",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "25.6px",
+    "color": "rgba(0, 0, 0, 0.87)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 938,
+    "pLeft": 376,
+    "lines": 5,
+    "chars": 515,
+    "charsPerLine": 114,
+    "containerTag": "ARTICLE.md-content__inner.md-typeset"
+   },
+   "headings": {
+    "h1": {
+     "text": "1.7 Maximização de Lucro ao Vivo¶",
+     "family": "CMU Serif",
+     "size": "32px",
+     "weight": "300",
+     "color": "rgba(0, 0, 0, 0.54)",
+     "lineHeight": "41.6px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "1.7 A Firma Para Quando a Pizza Empata: Maximização de Lucro",
+     "family": "CMU Serif",
+     "size": "25px",
+     "weight": "300",
+     "color": "rgba(0, 0, 0, 0.87)",
+     "lineHeight": "35px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "md-header",
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 48,
+     "position": "sticky",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-header__inner md-grid",
+     "x": 110,
+     "y": 0,
+     "w": 1220,
+     "h": 48,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-tabs",
+     "x": 0,
+     "y": 48,
+     "w": 1440,
+     "h": 48,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "main",
+     "id": "",
+     "cls": "md-main",
+     "x": 0,
+     "y": 96,
+     "w": 1440,
+     "h": 5426,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar md-sidebar--primary",
+     "x": 110,
+     "y": 126,
+     "w": 242,
+     "h": 48,
+     "position": "sticky",
+     "top": "48px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar__scrollwrap",
+     "x": 114,
+     "y": 150,
+     "w": 234,
+     "h": 726,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "auto"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar__inner",
+     "x": 114,
+     "y": 150,
+     "w": 234,
+     "h": 943,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav md-nav--primary md-nav--lifted md-nav--integrated",
+     "x": 114,
+     "y": 150,
+     "w": 230,
+     "h": 943,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 114,
+     "y": 168,
+     "w": 230,
+     "h": 925,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 249,
+     "w": 218,
+     "h": 413,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 294,
+     "w": 206,
+     "h": 323,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav md-nav--secondary",
+     "x": 150,
+     "y": 474,
+     "w": 194,
+     "h": 73,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 654,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 681,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 727,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 772,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 817,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 880,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 925,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 970,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 708,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 753,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 735,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 799,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 844,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 889,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 762,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 807,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 852,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 789,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 834,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 879,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 925,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 816,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 879,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 925,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 843,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 888,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 138,
+     "y": 933,
+     "w": 206,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 126,
+     "y": 870,
+     "w": 218,
+     "h": 8,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [
+    {
+     "tag": "a",
+     "id": "",
+     "cls": "md-skip",
+     "position": "fixed",
+     "x": 10,
+     "y": 18,
+     "w": 107,
+     "h": 28
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "md-header",
+     "position": "sticky",
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 48
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar md-sidebar--primary",
+     "position": "sticky",
+     "x": 110,
+     "y": 126,
+     "w": 242,
+     "h": 48
+    },
+    {
+     "tag": "button",
+     "id": "",
+     "cls": "md-top md-icon",
+     "position": "fixed",
+     "x": 652,
+     "y": 68,
+     "w": 137,
+     "h": 40
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "3.2.2",
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 47,
+    "mjxDisplay": 15,
+    "mjx2": 47,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 47,
+    "imgMath": 0,
+    "scripts": [
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/input/tex/extensions/boldsymbol.js",
+     "https://darciogm.github.io/javascripts/mathjax.js",
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ]
+   },
+   "displayEq": {
+    "tag": "mjx-container",
+    "cls": "MathJax CtxtMenu_Attached_0",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "auto",
+    "x": 409,
+    "y": 570,
+    "w": 872,
+    "h": 12,
+    "html": "<mjx-container class=\"MathJax CtxtMenu_Attached_0\" jax=\"CHTML\" display=\"true\" tabindex=\"0\" ctxtmenu_counter=\"1\" style=\"font-size: 97.2%; position: relative;\"><mjx-math display=\"true\" class=\"MJX-TEX\" aria-hidden=\"true\" style=\"margin-left: 0px; margin-right: 0px;\"><mjx-mi class=\"mjx-i\"><mjx-c class=\"m"
+   },
+   "eqNumbers": {
+    "mjxLabels": 15,
+    "eqno": 0,
+    "eqText": [
+     "",
+     "",
+     ""
+    ]
+   },
+   "eqNumberPos": {
+    "left": 740,
+    "right": 950,
+    "text": "",
+    "float": "none",
+    "align": "center"
+   },
+   "features": {
+    "footnoteRefs": 1,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 1,
+    "details": 1,
+    "proofs": 1,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 0,
+    "canvases": 0,
+    "svgs": 18,
+    "iframes": 2,
+    "ranges": 0,
+    "buttons": 2,
+    "inputs": 50,
+    "searchInputs": 3,
+    "themeToggle": 4,
+    "breadcrumbs": 0,
+    "progress": 1,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 1,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Previous 1.5–1.6 Teoria do Valor e Fronteiras",
+     "cls": "md-footer__link md-footer__link--prev",
+     "x": 114,
+     "y": 5546,
+     "w": 389,
+     "h": 58
+    },
+    {
+     "text": "Next Exercícios e ANPEC",
+     "cls": "md-footer__link md-footer__link--next",
+     "x": 1065,
+     "y": 5546,
+     "w": 261,
+     "h": 58
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "graph-iframe",
+     "x": 376,
+     "y": 1959,
+     "w": 938,
+     "h": 450
+    },
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "graph-iframe",
+     "x": 376,
+     "y": 2500,
+     "w": 938,
+     "h": 685
+    }
+   ],
+   "fontsLoaded": [
+    "CMU Serif 400",
+    "CMU Serif 700",
+    "CMU Serif 400 italic",
+    "MJXZERO normal",
+    "MJXTEX normal",
+    "MJXTEX-I normal",
+    "MJXTEX-S1 normal",
+    "MJXTEX-A normal"
+   ],
+   "scrollWidth": 1440,
+   "scrollHeight": 5680,
+   "overflow": false,
+   "wideEls": [
+    {
+     "tag": "div",
+     "cls": "md-search-result",
+     "right": 1780,
+     "w": 688,
+     "clippedBy": "div.md-search__scrollwrap auto"
+    },
+    {
+     "tag": "div",
+     "cls": "md-search-result__meta",
+     "right": 1780,
+     "w": 688,
+     "clippedBy": "div.md-search__scrollwrap auto"
+    }
+   ],
+   "bodyBg": "rgb(255, 255, 255)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": "mjx-container[display=true]",
+   "y": 570
+  },
+  "fixedAfterScroll": [
+   {
+    "tag": "a",
+    "cls": "md-skip",
+    "pos": "fixed",
+    "x": 10,
+    "y": 18,
+    "w": 107,
+    "h": 28
+   },
+   {
+    "tag": "header",
+    "cls": "md-header md-header--shadow",
+    "pos": "sticky",
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 48
+   },
+   {
+    "tag": "div",
+    "cls": "md-sidebar md-sidebar--primary",
+    "pos": "sticky",
+    "x": 110,
+    "y": 48,
+    "w": 242,
+    "h": 48
+   },
+   {
+    "tag": "button",
+    "cls": "md-top md-icon",
+    "pos": "fixed",
+    "x": 652,
+    "y": 68,
+    "w": 137,
+    "h": 40
+   }
+  ]
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 1312,
+  "measure": {
+   "title": "1.7 Maximização de Lucro - Darcio Genicolo-Martins",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 47,
+    "avgGlyphPx": 7.61,
+    "textLines": 12,
+    "sample": "Chega de filosofia — vamos ver um modelo em ação. A demonstração a seguir é o \"H",
+    "fontFamily": "\"CMU Serif\", \"Computer Modern\", Georgia, serif",
+    "firstFamily": "CMU Serif",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "25.6px",
+    "color": "rgba(0, 0, 0, 0.87)",
+    "background": "rgb(255, 255, 255)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 358,
+    "pLeft": 16,
+    "lines": 12,
+    "chars": 515,
+    "charsPerLine": 45,
+    "containerTag": "ARTICLE.md-content__inner.md-typeset"
+   },
+   "headings": {
+    "h1": {
+     "text": "1.7 Maximização de Lucro ao Vivo¶",
+     "family": "CMU Serif",
+     "size": "32px",
+     "weight": "300",
+     "color": "rgba(0, 0, 0, 0.54)",
+     "lineHeight": "41.6px",
+     "transform": "none"
+    },
+    "h2": {
+     "text": "1.7 A Firma Para Quando a Pizza Empata: Maximização de Lucro",
+     "family": "CMU Serif",
+     "size": "25px",
+     "weight": "300",
+     "color": "rgba(0, 0, 0, 0.87)",
+     "lineHeight": "35px",
+     "transform": "none"
+    }
+   },
+   "blocks": [
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "md-header md-header--shadow",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 48,
+     "position": "sticky",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-header__inner md-grid",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 48,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "main",
+     "id": "",
+     "cls": "md-main",
+     "x": 0,
+     "y": 48,
+     "w": 390,
+     "h": 8433,
+     "position": "static",
+     "top": "auto",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar md-sidebar--primary",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "fixed",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar__scrollwrap",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "hidden"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav md-nav--primary md-nav--lifted md-nav--integrated",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav md-nav--secondary",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 0,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    },
+    {
+     "tag": "nav",
+     "id": "",
+     "cls": "md-nav",
+     "x": 242,
+     "y": 0,
+     "w": 242,
+     "h": 844,
+     "position": "absolute",
+     "top": "0px",
+     "overflowY": "visible"
+    }
+   ],
+   "fixedSticky": [
+    {
+     "tag": "a",
+     "id": "",
+     "cls": "md-skip",
+     "position": "fixed",
+     "x": 10,
+     "y": 18,
+     "w": 107,
+     "h": 28
+    },
+    {
+     "tag": "header",
+     "id": "",
+     "cls": "md-header md-header--shadow",
+     "position": "sticky",
+     "x": 0,
+     "y": 0,
+     "w": 390,
+     "h": 48
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "md-sidebar md-sidebar--primary",
+     "position": "fixed",
+     "x": -242,
+     "y": 0,
+     "w": 242,
+     "h": 844
+    },
+    {
+     "tag": "button",
+     "id": "",
+     "cls": "md-top md-icon",
+     "position": "fixed",
+     "x": 127,
+     "y": 68,
+     "w": 137,
+     "h": 40
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "3.2.2",
+    "mathjaxV2": false,
+    "katexVersion": null,
+    "mjxContainers": 47,
+    "mjxDisplay": 15,
+    "mjx2": 47,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 47,
+    "imgMath": 0,
+    "scripts": [
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/input/tex/extensions/boldsymbol.js",
+     "https://darciogm.github.io/javascripts/mathjax.js",
+     "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ]
+   },
+   "displayEq": {
+    "tag": "mjx-container",
+    "cls": "MathJax CtxtMenu_Attached_0",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "auto",
+    "x": 142,
+    "y": 895,
+    "w": 107,
+    "h": 12,
+    "html": "<mjx-container class=\"MathJax CtxtMenu_Attached_0\" jax=\"CHTML\" display=\"true\" tabindex=\"0\" ctxtmenu_counter=\"1\" style=\"font-size: 97.2%; position: relative;\"><mjx-math display=\"true\" class=\"MJX-TEX\" aria-hidden=\"true\" style=\"margin-left: 0px; margin-right: 0px;\"><mjx-mi class=\"mjx-i\"><mjx-c class=\"m"
+   },
+   "eqNumbers": {
+    "mjxLabels": 15,
+    "eqno": 0,
+    "eqText": [
+     "",
+     "",
+     ""
+    ]
+   },
+   "eqNumberPos": {
+    "left": 110,
+    "right": 321,
+    "text": "",
+    "float": "none",
+    "align": "center"
+   },
+   "features": {
+    "footnoteRefs": 1,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 1,
+    "details": 1,
+    "proofs": 1,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 0,
+    "canvases": 0,
+    "svgs": 18,
+    "iframes": 2,
+    "ranges": 0,
+    "buttons": 2,
+    "inputs": 50,
+    "searchInputs": 3,
+    "themeToggle": 4,
+    "breadcrumbs": 0,
+    "progress": 1,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 1,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Previous 1.5–1.6 Teoria do Valor e Fronteiras",
+     "cls": "md-footer__link md-footer__link--prev",
+     "x": 4,
+     "y": 8505,
+     "w": 49,
+     "h": 58
+    },
+    {
+     "text": "Next Exercícios e ANPEC",
+     "cls": "md-footer__link md-footer__link--next",
+     "x": 130,
+     "y": 8505,
+     "w": 256,
+     "h": 58
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "graph-iframe",
+     "x": 16,
+     "y": 2447,
+     "w": 358,
+     "h": 389
+    },
+    {
+     "tag": "iframe",
+     "id": "",
+     "cls": "graph-iframe",
+     "x": 16,
+     "y": 3004,
+     "w": 358,
+     "h": 704
+    }
+   ],
+   "fontsLoaded": [
+    "CMU Serif 400",
+    "CMU Serif 700",
+    "CMU Serif 400 italic",
+    "MJXZERO normal",
+    "MJXTEX normal",
+    "MJXTEX-I normal",
+    "MJXTEX-S1 normal",
+    "MJXTEX-A normal"
+   ],
+   "scrollWidth": 390,
+   "scrollHeight": 8667,
+   "overflow": false,
+   "wideEls": [
+    {
+     "tag": "nav",
+     "cls": "md-nav",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "label",
+     "cls": "md-nav__title",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "ul",
+     "cls": "md-nav__list",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "li",
+     "cls": "md-nav__item",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "a",
+     "cls": "md-nav__link",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "li",
+     "cls": "md-nav__item",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "a",
+     "cls": "md-nav__link",
+     "right": 484,
+     "w": 242,
+     "clippedBy": "ul.md-nav__list auto"
+    },
+    {
+     "tag": "span",
+     "cls": "md-ellipsis",
+     "right": 393,
+     "w": 135,
+     "clippedBy": "ul.md-nav__list auto"
+    }
+   ],
+   "bodyBg": "rgb(255, 255, 255)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

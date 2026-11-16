@@ -36,3 +36,6 @@ Thumbs.db
 /_port/.work/
 /_port/.env/
 /_port/node_modules/
+
+# Design study: generated prototype pages (rebuilt by _port/design/preview.sh)
+/_port/design/site/

@@ -1,0 +1,591 @@
+{
+ "microbook": {
+  "col": {
+   "left": 376,
+   "right": 1314
+  },
+  "marginText": [],
+  "footnoteRef": {
+   "tag": "a",
+   "cls": "footnote-ref",
+   "href": "https://darciogm.github.io/micro-book/cap01/maximizacao/#fn:sunk-cost-knight",
+   "title": null,
+   "text": "1",
+   "dataAttrs": "class,href"
+  },
+  "footnoteList": {
+   "tag": "div",
+   "cls": "footnote",
+   "y": 5430,
+   "docH": 5680,
+   "text": "Em economia comportamental, a tendência a considerar custos irrecuperáveis nas d"
+  },
+  "details": [
+   {
+    "tag": "div",
+    "cls": "admonition theorem",
+    "summary": "Teorema: Condição de Primeira Ordem para Maximizaç"
+   },
+   {
+    "tag": "div",
+    "cls": "admonition proof",
+    "summary": "Demonstração"
+   },
+   {
+    "tag": "details",
+    "cls": "exercicio-resolvido",
+    "open": false,
+    "summary": "Exercício Resolvido 1.3 — Maximização de lucro e a"
+   },
+   {
+    "tag": "div",
+    "cls": "admonition box-brasil",
+    "summary": "Box Brasil — O Plano Real (1994): modelos econômic"
+   },
+   {
+    "tag": "div",
+    "cls": "admonition box-brasil",
+    "summary": "Box Brasil — COPOM e os modelos de projeção da inf"
+   }
+  ],
+  "knowls": 0,
+  "figs": [],
+  "citeSample": [
+   {
+    "text": "1.7 A Firma Para Qua",
+    "cls": "md-nav__link",
+    "title": null,
+    "href": "https://darciogm.github.io/micro-book/cap01/maximizacao/#107"
+   }
+  ],
+  "tippy": 0,
+  "buttonsText": [
+   "Switch to dark mode",
+   "Clear",
+   "Back to top"
+  ],
+  "colorScheme": "default",
+  "eqOverflow": [
+   {
+    "ov": "visible",
+    "pov": "auto",
+    "pcls": "arithmatex"
+   },
+   {
+    "ov": "visible",
+    "pov": "auto",
+    "pcls": "arithmatex"
+   }
+  ]
+ },
+ "distill": {
+  "col": {
+   "left": 396,
+   "right": 1044
+  },
+  "marginText": [
+   {
+    "tag": "figcaption",
+    "cls": "",
+    "left": 1070,
+    "w": 120,
+    "y": 9488,
+    "fs": "13px",
+    "ff": "-apple-system",
+    "text": "When an eigenspace has converged to three significant digits, the bar "
+   }
+  ],
+  "footnoteRef": {
+   "tag": "dt-fn",
+   "cls": "",
+   "href": null,
+   "title": null,
+   "text": "1",
+   "dataAttrs": ""
+  },
+  "details": [],
+  "knowls": 0,
+  "figs": [
+   {
+    "tag": "figure",
+    "cls": "",
+    "w": 984,
+    "left": 228,
+    "caption": "We often think of Momentum as a means of dampening oscillations and speeding up ",
+    "capFs": "13px",
+    "capAlign": "start",
+    "inLink": false
+   },
+   {
+    "tag": "figure",
+    "cls": "",
+    "w": 750,
+    "left": 345,
+    "caption": "deleteQueue.push(renderLoading(d3.select(\"#change_of_variables\")))\n  renderQueue",
+    "capFs": "20px",
+    "capAlign": "start",
+    "inLink": false
+   },
+   {
+    "tag": "figure",
+    "cls": "",
+    "w": 920,
+    "left": 260,
+    "caption": "Optimization can be seen as combination of several component problems, shown her",
+    "capFs": "13px",
+    "capAlign": "left",
+    "inLink": false
+   },
+   {
+    "tag": "figure",
+    "cls": "",
+    "w": 940,
+    "left": 250,
+    "caption": "",
+    "capFs": "20px",
+    "capAlign": "start",
+    "inLink": false
+   }
+  ],
+  "citeSample": [],
+  "tippy": 0,
+  "buttonsText": [],
+  "colorScheme": null,
+  "eqOverflow": [
+   {
+    "ov": "visible",
+    "pov": "visible",
+    "pcls": ""
+   },
+   {
+    "ov": "visible",
+    "pov": "visible",
+    "pcls": ""
+   }
+  ]
+ },
+ "quantecon": {
+  "col": {
+   "left": 270,
+   "right": 1170
+  },
+  "marginText": [
+   {
+    "tag": "div",
+    "cls": "qe-page__toc",
+    "left": 1224,
+    "w": 200,
+    "y": 0,
+    "fs": "18px",
+    "ff": "\"Source Sans Pro\"",
+    "text": "On this page\n                        \n\n\n                        \n     "
+   },
+   {
+    "tag": "div",
+    "cls": "inner sticky",
+    "left": 1224,
+    "w": 200,
+    "y": 126,
+    "fs": "18px",
+    "ff": "\"Source Sans Pro\"",
+    "text": "On this page\n                        \n\n\n                        \n     "
+   }
+  ],
+  "footnoteRef": {
+   "tag": "a",
+   "cls": "footnote-reference brackets",
+   "href": "#fn-mdt",
+   "title": null,
+   "text": "[1]",
+   "dataAttrs": "class,href,id,role"
+  },
+  "footnoteList": {
+   "tag": "hr",
+   "cls": "footnotes docutils",
+   "y": 29124,
+   "docH": 29581,
+   "text": ""
+  },
+  "details": [
+   {
+    "tag": "div",
+    "cls": "admonition note",
+    "summary": "Note"
+   },
+   {
+    "tag": "div",
+    "cls": "exercise admonition",
+    "summary": "Exercise 2.1"
+   },
+   {
+    "tag": "div",
+    "cls": "admonition note",
+    "summary": "Note"
+   },
+   {
+    "tag": "div",
+    "cls": "solution dropdown admonition toggle toggle-hidden",
+    "summary": "Solution"
+   }
+  ],
+  "knowls": 0,
+  "figs": [
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 546,
+    "left": 447,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": false
+   },
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 546,
+    "left": 447,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": false
+   },
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 399,
+    "left": 521,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": false
+   },
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 794,
+    "left": 323,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": false
+   }
+  ],
+  "citeSample": [
+   {
+    "text": "2.1. Overview",
+    "cls": "reference internal nav-link",
+    "title": null,
+    "href": "#overview"
+   },
+   {
+    "text": "2.2. Vectors",
+    "cls": "reference internal nav-link",
+    "title": null,
+    "href": "#vectors"
+   },
+   {
+    "text": "2.2.1. Vector operat",
+    "cls": "reference internal nav-link",
+    "title": null,
+    "href": "#vector-operations"
+   }
+  ],
+  "tippy": 9,
+  "buttonsText": [
+   "Last changed: Sep 12, 2026 ▼",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard",
+   "Copy to clipboard"
+  ],
+  "colorScheme": "light",
+  "eqOverflow": [
+   {
+    "ov": "hidden",
+    "pov": "visible",
+    "pcls": ""
+   },
+   {
+    "ov": "auto",
+    "pov": "hidden",
+    "pcls": "math notranslate nohighlight"
+   }
+  ]
+ },
+ "immersive": {
+  "col": {
+   "left": 0,
+   "right": 0
+  },
+  "marginText": [],
+  "details": [],
+  "knowls": 0,
+  "figs": [
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 384,
+    "left": 528,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": false
+   }
+  ],
+  "citeSample": [
+   {
+    "text": "2.1 Points and Vecto",
+    "cls": "",
+    "title": null,
+    "href": "#auto_label_33"
+   },
+   {
+    "text": "2.2 Vector Addition",
+    "cls": "",
+    "title": null,
+    "href": "#sec_vec_addition"
+   },
+   {
+    "text": "2.3 Scalar Vector Mu",
+    "cls": "",
+    "title": null,
+    "href": "#sec_vec_scalar_mult"
+   }
+  ],
+  "tippy": 0,
+  "buttonsText": [
+   "Restart",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward",
+   "Reset",
+   "Forward",
+   "Backward"
+  ],
+  "colorScheme": null,
+  "eqOverflow": []
+ },
+ "d2l": {
+  "col": {
+   "left": 300,
+   "right": 1150
+  },
+  "marginText": [
+   {
+    "tag": "div",
+    "cls": "side-doc-outline",
+    "left": 1210,
+    "w": 230,
+    "y": 128,
+    "fs": "16px",
+    "ff": "Roboto",
+    "text": "Table Of Contents\n    \n    \n Linear Regression\n1. Basics\n1.1. Model\n1."
+   },
+   {
+    "tag": "div",
+    "cls": "side-doc-outline--content",
+    "left": 1210,
+    "w": 230,
+    "y": 128,
+    "fs": "16px",
+    "ff": "Roboto",
+    "text": "Table Of Contents\n    \n    \n Linear Regression\n1. Basics\n1.1. Model\n1."
+   },
+   {
+    "tag": "div",
+    "cls": "localtoc",
+    "left": 1210,
+    "w": 230,
+    "y": 128,
+    "fs": "12px",
+    "ff": "Roboto",
+    "text": "Table Of Contents\n    \n    \n Linear Regression\n1. Basics\n1.1. Model\n1."
+   }
+  ],
+  "details": [
+   {
+    "tag": "ul",
+    "cls": "collapse",
+    "summary": "2.1. Data Manipulation\n2.2. Data Preprocessing\n2.3"
+   },
+   {
+    "tag": "ul",
+    "cls": "current collapse show",
+    "summary": "3.1. Linear Regression\n3.2. Object-Oriented Design"
+   },
+   {
+    "tag": "ul",
+    "cls": "collapse",
+    "summary": "4.1. Softmax Regression\n4.2. The Image Classificat"
+   },
+   {
+    "tag": "ul",
+    "cls": "collapse",
+    "summary": "5.1. Multilayer Perceptrons\n5.2. Implementation of"
+   },
+   {
+    "tag": "ul",
+    "cls": "collapse",
+    "summary": "6.1. Layers and Modules\n6.2. Parameter Management\n"
+   },
+   {
+    "tag": "ul",
+    "cls": "collapse",
+    "summary": "7.1. From Fully Connected Layers to Convolutions\n7"
+   }
+  ],
+  "knowls": 0,
+  "figs": [
+   {
+    "tag": "img",
+    "cls": "logo",
+    "w": 239,
+    "left": 0,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": true
+   },
+   {
+    "tag": "img",
+    "cls": "logo",
+    "w": 239,
+    "left": -10,
+    "caption": null,
+    "capFs": null,
+    "capAlign": null,
+    "inLink": true
+   },
+   {
+    "tag": "div",
+    "cls": "figure align-default",
+    "w": 850,
+    "left": 300,
+    "caption": "Fig. 3.1.1 Fitting a linear regression model to one-dimensional data.¶",
+    "capFs": "16px",
+    "capAlign": "center",
+    "inLink": false
+   },
+   {
+    "tag": "img",
+    "cls": "",
+    "w": 255,
+    "left": 598,
+    "caption": "Fig. 3.1.1 Fitting a linear regression model to one-dimensional data.¶",
+    "capFs": "16px",
+    "capAlign": "center",
+    "inLink": false
+   }
+  ],
+  "citeSample": [
+   {
+    "text": "3.1. Linear Regressi",
+    "cls": "current reference internal mdl-color-text--primary",
+    "title": null,
+    "href": "#"
+   },
+   {
+    "text": "3.1. Linear Regressi",
+    "cls": "current reference internal mdl-color-text--primary",
+    "title": null,
+    "href": "#"
+   },
+   {
+    "text": "(3.1.1)",
+    "cls": "reference internal",
+    "title": null,
+    "href": "#equation-eq-price-area"
+   }
+  ],
+  "tippy": 0,
+  "buttonsText": [
+   "",
+   "Colab [pytorch]",
+   "SageMaker Studio Lab"
+  ],
+  "colorScheme": null,
+  "eqOverflow": [
+   {
+    "ov": "visible",
+    "pov": "auto",
+    "pcls": "section"
+   },
+   {
+    "ov": "visible",
+    "pov": "visible",
+    "pcls": "math notranslate nohighlight"
+   }
+  ]
+ },
+ "ila": {
+  "col": {
+   "left": 383,
+   "right": 1057
+  },
+  "marginText": [],
+  "details": [
+   {
+    "tag": "div",
+    "cls": "dropdown",
+    "summary": "Front Matter\n\nColophon\nContributors to this textbo"
+   }
+  ],
+  "knowls": 0,
+  "figs": [
+   {
+    "tag": "figure",
+    "cls": "figure-like",
+    "w": 675,
+    "left": 383,
+    "caption": "Figure17Linear combinations of two vectors in R\n2\n:\n move the sliders to change ",
+    "capFs": "18px",
+    "capAlign": "start",
+    "inLink": false
+   }
+  ],
+  "citeSample": [],
+  "tippy": 0,
+  "buttonsText": [],
+  "colorScheme": null,
+  "eqOverflow": []
+ }
+}

@@ -1,0 +1,423 @@
+{
+ "key": "seeing",
+ "home": {
+  "error": null,
+  "loadMs": 4867,
+  "finalUrl": "https://seeing-theory.brown.edu/",
+  "title": "Seeing Theory"
+ },
+ "page": "https://seeing-theory.brown.edu/basic-probability/index.html",
+ "desktop": {
+  "error": null,
+  "loadMs": 2834,
+  "net": {
+   "requests": 67,
+   "totalBytes": 1387878,
+   "by": {
+    "html": {
+     "n": 1,
+     "bytes": 20371
+    },
+    "css": {
+     "n": 6,
+     "bytes": 42629
+    },
+    "js": {
+     "n": 14,
+     "bytes": 703021
+    },
+    "images": {
+     "n": 38,
+     "bytes": 449912
+    },
+    "big": [
+     "https://seeing-theory.brown.edu/js/d3.min.js 151388",
+     "https://www.googletagmanager.com/gtag/js?id=G-JG50D394WP&cx=c&_slc=1 168356"
+    ],
+    "other": {
+     "n": 2,
+     "bytes": 491
+    },
+    "fonts": {
+     "n": 6,
+     "bytes": 171454
+    }
+   },
+   "fontUrls": [
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff?V=2.7.1",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0",
+    "https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2",
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff?V=2.7.1",
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff?V=2.7.1",
+    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff?V=2.7.1"
+   ],
+   "loadMs": 2834,
+   "finalUrl": "https://seeing-theory.brown.edu/basic-probability/index.html"
+  },
+  "measure": {
+   "title": "Seeing Theory - Basic Probability",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 66,
+    "avgGlyphPx": 7.47,
+    "textLines": 6,
+    "sample": "For an unfair or weighted coin, the two outcomes are not equally likely. You can",
+    "fontFamily": "Assistant, sans-serif",
+    "firstFamily": "Assistant",
+    "resolvedFamilyNote": null,
+    "fontSize": "18px",
+    "lineHeight": "25.2px",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgb(214, 239, 250)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 490,
+    "pLeft": 213,
+    "lines": 6,
+    "chars": 343,
+    "charsPerLine": 62,
+    "containerTag": "DIV#section1"
+   },
+   "headings": {
+    "h1": {
+     "text": "Basic Probability",
+     "family": "Assistant",
+     "size": "30px",
+     "weight": "600",
+     "color": "rgb(0, 0, 0)",
+     "lineHeight": "normal",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "Chance Events",
+     "family": "Assistant",
+     "size": "32px",
+     "weight": "400",
+     "color": "rgb(0, 0, 0)",
+     "lineHeight": "normal",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "header",
+     "position": "fixed",
+     "x": 0,
+     "y": 0,
+     "w": 576,
+     "h": 128
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "2.7.1",
+    "mathjaxV2": true,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 4,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 2,
+    "imgMath": 0,
+    "scripts": [
+     "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
+    ]
+   },
+   "displayEq": {
+    "tag": "div",
+    "cls": "MathJax_Display",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 213,
+    "y": 2215,
+    "w": 490,
+    "h": 45,
+    "html": "<div class=\"MathJax_Display\" style=\"text-align: center;\"><span class=\"MathJax\" id=\"MathJax-Element-1-Frame\" tabindex=\"0\" data-mathml=\"&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mtext&gt;E&lt;/mtext&gt;&lt;mo stretchy=&quot;false&quot;&gt;[&lt;/mo&g"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 22,
+    "canvases": 0,
+    "svgs": 4,
+    "iframes": 0,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 12,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 2,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Next Compound Probability →",
+     "cls": "",
+     "x": 0,
+     "y": 4152,
+     "w": 576,
+     "h": 221
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 213,
+     "y": 2587,
+     "w": 490,
+     "h": 200
+    },
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "interactive-wrapper",
+     "x": 213,
+     "y": 3590,
+     "w": 490,
+     "h": 277
+    }
+   ],
+   "fontsLoaded": [
+    "Assistant 300",
+    "Assistant 400",
+    "Assistant 600",
+    "Assistant 700",
+    "FontAwesome normal",
+    "MathJax_Main normal",
+    "MathJax_Math-italic normal",
+    "MathJax_Caligraphic normal",
+    "MathJax_Size2 normal"
+   ],
+   "scrollWidth": 1440,
+   "scrollHeight": 4373,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgb(214, 239, 250)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": "svg",
+   "y": 2587
+  },
+  "fixedAfterScroll": [
+   {
+    "tag": "div",
+    "cls": "header",
+    "pos": "fixed",
+    "x": 0,
+    "y": 0,
+    "w": 576,
+    "h": 128
+   },
+   {
+    "tag": "div",
+    "cls": "visualization-section",
+    "pos": "fixed",
+    "x": 576,
+    "y": 0,
+    "w": 864,
+    "h": 900
+   },
+   {
+    "tag": "div",
+    "cls": "visualization-section",
+    "pos": "fixed",
+    "x": 576,
+    "y": 0,
+    "w": 864,
+    "h": 900
+   },
+   {
+    "tag": "div",
+    "cls": "visualization-section",
+    "pos": "fixed",
+    "x": 576,
+    "y": 0,
+    "w": 864,
+    "h": 900
+   }
+  ]
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 2545,
+  "measure": {
+   "title": "Seeing Theory - Basic Probability",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 22,
+    "avgGlyphPx": 5.9,
+    "textLines": 17,
+    "sample": "For an unfair or weighted coin, the two outcomes are not equally likely. You can",
+    "fontFamily": "Assistant, sans-serif",
+    "firstFamily": "Assistant",
+    "resolvedFamilyNote": null,
+    "fontSize": "14px",
+    "lineHeight": "18.2px",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgb(214, 239, 250)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 133,
+    "pLeft": 51,
+    "lines": 17,
+    "chars": 343,
+    "charsPerLine": 21,
+    "containerTag": "DIV#section1"
+   },
+   "headings": {
+    "h1": {
+     "text": "Basic Probability",
+     "family": "Assistant",
+     "size": "25.6px",
+     "weight": "600",
+     "color": "rgb(0, 0, 0)",
+     "lineHeight": "normal",
+     "transform": "none"
+    },
+    "h3": {
+     "text": "Chance Events",
+     "family": "Assistant",
+     "size": "22px",
+     "weight": "400",
+     "color": "rgb(0, 0, 0)",
+     "lineHeight": "normal",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [
+    {
+     "tag": "div",
+     "id": "",
+     "cls": "header",
+     "position": "fixed",
+     "x": 0,
+     "y": 0,
+     "w": 156,
+     "h": 128
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "2.7.1",
+    "mathjaxV2": true,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 4,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 2,
+    "imgMath": 0,
+    "scripts": [
+     "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"
+    ]
+   },
+   "displayEq": {
+    "tag": "div",
+    "cls": "MathJax_Display",
+    "textAlign": "center",
+    "parentTextAlign": "start",
+    "overflowX": "visible",
+    "parentOverflowX": "visible",
+    "x": 51,
+    "y": 2671,
+    "w": 133,
+    "h": 34,
+    "html": "<div class=\"MathJax_Display\" style=\"text-align: center;\"><span class=\"MathJax\" id=\"MathJax-Element-1-Frame\" tabindex=\"0\" data-mathml=\"&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mtext&gt;E&lt;/mtext&gt;&lt;mo stretchy=&quot;false&quot;&gt;[&lt;/mo&g"
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 0,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 22,
+    "canvases": 0,
+    "svgs": 4,
+    "iframes": 0,
+    "ranges": 0,
+    "buttons": 0,
+    "inputs": 12,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 2,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Next Compound Probability →",
+     "cls": "",
+     "x": 0,
+     "y": 4819,
+     "w": 156,
+     "h": 122
+    }
+   ],
+   "interactives": [],
+   "fontsLoaded": [
+    "Assistant 300",
+    "Assistant 400",
+    "Assistant 600",
+    "Assistant 700",
+    "FontAwesome normal",
+    "MathJax_Main normal",
+    "MathJax_Math-italic normal",
+    "MathJax_Caligraphic normal",
+    "MathJax_Size2 normal"
+   ],
+   "scrollWidth": 390,
+   "scrollHeight": 4941,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgb(214, 239, 250)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

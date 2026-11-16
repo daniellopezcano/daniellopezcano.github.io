@@ -1,0 +1,541 @@
+{
+ "key": "immersive",
+ "home": {
+  "error": null,
+  "loadMs": 2500,
+  "finalUrl": "https://immersivemath.com/ila/",
+  "title": "Immersive Math"
+ },
+ "page": "https://immersivemath.com/ila/ch02_vectors/ch02.html",
+ "desktop": {
+  "error": null,
+  "loadMs": 2702,
+  "net": {
+   "requests": 36,
+   "totalBytes": 789220,
+   "by": {
+    "html": {
+     "n": 1,
+     "bytes": 28464
+    },
+    "css": {
+     "n": 1,
+     "bytes": 2104
+    },
+    "js": {
+     "n": 29,
+     "bytes": 480432
+    },
+    "images": {
+     "n": 3,
+     "bytes": 277734
+    },
+    "other": {
+     "n": 2,
+     "bytes": 486
+    },
+    "big": [
+     "https://www.googletagmanager.com/gtag/js?id=G-9FTRKCDH34&cx=c&_slc=1 166393",
+     "https://immersivemath.com/ila/ch02_vectors/palma_osm.jpg 264262"
+    ]
+   },
+   "fontUrls": [],
+   "loadMs": 2702,
+   "finalUrl": "https://immersivemath.com/ila/ch02_vectors/ch02.html"
+  },
+  "measure": {
+   "title": "Chapter 2: Vectors (Immersive Linear Algebra)",
+   "viewport": {
+    "w": 1440,
+    "h": 900
+   },
+   "body": {
+    "cplCanvas": 186,
+    "avgGlyphPx": 6.21,
+    "textLines": 58,
+    "sample": "In this book, we denote points by capital italic letters, e.g., AA, BB, and QQ. ",
+    "fontFamily": "\"Times New Roman\"",
+    "firstFamily": "Times New Roman",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgba(0, 0, 0, 0)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 1152,
+    "pLeft": 144,
+    "lines": 75,
+    "chars": 4878,
+    "charsPerLine": 65,
+    "containerTag": "DIV"
+   },
+   "headings": {
+    "h1": {
+     "text": "Chapter 2: Vectors",
+     "family": "sans-serif",
+     "size": "32px",
+     "weight": "700",
+     "color": "rgb(51, 119, 170)",
+     "lineHeight": "normal",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [
+    {
+     "tag": "div",
+     "id": "loading_div",
+     "cls": "loadscreen",
+     "position": "fixed",
+     "x": 0,
+     "y": 0,
+     "w": 1440,
+     "h": 76
+    },
+    {
+     "tag": "div",
+     "id": "menu_button",
+     "cls": "menu_class",
+     "position": "fixed",
+     "x": 5,
+     "y": 0,
+     "w": 64,
+     "h": 64
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "2.7.5",
+    "mathjaxV2": true,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 1105,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 0,
+    "imgMath": 0,
+    "scripts": [
+     "https://immersivemath.com/mathjax/MathJax.js?config=TeX-AMS-MML_SVG-full",
+     "https://immersivemath.com/mathjax/jax/output/SVG/fonts/TeX/Size3/Regular/Main.js?V=2.7.5"
+    ]
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 15,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 1,
+    "canvases": 23,
+    "svgs": 67,
+    "iframes": 0,
+    "ranges": 2,
+    "buttons": 49,
+    "inputs": 9,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Chapter 1: Introduction (previous)",
+     "cls": "",
+     "x": 147,
+     "y": 25030,
+     "w": 220,
+     "h": 17
+    },
+    {
+     "text": "Chapter 3: The Dot Product (next)",
+     "cls": "",
+     "x": 1073,
+     "y": 25030,
+     "w": 220,
+     "h": 17
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "canvas",
+     "id": "breakout_canvas",
+     "cls": "",
+     "x": 483,
+     "y": 256,
+     "w": 474,
+     "h": 632
+    },
+    {
+     "tag": "canvas",
+     "id": "line_seg_equivalent_canvas",
+     "cls": "",
+     "x": 633,
+     "y": 1241,
+     "w": 663,
+     "h": 390
+    },
+    {
+     "tag": "canvas",
+     "id": "vectrans_canvas",
+     "cls": "",
+     "x": 376,
+     "y": 1829,
+     "w": 688,
+     "h": 520
+    },
+    {
+     "tag": "canvas",
+     "id": "paralel_vectors_canvas",
+     "cls": "",
+     "x": 691,
+     "y": 2771,
+     "w": 605,
+     "h": 390
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_add_tri_canvas",
+     "cls": "",
+     "x": 319,
+     "y": 3418,
+     "w": 803,
+     "h": 520
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_add_tri_3D_canvas",
+     "cls": "",
+     "x": 330,
+     "y": 4096,
+     "w": 780,
+     "h": 520
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_scale_canvas",
+     "cls": "",
+     "x": 305,
+     "y": 5016,
+     "w": 831,
+     "h": 416
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_subtraction2_canvas",
+     "cls": "",
+     "x": 287,
+     "y": 5762,
+     "w": 866,
+     "h": 520
+    }
+   ],
+   "fontsLoaded": [],
+   "scrollWidth": 1440,
+   "scrollHeight": 25105,
+   "overflow": false,
+   "wideEls": [],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  },
+  "scrolledTo": {
+   "q": "canvas",
+   "y": 1241
+  },
+  "fixedAfterScroll": [
+   {
+    "tag": "div",
+    "cls": "loadscreen",
+    "pos": "fixed",
+    "x": 0,
+    "y": 0,
+    "w": 1440,
+    "h": 76
+   },
+   {
+    "tag": "div",
+    "cls": "menu_class",
+    "pos": "fixed",
+    "x": 5,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   }
+  ]
+ },
+ "phone": {
+  "error": null,
+  "loadMs": 2733,
+  "measure": {
+   "title": "Chapter 2: Vectors (Immersive Linear Algebra)",
+   "viewport": {
+    "w": 390,
+    "h": 844
+   },
+   "body": {
+    "cplCanvas": 50,
+    "avgGlyphPx": 6.21,
+    "textLines": 96,
+    "sample": "In this book, we denote points by capital italic letters, e.g., AA, BB, and QQ. ",
+    "fontFamily": "\"Times New Roman\"",
+    "firstFamily": "Times New Roman",
+    "resolvedFamilyNote": null,
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgba(0, 0, 0, 0)",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textAlign": "start",
+    "hyphens": "manual",
+    "pWidth": 312,
+    "pLeft": 39,
+    "lines": 128,
+    "chars": 4878,
+    "charsPerLine": 38,
+    "containerTag": "DIV"
+   },
+   "headings": {
+    "h1": {
+     "text": "Chapter 2: Vectors",
+     "family": "sans-serif",
+     "size": "32px",
+     "weight": "700",
+     "color": "rgb(51, 119, 170)",
+     "lineHeight": "normal",
+     "transform": "none"
+    }
+   },
+   "blocks": [],
+   "fixedSticky": [
+    {
+     "tag": "div",
+     "id": "menu_button",
+     "cls": "menu_class",
+     "position": "fixed",
+     "x": 5,
+     "y": 0,
+     "w": 64,
+     "h": 64
+    }
+   ],
+   "math": {
+    "mathjaxVersion": "2.7.5",
+    "mathjaxV2": true,
+    "katexVersion": null,
+    "mjxContainers": 0,
+    "mjxDisplay": 0,
+    "mjx2": 1105,
+    "katex": 0,
+    "katexDisplay": 0,
+    "mathml": 1105,
+    "imgMath": 0,
+    "scripts": [
+     "https://immersivemath.com/mathjax/MathJax.js?config=TeX-AMS-MML_SVG-full"
+    ]
+   },
+   "eqNumbers": {
+    "mjxLabels": 0,
+    "eqno": 0,
+    "eqText": []
+   },
+   "features": {
+    "footnoteRefs": 0,
+    "dFootnote": 0,
+    "dCite": 0,
+    "sidenotes": 0,
+    "footnotesSection": 0,
+    "details": 0,
+    "proofs": 15,
+    "figures": 0,
+    "figcaptions": 0,
+    "imgs": 1,
+    "canvases": 23,
+    "svgs": 1106,
+    "iframes": 0,
+    "ranges": 2,
+    "buttons": 49,
+    "inputs": 9,
+    "searchInputs": 0,
+    "themeToggle": 0,
+    "breadcrumbs": 0,
+    "progress": 0,
+    "codeBlocks": 0,
+    "colab": 0,
+    "github": 0,
+    "tooltips": 0
+   },
+   "prevNext": [
+    {
+     "text": "Chapter 1: Introduction (previous)",
+     "cls": "",
+     "x": 42,
+     "y": 27334,
+     "w": 150,
+     "h": 35
+    },
+    {
+     "text": "Chapter 3: The Dot Product (next)",
+     "cls": "",
+     "x": 224,
+     "y": 27334,
+     "w": 124,
+     "h": 35
+    }
+   ],
+   "interactives": [
+    {
+     "tag": "canvas",
+     "id": "breakout_canvas",
+     "cls": "",
+     "x": 39,
+     "y": 490,
+     "w": 332,
+     "h": 442
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_add_tri_canvas",
+     "cls": "",
+     "x": 86,
+     "y": 3949,
+     "w": 219,
+     "h": 142
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_add_tri_3D_canvas",
+     "cls": "",
+     "x": 89,
+     "y": 4410,
+     "w": 213,
+     "h": 142
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_subtraction2_canvas",
+     "cls": "",
+     "x": 77,
+     "y": 6087,
+     "w": 236,
+     "h": 142
+    },
+    {
+     "tag": "canvas",
+     "id": "box_3D_canvas",
+     "cls": "",
+     "x": 89,
+     "y": 6508,
+     "w": 213,
+     "h": 142
+    },
+    {
+     "tag": "svg",
+     "id": "",
+     "cls": "",
+     "x": 55,
+     "y": 7275,
+     "w": 501,
+     "h": 244
+    },
+    {
+     "tag": "canvas",
+     "id": "vector_distributivity_3D_canvas",
+     "cls": "",
+     "x": 89,
+     "y": 8846,
+     "w": 213,
+     "h": 142
+    },
+    {
+     "tag": "canvas",
+     "id": "threevecadd_canvas",
+     "cls": "",
+     "x": 70,
+     "y": 10051,
+     "w": 250,
+     "h": 142
+    }
+   ],
+   "fontsLoaded": [],
+   "scrollWidth": 423,
+   "scrollHeight": 27427,
+   "overflow": true,
+   "wideEls": [
+    {
+     "tag": "table",
+     "cls": "",
+     "right": 593,
+     "w": 541,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "tbody",
+     "cls": "",
+     "right": 591,
+     "w": 537,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "tr",
+     "cls": "",
+     "right": 591,
+     "w": 537,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "td",
+     "cls": "",
+     "right": 557,
+     "w": 503,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "div",
+     "cls": "MathJax_SVG_Display",
+     "right": 556,
+     "w": 501,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "span",
+     "cls": "MathJax_SVG",
+     "right": 556,
+     "w": 501,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "svg",
+     "cls": "",
+     "right": 556,
+     "w": 501,
+     "clippedBy": "div.definition_box auto"
+    },
+    {
+     "tag": "g",
+     "cls": "",
+     "right": 548,
+     "w": 486,
+     "clippedBy": "svg. hidden"
+    }
+   ],
+   "bodyBg": "rgba(0, 0, 0, 0)",
+   "htmlBg": "rgba(0, 0, 0, 0)"
+  }
+ }
+}

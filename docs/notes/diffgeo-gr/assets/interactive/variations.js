@@ -66,9 +66,9 @@ export default async function mount(body) {
 
   body.append(note(`Choose a curve and a family of variations and move \\(${RUNE}\\); drag the surface to rotate it.`));
   const bar = controls(body);
-  const cCurve = choice({ options: [{ value: 'gamma', label: '\\(\\gamma\\)' }, { value: 'sigma', label: '\\(\\sigma\\)' }], value: st.curve, onChange: v => { st.curve = v; update(true); } });
+  const cCurve = choice({ options: [{ value: 'gamma', label: '\\(\\gamma\\)', aria: 'γ' }, { value: 'sigma', label: '\\(\\sigma\\)', aria: 'σ' }], value: st.curve, onChange: v => { st.curve = v; update(true); } });
   const cFam = choice({ options: [{ value: 1, label: '(i)' }, { value: 2, label: '(ii)' }], value: st.fam, onChange: v => { st.fam = +v; update(true); } });
-  const sT = slider({ label: `\\(${RUNE}\\)`, min: -TMAX, max: TMAX, step: 0.01, value: st.t, onInput: v => { st.t = v; update(false); } });
+  const sT = slider({ label: `\\(${RUNE}\\)`, aria: 'ᛊ', min: -TMAX, max: TMAX, step: 0.01, value: st.t, onInput: v => { st.t = v; update(false); } });
   bar.append(cCurve.el, cFam.el, sT.el);
 
   const two = el('div', { class: 'dg-two' });
@@ -85,7 +85,7 @@ export default async function mount(body) {
   left.append(leg3);
 
   // ---- right: L against the deformation parameter, both families
-  const plot = new Plot2D(right, { xlim: [-TMAX, TMAX], ylim: [2.5, 6], aspect: 0.82, margin: { l: 40, r: 10, t: 30, b: 32 }, draw: drawPlot });
+  const plot = new Plot2D(right, { xlim: [-TMAX, TMAX], ylim: [2.5, 6], aspect: 0.82, margin: { l: 40, r: 10, t: 30, b: 32 }, role: 'group', label: 'Figure C.12', draw: drawPlot });
   const leg2 = el('div');
   right.append(leg2);
 
@@ -141,7 +141,7 @@ export default async function mount(body) {
       leg2.replaceChildren(legend(items));
       await Promise.all([
         rL.setLabel(`\\(${c.L}\\)`),
-        rD.setLabel(`\\(\\text{${fam}} \\;\\; \\frac{d}{d${RUNE}} ${c.L} \\Big|_{${RUNE}=0}\\)`),
+        rD.setLabel(`${fam} \\(\\frac{d}{d${RUNE}} ${c.L} \\Big|_{${RUNE}=0}\\)`),   // the family's label as text (B33, D31)
         typeset(leg3), typeset(leg2)
       ]);
     }

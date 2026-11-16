@@ -6,7 +6,8 @@
 Compares docs/ in the working tree with docs/ of REF, ignoring docs/notes/ (the course section).
 Accepted differences, and nothing else (KICKOFF rule 6):
   * the navbar entry "Lecture Notes" (one <li class="nav-item"> pointing into notes/diffgeo-gr/);
-  * links with class `dg-read-online` (the "Read online" buttons on the Teaching page);
+  * links with class `dg-read-online` (the "Read online" buttons on the Teaching page), and their label in the
+    Teaching page's entries of search.json;
   * the content hash in the name of Quarto's Bootstrap bundle, and in the bundle itself only
     rules whose selector mentions `sidebar` (a site with a sidebar gets them; DECISIONS D26d);
   * site_libs files that only the course pages use (extra files are allowed there, missing ones are not);
@@ -29,8 +30,16 @@ def git(*args, text=True):
 
 NAV = re.compile(r'\s*</li>\s*<li class="nav-item">\s*<a class="nav-link[^"]*" href="[^"]*notes/diffgeo-gr/index\.html"[^>]*>\s*'
                  r'<span class="menu-text">Lecture Notes</span></a>')
-READ = re.compile(r'\s*<a\b[^>]*\bdg-read-online\b[^>]*>.*?</a>', re.S)
+# the button with the whitespace that separates it from its neighbour: the space before it, or, when it is the
+# first thing in its row (as placed: first in .media-actions), the space after it
+READ = re.compile(r'\s+<a\b[^>]*\bdg-read-online\b[^>]*>.*?</a>|<a\b[^>]*\bdg-read-online\b[^>]*>.*?</a>\s*', re.S)
 HASH = re.compile(r'bootstrap-[0-9a-f]{32}\.min\.css')
+
+def read_online(e):
+    """Quarto's search index has the button's label as the first word of the row of buttons of the Teaching page."""
+    if e.get('href', '').startswith('teaching_and_projects.html') and isinstance(e.get('text'), str):
+        e = dict(e, text=e['text'].replace('\n\nRead online ', '\n\n'))
+    return e
 
 def norm_html(s):
     s = NAV.sub('', s)
@@ -69,7 +78,7 @@ def main():
                 for m in HASH.findall(text):
                     bundles.setdefault(f, {})[side] = m
         elif f == 'docs/search.json':
-            keep = lambda js: sorted((e for e in json.loads(js) if not e.get('href', '').startswith('notes/')),
+            keep = lambda js: sorted((read_online(e) for e in json.loads(js) if not e.get('href', '').startswith('notes/')),
                                      key=lambda e: e.get('objectID', ''))   # the order of pages in the index is not stable
             if keep(old) != keep(new):
                 failures.append('docs/search.json: entries of existing pages changed')

@@ -1,105 +1,266 @@
-/* Hand-written: style of the course section "From Differential Geometry to General Relativity".
- * Loaded only by the pages under notes/diffgeo-gr/ (see _metadata.yml), so nothing here
- * can change the rest of the site. Builds on the site palette (--dlc-* in /styles.css).
+/* Hand-written: the one stylesheet of the course section "From Differential Geometry to General Relativity".
+ * Design direction A, "Paper" (_port/DESIGN.md section 4; DECISIONS D29-D33). Only the course pages load it;
+ * they are complete pages written by _port/convert/build.py (shell.py), so nothing here can reach the rest
+ * of the site. Class prefix dg- everywhere.
  *
- * Class prefix dg- everywhere. Three layers:
- *   1. reading surface and layout     2. the notes' own constructs (terms, boxes, lists, figures, footnotes)
- *   3. the web layer (.dg-web, .dg-interactive, popovers): anything that is not in the PDF
- */
+ *   1. tokens (light on :root, dark on :root[data-theme="dark"])     6. the notes' constructs
+ *   2. fonts                                                           7. web layer (.dg-web)
+ *   3. base rules                                                      8. landing page
+ *   4. icons                                                           9. narrow screens
+ *   5. page shell: site navbar, course bar, tree, grid, footer        10. print
+ *
+ * Rule of D31: the text face (New Computer Modern) is only used for the notes' own words; every word of the
+ * web layer is in Lato. */
 
-/* ---- palette ---------------------------------------------------------------------------
- * Same colour MEANING as in the notes (\blueone ... \indigoone, color_<name>_1/2 in main.tex);
- * the dark shades (_1) are lightened so they stay legible on the dark surface. */
+/* ---- 1. tokens ------------------------------------------------------------------------------- */
 :root {
-  --dg-bg: #0b1220;
-  --dg-surface: #111b2e;
-  --dg-surface-2: #17243c;
-  --dg-rule: rgba(189, 201, 237, 0.22);
-  --dg-text: #e6edfb;
-  --dg-text-soft: #b9c7e4;
-  --dg-heading: #c9d8ff;          /* the notes' navy (color_blue_0), turned light for the dark page */
-  --dg-accent: #7aa2f7;           /* = --dlc-blue */
+  --dg-text-font: "NewCM", "Latin Modern Roman", "Computer Modern Serif", Georgia, "Times New Roman", serif;
+  --dg-ui: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";   /* the site's (Bootstrap's) stack */
+  --dg-sitenav-h: 82px; --dg-bar-h: 46px; --dg-tree-w: 16.5rem; --dg-margin-w: 18.5rem;
 
-  --dg-color-blue-0: #c9d8ff;
-  --dg-color-blue-1: #86a8ff;   --dg-color-blue-2: #bdc9ed;
-  --dg-color-green-1: #58cf58;  --dg-color-green-2: #b8e7b8;
-  --dg-color-purple-1: #d98ad9; --dg-color-purple-2: #d0aad0;
-  --dg-color-orange-1: #f2a933; --dg-color-orange-2: #f6dbaa;
-  --dg-color-red-1: #ff6b6b;    --dg-color-red-2: #f6aaaa;
-  --dg-color-yellow-1: #dcdc4a; --dg-color-yellow-2: #f6f6aa;
-  --dg-color-brown-1: #cf9a6c;  --dg-color-brown-2: #d3beaf;
-  --dg-color-teal-1: #3cc6c6;   --dg-color-teal-2: #b2dfdb;
-  --dg-color-rose-1: #f2709f;   --dg-color-rose-2: #f8bbd0;
-  --dg-color-olive-1: #b7c94a;  --dg-color-olive-2: #dde4b2;
-  --dg-color-indigo-1: #9ba8f5; --dg-color-indigo-2: #c5cae9;
-  --dg-tex-red: #ff6b6b; --dg-tex-blue: #86a8ff; --dg-tex-black: var(--dg-text);
-  --dg-tex-white: #ffffff; --dg-tex-gray: #9aa7c2;
+  --dg-bg: #fbfaf6; --dg-surface: #f4f2ea; --dg-surface-2: #ece9de; --dg-rule: rgba(20, 40, 100, 0.17);
+  --dg-text: #1a2030; --dg-text-soft: #4b556b; --dg-heading: #142864; --dg-accent: #3152b8; --dg-accent-hover: #142864;
+  --dg-on-accent: #fff; --dg-pending: rgba(75, 85, 107, 0.85);
+  --dg-ui-hover: rgba(20, 40, 100, 0.07); --dg-ui-current: rgba(49, 82, 184, 0.10);
+  --dg-web-bg: rgba(49, 82, 184, 0.035); --dg-web-rule: rgba(49, 82, 184, 0.55);
+  --dg-pop-bg: #fff; --dg-shadow: 0 12px 32px rgba(20, 30, 60, 0.18);
+  --dg-paper: #ffffff;            /* figures keep their own (light) background, on a paper card, in both themes */
+  --dg-ring: #3152b8; --dg-ring-fill: rgba(49, 82, 184, 0.14);   /* marks drawn on the white paper of a figure: same in both themes */
+  --dg-backdrop: rgba(20, 30, 60, 0.38);                        /* behind the search and map dialogs */
+  --dg-mark: rgba(255, 208, 0, 0.42);                           /* search matches */
+  --dg-scroll-shadow: rgba(20, 40, 100, 0.34);                  /* the edge of a box that scrolls sideways (D45; stronger in B12-B17) */
 
-  --dg-paper: #ffffff;            /* figures keep their own (light) background, on a paper card */
+  /* the notes' colours as printed (color_<name>_1 in main.tex); green, orange, yellow and olive are darkened
+   * just enough to reach 4.5:1 on the paper (hue kept). The _2 shades are the notes' own in both themes. */
+  --dg-color-blue-0: #142864;
+  --dg-color-blue-1: #3859bd;   --dg-color-blue-2: #bdc9ed;
+  --dg-color-green-1: #1d841d;  --dg-color-green-2: #b8e7b8;
+  --dg-color-purple-1: #6c026c; --dg-color-purple-2: #d0aad0;
+  --dg-color-orange-1: #a16600; --dg-color-orange-2: #f6dbaa;
+  --dg-color-red-1: #d60202;    --dg-color-red-2: #f6aaaa;
+  --dg-color-yellow-1: #767600; --dg-color-yellow-2: #f6f6aa;
+  --dg-color-brown-1: #753b11;  --dg-color-brown-2: #d3beaf;
+  --dg-color-teal-1: #007979;   --dg-color-teal-2: #b2dfdb;
+  --dg-color-rose-1: #ad1457;   --dg-color-rose-2: #f8bbd0;
+  --dg-color-olive-1: #5f6c10;  --dg-color-olive-2: #dde4b2;
+  --dg-color-indigo-1: #3949ab; --dg-color-indigo-2: #c5cae9;
+  --dg-tex-red: #d60202; --dg-tex-blue: #3859bd; --dg-tex-black: var(--dg-text); --dg-tex-white: #ffffff; --dg-tex-gray: #6b7280;
+  color-scheme: light;
+}
+/* the site's palette (the pilot's), for readers who prefer it; screen only: print is always on paper */
+@media screen {
+  :root[data-theme="dark"] {
+    --dg-bg: #0e1524; --dg-surface: #141d31; --dg-surface-2: #1a2640; --dg-rule: rgba(189, 201, 237, 0.2);
+    --dg-text: #e4e9f5; --dg-text-soft: #aebbd6; --dg-heading: #cbd9ff; --dg-accent: #8eadff; --dg-accent-hover: #c3d3ff;
+    --dg-on-accent: #0e1524; --dg-pending: rgba(174, 187, 214, 0.67);
+    --dg-ui-hover: rgba(189, 201, 237, 0.09); --dg-ui-current: rgba(142, 173, 255, 0.14);
+    --dg-web-bg: rgba(142, 173, 255, 0.05); --dg-web-rule: rgba(142, 173, 255, 0.5);
+    --dg-pop-bg: #1a2640; --dg-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+    --dg-backdrop: rgba(2, 5, 12, 0.66); --dg-mark: rgba(255, 208, 0, 0.3); --dg-scroll-shadow: rgba(142, 173, 255, 0.45);
+    --dg-color-blue-0: #cbd9ff;
+    --dg-color-blue-1: #86a8ff;   --dg-color-green-1: #58cf58;  --dg-color-purple-1: #d98ad9; --dg-color-orange-1: #f2a933;
+    --dg-color-red-1: #ff6b6b;    --dg-color-yellow-1: #dcdc4a; --dg-color-brown-1: #cf9a6c;  --dg-color-teal-1: #3cc6c6;
+    --dg-color-rose-1: #f2709f;   --dg-color-olive-1: #b7c94a;  --dg-color-indigo-1: #9ba8f5;
+    --dg-tex-red: #ff6b6b; --dg-tex-blue: #86a8ff; --dg-tex-gray: #9aa7c2;
+    color-scheme: dark;
+  }
 }
 
-/* ---- 1. reading surface ------------------------------------------------------------------ */
+/* ---- 2. fonts -------------------------------------------------------------------------------- */
+/* New Computer Modern 10 Book: the notes' Latin Modern, drawn slightly heavier for screens (D31; GUST licence).
+ * Subset to Latin + punctuation by the converter (shell.py: subset_fonts). */
+@font-face { font-family: "NewCM"; font-weight: 400; font-style: normal; font-display: swap; src: url("fonts/newcm-book.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 400; font-style: italic; font-display: swap; src: url("fonts/newcm-bookitalic.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 700; font-style: normal; font-display: swap; src: url("fonts/newcm-bold.woff2") format("woff2"); }
+@font-face { font-family: "NewCM"; font-weight: 700; font-style: italic; font-display: swap; src: url("fonts/newcm-bolditalic.woff2") format("woff2"); }
 @font-face {
-  /* the notes' own runic font (fonts/NotoSansRunic-Regular.ttf), used only for the runic block */
+  /* the notes' own runic font (fonts/NotoSansRunic-Regular.ttf), used only for the runic block (D8) */
   font-family: "Noto Sans Runic";
   src: url("fonts/NotoSansRunic-Regular.ttf") format("truetype");
   unicode-range: U+16A0-16FF;
   font-display: block;
 }
 
-body { background-color: var(--dg-bg); }
-body::before { display: none; }                      /* no animated background behind long-form text */
-body::after { background: var(--dg-bg); }
+/* ---- 3. base rules --------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--dg-bar-h) + 1.2rem); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--dg-bg); color: var(--dg-text); font-family: var(--dg-ui); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg, video { max-width: 100%; height: auto; }
+h1, h2, h3, h4 { margin: 0 0 0.5rem; line-height: 1.2; }
+p { margin: 0 0 1rem; }
+ul, ol { margin: 0 0 1rem; padding-left: 2rem; }
+ul ul, ol ol, ul ol, ol ul { margin-bottom: 0; }
+a { color: var(--dg-accent); text-underline-offset: 0.16em; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+table { border-collapse: collapse; }
+figure { margin: 0 0 1rem; }
+blockquote { margin: 0 0 1rem; }
+code { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+sup, sub { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; } sup { top: -0.5em; } sub { bottom: -0.25em; }
+hr { border: 0; border-top: 1px solid currentColor; opacity: 0.25; margin: 1rem 0; }
+:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 2px; border-radius: 2px; }
+.dg-main:focus { outline: none; }
+.dg-skiplink { position: absolute; left: -999px; top: 0; z-index: 100; background: #fff; color: #000; padding: 0.5rem 1rem; }
+.dg-skiplink:focus { left: 0; }
 
-#quarto-content { max-width: none; }
-#title-block-header { display: none; }               /* the page header is rendered from the notes (.dg-head) */
+/* ---- 4. icons: Bootstrap Icons (MIT), drawn as CSS masks so that no icon font is loaded ------------
+ * Paths extracted from the site's bootstrap-icons.woff (16 x 16 grid). <i class="dg-i dg-i-NAME"> */
+.dg-i { display: inline-block; flex: none; width: 1em; height: 1em; vertical-align: -0.125em; background: currentColor;
+  -webkit-mask: var(--dg-icon) center / contain no-repeat; mask: var(--dg-icon) center / contain no-repeat; }
+.dg-i-list { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M2.51 12Q2.51 11.79 2.64 11.65Q2.77 11.52 2.99 11.52H13.01Q13.23 11.52 13.36 11.65Q13.49 11.79 13.49 12Q13.49 12.21 13.36 12.35Q13.23 12.48 13.01 12.48H2.99Q2.77 12.48 2.64 12.35Q2.51 12.21 2.51 12ZM2.51 8Q2.51 7.79 2.64 7.65Q2.77 7.52 2.99 7.52H13.01Q13.23 7.52 13.36 7.65Q13.49 7.79 13.49 8Q13.49 8.21 13.36 8.35Q13.23 8.48 13.01 8.48H2.99Q2.77 8.48 2.64 8.35Q2.51 8.21 2.51 8ZM2.51 4Q2.51 3.79 2.64 3.65Q2.77 3.52 2.99 3.52H13.01Q13.23 3.52 13.36 3.65Q13.49 3.79 13.49 4Q13.49 4.21 13.36 4.35Q13.23 4.48 13.01 4.48H2.99Q2.77 4.48 2.64 4.35Q2.51 4.21 2.51 4Z%27/%3E%3C/svg%3E"); }
+.dg-i-search { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M11.73 10.35Q12.75 9.01 12.96 7.39Q13.17 5.76 12.59 4.21Q12 2.67 10.72 1.57Q9.44 0.48 7.84 0.13Q6.24 -0.21 4.67 0.27Q3.09 0.75 1.89 1.92Q0.69 3.09 0.24 4.67Q-0.21 6.24 0.13 7.84Q0.48 9.44 1.57 10.72Q2.67 12 4.21 12.59Q5.76 13.17 7.39 12.96Q9.01 12.75 10.35 11.73L14.29 15.73Q14.56 16 14.99 16Q15.41 16 15.71 15.71Q16 15.41 16 14.99Q16 14.56 15.73 14.29ZM12 6.51Q12 8 11.25 9.25Q10.51 10.51 9.25 11.25Q8 12 6.51 12Q5.01 12 3.73 11.25Q2.45 10.51 1.73 9.25Q1.01 8 1.01 6.51Q1.01 5.01 1.73 3.73Q2.45 2.45 3.73 1.73Q5.01 1.01 6.51 1.01Q8 1.01 9.25 1.73Q10.51 2.45 11.25 3.73Q12 5.01 12 6.51Z%27/%3E%3C/svg%3E"); }
+.dg-i-layout-sidebar { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M0 2.99Q0 2.19 0.59 1.6Q1.17 1.01 2.03 1.01H14.03Q14.83 1.01 15.41 1.6Q16 2.19 16 2.99V13.01Q16 13.81 15.41 14.4Q14.83 14.99 13.97 14.99H2.03Q1.17 14.99 0.59 14.4Q0 13.81 0 13.01ZM5.01 1.97V13.97H14.03Q14.4 13.97 14.69 13.71Q14.99 13.44 14.99 13.01V2.99Q14.99 2.56 14.69 2.27Q14.4 1.97 14.03 1.97ZM4 1.97H2.03Q1.6 1.97 1.31 2.27Q1.01 2.56 1.01 2.99V13.01Q1.01 13.44 1.31 13.71Q1.6 13.97 2.03 13.97H4Z%27/%3E%3C/svg%3E"); }
+.dg-i-diagram-3 { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M6.03 3.52Q6.03 2.88 6.45 2.43Q6.88 1.97 7.52 2.03H8.48Q9.12 1.97 9.57 2.43Q10.03 2.88 9.97 3.52V4.48Q9.97 5.12 9.55 5.55Q9.12 5.97 8.48 5.97V6.99H14.03Q14.19 6.99 14.35 7.15Q14.51 7.31 14.51 7.52V8.48Q14.51 8.69 14.35 8.85Q14.19 9.01 14 9.01Q13.81 9.01 13.65 8.85Q13.49 8.69 13.49 8.48V8H8.48V8.48Q8.48 8.69 8.35 8.85Q8.21 9.01 8 9.01Q7.79 9.01 7.65 8.85Q7.52 8.69 7.52 8.48V8H2.51V8.48Q2.51 8.69 2.35 8.85Q2.19 9.01 2 9.01Q1.81 9.01 1.65 8.85Q1.49 8.69 1.49 8.48V7.52Q1.49 7.31 1.65 7.15Q1.81 6.99 2.03 6.99H7.52V5.97Q6.88 6.03 6.45 5.57Q6.03 5.12 6.03 4.48ZM8.48 5.01Q8.69 5.01 8.85 4.85Q9.01 4.69 9.01 4.48V3.52Q9.01 3.31 8.85 3.15Q8.69 2.99 8.48 2.99H7.52Q7.31 2.99 7.15 3.15Q6.99 3.31 6.99 3.52V4.48Q6.99 4.69 7.15 4.85Q7.31 5.01 7.52 5.01ZM0 11.52Q0 10.88 0.43 10.45Q0.85 10.03 1.49 10.03H2.51Q3.15 9.97 3.57 10.43Q4 10.88 4 11.52V12.48Q4 13.12 3.57 13.55Q3.15 13.97 2.51 13.97H1.49Q0.85 13.97 0.43 13.55Q0 13.12 0 12.48ZM1.49 10.99Q1.28 10.99 1.15 11.15Q1.01 11.31 1.01 11.52V12.48Q1.01 12.69 1.15 12.85Q1.28 13.01 1.49 13.01H2.51Q2.72 13.01 2.85 12.85Q2.99 12.69 2.99 12.48V11.52Q2.99 11.31 2.85 11.15Q2.72 10.99 2.51 10.99ZM6.03 11.52Q6.03 10.88 6.45 10.45Q6.88 10.03 7.52 10.03H8.48Q9.12 9.97 9.57 10.43Q10.03 10.88 9.97 11.52V12.48Q9.97 13.12 9.55 13.55Q9.12 13.97 8.48 13.97H7.52Q6.88 14.03 6.45 13.57Q6.03 13.12 6.03 12.48ZM7.52 10.99Q7.31 10.99 7.15 11.15Q6.99 11.31 6.99 11.52V12.48Q6.99 12.69 7.15 12.85Q7.31 13.01 7.52 13.01H8.48Q8.69 13.01 8.85 12.85Q9.01 12.69 9.01 12.48V11.52Q9.01 11.31 8.85 11.15Q8.69 10.99 8.48 10.99ZM12 11.52Q12 10.88 12.43 10.43Q12.85 9.97 13.49 10.03H14.51Q15.15 9.97 15.57 10.43Q16 10.88 16 11.52V12.48Q16 13.12 15.57 13.55Q15.15 13.97 14.51 13.97H13.49Q12.85 14.03 12.43 13.57Q12 13.12 12 12.48ZM13.49 10.99Q13.28 10.99 13.15 11.15Q13.01 11.31 13.01 11.52V12.48Q13.01 12.69 13.15 12.85Q13.28 13.01 13.49 13.01H14.51Q14.72 13.01 14.85 12.85Q14.99 12.69 14.99 12.48V11.52Q14.99 11.31 14.85 11.15Q14.72 10.99 14.51 10.99Z%27/%3E%3C/svg%3E"); }
+.dg-i-circle-half { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 14.99Q9.92 14.99 11.52 14.05Q13.12 13.12 14.05 11.52Q14.99 9.92 14.99 8Q14.99 6.08 14.05 4.48Q13.12 2.88 11.52 1.95Q9.92 1.01 8 1.01ZM8 16Q5.81 16 3.97 14.93Q2.13 13.87 1.07 12.03Q0 10.19 0 8Q0 5.81 1.07 3.97Q2.13 2.13 3.97 1.07Q5.81 0 8 0Q10.19 0 12.03 1.07Q13.87 2.13 14.93 3.97Q16 5.81 16 8Q16 10.19 14.93 12.03Q13.87 13.87 12.03 14.93Q10.19 16 8 16Z%27/%3E%3C/svg%3E"); }
+.dg-i-chevron-right { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M4.64 1.65Q4.8 1.49 5.01 1.49Q5.23 1.49 5.33 1.65L11.36 7.63Q11.52 7.79 11.52 8Q11.52 8.21 11.36 8.37L5.33 14.35Q5.23 14.51 5.01 14.51Q4.8 14.51 4.64 14.35Q4.48 14.19 4.48 14Q4.48 13.81 4.64 13.65L10.29 8L4.64 2.35Q4.48 2.19 4.48 2Q4.48 1.81 4.64 1.65Z%27/%3E%3C/svg%3E"); }
+.dg-i-book { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M1.01 2.83Q2.72 2.08 4.37 1.92Q6.56 1.71 7.52 2.67V12.43Q6.29 11.73 4.27 11.95Q2.72 12.11 1.01 12.75ZM8.48 2.67Q9.44 1.71 11.63 1.92Q13.28 2.08 14.99 2.83V12.75Q13.28 12.11 11.73 11.95Q9.71 11.73 8.48 12.43ZM8 1.76Q6.72 0.69 4.27 0.96Q3.25 1.07 2.08 1.39Q1.12 1.65 0.27 2.03Q0 2.19 0 2.51V13.49Q0 13.76 0.24 13.92Q0.48 14.08 0.69 13.97Q1.49 13.6 2.35 13.33Q3.41 13.01 4.37 12.96Q6.72 12.69 7.63 13.81Q7.79 13.97 8 13.97Q8.21 13.97 8.37 13.81Q9.28 12.69 11.63 12.96Q12.59 13.01 13.65 13.33Q14.56 13.6 15.31 13.97Q15.52 14.08 15.76 13.92Q16 13.76 16 13.49V2.51Q16 2.19 15.73 2.03Q14.88 1.65 13.92 1.39Q12.75 1.07 11.73 0.96Q9.28 0.69 8 1.76Z%27/%3E%3C/svg%3E"); }
+.dg-i-file-earmark-pdf { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M14.03 13.97V4.48L9.49 0H4Q3.15 0 2.56 0.59Q1.97 1.17 1.97 2.03V13.97Q2.03 14.83 2.59 15.41Q3.15 16 4 16H12Q12.85 16 13.44 15.41Q14.03 14.83 14.03 13.97ZM9.49 2.99Q9.49 3.63 9.95 4.05Q10.4 4.48 10.99 4.48H13.01V13.97Q13.01 14.4 12.72 14.69Q12.43 14.99 12 14.99H4Q3.57 14.99 3.28 14.69Q2.99 14.4 2.99 13.97V1.97Q2.99 1.6 3.28 1.31Q3.57 1.01 4 1.01H9.49ZM4.59 14.08Q4.32 13.97 4.16 13.65Q3.89 13.12 4.27 12.59Q4.53 12.16 5.2 11.76Q5.87 11.36 6.61 11.15Q7.2 10.03 7.68 8.91Q7.41 8.27 7.25 7.6Q7.09 6.93 7.2 6.45Q7.36 5.87 7.84 5.65Q8.21 5.49 8.51 5.57Q8.8 5.65 8.93 5.89Q9.07 6.13 9.07 6.43Q9.07 6.72 9.01 7.09Q8.91 7.84 8.48 8.91Q8.91 9.76 9.49 10.56Q10.13 10.51 10.8 10.61Q11.47 10.72 11.79 11.09Q11.95 11.31 11.97 11.6Q12 11.89 11.87 12.16Q11.73 12.43 11.49 12.59Q11.25 12.75 10.99 12.75Q10.56 12.69 10.05 12.29Q9.55 11.89 9.12 11.36Q8.11 11.47 7.15 11.79Q6.67 12.53 6.13 13.2Q5.6 13.87 5.17 14.08Q4.91 14.19 4.59 14.08ZM5.97 12.16Q5.71 12.32 5.55 12.43Q5.07 12.69 4.91 12.93Q4.75 13.17 4.85 13.33V13.39H4.91Q5.12 13.28 5.55 12.8Q5.76 12.48 5.97 12.16ZM7.63 10.88Q8.11 10.72 8.64 10.67Q8.37 10.24 8.11 9.81Q7.89 10.35 7.63 10.88ZM10.08 11.31Q10.29 11.57 10.51 11.73Q10.83 11.95 10.99 11.95H11.09Q11.15 11.89 11.17 11.81Q11.2 11.73 11.2 11.63V11.57Q11.09 11.41 10.75 11.36Q10.4 11.31 10.08 11.31ZM8.05 7.79Q8.21 7.41 8.27 6.99Q8.32 6.67 8.32 6.53Q8.32 6.4 8.27 6.29L8.16 6.35Q8 6.4 7.95 6.67Q7.89 6.93 8 7.47Z%27/%3E%3C/svg%3E"); }
+.dg-i-github { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 0Q5.81 0 3.97 1.07Q2.13 2.13 1.07 3.97Q0 5.81 0 8Q0 9.76 0.69 11.28Q1.39 12.8 2.64 13.92Q3.89 15.04 5.49 15.57Q5.76 15.63 5.89 15.52Q6.03 15.41 6.03 15.2V13.71Q4.69 13.97 3.95 13.55Q3.52 13.28 3.31 12.8Q3.2 12.53 2.96 12.16Q2.72 11.79 2.48 11.65Q2.24 11.52 2.13 11.33Q2.03 11.15 2.45 11.12Q2.88 11.09 3.31 11.41Q3.52 11.63 3.73 11.95Q4.21 12.75 4.96 12.8Q5.49 12.85 6.03 12.59Q6.13 11.89 6.56 11.52Q4.91 11.36 4.05 10.61Q2.93 9.65 2.93 7.57Q2.93 6.35 3.73 5.44Q3.63 5.12 3.57 4.69Q3.52 4 3.84 3.31H4.05Q4.37 3.31 4.75 3.47Q5.33 3.68 6.03 4.11Q6.99 3.84 8.03 3.84Q9.07 3.84 10.03 4.11Q10.72 3.68 11.25 3.47Q11.68 3.31 12 3.31H12.21Q12.48 4 12.48 4.69Q12.43 5.12 12.32 5.44Q13.12 6.35 13.12 7.57Q13.12 9.65 11.95 10.61Q11.09 11.36 9.49 11.52Q10.03 12 10.03 13.01L9.97 15.2Q9.97 15.41 10.13 15.52Q10.29 15.63 10.56 15.57Q12.16 15.04 13.39 13.89Q14.61 12.75 15.31 11.23Q16 9.71 16 8Q16 5.81 14.93 3.97Q13.87 2.13 12.03 1.07Q10.19 0 8 0Z%27/%3E%3C/svg%3E"); }
+/* web-layer controls of unit R7 (drawn for the course, stroked, same 16 x 16 grid) */
+.dg-i-x { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M3.5 3.5l9 9M12.5 3.5l-9 9%27/%3E%3C/svg%3E"); }
+.dg-i-arrow-up-right { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M4.5 11.5l7-7M6 4.5h5.5V10%27/%3E%3C/svg%3E"); }
+.dg-i-expand { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M9.5 2.5h4v4M13.5 2.5L9.2 6.8M6.5 13.5h-4v-4M2.5 13.5l4.3-4.3%27/%3E%3C/svg%3E"); }
+.dg-i-clipboard { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M5.5 1.8h5v2.4h-5zM5.5 3H3.3v11.2h9.4V3h-2.2%27/%3E%3C/svg%3E"); }
+.dg-i-check { --dg-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.9%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M3 8.6l3.2 3.1L13 4.6%27/%3E%3C/svg%3E"); }
 
-main.content {
-  color: var(--dg-text);
-  font-size: 1rem;
-  line-height: 1.7;
-  letter-spacing: 0;
-  padding-bottom: 4rem;
+/* ---- 5. page shell ----------------------------------------------------------------------------- */
+/* site navbar: a replica of the Quarto navbar of the other pages (same links, same look; measured with
+ * _port/design/measure_nav.mjs). Dark in both themes, like the rest of the site. Not sticky. */
+.dg-sitenav { position: relative; z-index: 30; background: #0b1220; }
+.dg-sitenav-in { display: flex; align-items: center; justify-content: space-between; min-height: var(--dg-sitenav-h); padding: 17px 29.75px;
+  background: rgba(8, 12, 22, 0.82); border-bottom: 1px solid rgba(122, 162, 247, 0.12); font: 400 17px/1.5 var(--dg-ui); letter-spacing: 0.17px; }
+.dg-sitenav ul { display: flex; flex: 1; list-style: none; margin: 0; padding: 0; }
+.dg-sitenav li a { display: block; padding: 8.5px 10.2px; color: #dbe7ff; opacity: 0.95; text-decoration: none; white-space: nowrap; }
+.dg-sitenav li a:hover, .dg-sitenav li a:focus-visible, .dg-sitenav li a.active { color: #fff; }
+.dg-sitenav-search { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 34px; border-radius: 6px;
+  background: rgba(122, 162, 247, 0.08); border: 1px solid rgba(122, 162, 247, 0.14); color: #c6d5ef; font-size: 15px; }
+.dg-sitenav-toggle { display: none; width: 34px; height: 34px; color: #dee2e6; font-size: 26px; line-height: 1; }
+.dg-sitenav :focus-visible { outline-color: #8eadff; }
+
+/* course bar: breadcrumbs, Contents (only while the tree is a drawer), Map, Search, theme, progress hairlines */
+.dg-bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 0.5rem; height: var(--dg-bar-h); padding: 0 1rem;
+  background: var(--dg-bg); border-bottom: 1px solid var(--dg-rule); font: 400 0.86rem/1.2 var(--dg-ui); color: var(--dg-text-soft); }
+.dg-bar-btn { display: inline-flex; align-items: center; gap: 0.4rem; height: 32px; padding: 0 0.6rem; border-radius: 6px; color: var(--dg-text-soft); text-decoration: none; white-space: nowrap; }
+.dg-bar-btn:hover { background: var(--dg-ui-hover); color: var(--dg-heading); }
+.dg-bar-menu { display: none; }
+/* touch screens: hit areas of at least 40 px; the bar keeps one row down to 360 px (the breadcrumbs shrink) */
+@media (pointer: coarse) { .dg-bar-btn { min-width: 40px; height: 40px; justify-content: center; padding: 0 0.55rem; } .dg-bar { padding: 0 0.6rem; gap: 0.3rem; } .dg-bar-tools { gap: 0; } }
+.dg-crumbs { display: flex; flex: 1; align-items: center; gap: 0.35rem; min-width: 0; overflow: hidden; white-space: nowrap; }
+.dg-crumbs a, .dg-crumbs span { overflow: hidden; text-overflow: ellipsis; color: inherit; text-decoration: none; }
+.dg-crumbs a:hover { color: var(--dg-heading); text-decoration: underline; }
+.dg-crumbs [aria-current] { color: var(--dg-heading); font-weight: 700; }
+.dg-crumbs .dg-n { overflow: visible; }
+.dg-crumb-sep { font-size: 0.7em; opacity: 0.6; }
+.dg-bar .dg-n { margin-right: 0.15em; font-variant-numeric: tabular-nums; }
+.dg-bar-tools { display: flex; flex: none; gap: 0.15rem; }
+.dg-bar-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+.dg-bar-progress i { position: absolute; inset: 0; background: var(--dg-accent); opacity: 0.28; transform-origin: 0 50%; transform: scaleX(var(--pos, 0)); }
+.dg-bar-progress b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--dg-accent); }
+
+/* shell grid: course tree | text column (the notes' 45 em) | sidenote margin */
+.dg-shell { display: grid; align-items: start; min-height: 70vh; }
+body.dg-page-reading .dg-shell { font-size: 1.17rem; }
+.dg-main { min-width: 0; padding: 2.2rem 0 5rem; font-family: var(--dg-text-font); font-size: 1em; line-height: 1.58; overflow-wrap: break-word; }   /* a long URL breaks instead of widening the page */
+
+/* course tree: chapters and appendices, the current chapter open, the outline of the current page inside it */
+.dg-tree { position: sticky; top: var(--dg-bar-h); max-height: calc(100vh - var(--dg-bar-h)); overflow-y: auto; overscroll-behavior: contain;
+  padding: 1.4rem 0.9rem 3rem 1.1rem; border-right: 1px solid var(--dg-rule); font: 400 0.88rem/1.35 var(--dg-ui); color: var(--dg-text-soft); scrollbar-width: thin; }
+.dg-tree-title { margin: 0 0 0.9rem; font-size: 0.95rem; font-weight: 700; line-height: 1.25; }
+.dg-tree-title a { color: var(--dg-heading); text-decoration: none; }
+.dg-tree ol { list-style: none; margin: 0; padding: 0; }
+.dg-tree a, .dg-tree .dg-pending { display: block; padding: 0.3rem 0.5rem; border-radius: 5px; color: inherit; text-decoration: none; }
+.dg-tree a:hover { background: var(--dg-ui-hover); color: var(--dg-heading); }
+.dg-tree .dg-pending { color: var(--dg-pending); }
+.dg-tree .dg-n { display: inline-block; min-width: 1.5em; font-variant-numeric: tabular-nums; opacity: 0.75; }
+.dg-tree .dg-ch > a, .dg-tree .dg-ch > .dg-pending { font-weight: 700; }
+.dg-tree .dg-ch > a { color: var(--dg-heading); }
+.dg-tree .dg-ch > ol { display: none; margin: 0.1rem 0 0.5rem 0.55rem; padding-left: 0.5rem; border-left: 1px solid var(--dg-rule); }
+.dg-tree .dg-ch.dg-open > ol { display: block; }
+.dg-tree .dg-ch > ol .dg-n { min-width: 2.1em; }
+.dg-tree a[aria-current="page"], .dg-tree .dg-ch > a[aria-current="page"] { background: var(--dg-ui-current); color: var(--dg-accent); font-weight: 700; }
+.dg-tree .dg-ch .dg-tree-outline { display: block; margin: 0.15rem 0 0.4rem 0.9rem; padding: 0; border: 0; font-size: 0.93em; }
+.dg-tree-outline a { padding: 0.18rem 0.5rem; opacity: 0.9; }
+.dg-tree-outline .dg-l3 a { padding-left: 1.3rem; }
+.dg-tree-outline a.dg-on { color: var(--dg-accent); opacity: 1; }
+/* a part title of the notes' contents ("Appendices", main.tex), set off from the chapters by a hairline */
+.dg-tree-part { margin: 0.7rem 0.5rem 0.25rem; padding-top: 0.75rem; border-top: 1px solid var(--dg-rule); color: var(--dg-text-soft);
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+/* section entries keep room at their right for the "read" mark (D40), so that it never re-wraps the title */
+.dg-tree .dg-ch > ol > li > a { padding-right: 1.45em; }
+
+/* site footer: replica of the footer of the other pages */
+.dg-sitefoot { display: flex; justify-content: space-between; gap: 1rem; padding: 1.4rem 2rem; border-top: 1px solid var(--dg-rule); font: 400 0.85rem var(--dg-ui); color: var(--dg-text-soft); }
+.dg-sitefoot a { color: inherit; }
+
+/* landing page: one wide column, no tree */
+body.dg-page-landing .dg-shell { display: block; }
+body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+/* chapter opening pages (D38): one wide column like the landing page, the notes' text at its 45 em measure,
+ * no sidenote margin (footnotes as popover + list), the course tree a drawer at every width */
+body.dg-page-chapter .dg-shell { display: block; font-size: 1.17rem; }
+body.dg-page-chapter .dg-main { max-width: 1120px; margin: 0 auto; padding: 2.2rem 1.25rem 5rem; }
+body.dg-page-chapter .dg-main > :not(.dg-web) { max-width: 52.65rem; }      /* 45 em of the text size (1.17rem), also for the smaller footnotes */
+body.dg-page-chapter .dg-main > .dg-prevnext { max-width: 52.65rem; }       /* previous/next as wide as the text column (B18-B22) */
+body.dg-page-chapter .dg-bar-menu { display: inline-flex; }
+body.dg-page-chapter .dg-tree { position: fixed; z-index: 41; top: 0; bottom: 0; left: 0; width: min(21rem, 88vw); max-height: none; padding-top: 1.2rem;
+  background: var(--dg-bg); font-size: 0.88rem; transform: translateX(-102%); visibility: hidden; transition: transform 0.18s ease, visibility 0s linear 0.18s; }
+html.dg-nav-open body.dg-page-chapter .dg-tree { transform: none; visibility: visible; box-shadow: 0 0 40px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
+html.dg-nav-open body.dg-page-chapter::after { content: ""; position: fixed; inset: 0; z-index: 40; background: rgba(5, 10, 20, 0.45); }
+
+/* widths: the margin from 1000 px, the tree in the grid from 1360 px (a drawer below) */
+@media (min-width: 1000px) {
+  body.dg-page-reading .dg-shell { grid-template-columns: minmax(0, 45em) var(--dg-margin-w); justify-content: center; padding-left: 1.5rem; }
 }
-main.content p { margin: 0 0 0.85rem; }
-main.content a { color: var(--dg-accent); text-decoration-color: rgba(122, 162, 247, 0.45); text-underline-offset: 2px; }
-main.content a:hover { color: #a9c3ff; }
+@media (min-width: 1360px) {
+  body.dg-page-reading .dg-shell { grid-template-columns: var(--dg-tree-w) minmax(0, 45em) var(--dg-margin-w); column-gap: 2.6rem; justify-content: start; padding-left: 0; }
+}
+@media (min-width: 1700px) { body.dg-page-reading .dg-shell { justify-content: center; } }
+@media (max-width: 1359.98px) {
+  .dg-bar-menu { display: inline-flex; }
+  .dg-tree { position: fixed; z-index: 41; top: 0; bottom: 0; left: 0; width: min(21rem, 88vw); max-height: none; padding-top: 1.2rem;
+    background: var(--dg-bg); font-size: 0.88rem; transform: translateX(-102%); visibility: hidden; transition: transform 0.18s ease, visibility 0s linear 0.18s; }
+  html.dg-nav-open .dg-tree { transform: none; visibility: visible; box-shadow: 0 0 40px rgba(0, 0, 0, 0.25); transition: transform 0.18s ease; }
+  html.dg-nav-open body::after { content: ""; position: fixed; inset: 0; z-index: 40; background: rgba(5, 10, 20, 0.45); }   /* over the site navbar (30) */
+}
+@media (prefers-reduced-motion: reduce) { .dg-tree, body.dg-page-chapter .dg-tree { transition: none; } html.dg-nav-open .dg-tree, html.dg-nav-open body.dg-page-chapter .dg-tree { transition: none; } }
+@media (max-width: 999.98px) {
+  .dg-shell { display: block; }
+  body.dg-page-reading .dg-main { max-width: 46rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+  body.dg-page-chapter .dg-main { padding: 1.4rem 1.1rem 4rem; }
+}
+@media (max-width: 991.98px) {
+  :root { --dg-sitenav-h: 69px; }
+  .dg-sitenav-in { flex-wrap: wrap; }
+  .dg-sitenav-toggle { display: block; }
+  .dg-sitenav ul { display: none; order: 3; flex: 0 0 100%; flex-direction: column; padding-top: 8px; }
+  .dg-sitenav.dg-open ul { display: flex; }
+}
+@media (max-width: 767.98px) { body.dg-page-reading .dg-shell, body.dg-page-chapter .dg-shell { font-size: 1.08rem; } }
+@media (max-width: 720px) {
+  .dg-bar-btn span { display: none; }
+  .dg-crumbs a, .dg-crumb-sep { display: none; }
+}
 
+/* ---- 6. the notes' constructs ------------------------------------------------------------------ */
+.dg-main p { margin-bottom: 0.7rem; hanging-punctuation: first; }
+.dg-main a { color: var(--dg-accent); text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, var(--dg-accent) 45%, transparent); }
+.dg-main a:hover { color: var(--dg-accent-hover); }
+
+/* page header: kicker in small caps as the PDF's running header, then the numbered title */
 .dg-head { margin: 0.4rem 0 1.6rem; }
-.dg-kicker { margin: 0 0 0.25rem !important; color: var(--dg-text-soft); font-variant: small-caps; letter-spacing: 0.04em; font-size: 1.02rem; }
-.dg-kicker a { color: inherit !important; text-decoration: none; }
-.dg-kicker a:hover { text-decoration: underline; }
+.dg-main .dg-kicker { margin: 0 0 0.25rem; color: var(--dg-text-soft); font-variant: small-caps; letter-spacing: 0.05em; font-size: 1.05rem; }
+.dg-main .dg-kicker a { color: inherit; text-decoration: none; }
+.dg-main .dg-kicker a:hover { text-decoration: underline; }
 .dg-sep { opacity: 0.6; margin: 0 0.25em; }
-h1.dg-title { color: var(--dg-heading); font-weight: 700; line-height: 1.15; margin: 0; padding-bottom: 0.55rem; }
-.dg-head-chapter h1.dg-title { font-size: 2.5rem; border-bottom: 3px solid var(--dg-heading); }
-.dg-head-section h1.dg-title { font-size: 1.85rem; border-bottom: 1px solid var(--dg-color-blue-2); }
-main.content h2, main.content h3 { color: var(--dg-heading); font-weight: 700; border: 0; }
-main.content h2 { font-size: 1.4rem; margin: 2.2rem 0 0.9rem; padding: 0; }
-main.content h3 { font-size: 1.15rem; margin: 1.8rem 0 0.7rem; }
+h1.dg-title { margin: 0; padding-bottom: 0.55rem; color: var(--dg-heading); font-weight: 700; line-height: 1.15; letter-spacing: -0.005em; }
+.dg-head-chapter h1.dg-title { font-size: 2.7rem; border-bottom: 2px solid var(--dg-heading); }
+.dg-head-section h1.dg-title { font-size: 2.05rem; border-bottom: 1px solid var(--dg-rule); }
+.dg-main h2, .dg-main h3 { color: var(--dg-heading); font-weight: 700; }
+.dg-main h2 { font-size: 1.5rem; margin: 2.6rem 0 0.9rem; }
+.dg-main h3 { font-size: 1.22rem; margin: 1.8rem 0 0.7rem; }
 .dg-secnum { margin-right: 0.45em; font-variant-numeric: tabular-nums; }
 
-/* sidebar and page outline: on the page surface (not the theme's grey), active entry in the accent
- * colour (the theme's green never shows) */
-#quarto-sidebar, #quarto-margin-sidebar { font-size: 0.9rem; }
-nav.sidebar.sidebar-navigation:not(.rollup), #quarto-sidebar, #quarto-margin-sidebar,
-div.sidebar.sidebar-navigation.rollup.quarto-sidebar-toggle-contents { background-color: var(--dg-bg) !important; }
-#quarto-sidebar { border-right: 1px solid var(--dg-rule); }
-#quarto-sidebar .sidebar-title { font-size: 0.98rem; font-weight: 700; line-height: 1.25; color: var(--dg-heading); }
-.sidebar-navigation .sidebar-item a, #TOC a { color: var(--dg-text-soft); }
-.sidebar-navigation .sidebar-item a:hover, #TOC a:hover { color: #fff; }
-.sidebar-navigation .sidebar-item a.active { color: var(--dg-accent) !important; font-weight: 600; }
-.sidebar nav[role="doc-toc"] ul > li > a.active, .sidebar nav[role="doc-toc"] ul > li > ul > li > a.active,
-#TOC a.active { color: var(--dg-accent) !important; border-left-color: var(--dg-accent) !important; }
-.sidebar nav[role="doc-toc"] ul > li > a, .sidebar nav[role="doc-toc"] ul > li > ul > li > a { border-left-color: var(--dg-rule); }
-#toc-title { color: var(--dg-heading); }
-.sidebar-navigation .sidebar-item-toggle, .sidebar-navigation .sidebar-item-toggle:hover { color: var(--dg-text-soft); }
-.sidebar-navigation .sidebar-item .sidebar-item-text:not(a) { color: rgba(185, 199, 228, 0.45); }   /* not converted yet */
-/* phones: the bar with the sidebar toggle and the breadcrumbs */
-.quarto-secondary-nav { background-color: var(--dg-bg) !important; border-bottom: 1px solid var(--dg-rule); }
-.quarto-secondary-nav .quarto-page-breadcrumbs, .quarto-secondary-nav .breadcrumb { background: transparent !important; }
-.quarto-secondary-nav .quarto-btn-toggle, .quarto-secondary-nav .breadcrumb-item, .quarto-secondary-nav .breadcrumb-item a { color: var(--dg-text-soft) !important; }
-
-/* ---- 2. the notes' constructs --------------------------------------------------------------- */
 /* defined terms: \blueone{..} etc. are bold italic in the colour of the structure they belong to */
 .dg-term { font-weight: 700; font-style: italic; }
 .dg-term mjx-container { font-style: normal; }
@@ -123,24 +284,70 @@ div.sidebar.sidebar-navigation.rollup.quarto-sidebar-toggle-contents { backgroun
 .dg-sz-LARGE { font-size: 1.73em; } .dg-sz-huge { font-size: 2.07em; } .dg-sz-Huge { font-size: 2.49em; }
 .dg-center { text-align: center; }
 .dg-skip { height: 0; } .dg-smallskip { margin-top: 0.3rem; } .dg-medskip { margin-top: 0.75rem; } .dg-bigskip { margin-top: 1.3rem; }
-.dg-anchor { position: relative; top: -5rem; visibility: hidden; }
+.dg-anchor { position: relative; visibility: hidden; }
 .dg-quote { margin: 1.2rem 1.5rem; padding: 0 0 0 1.1rem; border-left: 3px solid var(--dg-rule); color: var(--dg-text); font-size: 1.06em; }
 
-/* math: wide displays scroll inside their own box instead of widening the page */
+/* math: wide displays scroll inside their own box instead of widening the page (D27) */
 .math.display { display: block; overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 0.9rem 0; padding: 0.2rem 3px; }
-.math.display.dg-math-scroll:not(.dg-math-end) { -webkit-mask-image: linear-gradient(to left, transparent 0, #000 2.2rem); mask-image: linear-gradient(to left, transparent 0, #000 2.2rem); }
+/* every box that scrolls sideways shows a soft shadow at the edge where content is hidden, and none where it
+   is not (D45 b): two covers in the box's own colour scroll with the content (attachment local) and hide the
+   two shadows (attachment scroll) when an end is reached. CSS only; the shadows lie under the content, so
+   an equation number at the edge stays legible. --dg-scroll-bg is the colour of the surface behind the box. */
+.math.display, mjx-container.dg-math-wide, .dg-table-wrap {
+  background:
+    linear-gradient(to right, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) left center / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) right center / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--dg-scroll-shadow), transparent) left center / 1rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--dg-scroll-shadow), transparent) right center / 1rem 100% no-repeat scroll;
+}
+/* tables: the notes' tabular as an HTML table (D48). Alignment, widths and the gaps of @{..} come from the
+   column spec as inline styles; the rules (| and \hline) are classes; \arraystretch scales the cell padding.
+   A table wider than the column scrolls inside its box like a wide display. */
+.dg-table-wrap { overflow-x: auto; max-width: 100%; margin: 0.9rem 0; }
+/* rows as in LaTeX: \arraystretch x the 1.2 em baselineskip (line-height 1.2 + the stretch as padding) */
+.dg-table { --dg-cell-pad: calc(0.08em + (var(--dg-arraystretch, 1) - 1) * 0.6em); border-collapse: collapse; margin: 0; line-height: 1.2; }
+.dg-center > .dg-table-wrap > .dg-table, .dg-table-display > .dg-table { margin-inline: auto; }
+.dg-table :is(td, th) { padding: var(--dg-cell-pad) 0.6em; font-weight: inherit; vertical-align: baseline; }
+/* \\[dim]: a strut 0.3 em (LaTeX's strut depth) + dim deep, no width, no ink */
+.dg-row-strut { display: inline-block; width: 0; height: calc(0.3em + var(--dg-strut-dp)); vertical-align: calc(-0.3em - var(--dg-strut-dp)); }
+.dg-table .dg-rule-l { border-left: 1px solid var(--dg-text); }
+.dg-table .dg-rule-r { border-right: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-above > * { border-top: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-below > * { border-bottom: 1px solid var(--dg-text); }
+.dg-pop { --dg-scroll-bg: var(--dg-pop-bg); }
+.dg-chapter-card { --dg-scroll-bg: var(--dg-surface); }
+.dg-motivation-upper { --dg-scroll-bg: color-mix(in srgb, #bdc9ed 7%, var(--dg-bg)); }          /* the box's tints, made opaque */
+.dg-motivation-lower { --dg-scroll-bg: color-mix(in srgb, #bdc9ed 14%, var(--dg-bg)); }
+.dg-inline { --dg-scroll-bg: color-mix(in srgb, var(--dg-accent) 4%, var(--dg-bg)); }
 .math.display:focus-visible { outline: 1px dashed var(--dg-rule); outline-offset: 2px; }
-.math.display mjx-container[display="true"] { margin: 0 !important; min-width: max-content; }
-/* an inline formula wider than its line (narrow screens; course.js marks it) scrolls in place */
+/* the number of a display that scrolls stays in view (D45 b; B12-B17): MathJax sets the tags of a display in
+   a column at the right end of the formula, which then lay in the hidden part of the box (§6.3, "(6.1)" at
+   390 px). Made sticky, the column stays at the right edge of the box at rest, opaque over the formula passing
+   beneath it, and reaches its own place when the box is scrolled to its end. While formula is hidden beneath
+   it, its left edge has the shadow of D45 and a fade (course.js marks the box dg-scroll-end at the end). */
+.math.display.dg-math-scroll mjx-mtable[side="right"] > mjx-labels > mjx-itable {
+  position: sticky; display: table; margin-left: auto; background: var(--dg-scroll-bg, var(--dg-bg)); }
+.math.display.dg-math-scroll:not(.dg-scroll-end) mjx-mtable[side="right"] > mjx-labels > mjx-itable::before {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 100%; width: 1.4em; pointer-events: none;
+  background: linear-gradient(to left, var(--dg-scroll-shadow), transparent 0.9em), linear-gradient(to left, var(--dg-scroll-bg, var(--dg-bg)) 0.3em, transparent); }
+/* MathJax's own stylesheet gives display containers a 1em margin: (0,2,1) beats it */
+.math.display mjx-container[jax="CHTML"][display="true"] { margin: 0; min-width: max-content; }
+/* an inline formula (or reference) and the punctuation glued to it by the converter: no line break inside (D44) */
+.dg-nb { white-space: nowrap; }
+/* an inline formula wider than its line (narrow screens; course.js marks it) scrolls in place; course.js
+   narrows it by the width of the punctuation glued to it (D44), so that the run still fits the line */
 mjx-container.dg-math-wide { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding-bottom: 2px; }
 html.dg-js:not(.dg-math-ready) .math { visibility: hidden; }                 /* no flash of raw TeX */
 html.dg-js:not(.dg-math-ready) .math.display { min-height: 2.4em; }
 mjx-container { color: inherit; }
+/* MathJax's hidden MathML copy (for screen readers) is as wide as the formula's MathML, not as the formula:
+   near the right edge it widened the page at 390 px. Kept within the formula's own box. */
+mjx-container mjx-assistive-mml { max-width: 100% !important; }
 
 /* lists: LaTeX's default labels (itemize: bullet, dash, asterisk, dot; enumerate: 1. (a) i. A.) */
-main.content ul.dg-itemize, main.content ol.dg-enumerate { padding-left: 1.6rem; margin: 0 0 0.9rem; }
-main.content li { margin: 0.45rem 0; }
-main.content li > p:last-child { margin-bottom: 0.3rem; }
+.dg-main ul.dg-itemize, .dg-main ol.dg-enumerate { padding-left: 1.6rem; margin: 0 0 0.9rem; }
+.dg-main li { margin: 0.45rem 0; }
+.dg-main li > p:last-child { margin-bottom: 0.3rem; }
 ul.dg-itemize.dg-depth-1 { list-style-type: disc; }
 ul.dg-itemize.dg-depth-2 { list-style-type: "\2013\00a0\00a0"; }
 ul.dg-itemize.dg-depth-3 { list-style-type: "\2217\00a0\00a0"; }
@@ -159,61 +366,172 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 .dg-motivation-upper { background: rgba(189, 201, 237, 0.07); padding: 0.85rem 0.95rem 0.2rem; }
 .dg-motivation-lower { background: rgba(189, 201, 237, 0.14); border-top: 1px dashed var(--dg-color-blue-1); padding: 0.85rem 0.95rem 0.2rem; }
 
-/* figures: the original artwork on a paper card, at the same fraction of the text width as in the PDF */
+/* figures: the original artwork on white paper, at the same fraction of the text width as in the PDF (D10d) */
 .dg-figure, .dg-diagram { margin: 1.6rem 0; }
-.dg-paper { background: var(--dg-paper); border-radius: 8px; padding: 10px; margin: 0 auto; width: calc(var(--dg-frac, 1) * 100%); min-width: min(100%, 300px); box-sizing: border-box; cursor: zoom-in; }
+.dg-paper { width: calc(var(--dg-frac, 1) * 100%); min-width: min(100%, 300px); margin: 0 auto; padding: 10px; background: var(--dg-paper);
+  border: 1px solid var(--dg-rule); border-radius: 4px; cursor: zoom-in; }
 .dg-paper img, .dg-paper svg { display: block; width: 100%; height: auto; }
-.dg-figure figcaption { color: var(--dg-text-soft); font-size: 0.93rem; line-height: 1.55; margin-top: 0.7rem; }
-.dg-fignum { color: var(--dg-text); font-weight: 600; }
+.dg-figure figcaption { margin-top: 0.7rem; color: var(--dg-text-soft); font-size: 0.9em; line-height: 1.45; }
+.dg-fignum { color: var(--dg-heading); font-weight: 700; }
 
-/* footnotes: numbered as in the PDF (per chapter), listed at the foot of the page, shown on hover */
+/* footnotes: numbered as in the PDF (per chapter), listed at the foot of the page (the no-JS and print form);
+ * sidenotes in the margin from 1000 px, popovers below (D33) */
 .dg-fnref { line-height: 0; }
-.dg-fnref a { text-decoration: none; padding: 0 0.12em; font-variant-numeric: tabular-nums; }
+/* the mark touches the word it follows, as in the PDF (LaTeX sets \footnote's mark right after the preceding
+   box): no padding on its left (B12-B17: "form ¹⁰"); the right padding keeps a little more to click */
+.dg-main .dg-fnref a { padding: 0 0.12em 0 0; font-family: var(--dg-ui); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: none; }
 .dg-footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); font-size: 0.9rem; color: var(--dg-text-soft); }
-.dg-fn { display: grid; grid-template-columns: 2rem 1fr; margin: 0.5rem 0; }
-.dg-fn-num { text-decoration: none; font-variant-numeric: tabular-nums; }
+.dg-fn { display: grid; grid-template-columns: 2rem minmax(0, 1fr); margin: 0.5rem 0; }   /* minmax(0, …): a wide display in a footnote scrolls in its box (D27) */
+.dg-main .dg-fn-num { text-decoration: none; font-variant-numeric: tabular-nums; }
 .dg-fn-body > p:last-child { margin-bottom: 0; }
-.dg-fn:target { background: rgba(122, 162, 247, 0.12); outline: 6px solid rgba(122, 162, 247, 0.12); border-radius: 2px; }
+.dg-fn:target { background: var(--dg-ui-current); outline: 6px solid var(--dg-ui-current); border-radius: 2px; }
 
 /* cross-references */
-a.dg-xref, a.dg-cite { text-decoration: none; white-space: nowrap; }
-a.dg-xref:hover, a.dg-cite:hover { text-decoration: underline; }
+/* references and citations keep the thin underline of the other links of the text: colour alone does not
+   tell them from the words around them (WCAG 1.4.1; DECISIONS D41) */
+.dg-main a.dg-xref, .dg-main a.dg-cite { white-space: nowrap; text-underline-offset: 0.16em; }
+.dg-main a.dg-xref:hover, .dg-main a.dg-cite:hover { text-decoration-color: currentColor; }
+/* also in headings (a reference in a title is still told from its words by colour only, which axe flags as
+   link-in-text-block: R10), but never under a formula (links inside MathJax output) */
+.dg-main mjx-container a, .dg-pop mjx-container a, .dg-mapdlg mjx-container a { text-decoration: none; }
 .dg-xref-pending { color: var(--dg-text-soft); }
 .dg-inprep { font-size: 0.82em; font-style: italic; color: var(--dg-text-soft); border: 1px dashed var(--dg-rule); border-radius: 3px; padding: 0 0.35em; white-space: nowrap; }
-:target { scroll-margin-top: 5rem; }
 
-/* ---- 3. web layer --------------------------------------------------------------------------- */
-.dg-web { font-size: 0.93rem; }
-.dg-chapter-sections { margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
-.dg-chapter-sections ul { list-style: none; padding: 0; margin: 0; }
-.dg-chapter-sections li { margin: 0.3rem 0; }
-.dg-chapter-sections a { text-decoration: none; }
-.dg-chapter-sections .dg-pending { color: rgba(185, 199, 228, 0.5); }
+/* ---- 7. web layer ------------------------------------------------------------------------------ */
+.dg-web { font-family: var(--dg-ui); }
+.dg-main .dg-web { font-size: 0.93rem; }
+/* a page title of ours (copyright page, Definitions and notation; D51, D53): Lato, at the size of the other
+   titles of the front and back matter (an h1's 2 em), not at the small size of the web layer's labels */
+.dg-main h1.dg-title.dg-web { font-size: 2em; }
+
+/* chapter opening pages (D38): cards for the chapter's sections and for the related items of Appendices B and C
+ * (side by side from 900 px), then the chapter's roadmap from section 1.1. The card heads are the notes' own
+ * numbers and titles, set like the contents cards of the landing page. */
+/* the cards keep the measure of the notes' text above them (45 em of the text size), so that their right edges
+ * line up with the motivation box; only the roadmap below uses the page's full width */
+.dg-chapter-web { display: grid; gap: 1rem; align-items: start; max-width: 52.65rem; margin-top: 2.6rem; }
+@media (min-width: 900px) { .dg-chapter-web.dg-two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.1rem; } }
+.dg-chapter-web:not(.dg-two) > .dg-chapter-card:has(> ul > li:nth-child(12)) > ul { columns: 2 22rem; column-gap: 2rem; }
+.dg-chapter-related { display: grid; gap: 1rem; }
+.dg-chapter-card { padding: 1rem 1.15rem 0.8rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
+.dg-main .dg-chapter-card-head { margin: 0 0 0.5rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--dg-rule); font-size: 1em; font-weight: 400; line-height: 1.25; }
+.dg-main .dg-chapter-card-head a { display: block; text-decoration: none; }
+.dg-chapter-card-head a:hover .dg-contents-title { color: var(--dg-accent); }
+.dg-chapter-card ul { list-style: none; margin: 0; padding: 0; }
+.dg-main .dg-chapter-card li { margin: 0; padding: 0.2rem 0 0.2rem 2.6rem; text-indent: -2.6rem; line-height: 1.45; break-inside: avoid; }
+.dg-chapter-card li > * { text-indent: 0; }
+.dg-chapter-card .dg-secnum { display: inline-block; min-width: 2.6rem; margin-right: 0; color: var(--dg-text-soft); font-variant-numeric: tabular-nums; }
+.dg-main a.dg-related-item { padding-block: 0.2rem; text-decoration: none; }                  /* hit area >= 24 px */
+.dg-main a.dg-related-item:hover { text-decoration: underline; }
+.dg-chapter-card .dg-pending, .dg-chapter-card .dg-pending .dg-secnum { color: var(--dg-pending); }
+/* the numbers of the pages at the other end of the references: small outlined chips (web layer), each a link
+ * with a hit area of at least 24 px (40 px on touch screens, by an invisible margin around it); they wrap
+ * between one another. The chip of the page itself has no link. */
+.dg-related-pages { font-size: 0.8em; }
+.dg-chip { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; margin: 0 0 0 6px; padding: 0 0.5rem;
+  border: 1px solid var(--dg-web-rule); border-radius: 999px; font: 700 1em/1 var(--dg-ui); font-variant-numeric: tabular-nums; text-indent: 0; vertical-align: 0.05em; white-space: nowrap; }
+.dg-main a.dg-chip { color: var(--dg-accent); text-decoration: none; }
+.dg-main a.dg-chip:hover { background: var(--dg-ui-hover); border-color: var(--dg-accent); color: var(--dg-accent-hover); }
+.dg-chip.dg-related-here { border-color: var(--dg-rule); color: var(--dg-text-soft); }
+.dg-chapter-card .dg-chip.dg-pending { border-style: dashed; border-color: var(--dg-rule); }
+@media (pointer: coarse) {
+  .dg-chip { height: 28px; margin: 6px 0 6px 8px; }
+  a.dg-chip::after { content: ""; position: absolute; inset: -6px -4px; }                   /* 40 px tall, 8 px wider */
+}
+/* the roadmap: the figure as in section 1.1 (inlined when it comes near, badges into the chapter ringed),
+ * with the notes' caption beside it from 1000 px; the caption keeps the text face */
+.dg-main .dg-web.dg-chapter-map { margin-top: 2.6rem; font-size: 1em; }
+.dg-chapter-map .dg-figure { margin: 0; }
+.dg-chapter-map .dg-paper { width: 100%; cursor: default; }
+.dg-chapter-map .dg-expand { display: flex; margin: 0.45rem 0 0 auto; }
+.dg-chapter-map figcaption { font-family: var(--dg-text-font); }
+.dg-main .dg-chapter-map a.dg-fignum { color: var(--dg-heading); text-decoration: none; }
+.dg-main .dg-chapter-map a.dg-fignum:hover { text-decoration: underline; }
+@media (min-width: 1000px) {
+  .dg-chapter-map .dg-figure { display: grid; grid-template-columns: minmax(0, 1fr) minmax(14rem, 17rem); column-gap: 1.6rem; align-items: start; }
+  .dg-chapter-map .dg-figure > :not(figcaption) { grid-column: 1; }
+  .dg-chapter-map figcaption { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: calc(var(--dg-bar-h) + 1rem); margin-top: 0; }
+}
 .dg-prevnext { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
-.dg-prevnext a { text-decoration: none; max-width: 48%; display: flex; gap: 0.5rem; }
-.dg-prevnext .dg-next { flex-direction: row-reverse; text-align: right; margin-left: auto; }
+/* "read" marks (D40; course.js section 12): the toggle at the foot of a section page, above previous/next
+ * (only with JavaScript), and the check after a section's title in the tree, the sections of the chapter
+ * opening pages and the landing page's contents. The check is always in the HTML and only made visible;
+ * it is positioned where the title ends and takes no room in the line, so it never moves the text. */
+.dg-readbar { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); }
+html:not(.dg-js) .dg-readbar { display: none; }
+html.dg-js .dg-readbar + .dg-prevnext { margin-top: 0.8rem; padding-top: 0; border-top: 0; }
+.dg-readtoggle { display: inline-flex; align-items: center; gap: 0.45em; min-height: 32px; padding: 0 0.85rem 0 0.7rem; border: 1px solid var(--dg-web-rule); border-radius: 999px;
+  color: var(--dg-accent); font: 700 0.84rem/1 var(--dg-ui); letter-spacing: 0.02em; }
+.dg-readtoggle:hover { background: var(--dg-ui-hover); color: var(--dg-accent-hover); }
+.dg-readtoggle[aria-pressed="true"] { background: var(--dg-accent); border-color: var(--dg-accent); color: var(--dg-on-accent); }
+.dg-readtoggle .dg-read-on, .dg-readtoggle[aria-pressed="true"] .dg-read-off { display: none; }
+.dg-readtoggle[aria-pressed="true"] .dg-read-on { display: inline; }
+@media (pointer: coarse) { .dg-readtoggle { min-height: 40px; } }
+.dg-readmark { position: absolute; visibility: hidden; margin-left: 0.32em; color: var(--dg-accent); font-size: 0.9em; font-weight: 700; text-indent: 0; white-space: nowrap; }
+.dg-main .dg-readmark { font-size: 0.9em; }
+.dg-readmark.dg-on { visibility: visible; }
+a:has(> .dg-readmark) { position: relative; }
+.dg-main .dg-prevnext a { display: flex; gap: 0.5rem; max-width: 48%; text-decoration: none; }
+.dg-prevnext .dg-next { flex-direction: row-reverse; margin-left: auto; text-align: right; }
 
-/* popover: footnotes (D11) and cross-reference previews (D25); built by course.js */
-.dg-pop { position: absolute; z-index: 1080; top: 0; left: 0; width: max-content; max-width: min(35rem, calc(100vw - 1rem)); max-height: 60vh; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; background: var(--dg-surface-2); color: var(--dg-text); border: 1px solid rgba(122, 162, 247, 0.35); border-radius: 8px; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5); padding: 0.7rem 0.9rem; font-size: 0.9rem; line-height: 1.55; text-align: left; }
+/* sidenotes: the footnotes of the notes, in the margin at the height of their mark (D33; course.js builds them) */
+.dg-sidenotes { display: none; }
+@media screen {
+  html.dg-has-sidenotes .dg-main { position: relative; }
+  html.dg-has-sidenotes .dg-sidenotes { display: block; position: absolute; top: 0; left: 100%; width: var(--dg-margin-w); height: 100%; pointer-events: none; }
+  html.dg-has-sidenotes #dg-main > .dg-footnotes { display: none; }       /* the page's list; a panel (D35) keeps its own */
+  /* D60: a footnote whose math does not fit the margin is no sidenote: its mark opens the popover and the
+     list at the foot of the page shows it (only those; course.js marks the others dg-fn-margin) */
+  html.dg-has-sidenotes #dg-main > .dg-footnotes:has(> .dg-fn:not(.dg-fn-margin)) { display: block; }
+  html.dg-has-sidenotes #dg-main > .dg-footnotes > .dg-fn.dg-fn-margin { display: none; }
+}
+.dg-sidenote { position: absolute; left: 2.2rem; right: 1.2rem; pointer-events: auto; font-family: var(--dg-text-font); font-size: 0.97rem; line-height: 1.42; color: var(--dg-text-soft); transition: color 0.15s; }
+/* the number ends a fixed gap before the note's text, so that two digits never touch it ("10The …") */
+.dg-sidenote::before { content: attr(data-n); position: absolute; right: calc(100% + 0.5rem); top: 0.12em; font: 700 0.8em/1.42 var(--dg-ui); color: var(--dg-accent); white-space: nowrap; }
+.dg-sidenote p { margin: 0 0 0.45rem; }
+.dg-sidenote.dg-hot, .dg-sidenote:hover { color: var(--dg-text); }
+.dg-sidenote .math.display { margin: 0.4rem 0; }
+
+/* popover: footnotes below 1000 px (D11) and cross-reference previews (D25); built by course.js.
+ * Its content is the notes' text, so it is set in the text face. */
+.dg-pop { position: absolute; z-index: 1080; top: 0; left: 0; width: max-content; max-width: min(35rem, calc(100vw - 1rem)); max-height: 60vh; overflow: auto; overscroll-behavior: contain;
+  padding: 0.7rem 0.9rem; background: var(--dg-pop-bg); color: var(--dg-text); border: 1px solid var(--dg-web-rule); border-radius: 8px; box-shadow: var(--dg-shadow);
+  font-family: var(--dg-text-font); font-size: 0.95rem; line-height: 1.5; text-align: left; }
 .dg-pop[hidden] { display: none; }
 .dg-pop p { margin: 0 0 0.6rem; }
 .dg-pop p:last-child, .dg-pop li > p:last-child { margin-bottom: 0; }
-.dg-pop a { color: var(--dg-accent); text-decoration: none; }
-.dg-pop a:hover { text-decoration: underline; }
+/* the notes' text in a preview: its links underlined as in the page (D41) */
+.dg-pop a { color: var(--dg-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in srgb, var(--dg-accent) 45%, transparent); }
+.dg-pop a:hover { text-decoration-color: currentColor; }
+.dg-pop .dg-fnref a { padding: 0 0.12em 0 0; font-family: var(--dg-ui); font-weight: 700; text-decoration: none; }
 .dg-pop-raw .math { visibility: hidden; }                                  /* until typeset */
-.dg-pop-title { color: var(--dg-heading); font-weight: 700; font-size: 1rem; line-height: 1.3; }
+.dg-pop-title { color: var(--dg-heading); font-weight: 700; font-size: 1.05rem; line-height: 1.3; }
 .dg-pop .math.display { margin: 0.3rem 0; }
 .dg-pop figure { margin: 0; }
 .dg-pop .dg-paper { cursor: default; width: 100%; min-width: 0; padding: 6px; }
-.dg-pop figcaption { font-size: 0.85rem; margin-top: 0.5rem; color: var(--dg-text-soft); }
+.dg-pop figcaption { font-size: 0.88rem; margin-top: 0.5rem; color: var(--dg-text-soft); }
 .dg-pop ul, .dg-pop ol { padding-left: 1.3rem; margin: 0; }
 .dg-pop > .dg-pop-preview > li { list-style: none; margin: 0; }        /* a lone list item: no bullet */
 .dg-pop .dg-motivation { margin: 0; }
 
 /* figure cards are buttons that open the viewer */
 .dg-paper[role="button"]:focus-visible, .dg-icon-btn:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 3px; }
+/* a figure whose text is too small to read at its current width (course.js 3b, B33): a labelled "Zoom" button over
+ * its top-right corner, half on the card's edge (it covers the card's padding, hardly the figure) */
+.dg-paper { position: relative; }
+.dg-zoom { position: absolute; top: -0.85rem; right: 0.7rem; z-index: 2; display: inline-flex; align-items: center; gap: 0.3rem;
+  height: 1.75rem; padding: 0 0.75rem 0 0.55rem; border: 1.5px solid var(--dg-accent); border-radius: 999px; background: var(--dg-bg);
+  color: var(--dg-accent); font: 700 0.82rem/1 var(--dg-ui); letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 2px 8px rgba(20, 30, 60, 0.16); }
+.dg-zoom svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.dg-zoom:hover { background: var(--dg-accent); color: var(--dg-on-accent); }
+.dg-zoom:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 2px; }
+.dg-zoom[hidden], .dg-expand[hidden] { display: none !important; }
+.dg-paper.dg-tiny:not([role]) { cursor: zoom-in; }
+.dg-landing-map .dg-paper.dg-tiny, .dg-chapter-map .dg-paper.dg-tiny { cursor: default; }
+.dg-figure:has(.dg-zoom:not([hidden])) { margin-top: 2.3rem; }
 
-/* figure viewer: a white sheet over the dimmed page; the figure is zoomed and panned in it */
+/* figure viewer: a white sheet over the dimmed page; the figure is zoomed and panned in it (D10e) */
 html.dg-viewer-open { overflow: hidden; }
 dialog.dg-viewer { position: fixed; inset: 0; margin: auto; width: calc(100vw - 32px); height: calc(100vh - 32px); height: calc(100dvh - 32px); max-width: none; max-height: none; padding: 0; border: 0; border-radius: 10px; background: var(--dg-paper); color: #111; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); }
 dialog.dg-viewer::backdrop { background: rgba(4, 8, 16, 0.78); }
@@ -221,9 +539,9 @@ dialog.dg-viewer::backdrop { background: rgba(4, 8, 16, 0.78); }
 .dg-viewer-stage.dg-dragging { cursor: grabbing; }
 .dg-viewer-paper { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: var(--dg-paper); }
 .dg-viewer-paper > img, .dg-viewer-paper > svg { display: block; width: 100%; height: 100%; -webkit-user-drag: none; }
-.dg-viewer-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; padding: 5px; background: rgba(17, 27, 46, 0.88); border-radius: 999px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); }
-.dg-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--dg-text); cursor: pointer; }
-.dg-icon-btn:hover { background: rgba(122, 162, 247, 0.22); color: #fff; }
+.dg-viewer-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; padding: 5px; background: rgba(17, 27, 46, 0.88); border-radius: 999px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); color: #e4e9f5; }
+.dg-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.dg-viewer-tools .dg-icon-btn:hover { background: rgba(122, 162, 247, 0.22); color: #fff; }
 .dg-icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* links made from the \ref badges of TikZ figures (course.js: linkify) */
@@ -233,7 +551,129 @@ dialog.dg-viewer::backdrop { background: rgba(4, 8, 16, 0.78); }
 .dg-svg-link:focus { outline: none; }
 .dg-svg-link:focus-visible .dg-svg-hit { fill: rgba(56, 89, 189, 0.16); stroke: #3859bd; stroke-width: 2px; vector-effect: non-scaling-stroke; }
 
-/* ---- landing page (index.qmd): cover, actions, roadmap, contents, epigraph and dedication ---- */
+/* without JavaScript: no search buttons (D39); "Map" stays the link to the landing page's roadmap */
+html:not(.dg-js) [data-act="search"] { display: none; }
+.dg-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* appendix content opened in place (D35; course.js section 8): "open here" after the reference, the panel
+ * after the block that holds it. The panel's frame and head are web layer (Lato); its body is the notes. */
+.dg-open-here.dg-web { position: relative; display: inline-flex; align-items: center; gap: 0.3em; height: 1.5em; margin-left: 0.35em; padding: 0 0.5em; vertical-align: 0.08em;
+  border: 1px solid var(--dg-web-rule); border-radius: 999px; background: transparent; color: var(--dg-accent); font: 700 0.7rem/1 var(--dg-ui); letter-spacing: 0.03em; white-space: nowrap; }   /* label >= 11 px (rem: the same in sidenotes and popovers) */
+.dg-xref-open { white-space: nowrap; }
+.dg-open-here::after { content: ""; position: absolute; inset: -5px -3px; }                      /* hit area >= 24 px */
+@media (pointer: coarse) { .dg-open-here::after { inset: -12px -4px; } }                          /* >= 40 px on touch */
+.dg-open-here .dg-i { font-size: 0.95em; }
+.dg-open-here:hover, .dg-open-here[aria-expanded="true"] { background: var(--dg-accent); border-color: var(--dg-accent); color: var(--dg-on-accent); }
+.dg-main .dg-inline { margin: 1rem 0 1.4rem; border: 1px dashed var(--dg-web-rule); border-radius: 10px; background: var(--dg-web-bg); overflow: hidden;
+  font-family: var(--dg-text-font); font-size: 1em; line-height: 1.58; }
+.dg-inline:focus { outline: none; }
+.dg-inline:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 2px; }
+.dg-inline-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.7rem; row-gap: 0.1rem; padding: 0.5rem 0.85rem; border-bottom: 1px dashed var(--dg-web-rule);
+  font: 400 0.84rem/1.3 var(--dg-ui); color: var(--dg-text-soft); }
+.dg-inline-kicker { flex: 0 0 100%; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dg-accent); }
+.dg-inline-title { flex: 1 1 14rem; min-width: 0; color: var(--dg-heading); font-weight: 700; }
+.dg-inline-title .dg-secnum { margin-right: 0.35em; }
+.dg-inline-tools { display: flex; gap: 0.2rem; margin-left: auto; }
+.dg-main .dg-inline-tools a, .dg-inline-tools button { display: inline-flex; align-items: center; gap: 0.3em; min-height: 26px; padding: 0 0.45rem; border-radius: 6px;
+  color: var(--dg-accent); font: inherit; text-decoration: none; white-space: nowrap; }
+.dg-main .dg-inline-tools a:hover, .dg-inline-tools button:hover { background: var(--dg-ui-hover); color: var(--dg-accent-hover); }
+@media (pointer: coarse) { .dg-main .dg-inline-tools a, .dg-inline-tools button { min-height: 40px; } }
+.dg-inline-body { max-height: 70vh; overflow: auto; overscroll-behavior: contain; padding: 0.9rem 1.1rem 0.5rem; font-size: 0.95em; }
+.dg-inline-body:focus { outline: none; }
+.dg-inline-body:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: -2px; }
+.dg-inline-raw .math { visibility: hidden; }                                                    /* until typeset */
+.dg-inline-body > :first-child { margin-top: 0; }
+.dg-inline-body .dg-footnotes { display: block; margin-top: 1.6rem; }                          /* the panel keeps its footnote list */
+.dg-inline-body .dg-figure { margin: 1.1rem 0; }
+@media (max-width: 999.98px) { .dg-inline-body { padding: 0.75rem 0.8rem 0.4rem; } }
+
+/* copy LaTeX (D39; course.js section 9): a small button at the right of each display equation, on hover
+ * or keyboard focus; on touch-only screens when the equation is tapped. Beside the text column where the
+ * margin leaves room, otherwise above the equation's right end (clear of its number). */
+.dg-eq { display: block; position: relative; }
+.dg-copy.dg-web { position: absolute; z-index: 3; right: 0; bottom: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; min-width: 28px; height: 28px; padding: 0 5px;
+  border: 1px solid var(--dg-rule); border-radius: 6px; background: var(--dg-bg); color: var(--dg-text-soft); font: 700 0.72rem/1 var(--dg-ui); line-height: 1;
+  opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+.dg-copy .dg-i { font-size: 16px; }
+.dg-copy .dg-i-check, .dg-copy-msg { display: none; }
+.dg-copy.dg-done .dg-i-clipboard { display: none; }
+.dg-copy.dg-done .dg-i-check, .dg-copy.dg-done .dg-copy-msg { display: inline-block; }
+.dg-copy.dg-done { color: var(--dg-accent); border-color: var(--dg-web-rule); }
+.dg-copy:hover { color: var(--dg-heading); background: var(--dg-surface); }
+.dg-eq:hover > .dg-copy, .dg-copy:focus-visible, .dg-copy.dg-done, .dg-eq.dg-on > .dg-copy { opacity: 1; pointer-events: auto; }
+@media (hover: none) { .dg-eq:hover > .dg-copy { opacity: 0; pointer-events: none; } .dg-eq.dg-on > .dg-copy, .dg-copy.dg-done { opacity: 1; pointer-events: auto; min-width: 40px; height: 40px; } }
+@media (min-width: 1000px) {
+  body.dg-page-reading .dg-eq:not(.dg-inline .dg-eq):not(.dg-sidenote .dg-eq) > .dg-copy { right: auto; bottom: auto; left: 100%; top: 0; margin-left: 3px; }
+}
+.dg-sidenote .dg-copy { display: none; }
+@media (prefers-reduced-motion: reduce) { .dg-copy { transition: none; } }
+
+/* dialogs of the course bar: search and map (D36, D39; course.js sections 10 and 11) */
+dialog.dg-dlg { padding: 0; border: 1px solid var(--dg-web-rule); border-radius: 12px; background: var(--dg-pop-bg); color: var(--dg-text); box-shadow: var(--dg-shadow); font-family: var(--dg-ui); }
+dialog.dg-dlg::backdrop { background: var(--dg-backdrop); }
+.dg-dlg .dg-icon-btn { flex: none; color: var(--dg-text-soft); }
+.dg-dlg .dg-icon-btn:hover { background: var(--dg-ui-hover); color: var(--dg-heading); }
+.dg-dlg .dg-icon-btn .dg-i { font-size: 18px; }
+
+dialog.dg-search { width: min(42rem, calc(100vw - 2rem)); max-height: min(44rem, calc(100vh - 6rem)); max-height: min(44rem, calc(100dvh - 6rem)); margin: 9vh auto auto; overflow: hidden; }
+dialog.dg-search[open] { display: flex; flex-direction: column; }
+.dg-search-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.6rem 0.55rem 1rem; border-bottom: 1px solid var(--dg-rule); color: var(--dg-text-soft); }
+.dg-search-head > .dg-i { font-size: 17px; }
+.dg-search-input { flex: 1; min-width: 0; height: 40px; padding: 0 0.3rem; border: 0; background: transparent; color: var(--dg-text); font: 400 1.05rem var(--dg-ui); outline: none; }
+.dg-search-input::placeholder { color: var(--dg-text-soft); opacity: 0.85; }
+.dg-search-input::-webkit-search-cancel-button { display: none; }
+.dg-search-head:focus-within { box-shadow: inset 0 -2px 0 var(--dg-accent); }
+.dg-search-scope { display: flex; gap: 0.35rem; padding: 0.55rem 1rem; border-bottom: 1px solid var(--dg-rule); }
+.dg-search-scope button { min-height: 28px; padding: 0 0.75rem; border: 1px solid var(--dg-rule); border-radius: 999px; color: var(--dg-text-soft); font-size: 0.84rem; }
+.dg-search-scope button:hover { background: var(--dg-ui-hover); color: var(--dg-heading); }
+.dg-search-scope button[aria-pressed="true"] { background: var(--dg-ui-current); border-color: var(--dg-web-rule); color: var(--dg-accent); font-weight: 700; }
+@media (pointer: coarse) { .dg-search-scope button { min-height: 40px; } }
+.dg-search-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; margin: 0; padding: 0.3rem 0 0.6rem; }
+.dg-search-list:empty { display: none; }
+.dg-search-list ul { list-style: none; margin: 0; padding: 0; }
+.dg-search-page { padding: 0.65rem 1rem 0.2rem; color: var(--dg-heading); font-weight: 700; font-size: 0.92rem; }
+.dg-search-list [role="option"] a { display: block; padding: 0.35rem 1rem 0.45rem 1.6rem; color: var(--dg-text); text-decoration: none; border-left: 3px solid transparent; }
+.dg-search-list [role="option"] a:hover, .dg-search-list [aria-selected="true"] a { background: var(--dg-ui-current); border-left-color: var(--dg-accent); }
+.dg-search-sec { display: block; color: var(--dg-accent); font-size: 0.86rem; font-weight: 700; }
+.dg-search-text { display: block; overflow: hidden; color: var(--dg-text-soft); font-size: 0.84rem; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis; }
+.dg-search mark { background: var(--dg-mark); color: inherit; border-radius: 2px; padding: 0 1px; }
+.dg-search-raw :is(.dg-search-page, .dg-search-sec, .dg-search-text) .math { visibility: hidden; }   /* until typeset */
+.dg-search-tex { color: var(--dg-text); font-size: 0.92em; overflow-wrap: anywhere; }      /* the TeX source of a formula that holds the match */
+.dg-search-empty { margin: 0; padding: 1.1rem 1rem 1.3rem; color: var(--dg-text-soft); font-size: 0.92rem; }
+@media (max-width: 767.98px) { dialog.dg-search { width: calc(100vw - 1rem); max-height: calc(100dvh - 1rem); margin-top: 0.5rem; } .dg-search-text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; } }
+
+dialog.dg-mapdlg { width: calc(100vw - 32px); height: calc(100vh - 32px); height: calc(100dvh - 32px); max-width: 1500px; max-height: none; margin: auto; overflow: hidden; }
+dialog.dg-mapdlg[open] { display: flex; flex-direction: column; }
+.dg-mapdlg-head { display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.6rem 0.45rem 1.1rem; border-bottom: 1px solid var(--dg-rule); }
+.dg-mapdlg-sec { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.dg-mapdlg-sec a { color: var(--dg-heading); text-decoration: none; }
+.dg-mapdlg-sec a:hover { color: var(--dg-accent); text-decoration: underline; }
+.dg-mapdlg-sec .dg-secnum { margin-right: 0.4em; }
+.dg-mapdlg .dg-expand { background: transparent; border: 0; }
+.dg-mapdlg .dg-zoom-word { display: none; }
+/* the roadmap's text too small at the dialog's size (phones): the button shows its word, as figures do (B33) */
+.dg-mapdlg .dg-expand.dg-tiny { width: auto; gap: 0.3rem; padding: 0 0.8rem 0 0.6rem; border: 1.5px solid var(--dg-accent); color: var(--dg-accent);
+  font: 700 0.85rem/1 var(--dg-ui); }
+.dg-mapdlg .dg-expand.dg-tiny .dg-zoom-word { display: inline; }
+.dg-mapdlg-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0.8rem; }
+.dg-mapdlg-fig { display: flex; justify-content: center; align-items: flex-start; min-width: 0; }
+.dg-main .dg-mapdlg-paper, .dg-mapdlg-paper { width: auto; min-width: 0; margin: 0; padding: 8px; cursor: default; border-radius: 8px; }
+.dg-mapdlg-paper svg, .dg-mapdlg-paper img { display: block; max-width: none; }
+.dg-mapdlg-cap { max-width: 46rem; margin: 0.9rem auto 0.2rem; padding: 0 0.2rem; color: var(--dg-text-soft); font: 400 0.95rem/1.5 var(--dg-text-font); }
+.dg-mapdlg-cap .dg-fignum { color: var(--dg-heading); font-weight: 700; }
+.dg-mapdlg-cap a { color: var(--dg-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in srgb, var(--dg-accent) 45%, transparent); }
+.dg-mapdlg-cap a:hover { text-decoration-color: currentColor; }
+@media (min-width: 900px) and (min-aspect-ratio: 5/4) {
+  .dg-mapdlg-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(15rem, 22rem); gap: 1.4rem; overflow: hidden; }
+  .dg-mapdlg-fig { min-height: 0; }
+  .dg-mapdlg-cap { max-width: none; margin: 0; overflow-y: auto; align-self: start; max-height: 100%; }
+}
+@media (max-width: 767.98px) { dialog.dg-mapdlg { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; border: 0; } .dg-mapdlg-body { padding: 0.5rem; } }
+/* the badges of the roadmap that point into the current chapter */
+a.dg-svg-link.dg-here .dg-svg-hit { fill: var(--dg-ring-fill); stroke: var(--dg-ring); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+
+/* ---- 8. landing page: cover, actions, roadmap, contents, epigraph and dedication ------------------ */
 .dg-landing { --dg-navy: #142864; --dg-light: #bdc9ed; margin-top: 0.4rem; }
 .dg-landing > * + * { margin-top: 2.6rem; }
 
@@ -249,46 +689,50 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 .dg-mesh .dg-mesh-geodesic { fill: none; stroke: var(--dg-light); stroke-opacity: 0.9; stroke-width: 1.6px; vector-effect: non-scaling-stroke; }
 .dg-mesh .dg-mesh-dot { fill: var(--dg-light); }
 .dg-cover > p, .dg-cover-rule { position: relative; z-index: 2; }
-.dg-landing p.dg-cover-subtitle { margin: 0 0 1.4rem; color: var(--dg-heading); font-size: 1.18rem; font-style: italic; line-height: 1.5; max-width: 46rem; }
+.dg-landing p.dg-cover-subtitle { max-width: 46rem; margin: 0 0 1.4rem; color: var(--dg-heading); font-size: 1.18rem; font-style: italic; line-height: 1.5; }
 .dg-cover .dg-cover-rule { width: 4.5rem; height: 2px; padding: 0; margin: 0 0 1.1rem clamp(1.2rem, 5vw, 3.2rem); background: var(--dg-heading); }
 .dg-landing p.dg-cover-author { margin: 0 0 0.35rem; color: var(--dg-heading); font-size: 1.45rem; font-weight: 700; }
 .dg-landing p.dg-cover-affiliation { margin: 0 0 0.4rem; color: var(--dg-text-soft); font-size: 1rem; line-height: 1.55; }
 .dg-landing p.dg-cover-email { margin: 0; padding-bottom: 1.8rem; font-size: 0.98rem; overflow-wrap: anywhere; }
 .dg-cover-email a, .dg-cover-email .dg-code { color: var(--dg-accent); background: transparent; padding: 0; font-size: 0.95em; }
+/* where the PDF's cover prints \today under a rule across the text block: "Last updated <date>" (web layer, D54) */
+.dg-landing .dg-cover p.dg-cover-date { margin: 0 clamp(1.2rem, 5vw, 3.2rem); padding: 0.5rem 0 1.3rem; border-top: 1px solid var(--dg-heading); color: var(--dg-heading); text-align: right; }
 
-/* the three buttons */
+/* the three buttons (web layer) */
 .dg-landing-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .dg-landing .dg-landing-actions { margin-top: 1.6rem; }
-.dg-landing-actions p { display: contents; }
-main.content a.dg-btn { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.6rem 1.25rem; border-radius: 999px; border: 1px solid rgba(122, 162, 247, 0.45); background: rgba(122, 162, 247, 0.06); color: var(--dg-text); font-weight: 600; font-size: 1rem; text-decoration: none; transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.18s ease; }
-main.content a.dg-btn:hover, main.content a.dg-btn:focus-visible { transform: translateY(-1px); background: rgba(122, 162, 247, 0.16); color: #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); }
-main.content a.dg-btn-primary { background: linear-gradient(135deg, #7aa2f7, #4f7fe6); border-color: transparent; color: #fff; }
-main.content a.dg-btn-primary:hover, main.content a.dg-btn-primary:focus-visible { background: linear-gradient(135deg, #8bb0ff, #5f8cf0); }
-main.content a.dg-btn .bi { font-size: 1.05em; }
+.dg-main a.dg-btn { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.6rem 1.25rem; border-radius: 999px; border: 1px solid var(--dg-web-rule); background: var(--dg-web-bg);
+  color: var(--dg-text); font-size: 1rem; font-weight: 700; text-decoration: none; transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.18s ease; }
+.dg-main a.dg-btn:hover, .dg-main a.dg-btn:focus-visible { transform: translateY(-1px); background: var(--dg-ui-current); color: var(--dg-heading); box-shadow: var(--dg-shadow); }
+.dg-main a.dg-btn-primary, .dg-main a.dg-btn-primary:hover, .dg-main a.dg-btn-primary:focus-visible { background: var(--dg-accent); border-color: transparent; color: var(--dg-on-accent); }
+@media (prefers-reduced-motion: reduce) { .dg-main a.dg-btn { transition: none; } .dg-main a.dg-btn:hover { transform: none; } }
 
 /* the master roadmap, inlined so that its badges are links; the expand button opens the viewer */
+.dg-landing-map { display: flex; flex-direction: column; align-items: flex-end; gap: 0.45rem; }
 .dg-landing-map .dg-paper { position: relative; width: 100%; cursor: default; padding: clamp(6px, 1.4vw, 16px); border-radius: 10px; }
 .dg-map-svg { display: block; width: 100%; height: auto; }
-.dg-landing-map { display: flex; flex-direction: column; align-items: flex-end; gap: 0.45rem; }
 .dg-expand { background: var(--dg-surface-2); border: 1px solid var(--dg-rule); color: var(--dg-text); }
-.dg-expand:hover { background: rgba(122, 162, 247, 0.22); }
+.dg-expand:hover { background: var(--dg-ui-current); color: var(--dg-heading); }
 
 /* contents: a card per chapter; long lists (Appendix B) take the whole row in two columns */
-.dg-contents > ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 1rem; align-items: start; }
-.dg-contents li.dg-contents-chapter { margin: 0; padding: 1rem 1.15rem 0.9rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
+.dg-contents > ol { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 1rem; align-items: start; list-style: none; margin: 0; padding: 0; }
+.dg-contents li.dg-contents-chapter, .dg-contents li.dg-contents-front { margin: 0; padding: 1rem 1.15rem 0.9rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
 .dg-contents li.dg-contents-chapter:has(> ul > li:nth-child(12)) { grid-column: 1 / -1; }
 .dg-contents li.dg-contents-chapter:has(> ul > li:nth-child(12)) > ul { columns: 2 22rem; column-gap: 2rem; }
-.dg-contents-chapter > a { display: block; text-decoration: none; padding-bottom: 0.55rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--dg-rule); }
+.dg-main .dg-contents-chapter > a, .dg-main .dg-contents-front > a { display: block; padding-bottom: 0.55rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--dg-rule); text-decoration: none; }
 .dg-contents-kicker { display: block; color: var(--dg-text-soft); font-variant: small-caps; letter-spacing: 0.04em; font-size: 0.95rem; }
 .dg-contents-title { display: block; color: var(--dg-heading); font-weight: 700; font-size: 1.2rem; line-height: 1.25; }
-.dg-contents-chapter > a:hover .dg-contents-title { color: #fff; }
+.dg-contents-chapter > a:hover .dg-contents-title, .dg-contents-front > a:hover .dg-contents-title { color: var(--dg-accent); }
 .dg-contents-chapter > ul { list-style: none; margin: 0; padding: 0; }
-main.content .dg-contents-chapter > ul > li { margin: 0; padding: 0.22rem 0 0.22rem 2.6rem; text-indent: -2.6rem; font-size: 0.93rem; line-height: 1.4; break-inside: avoid; }
-.dg-contents-chapter > ul a { color: var(--dg-text); text-decoration: none; }
-.dg-contents-chapter > ul a:hover { color: var(--dg-accent); }
+.dg-main .dg-contents-chapter > ul > li { margin: 0; padding: 0.22rem 0 0.22rem 2.6rem; text-indent: -2.6rem; font-size: 0.93rem; line-height: 1.4; break-inside: avoid; }
+.dg-main .dg-contents-chapter > ul a { text-decoration: none; }
+.dg-main .dg-contents-chapter > ul a:hover { text-decoration: underline; }
 .dg-contents .dg-secnum { display: inline-block; min-width: 2.6rem; margin-right: 0; text-indent: 0; color: var(--dg-text-soft); }
-.dg-contents .dg-pending, .dg-contents .dg-pending .dg-secnum, .dg-contents .dg-pending .dg-xref-pending { color: rgba(185, 199, 228, 0.45); }
+.dg-contents .dg-pending, .dg-contents .dg-pending .dg-secnum, .dg-contents .dg-pending .dg-xref-pending { color: var(--dg-pending); }
 .dg-contents .dg-xref { white-space: nowrap; }
+/* a part title of the notes' contents ("Appendices", main.tex), across the row, after a hairline */
+.dg-contents li.dg-contents-part { grid-column: 1 / -1; margin: 0.6rem 0 -0.15rem; padding-top: 1.2rem; border-top: 1px solid var(--dg-rule);
+  color: var(--dg-heading); font-size: 1.35rem; font-weight: 700; line-height: 1.25; }
 
 /* epigraph on a soft glow with faded verse lines; dedication in a navy block with the ribbon */
 .dg-landing-end { position: relative; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; background: radial-gradient(ellipse 60% 34% at 50% 22%, rgba(189, 201, 237, 0.16), transparent 75%); }
@@ -310,15 +754,112 @@ main.content .dg-contents-chapter > ul > li { margin: 0; padding: 0.22rem 0 0.22
 .dg-landing-end > .dg-mesh-dedication { position: absolute; z-index: 2; right: -2%; bottom: -1.4rem; width: 42%; pointer-events: none; }
 .dg-mesh-dedication .dg-mesh-grid { stroke-opacity: 0.13; stroke-width: 0.6px; }
 
-/* phones */
+/* ---- 8b. front matter: copyright page, About the Author (unit B4, D51) ----------------------------- */
+.dg-rule { display: inline-block; vertical-align: baseline; background: currentColor; }
+.dg-main h2:has(> .dg-cp-heading) { font-size: 1.05rem; margin: 2.2rem 0 0.7rem; }      /* \normalsize\bfseries in the PDF */
+.dg-cp-heading { display: flex; align-items: baseline; gap: 0.5em; color: var(--dg-color-blue-0); }
+.dg-cp-heading::after { content: ""; flex: 1; align-self: center; height: 1px; background: var(--dg-color-blue-2); }   /* the \leaders rule to the margin */
+.dg-tcb { margin: 0.5rem 0 1rem; padding: 0.55em 0.8em 0.55em 0.9em; }
+.dg-tcb p { margin: 0; }
+.dg-grant { display: inline-block; padding: 0.22em 0.5em; border-radius: 2px; background: var(--dg-color-blue-0); color: var(--dg-on-accent);
+  font-size: 0.8em; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.dg-landing-legal { margin: 1.4rem 0 0.4rem; text-align: center; font-size: 0.85rem; }
+.dg-tree-matter { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--dg-rule); }
+
+.dg-about-head { margin: 0.4rem 0 1.8rem; }
+.dg-about-band { position: relative; display: flex; align-items: flex-end; aspect-ratio: 1440 / 692; overflow: hidden;
+  background: #142864; border-bottom: 2px solid var(--dg-color-blue-2); border-radius: 6px 6px 0 0; }
+.dg-about-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* the PDF's navy tint (30 %) and its fade to navy over the lower 60 mm of the 101 mm block (20 steps of 4.5 %) */
+.dg-about-band::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(20, 40, 100, 0.30) 0%, rgba(20, 40, 100, 0.30) 40%, rgba(20, 40, 100, 0.72) 100%); }
+.dg-about-titles { position: relative; z-index: 1; padding: 0 12rem 1.1rem 1.6rem; }   /* right: room for the portrait */
+h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; font-weight: 400; font-variant: small-caps; letter-spacing: 0.02em; }
+.dg-about-name { margin: 0; color: #fff; font-size: clamp(1.7rem, 4.2vw, 2.55rem); font-weight: 700; line-height: 1.15; }
+.dg-about-rule { width: 4.6rem; height: 2px; margin-top: 0.75rem; background: #bdc9ed; }
+.dg-about-under { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 0 1.6rem; }
+.dg-about-affil { margin: 0.8rem 0 0; line-height: 1.4; }
+.dg-about-role { color: var(--dg-color-blue-0); font-size: 1.15em; font-style: italic; }
+.dg-about-institute { color: color-mix(in srgb, var(--dg-text) 75%, var(--dg-bg)); }
+.dg-about-portrait { flex: none; width: 9.5rem; height: auto; margin-top: -5.6rem; position: relative; z-index: 1; border-radius: 50%;
+  border: 3px solid var(--dg-bg); outline: 1px solid var(--dg-color-blue-0); outline-offset: 3px; }
+.dg-timeline { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 40rem; margin: 0.4rem auto; padding: 0; }
+.dg-timeline li { display: grid; grid-template-rows: auto 1.5rem auto auto; align-content: start; justify-items: center; padding: 0 0.25rem; text-align: center; line-height: 1.25; }
+.dg-timeline li::before { content: ""; grid-row: 2; grid-column: 1; align-self: center; justify-self: stretch; height: 3px; margin: 0 -0.25rem; background: var(--dg-color-blue-2); }
+.dg-timeline li:first-child::before { margin-left: 50%; border-radius: 2px 0 0 2px; }
+.dg-timeline li:last-child::before { margin-right: 50%; border-radius: 0 2px 2px 0; }
+.dg-timeline li::after { content: ""; grid-row: 2; grid-column: 1; align-self: center; width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%;
+  border: 1.6px solid var(--dg-color-blue-0); background: radial-gradient(circle, var(--dg-color-blue-1) 0 2.3px, var(--dg-bg) 2.7px); }
+.dg-tl-years { grid-row: 1; color: var(--dg-color-blue-0); font-size: 0.9em; font-weight: 700; }
+.dg-tl-role { grid-row: 3; margin-top: 0.15rem; color: var(--dg-color-blue-0); font-size: 0.78em; font-weight: 700; }
+.dg-tl-place { grid-row: 4; color: color-mix(in srgb, var(--dg-text) 65%, var(--dg-bg)); font-size: 0.78em; }
+.dg-about-links { margin-top: 2.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-color-blue-0); text-align: right; font-size: 0.9em; }
+/* B18-B22: a link that does not fit goes to the next line whole, and the separator "·" (with its two \quad) hangs
+   in the gap before the next link: at the end of a line it falls outside the box and is clipped, so no line ends
+   or starts with it (the 3 px padding keeps the links' focus rings inside the clip) */
+.dg-about-links p { display: flex; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; overflow: clip; margin: -3px; padding: 3px; }
+.dg-about-link { white-space: nowrap; }
+.dg-about-link + .dg-about-link { margin-left: 2.6em; }
+.dg-about-sep { display: inline-block; width: 2.6em; margin-right: -2.6em; text-align: center; }
+@media (max-width: 599.98px) {
+  .dg-about-band { aspect-ratio: auto; min-height: 12rem; }
+  .dg-about-titles { padding: 0 7.2rem 0.9rem 1rem; }
+  .dg-about-links { font-size: 0.78em; }
+  .dg-about-under { padding: 0 1rem; }
+  .dg-about-portrait { width: 6.5rem; margin-top: -3.6rem; }
+  .dg-timeline { font-size: 0.92em; }
+}
+.dg-landing-legal + .dg-landing-legal { margin-top: 0.15rem; }
+
+/* ---- 8c. List of Figures and Bibliography (unit B5, D52) ------------------------------------------- */
+/* LoF: as the PDF's, a number column and the caption beside it (hanging), the book class's 10 pt between
+   chapters (\addvspace); no page numbers (they are the PDF's layout) */
+.dg-lof { list-style: none; margin: 1rem 0 1.5rem 1.5em; padding: 0; }
+.dg-lof > li { display: grid; grid-template-columns: 3.1em minmax(0, 1fr); margin: 0.12rem 0; line-height: 1.45; }
+.dg-lof > li.dg-lof-gap { margin-top: 0.85rem; }
+/* Bibliography: plainnat author-year, no labels, hanging indent (natbib's \bibhang, 1 em) */
+.dg-bib { list-style: none; margin: 1rem 0 1.5rem; padding: 0; }
+.dg-bib > li { margin: 0 0 0.75rem; padding-left: 1em; text-indent: -1em; }
+.dg-bib .dg-code { overflow-wrap: anywhere; }
+@media (max-width: 599.98px) { .dg-lof { margin-left: 0; } }
+
+/* ---- 8d. Definitions and notation (unit B35, D53) -------------------------------------------------- */
+/* web layer throughout, except the reproduced Notation table and the terms (the notes' words, colours kept).
+   Part and letter headings are the web layer's words (Lato) at the size of the notes' headings. Each entry: the
+   term, then its occurrences as chips (the page's number, linked to the term), then "used in" and the pages that
+   refer to where it stands, as chips; a wrapped line is indented under the term. */
+.dg-main :is(h2, h3) > .dg-defs-head { font-size: inherit; }
+.dg-defs-table { margin: 0.9rem 0 1.4rem; }
+.dg-main .dg-defs-from { margin: 0; }
+.dg-defs-links { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.dg-defs-links > li { margin: 0.3rem 0; }
+.dg-defs-list { list-style: none; margin: 0.3rem 0 0.8rem; padding: 0; }
+.dg-defs-list > li { margin: 0; padding: 0.25rem 0 0.25rem 1.5em; text-indent: -1.5em; line-height: 1.55; }
+.dg-defs-at, .dg-defs-used { font-size: 0.8em; }
+.dg-main .dg-defs-used > .dg-web { margin: 0 0.1rem 0 0.9rem; font-size: 0.95em; color: var(--dg-text-soft); white-space: nowrap; }
+
+@media print {
+  .dg-about-band { border-radius: 0; }
+  .dg-lof > li, .dg-bib > li { break-inside: avoid; }
+  /* Definitions and notation (D53): its words print (the page is all web layer), the chips as plain text */
+  body:has(.dg-defs-list) h1.dg-title.dg-web, .dg-main .dg-defs-head, .dg-main .dg-defs-from, .dg-main .dg-defs-links,
+  .dg-main .dg-defs-used > .dg-web { display: revert !important; }
+  .dg-main .dg-defs-list .dg-chip { display: inline !important; height: auto; min-width: 0; margin: 0 0 0 0.4em; padding: 0; border: 0; font: inherit; color: inherit !important; }
+  .dg-defs-list > li { break-inside: avoid; }
+  .dg-about-band, .dg-about-band::after, .dg-grant, .dg-tcb { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ---- 9. narrow screens ------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
-  main.content { font-size: 1rem; }
   .dg-head-chapter h1.dg-title { font-size: 1.9rem; }
   .dg-head-section h1.dg-title { font-size: 1.45rem; }
-  main.content ul.dg-itemize, main.content ol.dg-enumerate { padding-left: 1.15rem; }
+  .dg-main ul.dg-itemize, .dg-main ol.dg-enumerate { padding-left: 1.15rem; }
+  /* labelled items, "(a)", "(ii)": the label starts at the text's edge instead of hanging into the gutter */
+  .dg-main :is(ul.dg-itemize, ol.dg-enumerate):has(> li.dg-labelled) { padding-left: 1.95rem; }
+  .dg-main li.dg-labelled > .dg-item-label { margin-left: -1.95rem; margin-right: 0.3rem; }
   .dg-quote { margin: 1rem 0.2rem; }
   .dg-paper { width: 100%; padding: 6px; }
-  .dg-prevnext a { max-width: 100%; }
+  .dg-main .dg-prevnext a { max-width: 100%; }
   .dg-prevnext { flex-direction: column; }
   dialog.dg-viewer { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; }
   .dg-viewer-tools { top: auto; bottom: max(12px, env(safe-area-inset-bottom)); right: 50%; transform: translateX(50%); }
@@ -328,4 +869,26 @@ main.content .dg-contents-chapter > ul > li { margin: 0; padding: 0.22rem 0 0.22
   .dg-contents li.dg-contents-chapter:has(> ul > li:nth-child(12)) > ul { columns: 1; }
   .dg-landing .dg-dedication p { font-size: 1.02rem; }
   .dg-landing-end > .dg-mesh-dedication { width: 75%; bottom: -2.2rem; }
+}
+
+/* ---- 10. print: the notes on white, no chrome, footnotes at the foot of the page ------------------ */
+@media print {
+  :root { --dg-bg: #fff; --dg-surface: #fff; --dg-text: #000; --dg-text-soft: #222; --dg-heading: #000; }
+  body { background: #fff; color: #000; }
+  .dg-skiplink, .dg-sitenav, .dg-bar, .dg-tree, .dg-sitefoot, .dg-prevnext, .dg-chapter-web, .dg-chapter-map, .dg-landing-actions,
+  .dg-sidenotes, .dg-pop, dialog.dg-viewer, dialog.dg-dlg, .dg-interactive, .dg-expand, .dg-open-here, .dg-inline, .dg-copy,
+  .dg-readbar, .dg-readmark { display: none; }
+  /* every control of the web layer, whatever its own display rule ("open here" is inline-flex with two classes) */
+  .dg-web, .dg-open-here, .dg-copy, .dg-readtoggle, .dg-chip { display: none !important; }
+  .dg-shell, body.dg-page-reading .dg-shell, body.dg-page-chapter .dg-shell { display: block; font-size: 11pt; padding: 0; }
+  .dg-main, body.dg-page-reading .dg-main, body.dg-page-landing .dg-main, body.dg-page-chapter .dg-main { max-width: none; margin: 0; padding: 0; }
+  .dg-main a, .dg-main a:hover { color: inherit; text-decoration: none; }
+  .dg-footnotes { display: block; }
+  .math.display { overflow: visible; background: none; }
+  .dg-table-wrap { overflow: visible; background: none; }
+  .dg-table { font-size: inherit !important; }
+  mjx-container.dg-math-wide { background: none; }
+  .dg-paper { border: 0; cursor: auto; }
+  .dg-figure, .dg-diagram, .dg-motivation, .dg-fn { break-inside: avoid; }
+  .dg-main h2, .dg-main h3, h1.dg-title { break-after: avoid; }
 }

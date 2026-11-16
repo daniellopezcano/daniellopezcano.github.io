@@ -6,8 +6,15 @@
 //   el(tag, attrs, ...children)   tiny DOM builder;  setMath(el, text)  (re)typeset TeX in an element
 //   controls(parent)              a .dg-controls row
 //   slider / choice / stepper / toggle / button / readout / note / legend     labelled native controls
-//   Plot2D                        SVG plot: data->pixel scales, axes, lines, arrows, keyed draggable handles
-//   Scene3D                       canvas-2D 3D scene: shaded surfaces, curves, points, arrows, drag to rotate
+//                                 (aria: plain-text accessible name when the visible label is only TeX, D56)
+//   matrix(rows, cols)            numeric matrix or column vector in brackets (plain text; set(M) is cheap)
+//   Plot2D                        SVG plot: data->pixel scales (equal: same scale on both axes), axes, lines,
+//                                 filled areas, arrows, keyed draggable handles (hit area >= 24 px, D56)
+//   Scene3D                       canvas-2D 3D scene: shaded surfaces (colour per quad), curves, points, arrows, drag to rotate;
+//                                 project() (world -> canvas px) and grab (drag a picked object instead of rotating)
+//   Touch (D56, interactive.css): drawings are touch-action pan-y pinch-zoom, so a vertical swipe scrolls the page;
+//   draggable handles are touch-action none and cancel their touchstart; on touch the 3D view rotates only about the vertical.
+//   dispose(root)                 stop the observers of the plots and scenes inside root (Reset re-mounts, D55)
 import { typeset } from '../course.js';
 
 // ---- colours -------------------------------------------------------------------------------
@@ -25,6 +32,14 @@ export const palette = {
 export const tol = { blue: '#4477AA', red: '#EE6677', green: '#228833', yellow: '#CCBB44', cyan: '#66CCEE', purple: '#AA3377', grey: '#BBBBBB' };
 /** Paul Tol "vibrant" scheme (the curves of the plots in Appendix C, e.g. Figure C.12). */
 export const vibrant = { blue: '#0077BB', orange: '#EE7733', cyan: '#33BBEE', magenta: '#EE3377', red: '#CC3311', teal: '#009988', grey: '#BBBBBB' };
+
+// ---- lifecycle -----------------------------------------------------------------------------
+// Plots and scenes observe their size. Reset (course.js, D55) empties the panel and mounts the
+// module again, so the old ones must stop observing: they register here and dispose() ends them.
+const live = new Set();
+export function dispose(root) {
+  for (const x of live) if (!x.wrap.isConnected || root.contains(x.wrap)) { x.ro.disconnect(); live.delete(x); }
+}
 
 // ---- DOM helpers ---------------------------------------------------------------------------
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -67,9 +82,9 @@ export const fmt = (x, d = 2) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(
 // typeset(body) at the end of mount (or by setMath later).
 export function controls(parent) { const c = el('div', { class: 'dg-controls' }); parent.append(c); return c; }
 
-export function slider({ label, min, max, step = 0.01, value, format = v => fmt(v), onInput }) {
+export function slider({ label, aria, min, max, step = 0.01, value, format = v => fmt(v), onInput }) {
   const id = newId('slider');
-  const input = el('input', { type: 'range', id, min, max, step, value });
+  const input = el('input', { type: 'range', id, min, max, step, value, 'aria-label': aria });
   const out = el('output', { for: id, class: 'dg-value' }, format(+value));
   const wrap = el('div', { class: 'dg-ctl dg-slider' }, el('label', { for: id }, mathSpan('dg-ctl-label', label)), input, out);
   const api = {
@@ -81,7 +96,7 @@ export function slider({ label, min, max, step = 0.01, value, format = v => fmt(
   return api;
 }
 
-/** Segmented radio group. options: [{value, label}] */
+/** Segmented radio group. options: [{value, label, aria}] (aria: plain-text name when the label is only TeX) */
 export function choice({ label, options, value, onChange }) {
   const name = newId('choice');
   const group = el('div', { class: 'dg-ctl dg-choice', role: 'radiogroup' });
@@ -89,7 +104,7 @@ export function choice({ label, options, value, onChange }) {
   const seg = el('span', { class: 'dg-seg' });
   const inputs = options.map(o => {
     const id = newId('opt');
-    const inp = el('input', { type: 'radio', name, id, value: o.value });
+    const inp = el('input', { type: 'radio', name, id, value: o.value, 'aria-label': o.aria });
     if (String(o.value) === String(value)) inp.checked = true;
     inp.addEventListener('change', () => { if (inp.checked) { api.value = o.value; onChange && onChange(o.value); } });
     seg.append(inp, el('label', { for: id }, mathSpan('', o.label)));
@@ -103,13 +118,13 @@ export function choice({ label, options, value, onChange }) {
   return api;
 }
 
-/** Integer stepper: [label  −  n  +] */
-export function stepper({ label, min, max, value, onChange }) {
+/** Integer stepper: [label  −  n  +]  (aria: plain-text name of the group when the label is only TeX) */
+export function stepper({ label, aria, min, max, value, onChange }) {
   const out = el('output', { class: 'dg-value', 'aria-live': 'polite' }, String(value));
   const lab = mathSpan('dg-ctl-label', label); lab.id = newId('stepl');
   const minus = el('button', { type: 'button', class: 'dg-btn dg-btn-icon', 'aria-label': '−' }, '−');
   const plus = el('button', { type: 'button', class: 'dg-btn dg-btn-icon', 'aria-label': '+' }, '+');
-  const wrap = el('div', { class: 'dg-ctl dg-stepper', role: 'group', 'aria-labelledby': lab.id }, lab, minus, out, plus);
+  const wrap = el('div', { class: 'dg-ctl dg-stepper', role: 'group', 'aria-labelledby': aria ? null : lab.id, 'aria-label': aria }, lab, minus, out, plus);
   const api = {
     el: wrap, value,
     set(v, fire = true) {
@@ -125,9 +140,9 @@ export function stepper({ label, min, max, value, onChange }) {
 }
 
 /** Checkbox styled as a switch. */
-export function toggle({ label, value = false, onChange }) {
+export function toggle({ label, aria, value = false, onChange }) {
   const id = newId('tog');
-  const input = el('input', { type: 'checkbox', id });
+  const input = el('input', { type: 'checkbox', id, 'aria-label': aria });
   input.checked = value;
   const wrap = el('div', { class: 'dg-ctl dg-toggle' }, input, el('label', { for: id }, mathSpan('dg-ctl-label', label)));
   input.addEventListener('change', () => onChange && onChange(input.checked));
@@ -152,6 +167,13 @@ export function readout({ label = '', value = '' }) {
   const v = el('span', { class: 'dg-readout-value' }, value);
   const wrap = el('div', { class: 'dg-readout' }, l, el('span', { class: 'dg-readout-eq' }, '='), v);
   return { el: wrap, set(x) { v.textContent = x; }, setLabel(t) { return setMath(l, t); } };
+}
+
+/** Numeric matrix (cols = 1: column vector) in brackets; set(M) takes rows of numbers, M[i][j]. */
+export function matrix(rows, cols, digits = 3) {
+  const box = el('span', { class: 'dg-mat', style: `grid-template-columns: repeat(${cols}, auto)` });
+  const cells = Array.from({ length: rows * cols }, () => box.appendChild(el('span')));
+  return { el: box, set(M) { cells.forEach((c, k) => { c.textContent = fmt(M[Math.floor(k / cols)][k % cols], digits); }); } };
 }
 
 /** The one instruction line of an interactive. */
@@ -189,7 +211,9 @@ export function simpson(f, a, b, n = 400) {
 
 // ---- Plot2D --------------------------------------------------------------------------------
 /**
- * new Plot2D(parent, {xlim, ylim, aspect, maxWidth, margin, axes, grid, xticks, yticks, draw, label})
+ * new Plot2D(parent, {xlim, ylim, aspect, equal, maxWidth, margin, axes, grid, xticks, yticks, draw, label})
+ * equal: the height follows the width so that one unit has the same length on both axes (aspect ignored).
+ * role: of the svg when it has a label, 'img' by default; 'group' when it holds focusable handles.
  * `draw(plot)` is called on every update() and on resize; it adds primitives with plot.line(...),
  * plot.arrow(...), etc. Primitives given a `key` keep their DOM node across updates (so focus and
  * pointer capture survive); the others are rebuilt. HTML labels (plot.label) hold typeset TeX.
@@ -198,9 +222,9 @@ export class Plot2D {
   constructor(parent, opt = {}) {
     this.o = Object.assign({ xlim: [0, 1], ylim: [0, 1], aspect: 0.75, maxWidth: Infinity, margin: { l: 44, r: 12, t: 12, b: 34 }, axes: true, grid: true }, opt);
     this.wrap = el('div', { class: 'dg-plot dg-paperbox' });
-    this.svg = sv('svg', { class: 'dg-plot-svg', role: opt.label ? 'img' : null, 'aria-label': opt.label || null });
+    this.svg = sv('svg', { class: 'dg-plot-svg', role: opt.label ? opt.role || 'img' : null, 'aria-label': opt.label || null });
     this.layers = {};
-    for (const n of ['grid', 'axes', 'main', 'top', 'handles']) { this.layers[n] = sv('g', { 'data-layer': n }); this.svg.append(this.layers[n]); }
+    for (const n of ['grid', 'axes', 'main', 'top', 'hits', 'handles']) { this.layers[n] = sv('g', { 'data-layer': n }); this.svg.append(this.layers[n]); }
     this.html = el('div', { class: 'dg-plot-labels' });
     this.wrap.append(this.svg, this.html);
     parent.append(this.wrap);
@@ -208,6 +232,7 @@ export class Plot2D {
     this.drag = null;
     this.ro = new ResizeObserver(() => this.update());
     this.ro.observe(this.wrap);
+    live.add(this);
     this.update();
   }
   set(opt) { Object.assign(this.o, opt); this.update(); }
@@ -225,7 +250,8 @@ export class Plot2D {
   update() {
     const W = this.wrap.clientWidth || 300;
     this.w = Math.min(W, this.o.maxWidth);
-    this.h = Math.round(this.w * this.o.aspect);
+    const m = this.o.margin, [a, b] = this.o.xlim, [c, d] = this.o.ylim;
+    this.h = Math.round(this.o.equal ? (this.w - m.l - m.r) * (d - c) / (b - a) + m.t + m.b : this.w * this.o.aspect);
     this.svg.setAttribute('width', this.w); this.svg.setAttribute('height', this.h);
     this.svg.setAttribute('viewBox', `0 0 ${this.w} ${this.h}`);
     this.html.style.width = this.w + 'px'; this.html.style.height = this.h + 'px';
@@ -275,6 +301,12 @@ export class Plot2D {
     return this.node('path', { d, fill: 'none', stroke: opt.color || palette.ink, 'stroke-width': opt.width || 1.5, 'stroke-dasharray': opt.dash || null,
       opacity: opt.opacity, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', class: opt.class }, opt);
   }
+  /** Closed filled polygon. opt: fill, opacity (of the fill), color (outline), width, dash, key, layer */
+  area(pts, opt = {}) {
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + this.sx(p[0]).toFixed(1) + ' ' + this.sy(p[1]).toFixed(1)).join('') + 'Z';
+    return this.node('path', { d, fill: opt.fill || palette.grid, 'fill-opacity': opt.opacity ?? 0.3, stroke: opt.color || 'none',
+      'stroke-width': opt.width || 1.2, 'stroke-dasharray': opt.dash || null, class: opt.class }, opt);
+  }
   /** Function graph y = f(x) on [a, b]. */
   fn(f, a, b, opt = {}) { const n = opt.n || 200, pts = []; for (let i = 0; i <= n; i++) { const x = a + (b - a) * i / n; pts.push([x, f(x)]); } return this.line(pts, opt); }
   point(p, opt = {}) {
@@ -323,23 +355,38 @@ export class Plot2D {
   /**
    * Focusable circle that keeps its node across updates. opt: key (required), r, fill, stroke,
    * ariaLabel, onDrag(x, y) (pointer drag and arrow keys; return nothing), step [dx, dy] for keys,
-   * onKey(e) (return true if handled), onPointerDown(e).
+   * onKey(e) (return true if handled), onPointerDown(e). A handle that can be dragged (onDrag or
+   * onPointerDown) and is drawn smaller than HIT gets a transparent disc of radius HIT under all the
+   * handles (layer 'hits', class dg-handle-hit), which starts the same drag: hit area >= 24 px (D56).
+   * A touch that starts on a draggable handle or its disc must drag it, not scroll the page: Chromium ignores
+   * touch-action on SVG shapes (only the <svg> box counts, which is pan-y), so their touchstart is cancelled.
    */
   handle(p, opt) {
-    const [x, y] = this.px(p);
-    const n = this.node('circle', { cx: x, cy: y, r: opt.r || 7, fill: opt.fill || palette.ink, stroke: opt.stroke || '#fff', 'stroke-width': opt.strokeWidth ?? 1.5,
+    const [x, y] = this.px(p), r = opt.r || 7, drags = o => !!(o.onDrag || o.onPointerDown);
+    const n = this.node('circle', { cx: x, cy: y, r, fill: opt.fill || palette.ink, stroke: opt.stroke || '#fff', 'stroke-width': opt.strokeWidth ?? 1.5,
       tabindex: 0, role: opt.role || 'button', 'aria-label': opt.ariaLabel, class: 'dg-handle ' + (opt.class || '') }, { key: opt.key, layer: 'handles' });
     n._opt = opt; n._p = p;
+    const down = e => {
+      const o = n._opt;
+      if (o.onPointerDown) return o.onPointerDown(e);
+      if (!o.onDrag) return;
+      e.preventDefault(); n.focus();
+      this.svg.setPointerCapture(e.pointerId);
+      this.drag = { node: n, id: e.pointerId };
+    };
+    if (drags(opt) && r < HIT) {
+      const h = this.node('circle', { cx: x, cy: y, r: HIT, fill: 'transparent', class: 'dg-handle-hit', 'aria-hidden': 'true' }, { key: opt.key + '~hit', layer: 'hits' });
+      if (!h.dataset.wired) {
+        h.dataset.wired = '1';
+        h.addEventListener('pointerdown', e => h._down(e));
+        h.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+      }
+      h._down = down;
+    }
     if (!n.dataset.wired) {
       n.dataset.wired = '1';
-      n.addEventListener('pointerdown', e => {
-        const o = n._opt;
-        if (o.onPointerDown) return o.onPointerDown(e);
-        if (!o.onDrag) return;
-        e.preventDefault(); n.focus();
-        this.svg.setPointerCapture(e.pointerId);
-        this.drag = { node: n, id: e.pointerId };
-      });
+      n.addEventListener('pointerdown', e => n._down(e));
+      n.addEventListener('touchstart', e => { if (drags(n._opt)) e.preventDefault(); }, { passive: false });
       n.addEventListener('keydown', e => {
         const o = n._opt;
         if (o.onKey && o.onKey(e)) { e.preventDefault(); return; }
@@ -360,6 +407,7 @@ export class Plot2D {
         this.svg.addEventListener('pointercancel', end);
       }
     }
+    n._down = down;
     return n;
   }
   /**
@@ -381,6 +429,7 @@ export class Plot2D {
     return n;
   }
 }
+const HIT = 12;                                           // px: radius of the hit area of a draggable handle
 function fmtTick(t, all) {
   const step = all.length > 1 ? Math.abs(all[1] - all[0]) : 1;
   const d = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
@@ -394,8 +443,11 @@ function fmtTick(t, all) {
  * looking along +y, x to the right). perspective 0 = orthographic, else the camera distance in
  * units of the scene radius (weak perspective). Primitives (each may carry a `tag` so that
  * clear(tag) removes just those): surface, polyline, point, arrow. Call render() after changes;
- * it draws once on the next animation frame (no permanent loop). Drag / arrow keys rotate,
- * double click or Home resets the view.
+ * it draws once on the next animation frame (no permanent loop). Drag / arrow keys rotate (on touch,
+ * horizontal drags only: azimuth), double click or Home resets the view.
+ * grab(x, y): optional; called with the canvas position (css px) of a pointer or touch that starts on the canvas.
+ * If it returns a function, that function receives the positions of the drag (move(x, y)) instead of the view
+ * rotating, and a touch that starts there does not scroll the page (D56). It must not change anything itself.
  */
 export class Scene3D {
   constructor(parent, opt = {}) {
@@ -411,11 +463,13 @@ export class Scene3D {
     this.wire();
     this.ro = new ResizeObserver(() => this.render());
     this.ro.observe(this.wrap);
+    live.add(this);
   }
   clear(tag) { this.prims = tag == null ? [] : this.prims.filter(p => p.tag !== tag); return this; }
   /**
    * Parametric surface f(u, v) -> [x, y, z] as a quad mesh. opt: u: [u0, u1, nu], v: [v0, v1, nv],
-   * color, alpha, mesh: {color, width, alpha, everyU, everyV} (thin lines on every k-th grid line), tag.
+   * color (or a function (u, v) -> colour, called at the centre of each quad), alpha,
+   * mesh: {color, width, alpha, everyU, everyV} (thin lines on every k-th grid line), tag.
    */
   surface(f, opt) {
     const [u0, u1, nu] = opt.u, [v0, v1, nv] = opt.v;
@@ -432,7 +486,8 @@ export class Scene3D {
         if (j === nv - 1 && (j + 1) % ev === 0) edges.push(2); // q2-q3 : v = v_{j+1}
         if (i === nu - 1 && (i + 1) % eu === 0) edges.push(1); // q1-q2 : u = u_{i+1}
       }
-      this.prims.push({ type: 'quad', pts: q, color: opt.color || '#d0d0d0', alpha: opt.alpha ?? 0.4, edges, mesh: m, tag: opt.tag, surf: true });
+      const col = typeof opt.color === 'function' ? opt.color(u0 + (u1 - u0) * (i + 0.5) / nu, v0 + (v1 - v0) * (j + 0.5) / nv) : opt.color;
+      this.prims.push({ type: 'quad', pts: q, color: col || '#d0d0d0', alpha: opt.alpha ?? 0.4, edges, mesh: m, tag: opt.tag, surf: true });
     }
     return this;
   }
@@ -451,10 +506,19 @@ export class Scene3D {
   wire() {
     const c = this.canvas;
     let drag = null;
-    c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; c.setPointerCapture(e.pointerId); c.classList.add('dg-grabbing'); });
+    const at = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    const grab = e => this.o.grab && this.o.grab(...at(e));
+    c.addEventListener('pointerdown', e => {
+      const move = grab(e);
+      if (move) e.preventDefault();
+      drag = { x: e.clientX, y: e.clientY, id: e.pointerId, move }; c.setPointerCapture(e.pointerId); c.classList.add('dg-grabbing');
+    });
+    c.addEventListener('touchstart', e => { if (e.touches.length === 1 && grab(e.touches[0])) e.preventDefault(); }, { passive: false });
     c.addEventListener('pointermove', e => {
       if (!drag || drag.id !== e.pointerId) return;
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (drag.move) { drag.move(...at(e)); return; }
+      // on touch only horizontal drags rotate (azimuth): vertical swipes scroll the page (touch-action pan-y, D56)
+      const dx = e.clientX - drag.x, dy = e.pointerType === 'touch' ? 0 : e.clientY - drag.y;
       drag.x = e.clientX; drag.y = e.clientY;
       this.setView(this.o.azimuth - dx * 0.5, this.o.elevation + dy * 0.5);
     });
@@ -485,9 +549,28 @@ export class Scene3D {
     requestAnimationFrame(() => { this.queued = false; this.draw(); });
   }
 
+  /** The current view: canvas size (css px), camera vectors and proj(p) -> [x, y, depth] (larger depth: nearer the viewer). */
+  view() {
+    const W = this.wrap.clientWidth || 300, H = Math.round(W * this.o.aspect);
+    const az = this.o.azimuth * Math.PI / 180, elv = this.o.elevation * Math.PI / 180;
+    const eye = [Math.cos(elv) * Math.cos(az), Math.cos(elv) * Math.sin(az), Math.sin(elv)];
+    const right = [-Math.sin(az), Math.cos(az), 0];
+    const up = [-Math.sin(elv) * Math.cos(az), -Math.sin(elv) * Math.sin(az), Math.cos(elv)];
+    const [cen, R] = this.bounds();
+    const scale = Math.min(W, H) / (2 * R) * this.o.zoom, D = this.o.perspective;
+    const proj = p => {
+      const d = [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2]];
+      const z = dot3(d, eye), k = D ? D * R / (D * R - z) : 1;
+      return [W / 2 + dot3(d, right) * scale * k, H / 2 - dot3(d, up) * scale * k, z];
+    };
+    return { W, H, eye, right, up, R, proj };
+  }
+  /** Canvas position (css px) and depth of the world point p in the current view. */
+  project(p) { return this.view().proj(p); }
+
   /** Draw now (normally called through render()). */
   draw() {
-    const W = this.wrap.clientWidth || 300, H = Math.round(W * this.o.aspect), dpr = window.devicePixelRatio || 1;
+    const { W, H, eye, right, up, R, proj } = this.view(), dpr = window.devicePixelRatio || 1;
     const c = this.canvas, ctx = this.ctx;
     if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) {
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); c.style.width = W + 'px'; c.style.height = H + 'px';
@@ -496,18 +579,7 @@ export class Scene3D {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
     if (!this.prims.length) return;
-    const az = this.o.azimuth * Math.PI / 180, elv = this.o.elevation * Math.PI / 180;
-    const eye = [Math.cos(elv) * Math.cos(az), Math.cos(elv) * Math.sin(az), Math.sin(elv)];
-    const right = [-Math.sin(az), Math.cos(az), 0];
-    const up = [-Math.sin(elv) * Math.cos(az), -Math.sin(elv) * Math.sin(az), Math.cos(elv)];
-    const [cen, R] = this.bounds();
-    const scale = Math.min(W, H) / (2 * R) * this.o.zoom, D = this.o.perspective;
-    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const proj = p => {
-      const d = [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2]];
-      const z = dot(d, eye), k = D ? D * R / (D * R - z) : 1;
-      return [W / 2 + dot(d, right) * scale * k, H / 2 - dot(d, up) * scale * k, z];
-    };
+    const dot = dot3;
     // light fixed relative to the viewer, given as [right, up, towards the viewer]
     const L = this.o.light, ln = Math.hypot(...L);
     const lw = [0, 1, 2].map(k => (L[0] * right[k] + L[1] * up[k] + L[2] * eye[k]) / ln);
@@ -569,6 +641,7 @@ export class Scene3D {
     }
   }
 }
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 function shadeHex(hex, k) {
   const n = parseInt(hex.slice(1), 16);
   const ch = s => Math.max(0, Math.min(255, Math.round(((n >> s) & 255) * k)));
