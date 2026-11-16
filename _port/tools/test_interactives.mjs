@@ -7,7 +7,9 @@
 // of §2.3 (components through J and J⁻¹, the pairing over 200 random bases; its place at the end of §2.3, D57), those of the
 // transport module against the closed forms of Appendix C.5 (parallel transport, autoparallels, torsion, curvature, the
 // coefficients in the chart Y; its place at the end of C.5, D57), those of the charts module against the charts and
-// transition maps of §3.2 (Figure 3.1: p on M, X(p) and Y(p) stay linked wherever p is dragged; membership in U, V), checks touch on a phone (D56: a swipe
+// transition maps of §3.2 (Figure 3.1: p on M, X(p) and Y(p) stay linked wherever p is dragged; membership in U, V), those of
+// the rotating and pointmass modules against the closed forms of C.8 (free worldlines in the inertial and co-rotating charts: ᛖ_𝒰𝒱,
+// the involute, Γ_𝒴 from the transformation law; radial fall, the falling chart and the tidal acceleration), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -23,6 +25,7 @@ const TPM = 'notes/diffgeo-gr/tangent-spaces/tangent-space.html';
 const LAWS = 'notes/diffgeo-gr/vector-spaces/basis-components-transformations.html';
 const TR = 'notes/diffgeo-gr/examples/example-connection-torsion-curvature.html';
 const CHARTS = 'notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html';
+const NEWTON = 'notes/diffgeo-gr/examples/example-newtonian.html';       // two panels (B27): rotating, pointmass
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -34,7 +37,7 @@ const num = s => parseFloat(String(s).replace('−', '-'));
 const { server, base } = await serveDocs();
 const browser = await chromium.launch();
 
-async function open(url, width, { breakModule, touch } = {}) {
+async function open(url, width, { breakModule, touch, module } = {}) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 844 : 900 }, deviceScaleFactor: 1, ...(touch ? { hasTouch: true, isMobile: true } : {}) });
   const errors = [];
   page.on('console', m => { if (m.type() === 'error' && !IGNORE.some(r => r.test(m.text()))) errors.push(m.text()); });
@@ -44,17 +47,18 @@ async function open(url, width, { breakModule, touch } = {}) {
   await page.waitForFunction(() => document.documentElement.classList.contains('dg-math-ready'), null, { timeout: 30000 });
   // bring the figure the frame follows into view (the frame itself when it closes a section, D57: what comes
   // before it can be taller than the screen), so that course.js loads the module
-  await page.evaluate(() => { const f = document.querySelector('.dg-interactive'), s = f.previousElementSibling; (s && s.matches('figure') ? s : f).scrollIntoView({ block: 'center', behavior: 'instant' }); });
+  // (module: the frame of that module, on a page with several panels)
+  await page.evaluate(m => { const f = document.querySelector(m ? `.dg-interactive[data-module="${m}"]` : '.dg-interactive'), s = f.previousElementSibling; (s && s.matches('figure') ? s : f).scrollIntoView({ block: 'center', behavior: 'instant' }); }, module || null);
   return { page, errors };
 }
-const ready = page => page.waitForSelector('.dg-interactive.dg-ready', { timeout: 20000 }).then(() => page.waitForTimeout(400));
+const ready = (page, module) => page.waitForSelector(module ? `.dg-interactive[data-module="${module}"].dg-ready` : '.dg-interactive.dg-ready', { timeout: 20000 }).then(() => page.waitForTimeout(400));
 // the mounted frame must not widen the page on a phone (D27: the page never scrolls sideways)
 async function noSideScroll(page, width) {
   if (width >= 600) return;
   const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
   check(sw <= iw, `no horizontal page scroll (scrollWidth ${sw}, innerWidth ${iw})`);
 }
-const shot = async (page, name) => { if (shots) await page.locator('.dg-interactive').screenshot({ path: path.join(shots, name) }); };
+const shot = async (page, name, fr) => { if (shots) await (fr || page.locator('.dg-interactive')).screenshot({ path: path.join(shots, name) }); };
 // mouse events outside the viewport are lost: bring the drawing area (svg / canvas) into view first
 const center = async loc => {
   await loc.evaluate(e => (e.closest('svg, canvas') || e).scrollIntoView({ block: 'center', behavior: 'instant' }));
@@ -821,6 +825,298 @@ async function transportCrossChecks(page) {
   check(wg < 1e-12, `Γ in X carried to Y gives the notes' (Γ^E_y)^1_22 = −β1, (Γ^E_y)^2_12 = (Γ^E_y)^2_21 = 1/β1, (Γ^W_y)^2_21 = 1/β1, all others 0: max difference ${wg.toExponential(2)}`);
 }
 
+// ---- Newton–Cartan (B27): two panels in Appendix C.8, rotating (after Figure C.15) and pointmass (after Figure C.17).
+// rotating: the free worldline is χ_𝒰(t) = χ(0) + t v (Γ_𝒳 = 0) with v = χ̇_𝒱(0) + ω(−χ²(0), χ¹(0)); in the co-rotating chart
+// the notes' ᛖ_𝒰𝒱 (θ = ωt, b = 0) gives χ_𝒱 = (α1 cos ωt + α2 sin ωt, −α1 sin ωt + α2 cos ωt) and its derivatives; the notes'
+// Γ_𝒴: Γ¹02 = −ω, Γ²01 = ω, Γ^α_00 = −ω² β_α; Coriolis 2ω(χ̇²_𝒱, −χ̇¹_𝒱), centrifugal ω²(χ¹_𝒱, χ²_𝒱).
+function rotExpect(st) {
+  const w = st.omega, t = st.t, [p1, p2] = st.p0, v = [st.w0[0] - w * p2, st.w0[1] + w * p1];
+  const a = [p1 + t * v[0], p2 + t * v[1]], c = Math.cos(w * t), s = Math.sin(w * t);
+  const b = [a[0] * c + a[1] * s, -a[0] * s + a[1] * c], bd = [v[0] * c + v[1] * s + w * b[1], -v[0] * s + v[1] * c - w * b[0]];
+  const cor = [2 * w * bd[1], -2 * w * bd[0]], cen = [w * w * b[0], w * w * b[1]];
+  return { xu: a, vu: v, au: [0, 0], g0: [0, -w, w, 0], g00: [-w * w * b[0], -w * w * b[1]], xv: b, ev: b, vv: bd, av: [cor[0] + cen[0], cor[1] + cen[1]], cor, cen };
+}
+// the notes' χ of C.8.2 (χ(0) = (r0, 0), at rest in the co-rotating chart): the involute and its derivatives
+const involute = (r0, w, t) => { const c = Math.cos(w * t), s = Math.sin(w * t), u = w * t;
+  return { x: [r0 * c + r0 * u * s, -r0 * s + r0 * u * c], v: [r0 * w * u * c, -r0 * w * u * s], a: [r0 * w * w * (c - u * s), -r0 * w * w * (s + u * c)] }; };
+const ROT_ORDER = ['xu', 'vu', 'au', 'g0', 'g00', 'xv', 'ev', 'vv', 'av', 'cor', 'cen'];
+
+async function placedAfter(fr, figId) {
+  return fr.evaluate((f, id) => { const s = f.previousElementSibling; return { after: !!s && s.matches('figure') && s.id === id, h: f.getBoundingClientRect().height }; }, figId);
+}
+
+async function testRotating(width) {
+  console.log(`rotating @ ${width}px`);
+  const { page, errors } = await open(NEWTON, width, { module: 'rotating' });
+  await ready(page, 'rotating');
+  const fr = page.locator('.dg-interactive[data-module="rotating"]');
+  const pl = await placedAfter(fr, 'fig_Example_Newtonian_Rotating');
+  check(pl.after, 'panel right after Figure C.15 (fig_Example_Newtonian_Rotating)');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-nc').getAttribute('data-state'));
+  const svgs = fr.locator('.dg-nc svg.dg-plot-svg');
+  async function numbers(what) {
+    const st = await state(), e = rotExpect(st);
+    const ms = await fr.locator('.dg-nc .dg-mat').evaluateAll(ms => ms.map(m => [...m.children].map(c => c.textContent)));
+    const err = Math.max(...ROT_ORDER.map((k, i) => ms[i].length === e[k].length ? Math.max(...ms[i].map((x, j) => Math.abs(num(x) - e[k][j]))) : Infinity));
+    let inv = 0;
+    if (st.p0[1] === 0 && st.p0[0] > 0 && st.w0[0] === 0 && st.w0[1] === 0) {         // the notes' χ: their closed forms
+      const n = involute(st.p0[0], st.omega, st.t), w = [[5, n.x], [7, n.v], [8, n.a]];
+      inv = Math.max(...w.flatMap(([i, v]) => ms[i].map((x, j) => Math.abs(num(x) - v[j]))));
+    }
+    const text = await fr.locator('.dg-interactive-body').textContent();
+    check(err <= 5.1e-4 && inv <= 5.1e-4 && !/NaN|Infinity/.test(text),
+      `${what} (χ(0) = (${st.p0.map(v => v.toFixed(3))}), χ̇_𝒱(0) = (${st.w0.map(v => v.toFixed(3))}), ω = ${st.omega}, t = ${st.t}): χ_𝒱 (${ms[5]}), χ̈_𝒱 (${ms[8]}); max deviation from ᛖ_𝒰𝒱 and the notes' Γ_𝒴 ${err.toExponential(1)}${inv ? `, from the notes' involute ${inv.toExponential(1)}` : ''}`);
+    return st;
+  }
+  await shot(page, `rotating-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  check(await fr.locator('.dg-slider .dg-ctl-label mjx-container').count() === 2, 'slider labels typeset');
+  const tops = await fr.locator('.dg-nc .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 200 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? '(𝒱, 𝒴) below (𝒰, 𝒳)' : 'the two charts side by side');
+  const st0 = await numbers('start');
+  check(JSON.stringify(st0) === JSON.stringify({ p0: [1, 0], w0: [0, 0], omega: 1, t: 1.5 }), 'starts with the notes\' χ (r0 = 1, at rest in the co-rotating chart), ω = 1, t = 1.5');
+  // keyboard: ω and t
+  await fr.locator('.dg-nc-omega input').focus(); await page.keyboard.press('ArrowRight');
+  const s1 = await numbers('ArrowRight on ω');
+  check(near(s1.omega, 1.05, 1e-9) && s1.w0[0] === 0 && s1.w0[1] === 0, `ω = ${s1.omega}, still at rest in 𝒴 at t = 0`);
+  await fr.locator('.dg-slider').nth(1).locator('input').focus(); await page.keyboard.press('End');
+  const s2 = await numbers('End on t');
+  check(s2.t === 2.5, `t = ${s2.t}`);
+  await page.keyboard.press('Home'); await numbers('Home on t');
+  await page.keyboard.press('PageUp'); await numbers('PageUp on t');
+  // mouse: the tip of v (inertial chart), then χ(0) in the co-rotating chart
+  let [x, y] = await center(svgs.nth(0).locator('[data-key="v"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 30, y + 20, { steps: 5 }); await page.mouse.up();
+  const s3 = await numbers('after dragging the tip of v');
+  check(Math.hypot(...s3.w0) > 0.2, `v changed: χ̇_𝒱(0) = (${s3.w0.map(v => v.toFixed(3))})`);
+  [x, y] = await center(svgs.nth(1).locator('[data-key="p0"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 40, y - 30, { steps: 5 }); await page.mouse.up();
+  const s4 = await numbers('after dragging χ(0) in (𝒱, 𝒴)');
+  check(s4.p0[0] < 0.9 && s4.p0[1] > 0.1 && JSON.stringify(s4.w0) === JSON.stringify(s3.w0), `χ(0) moved to (${s4.p0.map(v => v.toFixed(3))}), χ̇_𝒱(0) kept`);
+  const pos = await svgs.evaluateAll(ss => ss.map(s => { const h = s.querySelector('[data-key="p0"]'); return [+h.getAttribute('cx'), +h.getAttribute('cy')]; }));
+  check(Math.hypot(pos[0][0] - pos[1][0], pos[0][1] - pos[1][1]) < 0.5, 'χ(0) at the same place in both charts (θ(0) = 0)');
+  await svgs.nth(0).locator('[data-key="p0"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp');
+  const s5 = await numbers('ArrowUp x2 on χ(0)');
+  check(s5.p0[1] > s4.p0[1] + 0.05, `ArrowUp moves χ(0) up (${s4.p0[1].toFixed(3)} -> ${s5.p0[1].toFixed(3)})`);
+  // far away: |χ(0)| and |v| stop at their limits
+  [x, y] = await center(svgs.nth(0).locator('[data-key="v"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 600, y - 400, { steps: 6 }); await page.mouse.up();
+  const s6 = await numbers('after dragging v far away');
+  const v6 = [s6.w0[0] - s6.omega * s6.p0[1], s6.w0[1] + s6.omega * s6.p0[0]];
+  check(Math.hypot(...v6) <= 2 + 1e-9, `|v| = ${Math.hypot(...v6).toFixed(3)} <= 2`);
+  await shot(page, `rotating-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_Example_Newtonian_Rotating', 'Figure C.15', null);
+  check(JSON.stringify(await state()) === JSON.stringify(st0), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await rotatingCrossChecks(page);
+  await page.close();
+}
+
+async function rotatingCrossChecks(page) {
+  console.log('rotating: the module against ᛖ_𝒰𝒱, the notes\' involute and the transformation law (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/rotating.js');
+    let seed = 11; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const free = [], inv = [], G = [];
+    for (let n = 0; n < 200; n++) {
+      const st = { p0: [rnd(-2, 2), rnd(-2, 2)], w0: [rnd(-1.5, 1.5), rnd(-1.5, 1.5)], omega: rnd(0.1, 2) }, t = rnd(0, 2.5);
+      free.push({ st, t, x: m.inertial(st, t), y: m.corotating(st, t), tr: m.terms(st.omega, [0.3, -0.7], [1.1, 0.4]) });
+    }
+    for (let n = 0; n < 100; n++) {
+      const st = { p0: [rnd(0.3, 2.2), 0], w0: [0, 0], omega: rnd(0.1, 2) }, t = rnd(0, 2.5), y = m.corotating(st, t), tr = m.terms(st.omega, [y[0], y[1]], [y[2], y[3]]);
+      inv.push({ st, t, y, a: [tr.cor[0] + tr.cen[0], tr.cor[1] + tr.cen[1]] });
+    }
+    for (let n = 0; n < 100; n++) { const w = rnd(0.1, 2), b = [rnd(-2, 2), rnd(-2, 2)], t = rnd(0, 2.5); G.push({ w, b, t, g: m.Gamma(w, b, t) }); }
+    return { free, inv, G, START: m.START };
+  });
+  check(JSON.stringify(r.START) === JSON.stringify({ p0: [1, 0], w0: [0, 0], omega: 1, t: 1.5 }), 'starting state as in the test');
+  let wf = 0, wt = 0;
+  for (const { st, t, x, y, tr } of r.free) {
+    const e = rotExpect({ ...st, t });
+    wf = Math.max(wf, ...[0, 1].flatMap(i => [Math.abs(x[i] - e.xu[i]), Math.abs(x[2 + i] - e.vu[i]), Math.abs(y[i] - e.xv[i]), Math.abs(y[2 + i] - e.vv[i])]));
+    const w = st.omega;
+    wt = Math.max(wt, Math.abs(tr.cor[0] - 2 * w * 0.4), Math.abs(tr.cor[1] + 2 * w * 1.1), Math.abs(tr.cen[0] - w * w * 0.3), Math.abs(tr.cen[1] + w * w * 0.7));
+  }
+  check(wf < 1e-6, `free worldlines: χ_𝒰 is the straight line, χ_𝒱 (RK4 of Newton II in 𝒴) = ᛖ_𝒰𝒱(χ_𝒰) and χ̇_𝒱 = its derivative, max difference ${wf.toExponential(2)} (200 random states)`);
+  check(wt < 1e-12, `Coriolis 2ω(χ̇², −χ̇¹) and centrifugal ω²(χ¹, χ²) as in the notes: max difference ${wt.toExponential(2)}`);
+  let wi = 0;
+  for (const { st, t, y, a } of r.inv) {
+    const n = involute(st.p0[0], st.omega, t);
+    wi = Math.max(wi, ...[0, 1].flatMap(i => [Math.abs(y[i] - n.x[i]), Math.abs(y[2 + i] - n.v[i]), Math.abs(a[i] - n.a[i])]));
+  }
+  check(wi < 1e-6, `the notes' χ (χ(0) = (r0, 0), at rest in 𝒴): χ_𝒱, χ̇_𝒱, χ̈_𝒱 vs the notes' involute and its derivatives, max difference ${wi.toExponential(2)} (100 random r0, ω, t)`);
+  // Γ_𝒴 from the transition map ᛖ_𝒱𝒰 (η = (t, β1, β2) -> ξ = (t, α1, α2)) by the transformation law (inhomogeneous term, Γ_𝒳 = 0)
+  let wg = 0;
+  for (const { w, b, t, g } of r.G) {
+    const X = ([s, b1, b2]) => [s, b1 * Math.cos(w * s) - b2 * Math.sin(w * s), b1 * Math.sin(w * s) + b2 * Math.cos(w * s)];
+    const h = 1e-4, eta = [t, b[0], b[1]], E = k => [0, 1, 2].map(i => (i === k ? 1 : 0));
+    const sh = (v, k, c) => v.map((x, i) => x + c * E(k)[i]);
+    const J = [0, 1, 2].map(s => [0, 1, 2].map(j => (X(sh(eta, j, h))[s] - X(sh(eta, j, -h))[s]) / (2 * h)));     // ∂X^s/∂Y^j
+    const D2 = (s, j, k) => (X(sh(sh(eta, j, h), k, h))[s] - X(sh(sh(eta, j, h), k, -h))[s] - X(sh(sh(eta, j, -h), k, h))[s] + X(sh(sh(eta, j, -h), k, -h))[s]) / (4 * h * h);
+    const det = J[0][0] * (J[1][1] * J[2][2] - J[1][2] * J[2][1]) - J[0][1] * (J[1][0] * J[2][2] - J[1][2] * J[2][0]) + J[0][2] * (J[1][0] * J[2][1] - J[1][1] * J[2][0]);
+    const cof = (i, j) => { const r = [0, 1, 2].filter(x => x !== i), c = [0, 1, 2].filter(x => x !== j); return J[r[0]][c[0]] * J[r[1]][c[1]] - J[r[0]][c[1]] * J[r[1]][c[0]]; };
+    const Ji = [0, 1, 2].map(i => [0, 1, 2].map(s => ((i + s) % 2 ? -1 : 1) * cof(s, i) / det));                  // ∂Y^i/∂X^s
+    const Gm = (i, j, k) => [0, 1, 2].reduce((a, s) => a + Ji[i][s] * D2(s, k, j), 0);
+    const want = (i, j, k) => i === 0 ? 0 : j === 0 && k === 0 ? g.G00[i - 1] : j === 0 ? g.G0[i - 1][k - 1] : k === 0 ? g.G0[i - 1][j - 1] : 0;
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) for (let k = 0; k < 3; k++) wg = Math.max(wg, Math.abs(Gm(i, j, k) - want(i, j, k)));
+  }
+  check(wg < 1e-6, `Γ_𝒴 of the module = ∂𝒴^i/∂𝒳^s ∂²𝒳^s/∂𝒴^k∂𝒴^j of the notes' transition map (θ = ωt, b = 0), all 27 components, max difference ${wg.toExponential(2)} (100 random points)`);
+}
+
+// pointmass: units r0 = ω = 1, GM = 1. The notes' closed form for ζ released from rest at 2 r0 is inverted by bisection; for
+// a body released from rest at R it is the same formula with r0 = R/2 and ω = (GM/r0³)^½ (Kepler's law, the notes' setup
+// with other constants; used only in the test). Other starts: ṙ²/2 − GM/r is constant along the notes' r̈ = −GM/r².
+const pmT = (r, R) => { const r0 = R / 2, w = Math.sqrt(1 / r0 ** 3), x = r / R; return 2 / w * (Math.sqrt(x * (1 - x)) + Math.acos(Math.sqrt(x))); };
+const pmR = (t, R) => { let a = 0, b = R; for (let i = 0; i < 200; i++) { const m = (a + b) / 2; if (pmT(m, R) > Math.abs(t)) a = m; else b = m; } return (a + b) / 2; };
+const pmRd = (t, R) => { const r = pmR(t, R), r0 = R / 2, w = Math.sqrt(1 / r0 ** 3), x = r / R; return -Math.sign(t) * w * r0 * Math.sqrt((1 - x) / x); };
+const pmGY = ([b1, b2], r) => { const a = [b1 + r, b2], n = Math.hypot(...a); return [a[0] / n ** 3 - 1 / (r * r), a[1] / n ** 3]; };
+// our own RK4 of the notes' Newton II in 𝒳 (α̈ = −GM α/|α|³), steps of at most 2e−3 (shorter near the source), for the numbers shown
+function pmFree(a0, v0, t) {
+  const f = q => { const n = Math.hypot(q[0], q[1]) ** 3; return [q[2], q[3], -q[0] / n, -q[1] / n]; }, add = (q, k, c) => q.map((x, j) => x + c * k[j]);
+  let s = [...a0, ...v0], T = 0;
+  while (T !== t) {
+    let h = (t < 0 ? -1 : 1) * Math.min(2e-3, 5e-3 * Math.hypot(s[0], s[1]) ** 1.5);
+    if (Math.abs(t - T) <= Math.abs(h)) { h = t - T; T = t; } else T += h;
+    const k1 = f(s), k2 = f(add(s, k1, h / 2)), k3 = f(add(s, k2, h / 2)), k4 = f(add(s, k3, h));
+    s = s.map((x, j) => x + h / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]));
+  }
+  return s;
+}
+function pmExpect(st) {
+  const z = pmFree([st.R, 0], [st.u, 0], st.t), r = z[0], k = 1 / r ** 3;
+  const ps = [0, 3].map(j => { const ph = 2 * Math.PI * j / 12, q = pmFree([st.R + 0.1 * Math.cos(ph), 0.1 * Math.sin(ph)], [st.u, 0], st.t); return [q[0] - r, q[1]]; });
+  return { vals: [r, z[2], -1 / r ** 2, r / 2, pmT(r, 2), 2 / r - 1, k],
+    ms: [[0, 0], [-2 * k, 0, 0, 0, k, 0, 0, 0, k], ...ps.flatMap(b => [b, pmGY(b, r).map(g => -g), [2 * k * b[0], -k * b[1]]])] };
+}
+
+async function testPointmass(width) {
+  console.log(`pointmass @ ${width}px`);
+  const { page, errors } = await open(NEWTON, width, { module: 'pointmass' });
+  await ready(page, 'pointmass');
+  const fr = page.locator('.dg-interactive[data-module="pointmass"]');
+  const pl = await placedAfter(fr, 'fig_Example_Newtonian_Tidal');
+  check(pl.after, 'panel right after Figure C.17 (fig_Example_Newtonian_Tidal)');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-nc').getAttribute('data-state'));
+  const svgT = fr.locator('.dg-nc svg.dg-plot-svg').nth(0);
+  async function numbers(what) {
+    const st = await state(), e = pmExpect(st), isNotes = st.R === 2 && st.u === 0;
+    const vals = (await fr.locator('.dg-nc-val').allTextContents()).map(num), shown = await fr.locator('.dg-nc-val').evaluateAll(vs => vs.map(v => !!v.offsetParent));
+    const ms = (await fr.locator('.dg-nc .dg-mat').evaluateAll(ms => ms.map(m => [...m.children].map(c => c.textContent)))).map(m => m.map(num));
+    const d = (a, b, tol) => Math.abs(a - b) / tol;                                            // <= 1 when within tol
+    const ok = [0, 1, 2, 6].map(i => d(vals[i], e.vals[i], 5.1e-4));
+    if (isNotes) ok.push(...[3, 4, 5].map(i => d(vals[i], e.vals[i], 5.1e-4)), d(vals[4], Math.abs(st.t), 5.1e-4), d(vals[5], vals[1] ** 2, 2e-3));
+    if (st.u === 0) ok.push(d(e.vals[0], pmR(st.t, st.R), 1e-6));                             // the notes' closed form (rescaled for R != 2r0)
+    ok.push(...ms.flatMap((m, i) => m.map((v, j) => d(v, e.ms[i][j], i < 2 ? 5.1e-4 : 6e-5))));
+    const formsOk = shown.slice(3, 6).every(s => s === isNotes);
+    const err = Math.max(...ok), text = await fr.locator('.dg-interactive-body').textContent();
+    check(err <= 1 && formsOk && !/NaN|Infinity/.test(text),
+      `${what} (R = ${st.R}, ṙ(0) = ${st.u}, t = ${st.t}, range ${st.range}): r = ${vals[0]}, ṙ = ${vals[1]}, GM/r³ = ${vals[6]}${isNotes ? `, t(r) = ${vals[4]}` : ''}; tide (${ms[3]}) vs (${ms[4]}), (${ms[6]}) vs (${ms[7]}); largest deviation / tolerance ${err.toFixed(2)} (tolerance 5.1e−4 for 3 decimals, 6e−5 for 4)`);
+    return st;
+  }
+  await shot(page, `pointmass-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-nc .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 150 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'falling chart below the (t, r) diagram' : 'the two drawings side by side');
+  const st0 = await numbers('start');
+  check(st0.R === 2 && st0.u === 0 && st0.t === 1.5, 'starts with the notes\' ζ (released from rest at 2r0), t = 1.5');
+  check(st0.range[0] < -2.8 && st0.range[1] > 2.8 && st0.range[1] < Math.PI, `t from ${st0.range[0]} to ${st0.range[1]} (ζ reaches the source at ±π/ω)`);
+  const sl = fr.locator('.dg-slider input');
+  await sl.focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
+  const s1 = await numbers('ArrowRight x2 on t');
+  check(near(s1.t, 1.52, 1e-9), `t = ${s1.t}`);
+  await page.keyboard.press('End'); const s2 = await numbers('End on t (the last event before the source)');
+  check(s2.t === s2.range[1], `t at the end of its range (${s2.t})`);
+  await page.keyboard.press('Home'); await numbers('Home on t (rising, t < 0)');
+  await page.keyboard.press('PageUp'); await numbers('PageUp on t');
+  // mouse: ζ(0) down, then the tip of ζ̇(0) up
+  let [x, y] = await center(svgT.locator('[data-key="z0"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y + 30, { steps: 5 }); await page.mouse.up();
+  const s3 = await numbers('after dragging ζ(0) down');
+  check(s3.R < 1.8 && s3.u === 0, `R = ${s3.R}`);
+  [x, y] = await center(svgT.locator('[data-key="zv"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y - 25, { steps: 5 }); await page.mouse.up();
+  const s4 = await numbers('after dragging the tip of ζ̇(0) up');
+  check(s4.u > 0.2, `ṙ(0) = ${s4.u}`);
+  await svgT.locator('[data-key="z0"]').focus(); await page.keyboard.press('ArrowUp');
+  const s5 = await numbers('ArrowUp on ζ(0)');
+  check(near(s5.R, s4.R + 0.05, 1e-9), `R ${s4.R} -> ${s5.R}`);
+  await sl.focus(); await page.keyboard.press('End'); await numbers('End on t after the changes');
+  await page.keyboard.press('Home'); await numbers('Home on t after the changes');
+  // the extremes: ζ(0) as low and as fast inwards as allowed
+  [x, y] = await center(svgT.locator('[data-key="z0"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y + 400, { steps: 6 }); await page.mouse.up();
+  [x, y] = await center(svgT.locator('[data-key="zv"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y + 400, { steps: 6 }); await page.mouse.up();
+  const s6 = await numbers('ζ(0) at the lowest start, falling as fast as allowed');
+  check(s6.R === 1 && s6.u === -1, `R = ${s6.R}, ṙ(0) = ${s6.u}`);
+  await sl.focus(); await page.keyboard.press('End'); await numbers('End on t there');
+  await shot(page, `pointmass-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_Example_Newtonian_Tidal', 'Figure C.17', null);
+  const sR = await state();
+  check(sR.R === 2 && sR.u === 0 && sR.t === 1.5, 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await pointmassCrossChecks(page);
+  await page.close();
+}
+
+async function pointmassCrossChecks(page) {
+  console.log('pointmass: the module against the notes\' closed forms of C.8.3 (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/pointmass.js');
+    let seed = 5; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const fall = [], gen = [], fns = [], rg = [];
+    for (let n = 0; n < 150; n++) { const R = n < 30 ? 2 : rnd(1, 2.4), t = rnd(-1, 1) * Math.PI * (R / 2) ** 1.5 * 0.93; fall.push({ R, t, s: m.free([R, 0], [0, 0], t) }); }
+    for (let n = 0; n < 60; n++) {
+      const st = { R: rnd(1, 2.4), u: rnd(-1, 1) }, [lo, hi] = m.range(st), t = rnd(lo, hi), a = m.at(st, t);
+      gen.push({ st, t, a, z: m.free([st.R, 0], [st.u, 0], t) });
+      rg.push({ st, lo, hi, inside: [lo, hi].map(s => !!m.at(st, s)), past: [lo - 0.02, hi + 0.02].map(s => { try { m.at(st, s); return true; } catch (e) { return false; } }) });
+    }
+    for (let n = 0; n < 100; n++) { const a = [rnd(-2, 2), rnd(-2, 2)], r = rnd(0.5, 2.4), b = [rnd(-0.3, 0.3), rnd(-0.3, 0.3)];
+      if (Math.hypot(...a) < 0.5) continue; fns.push({ a, gx: m.GammaX(a), Rm: m.Riem([a[0], a[1], 0]), r, gy0: m.GammaY([0, 0], r), Rb: m.Riem([r, 0, 0]), dgy: [0, 1].map(k => { const e = [0, 0]; e[k] = 1e-5; const P = m.GammaY(e, r), M = m.GammaY(e.map(c => -c), r); return [0, 1].map(i => (P[i] - M[i]) / 2e-5); }) }); }
+    return { fall, gen, fns, rg, START: m.START, tOfR: [0.3, 0.9, 1.5, 1.99].map(r => m.tOfR(r)) };
+  });
+  check(JSON.stringify(r.START) === JSON.stringify({ R: 2, u: 0, t: 1.5 }), 'starting state as in the test');
+  check(Math.max(...[0.3, 0.9, 1.5, 1.99].map((x, i) => Math.abs(r.tOfR[i] - pmT(x, 2)))) < 1e-15, 'the module\'s t(r) is the notes\' formula');
+  let wf = 0, wn = 0;
+  for (const { R, t, s } of r.fall) {
+    const d = Math.max(Math.abs(s[0] - pmR(t, R)), pmR(t, R) > 0.05 * R ? Math.abs(s[2] - pmRd(t, R)) : 0, Math.abs(s[1]), Math.abs(s[3]));
+    if (R === 2) wn = Math.max(wn, d); else wf = Math.max(wf, d);
+  }
+  check(wn < 1e-6, `ζ released from rest at 2r0: r(t) and ṙ(t) (RK4) vs the notes' t(r) = (2/ω)(√(x(1 − x)) + arccos √x) and ṙ = −ωr0 √((1 − x)/x), mirrored for t < 0, max difference ${wn.toExponential(2)} (30 random t)`);
+  check(wf < 1e-6, `released from rest at other R: the same closed form with r0 = R/2, ω² = GM/r0³, max difference ${wf.toExponential(2)} (120 random R, t)`);
+  let we = 0, wa = 0;
+  for (const { st, t, a, z } of r.gen) {
+    we = Math.max(we, Math.abs((z[2] ** 2 / 2 - 1 / z[0]) - (st.u ** 2 / 2 - 1 / st.R)), Math.abs(a.r - z[0]), Math.abs(a.rdd + 1 / z[0] ** 2));
+    wa = Math.max(wa, ...a.gy0.map(Math.abs), ...a.ps.flatMap((b, k) => { const g = pmGY(b, a.r); return [Math.abs(a.acc[k][0] + g[0]), Math.abs(a.acc[k][1] + g[1]), Math.abs(a.tidal[k][0] - 2 * b[0] / a.r ** 3), Math.abs(a.tidal[k][1] + b[1] / a.r ** 3)]; }),
+      Math.abs(a.k - 1 / a.r ** 3), Math.abs(a.k - 1 / (8 * (a.r / 2) ** 3)));
+  }
+  check(we < 1e-6, `any start: r̈ = −GM/r² and ṙ²/2 − GM/r constant along ζ, max difference ${we.toExponential(2)} (60 random R, ṙ(0), t)`);
+  check(wa < 1e-12, `(Γ_𝒴)^α_00(t, 0) = 0, β̈ = −(Γ_𝒴)^α_00(t, β) = −GM(β + b)/|β + b|³ + (GM/r², 0) and −Riem β = (2GMβ1/r³, −GMβ2/r³) for every particle of the ring, GM/r³ = ω²/(8x³): max difference ${wa.toExponential(2)}`);
+  let wr = 0;
+  for (const { st, t, a } of r.gen) {
+    const z = pmFree([st.R, 0], [st.u, 0], t);
+    a.ps.forEach((b, k) => { const ph = 2 * Math.PI * k / 12, q = pmFree([st.R + 0.1 * Math.cos(ph), 0.1 * Math.sin(ph)], [st.u, 0], t); wr = Math.max(wr, Math.abs(b[0] - (q[0] - z[0])), Math.abs(b[1] - q[1])); });
+  }
+  check(wr < 1e-6, `the ring in the falling chart, β = α − b(t): the module against our own RK4 of the notes' Newton II, max difference ${wr.toExponential(2)} (60 random states, 12 particles each)`);
+  check(r.rg.every(x => x.inside.every(Boolean) && (x.hi > 3.55 || !x.past[1]) && (x.lo < -3.55 || !x.past[0])), 'the t range ends where the first particle (or ζ) comes within RMIN of the source: inside it every position exists, just past it one does not');
+  let wg = 0;
+  for (const { a, gx, Rm, r: rr, gy0, Rb, dgy } of r.fns) {
+    const Phi = q => -1 / Math.hypot(...q), h = 1e-4, e = k => [0, 1].map(i => (i === k ? h : 0)), add = (p, q, c = 1) => p.map((x, i) => x + c * q[i]);
+    const dP = [0, 1].map(k => (Phi(add(a, e(k))) - Phi(add(a, e(k), -1))) / (2 * h));
+    // second derivatives: central differences with steps 1e−3 and 2e−3, Richardson-extrapolated (error O(h⁴))
+    const hess = (i, k, q) => { const E = j => [0, 1].map(l => (l === j ? q : 0));
+      return (Phi(add(add(a, E(i)), E(k))) - Phi(add(add(a, E(i)), E(k), -1)) - Phi(add(add(a, E(i), -1), E(k))) + Phi(add(add(a, E(i), -1), E(k), -1))) / (4 * q * q); };
+    const H = [0, 1].map(i => [0, 1].map(k => (4 * hess(i, k, 1e-3) - hess(i, k, 2e-3)) / 3));
+    wg = Math.max(wg, ...[0, 1].map(i => Math.abs(gx[i] - dP[i])), ...[0, 1].flatMap(i => [0, 1].map(k => Math.abs(Rm[i][k] - H[i][k]))), ...gy0.map(Math.abs),
+      ...[0, 1].flatMap(i => [0, 1].map(k => Math.abs(dgy[k][i] - Rb[i][k]))), Math.abs(Rm[2][2] - 1 / Math.hypot(...a) ** 3), Math.abs(Rb[0][0] + 2 / rr ** 3));
+  }
+  check(wg < 1e-6, `(Γ_𝒳)^σ_00 = ∂σΦ and Riem^σ_0κ0 = ∂κ∂σΦ for Φ = −GM/|α| (finite differences), ∂κ(Γ_𝒴)^α_00(t, 0) = Riem^α_0κ0(ζ(t)) = GM/r³ diag(−2, 1, 1): max difference ${wg.toExponential(2)} (100 random points)`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -992,6 +1288,39 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // rotating, pointmass (B27): a finger 10 px off χ(0) in the co-rotating chart drags it, one 10 px off ζ(0) changes r(0);
+  // vertical swipes elsewhere (the co-rotating chart, the falling chart, which has no handles) scroll the page
+  for (const [mod, svgIdx, key, dir, moved] of [['rotating', 1, 'p0', [-15, -25], (a, b) => Math.hypot(b.p0[0] - a.p0[0], b.p0[1] - a.p0[1]) > 0.1],
+    ['pointmass', 0, 'z0', [0, 30], (a, b) => b.R < a.R - 0.1]]) {
+    const { page, errors } = await open(NEWTON, 390, { touch: true, module: mod });
+    await ready(page, mod);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator(`.dg-interactive[data-module="${mod}"]`);
+    const state = async () => JSON.parse(await fr.locator('.dg-nc').getAttribute('data-state'));
+    const svg = fr.locator('.dg-nc svg.dg-plot-svg').nth(svgIdx);
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator(`[data-key="${key}"]`).evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      `${mod}: touch-action pan-y pinch-zoom on the drawing, none on the handles`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator(`[data-key="${key}"]`).boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx + dir[0], hy + dir[1]]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(moved(s0, s1) && y1 === y0, `${mod}: a swipe starting 10 px from ${key === 'p0' ? 'χ(0)' : 'ζ(0)'} drags it (${JSON.stringify(key === 'p0' ? s0.p0 : s0.R)} -> ${JSON.stringify(key === 'p0' ? s1.p0.map(v => +v.toFixed(3)) : s1.R)}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    const other = fr.locator('.dg-nc svg.dg-plot-svg').nth(1);
+    await other.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(other);
+    check(!!pt, `${mod}: found an empty point of the ${mod === 'rotating' ? 'co-rotating' : 'falling'} chart`);
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && JSON.stringify(await state()) === JSON.stringify(s0), `${mod}: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -1025,7 +1354,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

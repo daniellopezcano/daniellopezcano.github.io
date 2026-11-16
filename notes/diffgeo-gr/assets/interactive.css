@@ -186,3 +186,22 @@
   .dg-ch-h { display: none; }
   .dg-ch-v { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 }
+
+/* ---- Newton–Cartan (rotating, after Figure C.15; pointmass, after Figure C.17; B27): two drawings side by side, the numbers
+   of each under it (stacked on phones) ---- */
+.dg-nc [hidden] { display: none !important; }
+.dg-nc .dg-two { align-items: start; }
+.dg-nc .dg-legend { margin-top: 0; }
+.dg-nc-out { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; font-size: 0.86rem; }
+.dg-nc-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.7rem; }
+.dg-nc-pair { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; }
+.dg-nc-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-nc-val { font-variant-numeric: tabular-nums; }
+.dg-nc-term { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.dg-nc-cap, .dg-nc-tick, .dg-nc-title { font-size: 0.78rem; color: #333; }
+.dg-nc-cap { color: var(--dg-text-soft); }
+.dg-nc-faint { color: #555; font-size: 0.85rem; }
+.dg-nc-tide { display: grid; grid-template-columns: auto repeat(3, auto); align-items: center; justify-items: center; justify-content: start; gap: 0.25rem 0.8rem; }
+.dg-nc-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; }
+.dg-controls .dg-nc-omega { flex: 0 1 12rem; }
+.dg-nc-omega input[type="range"] { min-width: 5rem; }
