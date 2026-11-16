@@ -2,7 +2,8 @@
 //   node _port/tools/test_interactives.mjs [--shots DIR]      exit code 0 = all checks passed, 1 = failures
 // Serves docs/ (render the pages first), drives each interactive at 1280 px and 390 px, asserts that it
 // mounts without console errors of its own and reacts to its controls, cross-checks the numbers of the
-// variations module against the closed forms of Appendix C.6, and checks that a module that fails to
+// variations module against the closed forms of Appendix C.6 and those of the tpm module against the
+// transformation law of §4.1.1 (finite differences of the chart maps), and checks that a module that fails to
 // load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +14,7 @@ const shots = args.includes('--shots') ? args[args.indexOf('--shots') + 1] : nul
 if (shots) fs.mkdirSync(shots, { recursive: true });
 const MAPS = 'notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html';
 const VAR = 'notes/diffgeo-gr/examples/example-variations.html';
+const TPM = 'notes/diffgeo-gr/tangent-spaces/tangent-space.html';
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -215,6 +217,118 @@ async function crossChecks(page) {
     console.log(`  info  L ${k} = ${r[k][0].toFixed(4)}`);
 }
 
+// ---- tpm (Figure 4.2): closed forms of the figure's geometry, written here independently of the module
+const tpmY = ([x, y]) => [Math.hypot(x + 1, y + 1), Math.atan2(y + 1, x + 1)];                 // polar about (-1, -1)
+const tpmJ = ([x, y]) => { const a = x + 1, b = y + 1, r2 = a * a + b * b, r = Math.sqrt(r2); return [[a / r, b / r], [-b / r2, a / r2]]; };
+const tpmIn = ([x, y]) => ((x - 0.1) / 0.9) ** 2 + ((y + 0.7) / 1.5) ** 2 < 1 && ((x - 0.7) / 1.4) ** 2 + ((y - 0.3) / 0.9) ** 2 < 1;
+// velocity components of the selected curve: in X the derivative of the chart representative, in Y by central differences of Y o curve
+function tpmExpect({ p, u, sel }) {
+  const h = 1e-6, R = Math.hypot(...p), l0 = Math.atan2(p[1], p[0]);
+  const at = sel === 'gamma' ? l => [p[0] + l * u[0], p[1] + l * u[1]] : l => [R * Math.cos(l), R * Math.sin(l)];
+  const L = sel === 'gamma' ? 0 : l0, d = f => [0, 1].map(k => (f(at(L + h))[k] - f(at(L - h))[k]) / (2 * h));
+  return { U: d(q => q), V: d(tpmY), J: tpmJ(p), Yp: tpmY(p) };
+}
+
+async function testTpm(width) {
+  console.log(`tpm @ ${width}px`);
+  const { page, errors } = await open(TPM, width);
+  await ready(page);
+  const fr = page.locator('.dg-interactive');
+  const state = async () => JSON.parse(await fr.locator('.dg-tpm').getAttribute('data-state'));
+  const mats = () => fr.locator('.dg-mat').evaluateAll(ms => ms.map(m => [...m.children].map(c => parseFloat(c.textContent.replace('−', '-')))));
+  const pair = async k => (await fr.locator('.dg-readout-value').nth(k).textContent()).match(/[−-]?\d+\.\d+/g).map(num);
+  const panel = k => fr.locator('.dg-tpm .dg-panel').nth(k);
+  const canvasHash = () => fr.locator('canvas').evaluate(c => { const d = c.toDataURL(); let h = 0; for (let k = 0; k < d.length; k += 7) h = (h * 31 + d.charCodeAt(k)) | 0; return h; });
+  // every number on the panel against the closed forms at the module's exact state (display: 3 decimals)
+  async function numbers(what) {
+    const st = await state(), e = tpmExpect(st), [mV, mJ, mU] = await mats(), X = await pair(0), Yp = await pair(1);
+    const err = Math.max(...[[X, st.p], [Yp, e.Yp], [mU, e.U], [mV, e.V], [mJ, e.J.flat()]].flatMap(([a, b]) => a.map((v, k) => Math.abs(v - b[k]))));
+    check(err <= 5.1e-4 && tpmIn(st.p), `${what}: X(p) = (${X}), Y(p) = (${Yp}), components ${st.sel} U (${mU}) V (${mV}) = J (${mJ}) U; max deviation from the closed forms ${err.toExponential(1)}`);
+    return st;
+  }
+  await shot(page, `tpm-${width}.png`);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  check(await fr.locator('.dg-law mjx-container').count() === 1, 'transformation law typeset');
+  const tops = await fr.locator('.dg-tpm .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 50 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'chart panels stacked' : 'chart panels side by side');
+  const st0 = await numbers('start');
+  check(near(st0.p[0], Math.PI / 4, 1e-12) && st0.p[1] === 0 && st0.u[0] === 0 && st0.u[1] === 1, 'starts at the figure: p = (pi/4, 0), gamma vertical with velocity (0, 1)');
+  // drag p in the X panel
+  const h0 = await canvasHash();
+  let [x, y] = await center(panel(0).locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 30, y - 25, { steps: 5 }); await page.mouse.up();
+  const st1 = await numbers('after dragging p in (U, X)');
+  check(st1.p[0] < st0.p[0] - 0.05 && st1.p[1] > 0.05, `p moved to (${st1.p.map(v => v.toFixed(3))})`);
+  check(await canvasHash() !== h0, 'the 3D view follows p');
+  // drag p far outside U ∩ V in the Y panel: it stops on the boundary
+  [x, y] = await center(panel(1).locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 400, y + 300, { steps: 6 }); await page.mouse.up();
+  const st2 = await numbers('after dragging p out of U ∩ V in (V, Y)');
+  check(tpmIn(st2.p) && Math.hypot(st2.p[0] - st1.p[0], st2.p[1] - st1.p[1]) > 0.05, 'p stays in U ∩ V');
+  // drag the tip of the velocity of gamma in the Y panel
+  [x, y] = await center(panel(1).locator('[data-key="tip"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 20, y + 25, { steps: 5 }); await page.mouse.up();
+  const st3 = await numbers('after dragging the tip in (V, Y)');
+  check(Math.hypot(st3.u[0] - st2.u[0], st3.u[1] - st2.u[1]) > 0.05, `velocity of gamma changed to U (${st3.u.map(v => v.toFixed(3))})`);
+  // keyboard: arrow keys on the handles of the X panel
+  await panel(0).locator('[data-key="tip"]').focus(); await page.keyboard.press('ArrowLeft');
+  const st4 = await numbers('ArrowLeft on the tip in (U, X)');
+  check(st4.u[0] < st3.u[0] - 0.01 && near(st4.u[1], st3.u[1], 0.02), 'ArrowLeft moves the tip to the left');
+  await panel(0).locator('[data-key="p"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp');
+  const st5 = await numbers('ArrowUp x2 on p in (U, X)');
+  check(st5.p[1] > st4.p[1] + 0.01 || !tpmIn([st5.p[0], st5.p[1] + 0.05]), 'ArrowUp moves p up (or p is on the boundary)');
+  // the other curve
+  await fr.locator('.dg-choice label').nth(1).click();
+  await page.waitForFunction(f => /delta/.test(f.querySelector('.dg-law > div').dataset.tex || ''), await fr.elementHandle());
+  const st6 = await numbers('delta selected');
+  check(st6.sel === 'delta', 'the law shows the components of the velocity of delta');
+  await shot(page, `tpm-delta-${width}.png`);
+  const h1 = await canvasHash(), [cx, cy] = await center(fr.locator('canvas'));
+  await page.mouse.move(cx, cy); await page.mouse.down(); await page.mouse.move(cx + 80, cy + 20, { steps: 5 }); await page.mouse.up();
+  await page.waitForTimeout(100);
+  check(await canvasHash() !== h1, 'dragging the 3D view rotates it');
+  await panelFoot(page, fr, 'fig_TpM_curves_velocities_and_chart_transitions', 'Figure 4.2', '2_3_TpM.ipynb');
+  const st7 = await state();
+  check(st7.sel === 'gamma' && near(st7.p[0], Math.PI / 4, 1e-12) && st7.p[1] === 0 && st7.u[1] === 1, 'Reset -> p = (pi/4, 0), gamma, velocity (0, 1) again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await tpmCrossChecks(page);
+  await page.close();
+}
+
+async function tpmCrossChecks(page) {
+  console.log('tpm: the module against the transformation law of §4.1.1');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/tpm.js');
+    const pts = [];
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    while (pts.length < 200) { const p = [-0.8 + 1.9 * rnd(), -0.7 + 1.6 * rnd()]; if (m.inUV(p)) { const a = 2 * Math.PI * rnd(), n = 0.25 + rnd(); pts.push([p, [n * Math.cos(a), n * Math.sin(a)]]); } }
+    return pts.map(([p, u]) => ({ p, u, gamma: m.components('gamma', p, u), delta: m.components('delta', p, u), J: m.jacobian(p), Y: m.Y(p), YY: m.Yinv(m.Y(p)),
+      at: ['gamma', 'delta'].map(c => { const k = m.curves[c](p, u); return k.at(k.l0); }), h: m.height(p[0], p[1]) }));
+  });
+  let wU = 0, wV = 0, wJ = 0, wY = 0, wI = 0, wP = 0, wH = 0;
+  const egg = ([x, y]) => (Math.cos(x + y) / 2 + Math.sin(x - y + Math.PI / 2) / 2 + 1) * Math.exp(-(x * x + y * y) / (2 * Math.PI * Math.PI));
+  for (const q of r) {
+    for (const sel of ['gamma', 'delta']) {
+      const e = tpmExpect({ p: q.p, u: q.u, sel });
+      wU = Math.max(wU, ...q[sel].U.map((v, k) => Math.abs(v - e.U[k])));
+      wV = Math.max(wV, ...q[sel].V.map((v, k) => Math.abs(v - e.V[k])));
+    }
+    const h = 1e-6, fd = [0, 1].map(i => { const a = q.p.slice(), b = q.p.slice(); a[i] += h; b[i] -= h; return [0, 1].map(k => (tpmY(a)[k] - tpmY(b)[k]) / (2 * h)); });
+    wJ = Math.max(wJ, ...[0, 1].flatMap(k => [0, 1].map(i => Math.abs(q.J[k][i] - fd[i][k]))));
+    wY = Math.max(wY, ...q.Y.map((v, k) => Math.abs(v - tpmY(q.p)[k])));
+    wI = Math.max(wI, ...q.YY.map((v, k) => Math.abs(v - q.p[k])));
+    wP = Math.max(wP, ...q.at.flatMap(a => a.map((v, k) => Math.abs(v - q.p[k]))));
+    wH = Math.max(wH, Math.abs(q.h - egg(q.p)));
+  }
+  check(wU < 1e-6, `components in X vs derivative of the chart representatives (200 points of U ∩ V, gamma and delta): max difference ${wU.toExponential(2)}`);
+  check(wV < 1e-6, `components in Y (Jacobian times components in X) vs finite differences of Y o curve: max difference ${wV.toExponential(2)}`);
+  check(wJ < 1e-6, `(dY^k/dX^i)_p vs finite differences of the polar chart about (-1, -1): max difference ${wJ.toExponential(2)}`);
+  check(wY < 1e-12 && wI < 1e-12, `Y(p) vs closed form ${wY.toExponential(1)}; Y^-1 o Y = id ${wI.toExponential(1)}`);
+  check(wP < 1e-12, `both curves pass through p at lambda_0: ${wP.toExponential(1)}`);
+  check(wH < 1e-12, `embedding height vs the notebook's formula: ${wH.toExponential(1)}`);
+}
+
 async function testBroken() {
   console.log('broken module');
   const { page } = await open(VAR, 1280, { breakModule: 'variations.js' });
@@ -226,7 +340,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); }
   await testBroken();
 } catch (e) {
   console.log('  FAIL exception: ' + e.message.split('\n')[0]);

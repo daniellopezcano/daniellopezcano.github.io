@@ -6,8 +6,10 @@
 //   el(tag, attrs, ...children)   tiny DOM builder;  setMath(el, text)  (re)typeset TeX in an element
 //   controls(parent)              a .dg-controls row
 //   slider / choice / stepper / toggle / button / readout / note / legend     labelled native controls
-//   Plot2D                        SVG plot: data->pixel scales, axes, lines, arrows, keyed draggable handles
-//   Scene3D                       canvas-2D 3D scene: shaded surfaces, curves, points, arrows, drag to rotate
+//   matrix(rows, cols)            numeric matrix or column vector in brackets (plain text; set(M) is cheap)
+//   Plot2D                        SVG plot: data->pixel scales (equal: same scale on both axes), axes, lines,
+//                                 filled areas, arrows, keyed draggable handles
+//   Scene3D                       canvas-2D 3D scene: shaded surfaces (colour per quad), curves, points, arrows, drag to rotate
 //   dispose(root)                 stop the observers of the plots and scenes inside root (Reset re-mounts, D55)
 import { typeset } from '../course.js';
 
@@ -90,7 +92,7 @@ export function slider({ label, min, max, step = 0.01, value, format = v => fmt(
   return api;
 }
 
-/** Segmented radio group. options: [{value, label}] */
+/** Segmented radio group. options: [{value, label, aria}] (aria: plain-text name when the label is only TeX) */
 export function choice({ label, options, value, onChange }) {
   const name = newId('choice');
   const group = el('div', { class: 'dg-ctl dg-choice', role: 'radiogroup' });
@@ -98,7 +100,7 @@ export function choice({ label, options, value, onChange }) {
   const seg = el('span', { class: 'dg-seg' });
   const inputs = options.map(o => {
     const id = newId('opt');
-    const inp = el('input', { type: 'radio', name, id, value: o.value });
+    const inp = el('input', { type: 'radio', name, id, value: o.value, 'aria-label': o.aria });
     if (String(o.value) === String(value)) inp.checked = true;
     inp.addEventListener('change', () => { if (inp.checked) { api.value = o.value; onChange && onChange(o.value); } });
     seg.append(inp, el('label', { for: id }, mathSpan('', o.label)));
@@ -163,6 +165,13 @@ export function readout({ label = '', value = '' }) {
   return { el: wrap, set(x) { v.textContent = x; }, setLabel(t) { return setMath(l, t); } };
 }
 
+/** Numeric matrix (cols = 1: column vector) in brackets; set(M) takes rows of numbers, M[i][j]. */
+export function matrix(rows, cols, digits = 3) {
+  const box = el('span', { class: 'dg-mat', style: `grid-template-columns: repeat(${cols}, auto)` });
+  const cells = Array.from({ length: rows * cols }, () => box.appendChild(el('span')));
+  return { el: box, set(M) { cells.forEach((c, k) => { c.textContent = fmt(M[Math.floor(k / cols)][k % cols], digits); }); } };
+}
+
 /** The one instruction line of an interactive. */
 export const note = text => mathSpan('dg-note', text);
 
@@ -198,7 +207,9 @@ export function simpson(f, a, b, n = 400) {
 
 // ---- Plot2D --------------------------------------------------------------------------------
 /**
- * new Plot2D(parent, {xlim, ylim, aspect, maxWidth, margin, axes, grid, xticks, yticks, draw, label})
+ * new Plot2D(parent, {xlim, ylim, aspect, equal, maxWidth, margin, axes, grid, xticks, yticks, draw, label})
+ * equal: the height follows the width so that one unit has the same length on both axes (aspect ignored).
+ * role: of the svg when it has a label, 'img' by default; 'group' when it holds focusable handles.
  * `draw(plot)` is called on every update() and on resize; it adds primitives with plot.line(...),
  * plot.arrow(...), etc. Primitives given a `key` keep their DOM node across updates (so focus and
  * pointer capture survive); the others are rebuilt. HTML labels (plot.label) hold typeset TeX.
@@ -207,7 +218,7 @@ export class Plot2D {
   constructor(parent, opt = {}) {
     this.o = Object.assign({ xlim: [0, 1], ylim: [0, 1], aspect: 0.75, maxWidth: Infinity, margin: { l: 44, r: 12, t: 12, b: 34 }, axes: true, grid: true }, opt);
     this.wrap = el('div', { class: 'dg-plot dg-paperbox' });
-    this.svg = sv('svg', { class: 'dg-plot-svg', role: opt.label ? 'img' : null, 'aria-label': opt.label || null });
+    this.svg = sv('svg', { class: 'dg-plot-svg', role: opt.label ? opt.role || 'img' : null, 'aria-label': opt.label || null });
     this.layers = {};
     for (const n of ['grid', 'axes', 'main', 'top', 'handles']) { this.layers[n] = sv('g', { 'data-layer': n }); this.svg.append(this.layers[n]); }
     this.html = el('div', { class: 'dg-plot-labels' });
@@ -235,7 +246,8 @@ export class Plot2D {
   update() {
     const W = this.wrap.clientWidth || 300;
     this.w = Math.min(W, this.o.maxWidth);
-    this.h = Math.round(this.w * this.o.aspect);
+    const m = this.o.margin, [a, b] = this.o.xlim, [c, d] = this.o.ylim;
+    this.h = Math.round(this.o.equal ? (this.w - m.l - m.r) * (d - c) / (b - a) + m.t + m.b : this.w * this.o.aspect);
     this.svg.setAttribute('width', this.w); this.svg.setAttribute('height', this.h);
     this.svg.setAttribute('viewBox', `0 0 ${this.w} ${this.h}`);
     this.html.style.width = this.w + 'px'; this.html.style.height = this.h + 'px';
@@ -284,6 +296,12 @@ export class Plot2D {
     const d = pts.map((p, i) => (i ? 'L' : 'M') + this.sx(p[0]).toFixed(1) + ' ' + this.sy(p[1]).toFixed(1)).join('');
     return this.node('path', { d, fill: 'none', stroke: opt.color || palette.ink, 'stroke-width': opt.width || 1.5, 'stroke-dasharray': opt.dash || null,
       opacity: opt.opacity, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', class: opt.class }, opt);
+  }
+  /** Closed filled polygon. opt: fill, opacity (of the fill), color (outline), width, dash, key, layer */
+  area(pts, opt = {}) {
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + this.sx(p[0]).toFixed(1) + ' ' + this.sy(p[1]).toFixed(1)).join('') + 'Z';
+    return this.node('path', { d, fill: opt.fill || palette.grid, 'fill-opacity': opt.opacity ?? 0.3, stroke: opt.color || 'none',
+      'stroke-width': opt.width || 1.2, 'stroke-dasharray': opt.dash || null, class: opt.class }, opt);
   }
   /** Function graph y = f(x) on [a, b]. */
   fn(f, a, b, opt = {}) { const n = opt.n || 200, pts = []; for (let i = 0; i <= n; i++) { const x = a + (b - a) * i / n; pts.push([x, f(x)]); } return this.line(pts, opt); }
@@ -426,7 +444,8 @@ export class Scene3D {
   clear(tag) { this.prims = tag == null ? [] : this.prims.filter(p => p.tag !== tag); return this; }
   /**
    * Parametric surface f(u, v) -> [x, y, z] as a quad mesh. opt: u: [u0, u1, nu], v: [v0, v1, nv],
-   * color, alpha, mesh: {color, width, alpha, everyU, everyV} (thin lines on every k-th grid line), tag.
+   * color (or a function (u, v) -> colour, called at the centre of each quad), alpha,
+   * mesh: {color, width, alpha, everyU, everyV} (thin lines on every k-th grid line), tag.
    */
   surface(f, opt) {
     const [u0, u1, nu] = opt.u, [v0, v1, nv] = opt.v;
@@ -443,7 +462,8 @@ export class Scene3D {
         if (j === nv - 1 && (j + 1) % ev === 0) edges.push(2); // q2-q3 : v = v_{j+1}
         if (i === nu - 1 && (i + 1) % eu === 0) edges.push(1); // q1-q2 : u = u_{i+1}
       }
-      this.prims.push({ type: 'quad', pts: q, color: opt.color || '#d0d0d0', alpha: opt.alpha ?? 0.4, edges, mesh: m, tag: opt.tag, surf: true });
+      const col = typeof opt.color === 'function' ? opt.color(u0 + (u1 - u0) * (i + 0.5) / nu, v0 + (v1 - v0) * (j + 0.5) / nv) : opt.color;
+      this.prims.push({ type: 'quad', pts: q, color: col || '#d0d0d0', alpha: opt.alpha ?? 0.4, edges, mesh: m, tag: opt.tag, surf: true });
     }
     return this;
   }

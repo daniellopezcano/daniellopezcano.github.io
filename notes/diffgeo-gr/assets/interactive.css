@@ -122,3 +122,13 @@
 .dg-ia-static::before { content: "\2191\00a0"; text-decoration: none; display: inline-block; }
 .dg-ia-notebook { margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem; }
 .dg-ia-notebook .dg-i { width: 1em; height: 1em; }
+
+/* ---- tangent space (tpm, B23): the 3D view centred above the two chart panels; numeric matrices ---- */
+.dg-tpm { display: flex; flex-direction: column; gap: 0.7rem; }
+.dg-tpm-scene { width: 100%; max-width: 640px; margin: 0 auto; }
+.dg-eqrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.3rem; }
+.dg-law { text-align: center; overflow-x: auto; }
+.dg-mat {
+  display: inline-grid; gap: 0.1rem 0.8rem; padding: 0.15rem 0.45rem; font-variant-numeric: tabular-nums; text-align: right;
+  border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 6px;
+}
