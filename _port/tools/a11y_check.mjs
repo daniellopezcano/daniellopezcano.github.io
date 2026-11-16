@@ -3,18 +3,22 @@
 //   node _port/tools/a11y_check.mjs [--page <slug>]... [--jobs N] [--no-keyboard | --keyboard] [--verbose]   (exit code 0 = passed)
 // 1. axe-core (_port/node_modules/axe-core, default rule set) after the math is typeset:
 //    every page (or the --page ones) at 1280×900 in the light and in the dark theme (localStorage 'dg-theme'),
-//    and the pages of NARROW (landing, chapter opening pages, the heaviest section pages, appendix items,
-//    the pages with an interactive) at 390×844 in the light theme. A violation of impact "serious" or
+//    and the pages of NARROW (landing, chapter opening pages, the heaviest section pages, appendix items)
+//    and every page with an interactive panel at 390×844 in the light theme. A violation of impact "serious" or
 //    "critical" fails; one line per page and rule, with the number of nodes and the first selector.
 //    No exclusion is needed today; MathJax output is checked like everything else.
+//    Panels (D56): a panel stays hidden until its module mounts (D15), so before axe runs every
+//    .dg-interactive[data-module] is scrolled into view and must become .dg-ready within 20 s (else a failure);
+//    axe then checks the mounted panels with the rest of the page, in every run of that page.
 // 2. Keyboard (skipped with --page unless --keyboard is given, or with --no-keyboard) on KEYS: from the top of the page, Tab reaches the skip
 //    link first, then the site navbar, the course-bar buttons, the course-tree links and the links of the
 //    text, in that order; every element that receives focus shows a visible focus indicator (outline or
 //    box-shadow, not transparent, element on screen); the search and the map dialogs open from the
 //    keyboard, Esc closes them and focus returns to the button.
+import fs from 'node:fs';
 import path from 'node:path';
 import { chromium, serveDocs } from './shot.mjs';
-import { REPO, coursePages, selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
+import { REPO, COURSE, coursePages, selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
 
 const args = process.argv.slice(2);
 const jobs = +(args[args.indexOf('--jobs') + 1] || 0) || 6;
@@ -27,6 +31,9 @@ const NARROW = ['index', 'vector-spaces/index', 'metric/index', 'appendix-exampl
   'proofs-and-additional-material/metric-properties', 'fields/vector-fields', 'gr/spacetime',
   'proofs-and-additional-material/proof-sylvester', 'vector-spaces/foundations-sets-maps', 'computational-ressources/index']
   .filter(s => all.has(s) && pages.includes(s));
+// every page with an interactive panel is also checked at 390 px (D56); read from the rendered HTML
+const PANELS = pages.filter(s => fs.readFileSync(path.join(REPO, 'docs', COURSE, s + '.html'), 'utf8').includes('data-module='));
+for (const s of PANELS) if (!NARROW.includes(s)) NARROW.push(s);
 const KEYS = ['metric/length-geodesics', 'index', 'fields/index'];
 const AXE = path.join(REPO, '_port', 'node_modules', 'axe-core', 'axe.min.js');
 const BAD = new Set(['serious', 'critical']);
@@ -48,13 +55,21 @@ async function axe(slug, width, theme) {
   return withPage(width, theme, async page => {
     await page.goto(url(base, slug), { waitUntil: 'networkidle', timeout: 60000 });
     await ready(page);
+    const tag = `${slug} @${width} ${theme}`;
+    // mount every panel (D56): bring it into view and wait for .dg-ready (its labels are typeset by then)
+    const frames = await page.$$('.dg-interactive[data-module]');
+    for (const f of frames) {
+      await f.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+      const ok = await page.waitForFunction(e => e.classList.contains('dg-ready'), f, { timeout: 20000 }).then(() => true, () => false);
+      if (!ok) failures.push(`${tag}: interactive "${await f.getAttribute('data-module')}" never ready (20 s)`);
+    }
+    if (frames.length) { await page.waitForLoadState('networkidle').catch(() => {}); await page.waitForTimeout(300); }
     await page.addScriptTag({ path: AXE });
     const res = await page.evaluate(async () => {
       const r = await window.axe.run(document, { resultTypes: ['violations'] });
       return r.violations.map(v => ({ id: v.id, impact: v.impact, help: v.help, n: v.nodes.length,
         first: v.nodes[0] ? v.nodes[0].target.join(' ') : '', why: v.nodes[0] ? (v.nodes[0].failureSummary || '').split('\n').slice(1, 2).join(' ').trim() : '' }));
     });
-    const tag = `${slug} @${width} ${theme}`;
     for (const v of res) {
       const line = `${tag}: [${v.impact}] ${v.id} (${v.n} node${v.n > 1 ? 's' : ''}) ${v.first.slice(0, 90)} — ${v.why.slice(0, 140)}`;
       if (BAD.has(v.impact)) failures.push(line); else if (verbose) console.log('  (minor) ' + line);
@@ -129,7 +144,7 @@ try {
   const counts = await pool(jobsList, jobs, async ([s, w, t]) => {
     try { return await axe(s, w, t); } catch (e) { failures.push(`${s} @${w} ${t}: axe crashed: ${e.message.split('\n')[0]}`); return 1; }
   });
-  console.log(`axe: ${jobsList.length} runs (${pages.length} pages × 2 themes at 1280 px + ${NARROW.length} at 390 px), ${counts.reduce((a, b) => a + b, 0)} serious/critical violations`);
+  console.log(`axe: ${jobsList.length} runs (${pages.length} pages × 2 themes at 1280 px + ${NARROW.length} at 390 px; panels mounted on ${PANELS.length} pages), ${counts.reduce((a, b) => a + b, 0)} serious/critical violations`);
   if (!filtered && !hasFlag(args, '--no-keyboard')) {
     for (const s of KEYS.filter(k => all.has(k))) {
       try { await keyboard(s); } catch (e) { failures.push(`${s} keyboard: crashed: ${e.message.split('\n')[0]}`); }

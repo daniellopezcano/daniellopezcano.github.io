@@ -22,9 +22,13 @@
 //     is checked in the same run (links_check.py checks all links statically, before scripts); focusing the
 //     first visible reference (a.dg-xref) of <main> opens its preview; every interactive frame
 //     (.dg-interactive[data-module]) scrolled into view becomes .dg-ready (a module error is a console error).
+//   * (D56, once per run) the interactive modules on disk, docs/notes/diffgeo-gr/assets/interactive/*.js (raw bytes):
+//     dg.js (the shared library) <= 50 kB, every other module <= 20 kB.
 // Output: a three-line weight summary (largest page per class), then one line per failing page.
+import fs from 'node:fs';
+import path from 'node:path';
 import { chromium, serveDocs } from './shot.mjs';
-import { selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
+import { REPO, COURSE, selectPages, pool, ready, url, hasFlag } from './course_pages.mjs';
 
 const args = process.argv.slice(2);
 const jobs = +(args[args.indexOf('--jobs') + 1] || 0) || 6;
@@ -32,6 +36,7 @@ const verbose = hasFlag(args, '--verbose');
 const pages = selectPages(args);
 const KB = 1000;
 const BUDGET = { own: 700 * KB, img: 500 * KB, imgWide: 900 * KB, imgAll: 2000 * KB, third: 1600 * KB };   // DECISIONS D42
+const MODULE_BUDGET = { 'dg.js': 50 * KB, other: 20 * KB };                                             // DECISIONS D56
 const KNOWN_HOSTS = new Set(['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com']);
 
 const { server, base: base0 } = await serveDocs();
@@ -240,5 +245,11 @@ for (const r of results) {
 }
 const bad = results.filter(r => r.problems.length);
 for (const r of bad) console.log(`FAIL ${r.slug}: ${[...new Set(r.problems)].join(' | ')}`);
+// interactive modules on disk (D56): raw size of each .js under assets/interactive/
+const IDIR = path.join(REPO, 'docs', COURSE, 'assets', 'interactive');
+const mods = fs.existsSync(IDIR) ? fs.readdirSync(IDIR).filter(f => f.endsWith('.js')).sort().map(f => [f, fs.statSync(path.join(IDIR, f)).size]) : [];
+const over = mods.filter(([f, n]) => n > (MODULE_BUDGET[f] || MODULE_BUDGET.other));
+console.log(`interactive modules (raw, on disk; dg.js <= ${fmt(MODULE_BUDGET['dg.js'])}, others <= ${fmt(MODULE_BUDGET.other)}): ${mods.map(([f, n]) => `${f} ${(n / KB).toFixed(1)} kB`).join(', ')}`);
+for (const [f, n] of over) console.log(`FAIL module budget: ${f} is ${(n / KB).toFixed(1)} kB > ${fmt(MODULE_BUDGET[f] || MODULE_BUDGET.other)}`);
 console.log(`${results.length - bad.length} of ${results.length} pages pass (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
-process.exit(bad.length ? 1 : 0);
+process.exit(bad.length || over.length ? 1 : 0);

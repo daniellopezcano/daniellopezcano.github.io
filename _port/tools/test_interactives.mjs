@@ -3,8 +3,9 @@
 // Serves docs/ (render the pages first), drives each interactive at 1280 px and 390 px, asserts that it
 // mounts without console errors of its own and reacts to its controls, cross-checks the numbers of the
 // variations module against the closed forms of Appendix C.6 and those of the tpm module against the
-// transformation law of §4.1.1 (finite differences of the chart maps), and checks that a module that fails to
-// load leaves its frame hidden. --shots writes a screenshot of every frame.
+// transformation law of §4.1.1 (finite differences of the chart maps), checks touch on a phone (D56: a swipe
+// over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
+// and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
 import path from 'node:path';
 import { serveDocs, chromium } from './shot.mjs';
@@ -26,8 +27,8 @@ const num = s => parseFloat(String(s).replace('−', '-'));
 const { server, base } = await serveDocs();
 const browser = await chromium.launch();
 
-async function open(url, width, { breakModule } = {}) {
-  const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
+async function open(url, width, { breakModule, touch } = {}) {
+  const page = await browser.newPage({ viewport: { width, height: touch ? 844 : 900 }, deviceScaleFactor: 1, ...(touch ? { hasTouch: true, isMobile: true } : {}) });
   const errors = [];
   page.on('console', m => { if (m.type() === 'error' && !IGNORE.some(r => r.test(m.text()))) errors.push(m.text()); });
   page.on('pageerror', e => { if (!IGNORE.some(r => r.test(e.message))) errors.push(e.message); });
@@ -287,6 +288,10 @@ async function testTpm(width) {
   await page.mouse.move(cx, cy); await page.mouse.down(); await page.mouse.move(cx + 80, cy + 20, { steps: 5 }); await page.mouse.up();
   await page.waitForTimeout(100);
   check(await canvasHash() !== h1, 'dragging the 3D view rotates it');
+  const h2 = await canvasHash();                                   // with a mouse, vertical drags still tilt the view (D56)
+  await page.mouse.move(cx, cy); await page.mouse.down(); await page.mouse.move(cx, cy + 40, { steps: 5 }); await page.mouse.up();
+  await page.waitForTimeout(100);
+  check(await canvasHash() !== h2, 'a vertical mouse drag on the 3D view tilts it');
   await panelFoot(page, fr, 'fig_TpM_curves_velocities_and_chart_transitions', 'Figure 4.2', '2_3_TpM.ipynb');
   const st7 = await state();
   check(st7.sel === 'gamma' && near(st7.p[0], Math.PI / 4, 1e-12) && st7.p[1] === 0 && st7.u[1] === 1, 'Reset -> p = (pi/4, 0), gamma, velocity (0, 1) again');
@@ -329,6 +334,102 @@ async function tpmCrossChecks(page) {
   check(wH < 1e-12, `embedding height vs the notebook's formula: ${wH.toExponential(1)}`);
 }
 
+// ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
+// through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
+async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] });
+  for (let k = 1; k <= steps; k++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * k / steps, y: y0 + (y1 - y0) * k / steps }] });
+    await page.waitForTimeout(16);
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(500);
+}
+const scrollY = page => page.evaluate(() => Math.round(scrollY));
+// a point of the drawing `loc` (svg or canvas) whose topmost element is not a handle, an arrow or a label,
+// at least 40 px from every handle: a touch there starts on the empty drawing area
+const emptyPoint = loc => loc.evaluate(d => {
+  const b = d.getBoundingClientRect(), hs = [...d.querySelectorAll('.dg-handle')].map(h => h.getBoundingClientRect());
+  for (let fy = 0.75; fy > 0.2; fy -= 0.05) for (let fx = 0.2; fx < 0.85; fx += 0.05) {
+    const x = b.left + fx * b.width, y = b.top + fy * b.height, e = document.elementFromPoint(x, y);
+    if (!e || !d.contains(e) && e !== d || e.closest('.dg-handle, .dg-handle-hit, .dg-arrow:not(.dg-inert)')) continue;
+    if (hs.every(h => Math.hypot(h.left + h.width / 2 - x, h.top + h.height / 2 - y) > 40)) return [x, y];
+  }
+  return null;
+});
+
+async function testTouch() {
+  console.log('touch @ 390px (phone)');
+  // 2D (tpm, chart (U, X)) and 3D (tpm, the view of M)
+  {
+    const { page, errors } = await open(TPM, 390, { touch: true });
+    await ready(page);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive');
+    const state = async () => (await fr.locator('.dg-tpm').getAttribute('data-state'));
+    const svg = fr.locator('.dg-tpm .dg-panel').nth(0).locator('svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'chart: touch-action pan-y pinch-zoom on the drawing, none on the handles');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    let s0 = await state(), y0 = await scrollY(page);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'chart: found an empty point of the drawing');
+    if (pt) {
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y1 = await scrollY(page);
+      check(y1 > y0 + 50 && await state() === s0, `chart: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y1}) and leaves the panel as it was`);
+    }
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    // the touch starts 10 px right of the centre of p: outside the drawn disc (radius 6.5), inside the hit area (>= 24 px)
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 + 10, hy = hb.y + hb.height / 2;
+    s0 = await state(); y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 15, hy - 30]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(s1 !== s0 && y1 === y0, `chart: a swipe starting 10 px from the centre of p drags p (p ${JSON.parse(s0).p.map(v => v.toFixed(3))} -> ${JSON.parse(s1).p.map(v => v.toFixed(3))}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    // 3D
+    const cv = fr.locator('canvas');
+    const hash = () => cv.evaluate(c => { const d = c.toDataURL(); let h = 0; for (let k = 0; k < d.length; k += 7) h = (h * 31 + d.charCodeAt(k)) | 0; return h; });
+    check(await cv.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom', '3D view: touch-action pan-y pinch-zoom');
+    await cv.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    let b = await cv.boundingBox(), h0 = await hash();
+    y0 = await scrollY(page);
+    await swipe(page, cdp, [b.x + b.width * 0.3, b.y + b.height / 2], [b.x + b.width * 0.7, b.y + b.height / 2]);
+    let h1 = await hash(), y1b = await scrollY(page);
+    check(h1 !== h0 && y1b === y0, `3D view: a horizontal swipe rotates it and does not scroll (scrollY ${y0} -> ${y1b})`);
+    await cv.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    b = await cv.boundingBox(); h0 = await hash(); y0 = await scrollY(page);
+    await swipe(page, cdp, [b.x + b.width / 2, b.y + b.height * 0.75], [b.x + b.width / 2, b.y + b.height * 0.75 - 150]);
+    h1 = await hash(); y1b = await scrollY(page);
+    check(y1b > y0 + 50 && h1 === h0, `3D view: a vertical swipe scrolls the page (scrollY ${y0} -> ${y1b}) and leaves the view as it was`);
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
+  {
+    const { page, errors } = await open(MAPS, 390, { touch: true });
+    await ready(page);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive');
+    const status = () => fr.locator('.dg-status').textContent();
+    await fr.locator('.dg-presets button', { hasText: /^Only Injective$/ }).click();   // 4 -> 5: element 4 of M has the arrow 4 -> 2
+    const svg = fr.locator('svg.dg-plot-svg');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const d = await svg.locator('[data-key="d3"]').boundingBox(), t = await svg.locator('[data-key="t0"]').boundingBox();
+    const y0 = await scrollY(page);
+    await swipe(page, cdp, [d.x + d.width / 2 - 10, d.y + d.height / 2], [t.x + t.width / 2, t.y + t.height / 2]);
+    const y1 = await scrollY(page);
+    check(await fr.locator('[data-key="a3-0"]').count() === 1 && await status() === 'NOT a Function' && y1 === y0,
+      `maps: a finger drag from 4 in M (10 px off the dot) up to 1 in N adds the arrow (status "${await status()}") and does not scroll (scrollY ${y0} -> ${y1})`);
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+}
+
 async function testBroken() {
   console.log('broken module');
   const { page } = await open(VAR, 1280, { breakModule: 'variations.js' });
@@ -341,6 +442,7 @@ async function testBroken() {
 
 try {
   for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); }
+  await testTouch();
   await testBroken();
 } catch (e) {
   console.log('  FAIL exception: ' + e.message.split('\n')[0]);

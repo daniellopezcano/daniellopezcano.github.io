@@ -6,10 +6,13 @@
 //   el(tag, attrs, ...children)   tiny DOM builder;  setMath(el, text)  (re)typeset TeX in an element
 //   controls(parent)              a .dg-controls row
 //   slider / choice / stepper / toggle / button / readout / note / legend     labelled native controls
+//                                 (aria: plain-text accessible name when the visible label is only TeX, D56)
 //   matrix(rows, cols)            numeric matrix or column vector in brackets (plain text; set(M) is cheap)
 //   Plot2D                        SVG plot: data->pixel scales (equal: same scale on both axes), axes, lines,
-//                                 filled areas, arrows, keyed draggable handles
+//                                 filled areas, arrows, keyed draggable handles (hit area >= 24 px, D56)
 //   Scene3D                       canvas-2D 3D scene: shaded surfaces (colour per quad), curves, points, arrows, drag to rotate
+//   Touch (D56, interactive.css): drawings are touch-action pan-y pinch-zoom, so a vertical swipe scrolls the page;
+//   draggable handles are touch-action none and cancel their touchstart; on touch the 3D view rotates only about the vertical.
 //   dispose(root)                 stop the observers of the plots and scenes inside root (Reset re-mounts, D55)
 import { typeset } from '../course.js';
 
@@ -78,9 +81,9 @@ export const fmt = (x, d = 2) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(
 // typeset(body) at the end of mount (or by setMath later).
 export function controls(parent) { const c = el('div', { class: 'dg-controls' }); parent.append(c); return c; }
 
-export function slider({ label, min, max, step = 0.01, value, format = v => fmt(v), onInput }) {
+export function slider({ label, aria, min, max, step = 0.01, value, format = v => fmt(v), onInput }) {
   const id = newId('slider');
-  const input = el('input', { type: 'range', id, min, max, step, value });
+  const input = el('input', { type: 'range', id, min, max, step, value, 'aria-label': aria });
   const out = el('output', { for: id, class: 'dg-value' }, format(+value));
   const wrap = el('div', { class: 'dg-ctl dg-slider' }, el('label', { for: id }, mathSpan('dg-ctl-label', label)), input, out);
   const api = {
@@ -114,13 +117,13 @@ export function choice({ label, options, value, onChange }) {
   return api;
 }
 
-/** Integer stepper: [label  −  n  +] */
-export function stepper({ label, min, max, value, onChange }) {
+/** Integer stepper: [label  −  n  +]  (aria: plain-text name of the group when the label is only TeX) */
+export function stepper({ label, aria, min, max, value, onChange }) {
   const out = el('output', { class: 'dg-value', 'aria-live': 'polite' }, String(value));
   const lab = mathSpan('dg-ctl-label', label); lab.id = newId('stepl');
   const minus = el('button', { type: 'button', class: 'dg-btn dg-btn-icon', 'aria-label': '−' }, '−');
   const plus = el('button', { type: 'button', class: 'dg-btn dg-btn-icon', 'aria-label': '+' }, '+');
-  const wrap = el('div', { class: 'dg-ctl dg-stepper', role: 'group', 'aria-labelledby': lab.id }, lab, minus, out, plus);
+  const wrap = el('div', { class: 'dg-ctl dg-stepper', role: 'group', 'aria-labelledby': aria ? null : lab.id, 'aria-label': aria }, lab, minus, out, plus);
   const api = {
     el: wrap, value,
     set(v, fire = true) {
@@ -136,9 +139,9 @@ export function stepper({ label, min, max, value, onChange }) {
 }
 
 /** Checkbox styled as a switch. */
-export function toggle({ label, value = false, onChange }) {
+export function toggle({ label, aria, value = false, onChange }) {
   const id = newId('tog');
-  const input = el('input', { type: 'checkbox', id });
+  const input = el('input', { type: 'checkbox', id, 'aria-label': aria });
   input.checked = value;
   const wrap = el('div', { class: 'dg-ctl dg-toggle' }, input, el('label', { for: id }, mathSpan('dg-ctl-label', label)));
   input.addEventListener('change', () => onChange && onChange(input.checked));
@@ -220,7 +223,7 @@ export class Plot2D {
     this.wrap = el('div', { class: 'dg-plot dg-paperbox' });
     this.svg = sv('svg', { class: 'dg-plot-svg', role: opt.label ? opt.role || 'img' : null, 'aria-label': opt.label || null });
     this.layers = {};
-    for (const n of ['grid', 'axes', 'main', 'top', 'handles']) { this.layers[n] = sv('g', { 'data-layer': n }); this.svg.append(this.layers[n]); }
+    for (const n of ['grid', 'axes', 'main', 'top', 'hits', 'handles']) { this.layers[n] = sv('g', { 'data-layer': n }); this.svg.append(this.layers[n]); }
     this.html = el('div', { class: 'dg-plot-labels' });
     this.wrap.append(this.svg, this.html);
     parent.append(this.wrap);
@@ -351,23 +354,38 @@ export class Plot2D {
   /**
    * Focusable circle that keeps its node across updates. opt: key (required), r, fill, stroke,
    * ariaLabel, onDrag(x, y) (pointer drag and arrow keys; return nothing), step [dx, dy] for keys,
-   * onKey(e) (return true if handled), onPointerDown(e).
+   * onKey(e) (return true if handled), onPointerDown(e). A handle that can be dragged (onDrag or
+   * onPointerDown) and is drawn smaller than HIT gets a transparent disc of radius HIT under all the
+   * handles (layer 'hits', class dg-handle-hit), which starts the same drag: hit area >= 24 px (D56).
+   * A touch that starts on a draggable handle or its disc must drag it, not scroll the page: Chromium ignores
+   * touch-action on SVG shapes (only the <svg> box counts, which is pan-y), so their touchstart is cancelled.
    */
   handle(p, opt) {
-    const [x, y] = this.px(p);
-    const n = this.node('circle', { cx: x, cy: y, r: opt.r || 7, fill: opt.fill || palette.ink, stroke: opt.stroke || '#fff', 'stroke-width': opt.strokeWidth ?? 1.5,
+    const [x, y] = this.px(p), r = opt.r || 7, drags = o => !!(o.onDrag || o.onPointerDown);
+    const n = this.node('circle', { cx: x, cy: y, r, fill: opt.fill || palette.ink, stroke: opt.stroke || '#fff', 'stroke-width': opt.strokeWidth ?? 1.5,
       tabindex: 0, role: opt.role || 'button', 'aria-label': opt.ariaLabel, class: 'dg-handle ' + (opt.class || '') }, { key: opt.key, layer: 'handles' });
     n._opt = opt; n._p = p;
+    const down = e => {
+      const o = n._opt;
+      if (o.onPointerDown) return o.onPointerDown(e);
+      if (!o.onDrag) return;
+      e.preventDefault(); n.focus();
+      this.svg.setPointerCapture(e.pointerId);
+      this.drag = { node: n, id: e.pointerId };
+    };
+    if (drags(opt) && r < HIT) {
+      const h = this.node('circle', { cx: x, cy: y, r: HIT, fill: 'transparent', class: 'dg-handle-hit', 'aria-hidden': 'true' }, { key: opt.key + '~hit', layer: 'hits' });
+      if (!h.dataset.wired) {
+        h.dataset.wired = '1';
+        h.addEventListener('pointerdown', e => h._down(e));
+        h.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+      }
+      h._down = down;
+    }
     if (!n.dataset.wired) {
       n.dataset.wired = '1';
-      n.addEventListener('pointerdown', e => {
-        const o = n._opt;
-        if (o.onPointerDown) return o.onPointerDown(e);
-        if (!o.onDrag) return;
-        e.preventDefault(); n.focus();
-        this.svg.setPointerCapture(e.pointerId);
-        this.drag = { node: n, id: e.pointerId };
-      });
+      n.addEventListener('pointerdown', e => n._down(e));
+      n.addEventListener('touchstart', e => { if (drags(n._opt)) e.preventDefault(); }, { passive: false });
       n.addEventListener('keydown', e => {
         const o = n._opt;
         if (o.onKey && o.onKey(e)) { e.preventDefault(); return; }
@@ -388,6 +406,7 @@ export class Plot2D {
         this.svg.addEventListener('pointercancel', end);
       }
     }
+    n._down = down;
     return n;
   }
   /**
@@ -409,6 +428,7 @@ export class Plot2D {
     return n;
   }
 }
+const HIT = 12;                                           // px: radius of the hit area of a draggable handle
 function fmtTick(t, all) {
   const step = all.length > 1 ? Math.abs(all[1] - all[0]) : 1;
   const d = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
@@ -422,8 +442,8 @@ function fmtTick(t, all) {
  * looking along +y, x to the right). perspective 0 = orthographic, else the camera distance in
  * units of the scene radius (weak perspective). Primitives (each may carry a `tag` so that
  * clear(tag) removes just those): surface, polyline, point, arrow. Call render() after changes;
- * it draws once on the next animation frame (no permanent loop). Drag / arrow keys rotate,
- * double click or Home resets the view.
+ * it draws once on the next animation frame (no permanent loop). Drag / arrow keys rotate (on touch,
+ * horizontal drags only: azimuth), double click or Home resets the view.
  */
 export class Scene3D {
   constructor(parent, opt = {}) {
@@ -485,7 +505,8 @@ export class Scene3D {
     c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; c.setPointerCapture(e.pointerId); c.classList.add('dg-grabbing'); });
     c.addEventListener('pointermove', e => {
       if (!drag || drag.id !== e.pointerId) return;
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      // on touch only horizontal drags rotate (azimuth): vertical swipes scroll the page (touch-action pan-y, D56)
+      const dx = e.clientX - drag.x, dy = e.pointerType === 'touch' ? 0 : e.clientY - drag.y;
       drag.x = e.clientX; drag.y = e.clientY;
       this.setView(this.o.azimuth - dx * 0.5, this.o.elevation + dy * 0.5);
     });
