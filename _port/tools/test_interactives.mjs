@@ -12,7 +12,9 @@
 // the involute, Γ_𝒴 from the transformation law; radial fall, the falling chart and the tidal acceleration), those of the lightcones
 // and schwarzschild modules against Chapter 10 and C.9 (proper time, the observer's frame, the causal character of 𝒳_p; the radial
 // length ∫ dr/√f and the circles of Figure C.19a), those of the fields module against C.4 (𝒳⌊f⌉, 𝒴⌊f⌉ in both charts, from the curves
-// and as df⌈·⌋; finite differences of f along γ_x0, δ_r0; the drawing in pixels and its raster), checks touch on a phone (D56: a swipe
+// and as df⌈·⌋; finite differences of f along γ_x0, δ_r0; the drawing in pixels and its raster), those of the cotangent module
+// against §4.2.1 (𝚡_i^p, 𝚢_i^p by finite differences of f in each chart, the transformation law, the pairing, the lines of
+// (df)_p crossed), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -1595,6 +1597,149 @@ async function fieldsCrossChecks(page) {
     'colours as in Figures C.6/C.8: f low red, high blue (RdBu); the action negative blue, positive red (red: the field climbs f), white at the middle');
 }
 
+// ---- cotangent (Figure 4.3, §4.2.1): the notebook's f and the charts of eggs.js, written here independently of the module.
+// 𝚡_i^p and 𝚢_i^p from their definition in each chart, ∂_i[f ∘ X⁻¹](X(p)) and ∂_i[f ∘ Y⁻¹](Y(p)), by central differences; the
+// lines of the stack of (df)_p crossed by 𝒳_p: trunc((df)_p(𝒳_p)/0.25), and in pixels on the drawing
+const COT = 'notes/diffgeo-gr/tangent-spaces/cotangent-space.html', COT_STEP = 0.25, COT_START = { p: [Math.PI / 4, -Math.PI / 8], u: [0, 1] };
+const cotF = ([x, y]) => (Math.cos(x + y) / 2 + Math.sin(x - y + Math.PI / 2) / 2 + 1) * Math.exp(-(x * x + y * y) / (2 * Math.PI * Math.PI)) * 2 * Math.sqrt(x * x + y * y + 2);
+const cotD = (g, q, h = 1e-5) => [0, 1].map(i => { const a = q.slice(), b = q.slice(); a[i] += h; b[i] -= h; return (g(a) - g(b)) / (2 * h); });
+function cotExpect({ p, u }) {
+  const x = cotD(cotF, p), Yp = tpmY(p), y = cotD(q => cotF(chYinv(q)), Yp), J = tpmJ(p), d = J[0][0] * J[1][1] - J[0][1] * J[1][0];
+  const K = [[J[1][1] / d, -J[0][1] / d], [-J[1][0] / d, J[0][0] / d]], vy = [J[0][0] * u[0] + J[0][1] * u[1], J[1][0] * u[0] + J[1][1] * u[1]];
+  const f0 = cotF(p), pair = x[0] * u[0] + x[1] * u[1];
+  return { x, y, K, vy, f0, Yp, pair, lin: Math.trunc(pair / COT_STEP) };
+}
+
+async function testCotangent(width) {
+  console.log(`cotangent @ ${width}px`);
+  const { page, errors } = await open(COT, width, { module: 'cotangent' });
+  await ready(page, 'cotangent');
+  const fr = page.locator('.dg-interactive[data-module="cotangent"]');
+  const pl = await placedAfter(fr, 'fig_TstarpM');
+  check(pl.after, 'panel right after Figure 4.3 (fig_TstarpM)');
+  if (width >= 1000) check(pl.h <= 900, `panel height ${Math.round(pl.h)} px <= 900 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-cot').getAttribute('data-state'));
+  const panel = k => fr.locator('.dg-cot .dg-panel').nth(k);
+  // every number on the panel against cotExpect at the module's exact state (display: 3 decimals; counts exact)
+  async function numbers(what) {
+    const st = await state(), e = cotExpect(st);
+    const sh = await fr.evaluate(f => ({
+      mats: [...f.querySelectorAll('.dg-mat')].map(m => [...m.children].map(c => parseFloat(c.textContent.replace('−', '-')))),
+      ro: [...f.querySelectorAll('.dg-readout-value')].map(r => r.textContent),
+      k: Object.fromEntries([...f.querySelectorAll('[data-k]')].map(s => [s.dataset.k, s.textContent])),
+      text: f.querySelector('.dg-interactive-body').textContent }));
+    const [mx, my, mx2, mK, mx3, mu, my3, mv] = sh.mats;
+    const pairs = sh.ro.map(t => (t.match(/[−-]?\d+\.\d+/g) || []).map(num));
+    const want = [[mx, e.x], [my, e.y], [mx2, e.x], [mK, e.K.flat()], [mx3, e.x], [mu, st.u], [my3, e.y], [mv, e.vy], [pairs[0], st.p], [pairs[1], e.Yp], [pairs[2], [e.f0]],
+      [[num(sh.k.pairX), num(sh.k.pairY)], [e.pair, e.pair]], [[num(sh.k.rX), num(sh.k.rY)], [e.pair / COT_STEP, e.pair / COT_STEP]]];
+    const err = Math.max(...want.flatMap(([a, b]) => b.map((v, k) => Math.abs(a[k] - v))));
+    const counts = [sh.k.kX, sh.k.kY].map(num);
+    const ok = err <= 5.1e-4 && counts[0] === e.lin && counts[1] === e.lin && !('nX' in sh.k) && !/NaN|Infinity|undefined/.test(sh.text) && tpmIn(st.p);
+    check(ok, `${what} (p = (${st.p.map(v => v.toFixed(3))}), x^i_p = (${st.u.map(v => v.toFixed(3))})): 𝚡 (${mx}), 𝚢 (${my}), (df)_p(𝒳_p) = ${sh.k.pairX} = ${sh.k.pairY}; lines of (df)_p crossed ${counts[0]} in (𝒰, 𝒳), ${counts[1]} in (𝒱, 𝒴) (expected trunc((df)_p(𝒳_p)/0.25) = ${e.lin}); max deviation ${err.toExponential(1)}`);
+    return { st, e };
+  }
+  // the drawing in pixels: the thick line through p is orthogonal to the covector's components (equal scales), the arrow goes from p
+  // along the vector's components, the lines of the stack are parallel to it, and the arrow crosses |trunc((df)_p(𝒳_p)/0.25)| of them
+  // (segment intersections in pixels; the line through p, where the arrow starts, not counted); no dots for level sets of f
+  async function geometry(what) {
+    const st = await state(), e = cotExpect(st);
+    const g = await fr.evaluate(f => [...f.querySelectorAll('.dg-cot .dg-panel svg')].map(svg => {
+      const nums = d => d.match(/-?\d+(\.\d+)?/g).map(Number), h = svg.querySelector('[data-key="p"]'), t = svg.querySelector('[data-key="tip"]');
+      return { ker: nums(svg.querySelector('.dg-cot-ker').getAttribute('d')), p: [+h.getAttribute('cx'), +h.getAttribute('cy')], tip: [+t.getAttribute('cx'), +t.getAttribute('cy')],
+        dots: svg.querySelectorAll('.dg-cot-dot').length, stack: [...svg.querySelectorAll('.dg-cot-stack')].map(l => nums(l.getAttribute('d'))) };
+    }));
+    let ok = true; const msg = [];
+    g.forEach((c, k) => {
+      const comp = k ? e.y : e.x, v = k ? e.vy : st.u, kd = [c.ker[2] - c.ker[0], -(c.ker[3] - c.ker[1])], ad = [c.tip[0] - c.p[0], -(c.tip[1] - c.p[1])];
+      const cos = Math.abs(kd[0] * comp[0] + kd[1] * comp[1]) / (Math.hypot(...kd) * Math.hypot(...comp));
+      const sin = Math.abs(ad[0] * v[1] - ad[1] * v[0]) / (Math.hypot(...ad) * Math.hypot(...v)), same = ad[0] * v[0] + ad[1] * v[1] > 0;
+      const cross = (a, b, q, r) => { const o = (u, v, w) => Math.sign((v[0] - u[0]) * (w[1] - u[1]) - (v[1] - u[1]) * (w[0] - u[0])); return o(a, b, q) * o(a, b, r) < 0 && o(q, r, a) * o(q, r, b) < 0; };
+      const hit = c.stack.filter(l => cross(c.p, c.tip, [l[0], l[1]], [l[2], l[3]])).length;
+      const par = Math.max(0, ...c.stack.filter(l => Math.hypot(l[2] - l[0], l[3] - l[1]) >= 20).map(l => { const d = [l[2] - l[0], l[3] - l[1]], kk = [c.ker[2] - c.ker[0], c.ker[3] - c.ker[1]]; return Math.abs(d[0] * kk[1] - d[1] * kk[0]) / (Math.hypot(...d) * Math.hypot(...kk)); }));
+      const okk = cos < 0.01 && sin < 0.01 && same && par < 0.01 && hit === Math.abs(e.lin) && c.dots === 0 && c.stack.length > 0;
+      ok = ok && okk; msg.push(`${k ? '(𝒱, 𝒴)' : '(𝒰, 𝒳)'}: cos(line of (df)_p, components) ${cos.toFixed(4)}, sin(arrow, components) ${sin.toFixed(4)}, ${c.stack.length} lines of the stack (those of 20 px or more parallel within ${par.toExponential(1)}), the arrow crosses ${hit} (expected ${Math.abs(e.lin)}), ${c.dots} dots`);
+    });
+    check(ok, `${what}: ${msg.join('; ')}`);
+  }
+  await shot(page, `cotangent-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-cot .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 50 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'chart panels stacked' : 'chart panels side by side');
+  const { st: st0 } = await numbers('start');
+  check(JSON.stringify(st0) === JSON.stringify(COT_START), 'starts at the notebook: p = (π/4, −π/8), γ vertical with x^i_p = (0, 1)');
+  await geometry('start');
+  // drag p in the X panel
+  let [x, y] = await center(panel(0).locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 30, y - 25, { steps: 5 }); await page.mouse.up();
+  const { st: st1 } = await numbers('after dragging p in (𝒰, 𝒳)');
+  check(st1.p[0] < st0.p[0] - 0.05 && st1.p[1] > st0.p[1] + 0.05, `p moved to (${st1.p.map(v => v.toFixed(3))})`);
+  // drag p far outside U ∩ V in the Y panel: it stops on the boundary
+  [x, y] = await center(panel(1).locator('[data-key="p"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 400, y + 300, { steps: 6 }); await page.mouse.up();
+  const { st: st2 } = await numbers('after dragging p out of 𝒰 ∩ 𝒱 in (𝒱, 𝒴)');
+  check(Math.hypot(st2.p[0] - st1.p[0], st2.p[1] - st1.p[1]) > 0.05, 'p moved and stays in 𝒰 ∩ 𝒱');
+  // drag the tip of 𝒳_p in the Y panel
+  [x, y] = await center(panel(1).locator('[data-key="tip"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 20, y + 25, { steps: 5 }); await page.mouse.up();
+  const { st: st3 } = await numbers('after dragging the tip of 𝒳_p in (𝒱, 𝒴)');
+  check(Math.hypot(st3.u[0] - st2.u[0], st3.u[1] - st2.u[1]) > 0.05, `x^i_p changed to (${st3.u.map(v => v.toFixed(3))})`);
+  await geometry('after the drags');
+  // keyboard: arrow keys on the handles of the X panel
+  await panel(0).locator('[data-key="tip"]').focus(); await page.keyboard.press('ArrowLeft');
+  const { st: st4 } = await numbers('ArrowLeft on the tip in (𝒰, 𝒳)');
+  check(st4.u[0] < st3.u[0] - 0.01 && near(st4.u[1], st3.u[1], 0.02), 'ArrowLeft moves the tip to the left');
+  await panel(0).locator('[data-key="p"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp');
+  const { st: st5 } = await numbers('ArrowUp ×2 on p in (𝒰, 𝒳)');
+  check(st5.p[1] > st4.p[1] + 0.01 || !tpmIn([st5.p[0], st5.p[1] + 0.05]), 'ArrowUp moves p up (or p is on the boundary)');
+  // a long 𝒳_p along the gradient: the tip dragged far out stops at |x_p| = 1.25
+  [x, y] = await center(panel(0).locator('[data-key="tip"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 300, y + 60, { steps: 6 }); await page.mouse.up();
+  const { st: st6 } = await numbers('a long 𝒳_p');
+  check(near(Math.hypot(...st6.u), 1.25, 1e-9), `|x^i_p| clamped at 1.25 (${Math.hypot(...st6.u).toFixed(6)})`);
+  await geometry('a long 𝒳_p');
+  await shot(page, `cotangent-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_TstarpM', 'Figure 4.3', '2_4_TstarpM.ipynb');
+  check(JSON.stringify(await state()) === JSON.stringify(COT_START), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await cotangentCrossChecks(page);
+  await page.close();
+}
+
+async function cotangentCrossChecks(page) {
+  console.log('cotangent: the module against §4.2.1 (200 random p in 𝒰 ∩ 𝒱 and vectors)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/cotangent.js');
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const pts = [];
+    while (pts.length < 200) { const p = [-0.8 + 1.9 * rnd(), -0.7 + 1.6 * rnd()]; if (m.inUV(p)) { const a = 2 * Math.PI * rnd(), n = 0.25 + rnd(); pts.push([p, [n * Math.cos(a), n * Math.sin(a)]]); } }
+    return pts.map(([p, u]) => {
+      const a = m.at(p, u);
+      return { p, u, a, f: m.f(p), STEP: m.STEP };
+    });
+  });
+  let wx = 0, wy = 0, wlaw = 0, wpair = 0, wf = 0, wv = 0, nbad = 0, finite = true;
+  for (const q of r) {
+    const e = cotExpect(q), J = tpmJ(q.p);
+    finite = finite && [q.a.f, ...q.a.x, ...q.a.y, ...q.a.vy, q.a.pairX, q.a.pairY, ...q.a.K.flat()].every(Number.isFinite);
+    wx = Math.max(wx, ...q.a.x.map((v, k) => Math.abs(v - e.x[k])));
+    wy = Math.max(wy, ...q.a.y.map((v, k) => Math.abs(v - e.y[k])));
+    wlaw = Math.max(wlaw, ...[0, 1].map(j => Math.abs(q.a.y[j] - (e.K[0][j] * q.a.x[0] + e.K[1][j] * q.a.x[1]))));
+    wv = Math.max(wv, ...[0, 1].map(i => Math.abs(q.a.vy[i] - (J[i][0] * q.u[0] + J[i][1] * q.u[1]))));
+    wpair = Math.max(wpair, Math.abs(q.a.pairX - q.a.pairY), Math.abs(q.a.pairX - (q.a.x[0] * q.u[0] + q.a.x[1] * q.u[1])));
+    wf = Math.max(wf, Math.abs(q.f - cotF(q.p)), Math.abs(q.a.f - cotF(q.p)));
+    if (Math.trunc(q.a.pairX / COT_STEP) !== e.lin || Math.trunc(q.a.pairY / COT_STEP) !== e.lin) nbad++;
+  }
+  check(finite && r[0].STEP === COT_STEP, 'no NaN or ∞; spacing 0.25 in the values of f');
+  check(wf < 1e-12, `f against the notebook's scalar_field_f (height of M × 2√(x² + y² + 2)): ${wf.toExponential(1)}`);
+  check(wx < 1e-6, `𝚡_i^p = ∂_i[f ∘ 𝒳⁻¹](𝒳(p)) against central differences: max difference ${wx.toExponential(2)}`);
+  check(wy < 1e-6, `𝚢_i^p against central differences of f ∘ 𝒴⁻¹ at 𝒴(p) (the definition in (𝒱, 𝒴)): max difference ${wy.toExponential(2)}`);
+  check(wlaw < 1e-9, `𝚢_j^p = (∂𝒳^i/∂𝒴^j)_p 𝚡_i^p (§4.2.1; the inverse of the polar Jacobian written in the test): max difference ${wlaw.toExponential(2)}`);
+  check(wv < 1e-9, `y^i_p = (∂𝒴^i/∂𝒳^j)_p x^j_p: max difference ${wv.toExponential(2)}`);
+  check(wpair < 1e-9, `the pairing 𝚡_i^p x^i_p = 𝚢_i^p y^i_p: max difference ${wpair.toExponential(2)}`);
+  check(nbad === 0, `lines of (df)_p crossed, trunc((df)_p(𝒳_p)/0.25) from either chart's pairing, against the test's: ${nbad} of 200 differ`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -1862,6 +2007,36 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // cotangent (B30): in (𝒱, 𝒴), a finger 10 px off p (drawn radius 6.5) drags it; a vertical swipe from an empty point scrolls the page
+  {
+    const { page, errors } = await open(COT, 390, { touch: true, module: 'cotangent' });
+    await ready(page, 'cotangent');
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive[data-module="cotangent"]');
+    const state = async () => JSON.parse(await fr.locator('.dg-cot').getAttribute('data-state'));
+    const svg = fr.locator('.dg-cot .dg-panel').nth(1).locator('svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none'
+      && await svg.locator('[data-key="tip"]').evaluate(e => getComputedStyle(e).touchAction) === 'none', 'cotangent: touch-action pan-y pinch-zoom on the drawing, none on the handles');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 25, hy + 15]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(JSON.stringify(s1.p) !== JSON.stringify(s0.p) && y1 === y0, `cotangent: a swipe starting 10 px from p drags it (p ${s0.p.map(v => v.toFixed(3))} -> ${s1.p.map(v => v.toFixed(3))}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'cotangent: found an empty point of the drawing');
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && JSON.stringify(await state()) === JSON.stringify(s0), `cotangent: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -1895,7 +2070,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

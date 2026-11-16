@@ -237,3 +237,17 @@ body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-fd-cbar { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.35rem; font-size: 0.8rem; color: var(--dg-text-soft); }
 .dg-fd-ramp { width: 9rem; height: 0.6rem; border-radius: 2px; }
 .dg-fd-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+
+/* ---- cotangent space (cotangent, after Figure 4.3, B30): the two charts side by side (stacked on phones), each with its count of
+   the lines of (df)_p crossed; under them the legend, the readouts and the notes' formulas of §4.2.1 next to the numbers ---- */
+.dg-cot { display: flex; flex-direction: column; gap: 0.5rem; }
+.dg-cot .dg-two { align-items: start; }
+.dg-cot .dg-legend { margin-top: 0; }
+.dg-cot-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.1rem 1rem; margin-top: 0.3rem; font-size: 0.86rem; }
+.dg-cot-val { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.dg-cot-tex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.dg-cot-readouts { justify-content: center; }
+.dg-cot-law { font-size: 0.9rem; }
+.dg-cot-law .dg-eqrow { gap: 0.3rem 0.9rem; }
+.dg-cot-num { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.35rem; }
+.dg-cot-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }

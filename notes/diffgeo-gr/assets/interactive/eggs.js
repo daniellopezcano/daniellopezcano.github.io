@@ -1,6 +1,7 @@
 // Hand-written (not generated): the 2D manifold of the package notebooks notebooks/2_1_charts.ipynb ("2D-mfd embedded
-// in 3D", Figure 3.1) and notebooks/2_3_TpM.ipynb (Figure 4.2), which define it identically (github.com/daniellopezcano/
-// differential_geometry). Shared by the interactives charts.js (after Figure 3.1) and tpm.js (after Figure 4.2).
+// in 3D", Figure 3.1), notebooks/2_3_TpM.ipynb (Figure 4.2) and notebooks/2_4_TstarpM.ipynb (Figure 4.3), which define it
+// identically (github.com/daniellopezcano/differential_geometry). Shared by the interactives charts.js (after Figure 3.1),
+// tpm.js (after Figure 4.2) and cotangent.js (after Figure 4.3).
 // M is the surface (x, y) -> (x, y, z(x, y)) with
 //   z = (cos(x + y)/2 + sin(x - y + pi/2)/2 + 1) exp(-(x^2 + y^2)/(2 pi^2))   (factory_surface_embedding_gaussian_eggs)
 // drawn on [-pi^2/3, pi^2/3]^2; the chart X is the identity on (x, y) (cartesian_chart_map) on U, the ellipse

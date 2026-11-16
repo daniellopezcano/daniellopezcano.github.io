@@ -5,6 +5,7 @@
     {"label": "section_Basis_Components_Transformations", "at": "end", "module": "laws"},
     {"label": "fig_chart_transition_maps", "module": "charts", "notebook": "notebooks/2_1_charts.ipynb"},
     {"label": "fig_TpM_curves_velocities_and_chart_transitions", "module": "tpm", "notebook": "notebooks/2_3_TpM.ipynb"},
+    {"label": "fig_TstarpM", "module": "cotangent", "notebook": "notebooks/2_4_TstarpM.ipynb"},
     {"label": "subsection_Example_Connections_curved", "at": "end", "module": "transport"},
     {"label": "fig_Example_Variations_length", "module": "variations"},
     {"label": "fig_Example_Newtonian_Rotating", "module": "rotating"},
