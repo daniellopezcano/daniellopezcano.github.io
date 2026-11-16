@@ -141,6 +141,22 @@ hr { border: 0; border-top: 1px solid currentColor; opacity: 0.25; margin: 1rem 
   background: rgba(122, 162, 247, 0.08); border: 1px solid rgba(122, 162, 247, 0.14); color: #c6d5ef; font-size: 15px; }
 .dg-sitenav-toggle { display: none; width: 34px; height: 34px; color: #dee2e6; font-size: 26px; line-height: 1; }
 .dg-sitenav :focus-visible { outline-color: #8eadff; }
+/* the "Lecture Notes" dropdown (Lyα DECISIONS L15): Quarto's Bootstrap dropdown in the darkly theme, measured
+ * (caret 5 px, menu #222 with a #434343 border, items 0.9 rem, hover #375a7f); course.js opens it */
+.dg-sitenav .dg-dropdown { position: relative; }
+.dg-sitenav .dg-dropdown-toggle { display: block; padding: 8.5px 10.2px; border: 0; border-radius: 0; background: none; color: #dbe7ff;
+  opacity: 0.95; font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer; }
+.dg-sitenav .dg-dropdown-toggle::after { content: ""; display: inline-block; margin-left: 0.255em; vertical-align: 0.175em; opacity: 0.75;
+  border-top: 5px solid; border-right: 5px solid transparent; border-left: 5px solid transparent; border-bottom: 0; }
+.dg-sitenav .dg-dropdown-toggle:hover, .dg-sitenav .dg-dropdown-toggle:focus-visible, .dg-sitenav .dg-dropdown-toggle.active,
+.dg-sitenav .dg-open > .dg-dropdown-toggle { color: #fff; }
+.dg-sitenav .dg-open > .dg-dropdown-toggle { box-shadow: 0 0 0 4.25px rgba(55, 90, 127, 0.25); }
+.dg-sitenav ul.dg-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; z-index: 40; flex-direction: column; min-width: 220px;
+  margin: 2.125px 0 0; padding: 0; background: #222; border: 1px solid #434343; border-radius: 4.25px; font-size: 15.3px; line-height: 26.316px; }
+.dg-sitenav .dg-open > ul.dg-dropdown-menu { display: block; }
+html:not(.dg-js) .dg-sitenav .dg-dropdown:is(:hover, :focus-within) > ul.dg-dropdown-menu { display: block; }
+.dg-sitenav .dg-dropdown-menu a { padding: 6.8px 8.5px; color: #fff; opacity: 1; }
+.dg-sitenav .dg-dropdown-menu a:hover, .dg-sitenav .dg-dropdown-menu a:focus-visible { background: rgb(55, 90, 127); color: #fff; }
 
 /* course bar: breadcrumbs, Contents (only while the tree is a drawer), Map, Search, theme, progress hairlines */
 .dg-bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 0.5rem; height: var(--dg-bar-h); padding: 0 1rem;
@@ -239,6 +255,9 @@ html.dg-nav-open body.dg-page-chapter::after { content: ""; position: fixed; ins
   .dg-sitenav-toggle { display: block; }
   .dg-sitenav ul { display: none; order: 3; flex: 0 0 100%; flex-direction: column; padding-top: 8px; }
   .dg-sitenav.dg-open ul { display: flex; }
+  .dg-sitenav ul.dg-dropdown-menu, .dg-sitenav.dg-open ul.dg-dropdown-menu { display: none; position: static; }
+  .dg-sitenav .dg-open > ul.dg-dropdown-menu, .dg-sitenav.dg-open .dg-open > ul.dg-dropdown-menu { display: block; }
+  .dg-sitenav .dg-dropdown-toggle { width: 100%; text-align: left; }
 }
 @media (max-width: 767.98px) { body.dg-page-reading .dg-shell, body.dg-page-chapter .dg-shell { font-size: 1.08rem; } }
 @media (max-width: 720px) {

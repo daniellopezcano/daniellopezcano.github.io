@@ -148,18 +148,34 @@ def site_config(path: str | None = None) -> dict:
     left = _find(lines, 'left', nb + 1) if nb >= 0 else -1
     if left < 0:
         raise SystemExit(f'{where}: block website: navbar: left: not found (the course pages copy the site navbar from it)')
-    nav, item = [], None
+    # entries: {'href', 'text'} or, for a dropdown (Lyα DECISIONS L15), {'text', 'menu': [{'href', 'text'}, ...]};
+    # an item is a "- " line, a menu's items are "- " lines indented deeper than the entry that holds them
+    nav, item, top = [], None, None
     for ln in _block(lines, left)[1]:
         s = ln.strip()
+        ind = len(ln) - len(ln.lstrip())
         if s.startswith('- '):
+            if top is None:
+                top = ind
             item = {}
-            nav.append(item)
+            if ind == top:
+                nav.append(item)
+            elif nav and 'menu' in nav[-1]:
+                nav[-1]['menu'].append(item)
+            else:
+                raise SystemExit(f'{where}: website: navbar: left: an indented item outside a menu: {s}')
             s = s[2:].strip()
+        if re.match(r'menu:\s*$', s) and item is not None and ind > (top or 0):
+            item['menu'] = []
+            continue
         k = re.match(r'(href|text):\s*(.+)$', s)
         if k and item is not None:
             item[k.group(1)] = _unquote(k.group(2))
-    nav = [(i['href'], i['text']) for i in nav if 'href' in i and 'text' in i]
-    if not nav or not any(h.startswith(COURSE + '/') for h, _ in nav):
+    nav = [i for i in nav if 'text' in i and ('href' in i or i.get('menu'))]
+    for i in nav:
+        if 'menu' in i:
+            i['menu'] = [m for m in i['menu'] if 'href' in m and 'text' in m]
+    if not nav or not any(_leads_here(i) for i in nav):
         raise SystemExit(f'{where}: website: navbar: left: has no entry pointing into {COURSE}/')
     pf = _find(lines, 'page-footer', w + 1)
     foot = {}
@@ -172,6 +188,11 @@ def site_config(path: str | None = None) -> dict:
     if 'left' not in foot or not link:
         raise SystemExit(f'{where}: website: page-footer: with left: "<text>" and right: "[<text>](<page>)" not found')
     return {'site_url': site_url, 'nav': nav, 'foot_left': foot['left'], 'foot_right': (link.group(1), link.group(2))}
+
+
+def _leads_here(i: dict) -> bool:
+    """The navbar entry (or a link of its menu) leads into this course."""
+    return any(x['href'].startswith(COURSE + '/') for x in i.get('menu', [i]))
 
 
 # ---------------------------------------------------------------------------------------
@@ -233,10 +254,22 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
 
 def sitenav(cfg: dict, page_dir: str, landing: bool) -> str:
     items = []
-    for href, text in cfg['nav']:
-        here = href.startswith(COURSE + '/')
-        cur = ' class="active"' + (' aria-current="page"' if landing else '') if here else ''
-        items.append(f'<li><a href="{attr(site_href(href, page_dir))}"{cur}>{html.escape(text)}</a></li>')
+
+    def link(i, cls=''):
+        here = i['href'].startswith(COURSE + '/')
+        c = ' '.join(x for x in (cls, 'active' if here else '') if x)
+        cur = (f' class="{c}"' if c else '') + (' aria-current="page"' if here and landing else '')
+        return f'<a href="{attr(site_href(i["href"], page_dir))}"{cur}>{html.escape(i["text"])}</a>'
+    for i in cfg['nav']:
+        if 'menu' not in i:
+            items.append(f'<li>{link(i)}</li>')
+            continue
+        # a dropdown (L15): opened by course.js (initSiteNav) on hover, click, tap and keyboard focus
+        mid = 'dg-nav-menu-' + re.sub(r'[^a-z0-9]+', '-', i['text'].lower()).strip('-')
+        act = ' active' if _leads_here(i) else ''
+        items.append(f'<li class="dg-dropdown"><button class="dg-dropdown-toggle{act}" type="button" aria-expanded="false" '
+                     f'aria-controls="{mid}">{html.escape(i["text"])}</button><ul class="dg-dropdown-menu" id="{mid}">'
+                     + ''.join(f'<li>{link(m, "dg-dropdown-item")}</li>' for m in i['menu']) + '</ul></li>')
     return (f'<header class="dg-sitenav" id="dg-sitenav"><nav class="dg-sitenav-in" aria-label="{INTERFACE["site_nav"]}">'
             f'<button class="dg-sitenav-toggle" type="button" aria-label="{INTERFACE["toggle"]}" aria-expanded="false" '
             f'aria-controls="dg-sitenav-links">{icon("list")}</button>'
@@ -246,7 +279,9 @@ def sitenav(cfg: dict, page_dir: str, landing: bool) -> str:
 
 
 def course_label(cfg: dict) -> str:
-    return next(t for h, t in cfg['nav'] if h.startswith(COURSE + '/'))
+    """The first breadcrumb: the text of the navbar entry that leads into the course (for a dropdown, its own
+    text, "Lecture Notes", the same for both courses; L15)."""
+    return next(i['text'] for i in cfg['nav'] if _leads_here(i))
 
 
 def bar(cfg: dict, crumbs: list[str], home: str, pos: float, tree: bool) -> str:

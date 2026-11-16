@@ -1090,11 +1090,31 @@ function initTheme() {
   }
 }
 
-/** Site navbar on phones: the toggle shows and hides the links. */
+/** Site navbar on phones: the toggle shows and hides the links. Its dropdowns ("Lecture Notes", Lyα DECISIONS
+ *  L15) open while the mouse is over them (devices that hover, wide navbar), on click and tap, and when they
+ *  receive keyboard focus; they close when the mouse or the focus leaves them, on Escape and on a click
+ *  elsewhere. The Quarto pages do the same with Bootstrap's dropdown (includes/navbar-dropdown.html). */
 function initSiteNav() {
   const nav = document.getElementById('dg-sitenav'), b = nav && nav.querySelector('.dg-sitenav-toggle');
   if (!b) return;
   b.addEventListener('click', () => b.setAttribute('aria-expanded', String(nav.classList.toggle('dg-open'))));
+  const hover = window.matchMedia('(hover: hover) and (min-width: 992px)');
+  for (const li of nav.querySelectorAll('.dg-dropdown')) {
+    const t = li.querySelector('.dg-dropdown-toggle');
+    let timer = 0, escaped = false;
+    const set = on => { clearTimeout(timer); li.classList.toggle('dg-open', on); t.setAttribute('aria-expanded', String(on)); };
+    li.addEventListener('mouseenter', () => { if (hover.matches) set(true); });
+    li.addEventListener('mouseleave', () => { if (hover.matches) timer = setTimeout(() => set(false), 200); });
+    t.addEventListener('click', () => set(hover.matches || !li.classList.contains('dg-open')));
+    t.addEventListener('focus', () => { if (!escaped && t.matches(':focus-visible')) set(true); escaped = false; });
+    li.addEventListener('focusout', e => { if (!li.contains(e.relatedTarget)) set(false); });
+    li.addEventListener('keydown', e => {
+      if (e.key !== 'Escape' || !li.classList.contains('dg-open')) return;
+      set(false);
+      if (document.activeElement !== t) { escaped = true; t.focus(); }
+    });
+    document.addEventListener('click', e => { if (!li.contains(e.target)) set(false); });
+  }
 }
 
 /** Reading progress (the dark hairline of the course bar) and the outline entry of the heading being read. */
