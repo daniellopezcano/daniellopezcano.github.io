@@ -92,11 +92,11 @@ export default async function mount(body) {
   body.append(stage);
   const margin = { l: 34, r: 10, t: 26, b: 30 };
   const charts = [
-    { key: 'X', map: q => q, inv: q => q, lim: LX, title: '(\\mathcal{U}, \\mathscr{X})', ax: '\\mathscr{X}', parent: left },
-    { key: 'Y', map: Y, inv: Yinv, lim: LY, title: '(\\mathcal{V}, \\mathscr{Y})', ax: '\\mathscr{Y}', parent: right }
+    { key: 'X', map: q => q, inv: q => q, lim: LX, title: '(\\mathcal{U}, \\mathscr{X})', ax: '\\mathscr{X}', name: '(𝒰, 𝒳)', parent: left },
+    { key: 'Y', map: Y, inv: Yinv, lim: LY, title: '(\\mathcal{V}, \\mathscr{Y})', ax: '\\mathscr{Y}', name: '(𝒱, 𝒴)', parent: right }
   ];
   for (const ch of charts) {
-    ch.plot = new Plot2D(ch.parent, { xlim: ch.lim[0], ylim: ch.lim[1], equal: true, margin, role: 'group', label: ch.title.replace(/\\math(cal|scr)\{(\w)\}/g, '$2'), draw: p => drawChart(p, ch) });
+    ch.plot = new Plot2D(ch.parent, { xlim: ch.lim[0], ylim: ch.lim[1], equal: true, margin, role: 'group', label: ch.name, draw: p => drawChart(p, ch) });
   }
 
   const outs = el('div', { class: 'dg-readouts' });

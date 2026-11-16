@@ -18,6 +18,11 @@ boxes=True (D58) it also returns the picture's top-level `local bounding box`
 regions in the SVG's user units (figboxes.py), cached with the SVG and written
 to figures/<name>.boxes.json.
 
+Every SVG figure and every figure made from a PDF also carries `text`: the size of its
+ordinary text in CSS px at its intrinsic size (figtext.py; None when it has no glyphs),
+measured once and kept in the cache entry; the page makes its zoom control prominent where
+that text would be shown below ~8 px (D10 f).
+
 Results are cached by content hash in _port/.work/figcache/: an unchanged
 figure is never rebuilt, and an output file that already holds the cached bytes
 is not touched. Sizes are CSS px (1 px = 1/96 in; a PDF point is 1/72 in).
@@ -33,6 +38,7 @@ import subprocess
 import tempfile
 
 import figboxes
+import figtext
 
 VERSION = 'figures-2'          # bump to invalidate the whole cache
 SVG_MAX = 400_000              # bytes: larger vector output becomes WebP
@@ -335,9 +341,10 @@ class Figures:
         with open(f, 'rb') as fh:
             data = fh.read()
         key = _sha(VERSION, 'graphic', ext, data, str((SVG_MAX, RASTER_PDF_PX, WEBP_Q)))   # settings are part of the key
+        pdf = f if ext == '.pdf' else None
         hit = self._cached(key, name)
         if hit:
-            return hit
+            return self._text(key, hit, pdf)
         with tempfile.TemporaryDirectory(dir=self.work, prefix='g-') as tmp:
             if ext == '.pdf':
                 built, info, stats = self._pdf(f, tmp)
@@ -345,7 +352,30 @@ class Figures:
                 built, info, stats = self._raster(f, ext, len(data), tmp)
             self.stats[name] = stats
             self.log.append(f'built {name}.{info["kind"]} from {path}')
-            return self._store(key, built, info, name)
+            return self._text(key, self._store(key, built, info, name), pdf)
+
+    def _text(self, key: str, res: dict, pdf: str | None = None) -> dict:
+        """Adds `text` (figtext.py) to a figure's result: measured on its SVG, or for a PDF rendered to WebP on
+        the PDF's own text (pdftocairo SVG of it, in a temporary directory); a raster photo has none. Measured once
+        per cache entry (and again when figtext.VERSION changes); the value is stored in the entry's JSON."""
+        meta = os.path.join(self.cache, key + '.json')
+        with open(meta) as fh:
+            info = json.load(fh)
+        if info.get('text_v') != figtext.VERSION:
+            t = None
+            if info['kind'] == 'svg':
+                t = figtext.text_px(os.path.join(self.out, os.path.basename(res['src'])), info['width'])
+            elif pdf:
+                with tempfile.TemporaryDirectory(dir=self.work, prefix='t-') as tmp:
+                    svg = os.path.join(tmp, 'text.svg')
+                    _run(['pdftocairo', '-svg', pdf, svg])
+                    t = figtext.text_px(svg, info['width'])
+            info.update(text=t, text_v=figtext.VERSION)
+            with open(meta, 'w') as fh:
+                json.dump(info, fh, sort_keys=True)
+        out = dict(res)
+        out['text'] = info['text']
+        return out
 
     def image_size(self, path: str) -> tuple[int, int]:
         from PIL import Image
@@ -479,7 +509,7 @@ class Figures:
         key = _sha(VERSION, 'tex', doc, self.aux, *([figboxes.VERSION] if boxes else []))
         hit = self._cached(key, name)
         if hit:
-            return hit
+            return self._text(key, hit)
         job = 'fig-' + key[:16]
         svg, text = self._typeset(doc, job, name)
         info, checks = {}, None
@@ -504,7 +534,7 @@ class Figures:
         if checks:
             self.stats[name]['boxes'] = checks
         self.log.append(f'built {name}.svg from TikZ' + (f' (+ {len(names)} boxes)' if boxes else ''))
-        res = self._store(key, svg, info, name)
+        res = self._text(key, self._store(key, svg, info, name))
         for e in ('.tex', '.aux', '.log', '.xdv', '.svg', '.out', '.port'):
             p = os.path.join(self.work, job + e)
             if os.path.exists(p):

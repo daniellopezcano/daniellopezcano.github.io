@@ -15,6 +15,7 @@ const CM = 72 / 2.54;                    // the SVG's user unit is the PostScrip
 export const MARGIN = 0.7 * CM;          // around the panel in the view (just clear of the column heads above the first panels)
 export const HOLE = 0.5 * CM;            // the undimmed rectangle around the panel (its frame is drawn 0.42 cm out)
 const MS = 320;                          // transition, only without prefers-reduced-motion
+const TINY = 8;                          // px: the smallest text size a panel is shown at (as course.js: TINY_TEXT_PX)
 export const TAG = { Sbox: '', Xbox: '(∗) of (E)' };
 export const tag = name => (name in TAG ? TAG[name] : /^[A-Z]box$/.test(name) ? `(${name[0]})` : '');
 
@@ -47,7 +48,12 @@ export default async function mount(body, frame) {
 
   // the stage keeps the proportions of the tallest step, so the buttons above never move and the page below does not jump
   const tall = view.reduce((a, r) => (r[3] / r[2] > a[3] / a[2] ? r : a));
-  const stage = el('div', { class: 'dg-paperbox dg-ehs-stage', style: `aspect-ratio: ${tall[2].toFixed(1)} / ${tall[3].toFixed(1)}` });
+  // the figure is drawn at least as wide as it takes for a panel's text to reach TINY px (the figure's text size from the
+  // converter, data-dg-text, D10 f): on a phone the stage is then taller (up to 80vh) and scrolls sideways (B33)
+  const text = +img.getAttribute('data-dg-text') || 0, iw = +img.getAttribute('width') || 0;
+  const minW = text && iw ? Math.ceil(TINY / text * iw * Math.max(...view.map(r => r[2])) / whole[2]) : 0;
+  const stage = el('div', { class: 'dg-paperbox dg-ehs-stage',
+    style: `--dg-ehs-ar: ${tall[2].toFixed(1)} / ${tall[3].toFixed(1)}; --dg-ehs-minw: ${minW}px` });
   root.append(stage);
   svg.setAttribute('class', 'dg-ehs-svg');
   svg.setAttribute('role', 'group');                       // it holds links (the \ref badges): 'group', not 'img' (D56)
@@ -104,6 +110,7 @@ export default async function mount(body, frame) {
       moving = true;
       anim = requestAnimationFrame(tick);
     }
+    if (stage.scrollLeft) stage.scrollLeft = 0;           // a new view starts at its left edge (phones: the stage scrolls)
     const t = tag(steps[st.k]);
     pos.textContent = `${st.k + 1} / ${N}` + (t ? ` ${t}` : '');
     prev.setAttribute('aria-disabled', String(st.k === 0 && !st.whole));      // not disabled: the focus stays on the button

@@ -20,6 +20,9 @@
 // Unit B5 (D52): a citation previews its Bibliography entry; a List of Figures number previews its figure.
 // Units B18-B22: footnotes inside an appendix panel (popover, the panel's list), no "open here" on the List of Figures,
 // previous/next of chapter opening pages as wide as the text, About the Author's foot links without a line ending or starting with "·".
+// Unit B33: roadmap badges clickable over their whole box; the "Zoom" button where a figure's text is below 8 px (and not elsewhere,
+// and after a resize); Figure 10.3 opens fitted to its width; the viewer (pinch, drag, close) and the map dialog on a phone;
+// previews of Figure 10.3 never leave the viewport; nothing page-level copied into an appendix panel.
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -204,7 +207,7 @@ try {
     ok(/\/notes\/diffgeo-gr\/topological-manifolds\/index\.html$/.test(page.url()), 'clicking the "Ch. 3" badge navigates to topological-manifolds/index.html');
     await page.goto(`${base}/${C}index.html`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(800);
-    await page.locator('.dg-expand').click(); await page.waitForTimeout(300);
+    await page.locator('.dg-landing-map .dg-expand:not([hidden]), .dg-landing-map .dg-zoom:not([hidden])').first().click(); await page.waitForTimeout(300);
     await page.waitForFunction(() => document.querySelectorAll('dialog.dg-viewer[open] a.dg-svg-link').length > 0, null, { timeout: 8000 }).catch(() => {});
     ok(await page.locator('dialog.dg-viewer[open] a.dg-svg-link').count() >= 20, 'the expand button opens the roadmap in the viewer, with working links');
     const ids = await page.evaluate(() => { const s = new Set(), d = []; for (const e of document.querySelectorAll('[id]')) { if (s.has(e.id)) d.push(e.id); s.add(e.id); } return d.length; });
@@ -233,12 +236,14 @@ try {
           raw: [...box.querySelectorAll('.math')].filter(m => !m.querySelector('mjx-container')).length,
           head: box.querySelector('.dg-inline-head').textContent, link: box.querySelector('.dg-inline-tools a').href,
           inter: box.querySelectorAll('.dg-interactive').length, nested: box.querySelectorAll('.dg-open-here').length,
+          page: box.querySelectorAll('.dg-readbar, .dg-readtoggle, .dg-prevnext, .dg-head, .dg-chapter-web, .dg-chapter-map').length,
           scroll: getComputedStyle(box.querySelector('.dg-inline-body')).overflowY };
       });
       ok(info && info.after, `${W} body text: the panel opens right after the block that holds the reference`);
       ok(info && info.mjx > 10 && info.raw === 0, `${W} body text: the math in the panel is typeset (${info && info.mjx} formulas)`);
       ok(info && /^Appendix B/.test(info.head) && /B\.13/.test(info.head) && info.link === target, `${W} body text: the panel names the item (kicker, number, title) and links to its page`);
       ok(info && info.nested === 0 && info.inter === 0 && info.scroll === 'auto', `${W} body text: no nested "open here", no interactive, the panel body scrolls`);
+      ok(info && info.page === 0, `${W} body text: nothing page-level is copied into the panel ("Mark as read", previous/next, header; B33)`);
       ok((await dupIds(page)).length === 0, `${W} body text: ids stay unique with the panel open`);
       ok((await overflow(page)) <= 0, `${W} body text: no horizontal page scroll with the panel open`);
       // a reference inside the panel keeps its preview
@@ -532,9 +537,9 @@ try {
         ok(m.links >= 10, `${W} roadmap: inlined after scrolling to it, ${m.links} links (>= 10)`);
         ok(m.here.length > 0 && m.here.every(h => /\/tangent-spaces\//.test(h)) && m.stroke && m.stroke !== 'none', `${W} roadmap: the badges into Chapter 4 are ringed (${m.here.length})`);
         ok(/NewCM/.test(m.cap), `${W} roadmap: the caption keeps the text face`);
-        await page.locator('.dg-chapter-map .dg-expand').click(); await page.waitForTimeout(300);
+        await page.locator('.dg-chapter-map .dg-expand:not([hidden]), .dg-chapter-map .dg-zoom:not([hidden])').first().click(); await page.waitForTimeout(300);   // B33: "Zoom" where the text is tiny
         await page.waitForFunction(() => document.querySelectorAll('dialog.dg-viewer[open] a.dg-svg-link').length > 0, null, { timeout: 8000 }).catch(() => {});
-        ok(await page.locator('dialog.dg-viewer[open] a.dg-svg-link').count() >= 10, `${W} roadmap: the expand button opens it in the viewer, with links`);
+        ok(await page.locator('dialog.dg-viewer[open] a.dg-svg-link').count() >= 10, `${W} roadmap: its zoom control opens it in the viewer, with links`);
         await page.keyboard.press('Escape'); await page.waitForTimeout(200);
       }
       ok((await overflow(page)) <= 0, `${W} chapter page: no horizontal page scroll`);
@@ -954,6 +959,154 @@ try {
     await page.waitForURL(/foundations-sets-maps\.html$/, { timeout: 8000 }).catch(() => {});
     ok(/foundations-sets-maps\.html$/.test(page.url()), '← goes back to the previous page (2.1)');
     await page.close();
+  }
+  // ---- Unit B33 ----
+  // 1. roadmap badges are links over their whole box: a click near a corner of a badge's box navigates (landing page,
+  //    a single-reference badge, and both halves of a badge with two references)
+  {
+    const { page, errors } = await open('index.html', 1440);
+    await page.waitForFunction(() => document.querySelectorAll('.dg-landing-map a.dg-svg-link').length > 20, null, { timeout: 10000 }).catch(() => {});
+    const badges = await page.evaluate(() => {
+      const out = [];
+      for (const a of document.querySelectorAll('.dg-landing-map a.dg-svg-link')) {
+        const h = a.querySelector('.dg-svg-hit').getBoundingClientRect(), g = a.querySelector('g.dg-xref').getBoundingClientRect();
+        out.push({ href: a.getAttribute('href'), h: [h.left, h.top, h.width, h.height], g: [g.left, g.top, g.width, g.height] });
+      }
+      return out;
+    });
+    // every hit box covers its number with room on all sides (the badge's own padding)
+    ok(badges.length > 20 && badges.every(b => b.h[0] < b.g[0] - 1 && b.h[1] < b.g[1] - 1 && b.h[0] + b.h[2] > b.g[0] + b.g[2] + 1 && b.h[1] + b.h[3] > b.g[1] + b.g[3] + 1),
+      `landing roadmap: every badge's hit area contains its number with margin (${badges.length} links)`);
+    const hits = await page.evaluate(() => [...document.querySelectorAll('.dg-landing-map .dg-svg-hit')].map(r => { const b = r.getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom]; }));
+    const overlap = hits.some((a, i) => hits.some((b, j) => j > i && Math.min(a[2], b[2]) - Math.max(a[0], b[0]) > 1 && Math.min(a[3], b[3]) - Math.max(a[1], b[1]) > 1));
+    ok(!overlap, 'landing roadmap: the hit areas of two references never overlap (a badge with two references is shared out)');
+    for (const [pick, corner, what] of [[b => /topological-manifolds\/index\.html$/.test(b.href), 'tl', 'the "Ch. 3" badge, top-left corner'],
+      [b => /tangent-spaces\/index\.html$/.test(b.href), 'bl', 'the "Ch. 4" half of "Ch. 4 · §4.1", bottom-left corner']]) {
+      const b0 = badges.find(pick);
+      if (!b0) { ok(false, `landing roadmap: ${what} found`); continue; }
+      const b = await page.evaluate(href => {                // into view first: elementFromPoint sees only the viewport
+        const a = document.querySelector(`.dg-landing-map a.dg-svg-link[href="${href}"]`), h = a.querySelector('.dg-svg-hit');
+        h.scrollIntoView({ block: 'center', behavior: 'instant' });
+        const r = h.getBoundingClientRect(); return { href, h: [r.left, r.top, r.width, r.height] }; }, b0.href);
+      const x = corner === 'tl' ? b.h[0] + 2 : b.h[0] + 2, y = corner === 'tl' ? b.h[1] + 2 : b.h[1] + b.h[3] - 2;
+      const at = await page.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); const a = e && e.closest('a.dg-svg-link'); return a && a.getAttribute('href'); }, [x, y]);
+      ok(at === b.href, `landing roadmap: ${what} is part of its link (${at})`);
+    }
+    const ch3 = await page.evaluate(() => { const h = [...document.querySelectorAll('.dg-landing-map a.dg-svg-link')].find(a => /topological-manifolds\/index\.html$/.test(a.getAttribute('href'))).querySelector('.dg-svg-hit');
+      h.scrollIntoView({ block: 'center', behavior: 'instant' }); const r = h.getBoundingClientRect(); return { h: [r.left, r.top, r.width, r.height] }; });
+    await page.waitForTimeout(100);
+    await page.mouse.click(ch3.h[0] + ch3.h[2] - 2, ch3.h[1] + ch3.h[3] - 2);      // bottom-right corner of the badge
+    await page.waitForURL(/topological-manifolds\/index\.html$/, { timeout: 8000 }).catch(() => {});
+    ok(/topological-manifolds\/index\.html$/.test(page.url()), 'a click at the corner of the "Ch. 3" badge navigates');
+    ok(errors.length === 0, `landing badges: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+    await page.close();
+  }
+  // 2. the zoom control: prominent ("Zoom", visible, a button) where the figure's text is below 8 px at its width, quiet elsewhere
+  {
+    const state = (page, sel) => page.evaluate(sel => {
+      const p = document.querySelector(sel), z = p && p.querySelector(':scope > .dg-zoom'), pic = p && p.querySelector(':scope > img, :scope > svg');
+      const W = +(p.dataset.dgW || pic.getAttribute('width')), t = +(p.dataset.dgText || pic.getAttribute('data-dg-text')) || 13.33;
+      const r = z && !z.hidden ? z.getBoundingClientRect() : null, pr = p.getBoundingClientRect();
+      return { px: t * pic.getBoundingClientRect().width / W, zoom: !!r, word: z ? z.textContent.trim() : '', role: p.getAttribute('role'),
+        corner: r ? Math.abs(r.right - (pr.right - 0.7 * 16)) < 3 && r.top < pr.top + 2 : null,
+        font: z ? getComputedStyle(z).fontFamily : '', expand: (() => { const e = p.parentNode.querySelector(':scope > .dg-expand'); return e ? !e.hidden : null; })() };
+    }, sel);
+    let { page } = await open('introduction/roadmaps.html', 1280);
+    let s = await state(page, '#fig_roadmap_topology_to_fields .dg-paper');
+    ok(s.px < 8 && s.zoom && s.word === 'Zoom' && s.role === null && s.corner && /Lato/.test(s.font), `@1280 Figure 1.3 (text ${s.px.toFixed(1)} px): a visible "Zoom" button over the card's corner, the card no button itself`);
+    const z = page.locator('#fig_roadmap_topology_to_fields .dg-zoom');
+    await z.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+    ok(await page.locator('dialog.dg-viewer[open]').count() === 1, '@1280 the Zoom button opens the viewer from the keyboard');
+    await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+    ok(await page.evaluate(() => document.activeElement && document.activeElement.matches('#fig_roadmap_topology_to_fields .dg-zoom')), '@1280 closing the viewer returns the focus to the Zoom button');
+    await page.close();
+    ({ page } = await open('vector-spaces/foundations-sets-maps.html', 1280));
+    s = await state(page, '#fig_maps_examples .dg-paper');
+    ok(s.px >= 8 && !s.zoom && s.role === 'button', `@1280 Figure 2.1 (text ${s.px.toFixed(1)} px): no Zoom button, the card is the button`);
+    await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(500);
+    s = await state(page, '#fig_maps_examples .dg-paper');
+    ok(s.px < 8 && s.zoom && s.role === null, `@390 after a resize, Figure 2.1 (text ${s.px.toFixed(1)} px): the Zoom button appears`);
+    await page.close();
+    ({ page } = await open('vector-spaces/index.html', 1440));
+    await page.evaluate(() => document.querySelector('.dg-chapter-map').scrollIntoView());
+    await page.waitForFunction(() => document.querySelector('.dg-chapter-map .dg-map-live'), null, { timeout: 10000 }).catch(() => {});
+    s = await state(page, '.dg-chapter-map .dg-paper');
+    ok(s.px < 8 && s.zoom && s.expand === false, `@1440 Ch. 2's roadmap (Figure 1.2, text ${s.px.toFixed(1)} px): Zoom button, the small expand button hidden`);
+    await page.close();
+    ({ page } = await open('index.html', 1440));
+    s = await state(page, '.dg-landing-map .dg-paper');
+    ok(s.px >= 8 && !s.zoom && s.expand === true, `@1440 landing roadmap (text ${s.px.toFixed(1)} px): the small expand button, no Zoom button`);
+    await page.close();
+  }
+  // 3. the viewer and the map dialog on a phone; Figure 10.3 opens fitted to its width with its top in view
+  {
+    const { page } = await open('gr/einstein-hilbert.html', 1440);
+    const paper = page.locator('#fig_EH_chain_rule .dg-paper');
+    await paper.scrollIntoViewIfNeeded(); await paper.click({ position: { x: 40, y: 80 } }); await page.waitForTimeout(500);
+    const v = await page.evaluate(() => { const st = document.querySelector('.dg-viewer-stage').getBoundingClientRect(), p = document.querySelector('.dg-viewer-paper').getBoundingClientRect();
+      return { sw: st.width, pw: p.width, top: p.top - st.top }; });
+    ok(v.pw > v.sw * 0.85 && v.top >= 0 && v.top < 60, `@1440 Figure 10.3 opens fitted to the width (${Math.round(v.pw)} of ${Math.round(v.sw)} px), its top in view`);
+    await page.keyboard.press('Escape');
+    await page.close();
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const ph = await ctx.newPage();
+    await load(ph, 'vector-spaces/foundations-sets-maps.html');
+    await ph.locator('#fig_maps_examples .dg-zoom').scrollIntoViewIfNeeded();
+    await ph.locator('#fig_maps_examples .dg-zoom').tap(); await ph.waitForTimeout(600);
+    const g = await ph.evaluate(() => { const d = document.querySelector('dialog.dg-viewer[open]'), r = d.getBoundingClientRect(), p = document.querySelector('.dg-viewer-paper').getBoundingClientRect(),
+      t = document.querySelector('.dg-viewer-tools').getBoundingClientRect(), c = document.querySelector('.dg-viewer-tools [data-act="close"]').getBoundingClientRect();
+      return { full: r.left <= 0.5 && r.top <= 0.5 && r.width >= innerWidth - 1 && r.height >= innerHeight - 1, inView: p.left >= 0 && p.right <= innerWidth && p.top >= 0, clear: p.bottom <= t.top,
+        close: c.width >= 36 && c.bottom <= innerHeight && c.top >= 0, w: p.width }; });
+    ok(g.full && g.inView && g.clear && g.close, `@390 viewer fills the screen, the figure fits (clear of the toolbar), the close button is in reach`);
+    const cdp = await ctx.newCDPSession(ph);
+    const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map(([x, y], id) => ({ x, y, id })) });
+    await touch('touchStart', [[150, 400], [240, 400]]);
+    for (let k = 1; k <= 8; k++) await touch('touchMove', [[150 - 8 * k, 400], [240 + 8 * k, 400]]);
+    await touch('touchEnd', []); await ph.waitForTimeout(200);
+    const w2 = await ph.evaluate(() => document.querySelector('.dg-viewer-paper').getBoundingClientRect().width);
+    ok(w2 > g.w * 1.5, `@390 a pinch zooms the figure (${Math.round(g.w)} -> ${Math.round(w2)} px)`);
+    const x0 = await ph.evaluate(() => document.querySelector('.dg-viewer-paper').getBoundingClientRect().left);
+    await touch('touchStart', [[200, 400]]);
+    for (let k = 1; k <= 8; k++) await touch('touchMove', [[200 + 10 * k, 400]]);
+    await touch('touchEnd', []); await ph.waitForTimeout(200);
+    const x1 = await ph.evaluate(() => document.querySelector('.dg-viewer-paper').getBoundingClientRect().left);
+    ok(x1 > x0 + 40, `@390 a one-finger drag pans the figure (${Math.round(x1 - x0)} px)`);
+    await ph.locator('.dg-viewer-tools [data-act="close"]').tap(); await ph.waitForTimeout(300);
+    ok(await ph.locator('dialog.dg-viewer[open]').count() === 0, '@390 the close button closes the viewer');
+    await ph.evaluate(() => scrollTo(0, 0));
+    await ph.locator('.dg-bar a[data-act="map"]').tap();
+    await ph.waitForFunction(() => document.querySelector('dialog.dg-mapdlg[open] svg a.dg-svg-link'), null, { timeout: 10000 }).catch(() => {});
+    const m = await ph.evaluate(() => { const d = document.querySelector('dialog.dg-mapdlg[open]'), r = d.getBoundingClientRect(), s = d.querySelector('.dg-mapdlg-paper svg').getBoundingClientRect(),
+      c = d.querySelector('.dg-dlg-close').getBoundingClientRect(), e = d.querySelector('.dg-expand');
+      return { full: r.width >= innerWidth - 1 && r.height >= innerHeight - 1, fits: s.left >= 0 && s.right <= innerWidth, close: c.top >= 0 && c.bottom <= 80,
+        word: e.classList.contains('dg-tiny') && getComputedStyle(e.querySelector('.dg-zoom-word')).display !== 'none' }; });
+    ok(m.full && m.fits && m.close && m.word, '@390 map dialog fills the screen, the roadmap fits its width, close at the top, the enlarge button shows "Zoom"');
+    await ctx.close();
+  }
+  // 4. previews never leave the viewport (D45 c): §10.2's links to Figure 10.3 ("10.3" and the page number "84"), the reference
+  //    at six heights, at 1440x900 and 1280x720, the figure delayed by 1.5 s (it arrives after the preview is placed)
+  {
+    let cut = 0, n = 0, scroll = 0;
+    for (const [w, h] of [[1440, 900], [1280, 720]]) {
+      const page = await browser.newPage({ viewport: { width: w, height: h } });
+      await page.route(/fig-eh-chain-rule\.svg$/, async r => { await new Promise(res => setTimeout(res, 1500)); await r.continue(); });
+      await load(page, 'gr/einstein-hilbert.html');
+      for (const i of [0, 1]) for (const f of [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]) {
+        await page.mouse.move(5, 5); await page.waitForTimeout(350);
+        const a = page.locator('main a.dg-xref[data-label="fig_EH_chain_rule"]').nth(i);
+        await a.evaluate((e, f) => { const r = e.getBoundingClientRect(); window.scrollTo({ top: scrollY + r.top - innerHeight * f, behavior: 'instant' }); }, f);
+        await page.waitForTimeout(150);
+        await a.hover();
+        await waitPop(page, t => t.includes('Figure 10.3')); await page.waitForTimeout(i === 0 && f === 0.15 ? 2200 : 400);
+        const r = await page.evaluate(() => { const p = document.getElementById('dg-pop'); if (!p || p.hidden) return null; const b = p.getBoundingClientRect();
+          return { top: b.top, bottom: b.bottom, scrolls: p.scrollHeight > p.clientHeight + 1, oy: getComputedStyle(p).overflowY }; });
+        n++;
+        if (!r || r.top < 0 || r.bottom > h) cut++;
+        else if (r.scrolls) { scroll++; if (r.oy !== 'auto' && r.oy !== 'scroll') cut++; }
+      }
+      await page.close();
+    }
+    ok(cut === 0, `previews of Figure 10.3 from §10.2: all ${n} inside the viewport (${scroll} of them scroll inside their height)`);
   }
 } catch (err) {
   ok(false, `exception: ${err.stack || err}`);

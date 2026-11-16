@@ -113,6 +113,13 @@ def dlc_unskip(nodes: list, i: int) -> bool:
     return True
 
 
+
+def text_attr(asset: dict) -> str:
+    """data-dg-text: the figure's text size in CSS px at its intrinsic size (figtext.py, D10 f), for the page
+    script's zoom control; nothing when the figure has no measurable text."""
+    t = asset.get('text')
+    return f' data-dg-text="{t:g}"' if t else ''
+
 class Renderer:
     def __init__(self, ctx, page, parser: Parser, records: dict):
         self.ctx = ctx                  # build context: labels (aux), bib, figures, review log, where()
@@ -485,7 +492,7 @@ class Renderer:
         self.ctx.figure_list.append((num, self.page.slug, fid, short or caption))
         alt = f'Figure {num}: {self.alt_text(short or caption)}'
         img = (f'<img src="\x02U|{asset["src"]}\x02" alt="{html.escape(alt, quote=True)}" width="{asset["width"]}" '
-               f'height="{asset["height"]}" loading="lazy" decoding="async" data-kind="{asset["kind"]}">')
+               f'height="{asset["height"]}" loading="lazy" decoding="async" data-kind="{asset["kind"]}"{text_attr(asset)}>')
         self.ctx.assets[fid] = asset
         self.ctx.captions[fid] = {'num': num, 'page': self.page.slug, 'caption': caption, 'frac': frac, 'alt': alt}
         return (f'<figure class="dg-figure" id="{esc(fid)}">{extra}'
@@ -520,7 +527,7 @@ class Renderer:
         frac = min(1.0, asset.get('width_frac', 1.0))
         return (f'<div class="dg-diagram"><div class="dg-paper" style="--dg-frac:{frac:.3f}">'
                 f'<img src="\x02U|{asset["src"]}\x02" alt="" width="{asset["width"]}" height="{asset["height"]}" '
-                f'loading="lazy" decoding="async" data-kind="{asset["kind"]}"></div></div>')
+                f'loading="lazy" decoding="async" data-kind="{asset["kind"]}"{text_attr(asset)}></div></div>')
 
     def timeline(self, nd: Env) -> str:
         """The trajectory timeline of About the Author (D51): a tikzpicture holding one \\draw (the line) and

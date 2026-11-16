@@ -141,7 +141,7 @@ export default async function mount(body) {
       leg2.replaceChildren(legend(items));
       await Promise.all([
         rL.setLabel(`\\(${c.L}\\)`),
-        rD.setLabel(`\\(\\text{${fam}} \\;\\; \\frac{d}{d${RUNE}} ${c.L} \\Big|_{${RUNE}=0}\\)`),
+        rD.setLabel(`${fam} \\(\\frac{d}{d${RUNE}} ${c.L} \\Big|_{${RUNE}=0}\\)`),   // the family's label as text (B33, D31)
         typeset(leg3), typeset(leg2)
       ]);
     }

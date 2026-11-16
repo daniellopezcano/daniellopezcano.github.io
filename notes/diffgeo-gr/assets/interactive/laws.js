@@ -17,6 +17,7 @@ export const START = { x: [[1, 0], [0, 1]], y: [[1.5, 0.5], [-0.5, 1]] };   // t
 const LIM = [[-1.6, 3.4], [-1.25, 2.55]], PAD = 0.12, LMIN = 0.3, SMIN = 0.17;   // |sin angle| >= 0.17 (≈ 10°)
 const C = { x: '#0077BB', y: '#CC3311', vec: '#222222', cov: '#AA3377' };
 const SUB = ['₁', '₂'];
+const LEVEL_IN = 15, LEVEL_OFF = 12;           // px: where the number of a level line of 𝖷 sits (along, across)
 
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
 const cross = (a, b) => a[0] * b[1] - a[1] * b[0];
@@ -68,7 +69,7 @@ export default async function mount(body) {
     outs.append(s.rUp.el, s.rLow.el);
     box.append(outs);
   }
-  stage.append(legend([{ label: '\\(\\mathcal{X}\\)', color: 'currentColor', width: 2.5 }, { label: '\\(\\mathsf{X} = \\text{const}\\)', color: C.cov }]));
+  stage.append(legend([{ label: '\\(\\mathcal{X}\\)', color: 'currentColor', width: 2.5 }, { label: '\\(\\mathsf{X} = {}\\)const', color: C.cov }]));
 
   // the laws of §2.3 (the notes' formulas) next to the same relations in numbers
   const mJ = matrix(2, 2), mI = matrix(2, 2), mJ2 = matrix(2, 2), mJ3 = matrix(2, 2);
@@ -111,8 +112,14 @@ export default async function mount(body) {
       const L = clipLine([COV[0] * k / (n * n), COV[1] * k / (n * n)], [-COV[1], COV[0]], box);
       if (!L) continue;
       pl.line(L, { color: C.cov, width: k ? 1.1 : 1.6, opacity: 0.75 });
-      const end = L[0][0] < L[1][0] ? L[0] : L[1], onTop = end[1] > box[1][1] - 1e-9;
-      pl.text(end, fmt(k, 0), { dx: onTop ? 8 : 5, dy: onTop ? 13 : -5, anchor: 'start', color: C.cov, class: 'dg-svgtext dg-laws-level' });
+      // the number beside its line, never on it (B33): LEVEL_IN px along the line from its left end, then LEVEL_OFF px
+      // across it, to the side that stays in the drawing (above a line that starts at the left edge, below one that
+      // starts at the top edge); the text is centred there
+      const [end, far] = L[0][0] < L[1][0] ? L : [L[1], L[0]], onTop = end[1] > box[1][1] - 1e-9;
+      const [ex, ey] = pl.px(end), [fx, fy] = pl.px(far), len = Math.hypot(fx - ex, fy - ey) || 1, ux = (fx - ex) / len, uy = (fy - ey) / len;
+      let [nx, ny] = [uy, -ux];                           // a unit normal of the line in px
+      if ((ny < 0) === onTop) [nx, ny] = [-nx, -ny];       // up (ny < 0) from the left edge, down from the top edge
+      pl.text(end, fmt(k, 0), { dx: ux * LEVEL_IN + nx * LEVEL_OFF, dy: uy * LEVEL_IN + ny * LEVEL_OFF + 4.5, anchor: 'middle', color: C.cov, class: 'dg-svgtext dg-laws-level' });
     }
     const B = st[s.key], c = solve(B, VEC);
     const P = [[c[0] * B[0][0], c[0] * B[0][1]], [c[1] * B[1][0], c[1] * B[1][1]]];   // x^1 x̂_1 and x^2 x̂_2

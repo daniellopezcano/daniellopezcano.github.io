@@ -34,9 +34,13 @@
 .dg-ctl { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2rem; }
 .dg-ctl-label { color: var(--dg-text); white-space: nowrap; }
 .dg-value { font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; color: var(--dg-text); }
-.dg-slider { flex: 1 1 14rem; }
+/* one rule for every slider of every panel (B33): the track starts at 7rem and a row's sliders share its spare width
+ * equally (equal growth on equal bases, so the tracks of one row stay equal whatever their labels); a slider alone on a
+ * row stops at 26rem; values keep a fixed width so nothing moves while dragging */
+.dg-slider { flex: 1 1 auto; max-width: 26rem; }
 .dg-slider label { display: inline-flex; align-items: center; }
-.dg-slider input[type="range"] { flex: 1 1 auto; min-width: 8rem; accent-color: var(--dg-accent); height: 1.6rem; cursor: pointer; }
+.dg-slider input[type="range"] { flex: 1 1 auto; width: 7rem; min-width: 6rem; accent-color: var(--dg-accent); height: 1.6rem; cursor: pointer; }
+.dg-slider .dg-value { min-width: 3.1em; }
 
 .dg-btn {
   font: inherit; font-size: 0.86rem; line-height: 1.2; color: var(--dg-text); background: var(--dg-surface-2);
@@ -164,10 +168,9 @@
 .dg-tr-val { font-variant-numeric: tabular-nums; }
 /* a disabled slider: only the track fades (its label and value keep the contrast of text, D56) */
 .dg-slider.dg-disabled input { opacity: 0.4; cursor: default; }
+/* transport: κ only means something for ∇ᵏ; for the other connections its slider is not shown, its place kept (B33) */
+.dg-slider.dg-tr-off { visibility: hidden; }
 .dg-tr-pair { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; }
-.dg-controls .dg-tr-lambda { flex: 1 1 9rem; }
-.dg-controls .dg-tr-kappa { flex: 0 1 11rem; }
-.dg-tr-lambda input[type="range"], .dg-tr-kappa input[type="range"] { min-width: 5rem; }
 
 /* ---- charts and transition maps (charts, B26, after Figure 3.1): the 3D view centred above the two chart panels, the
    transition maps between them (Figure 3.1's arrow), the label of p under each chart; stacked, with vertical arrows, on phones ---- */
@@ -180,6 +183,7 @@
 .dg-ch-end .dg-readout-value { min-width: 0; }
 .dg-ch-arrows { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; font-size: 1.05rem; transition: opacity 0.15s; }
 .dg-ch-arrows.dg-ch-off { opacity: 0.3; }
+.dg-ch-arrows .dg-ch-arr { color: var(--dg-color-green-1); }   /* on the surface, both themes: >= 4.2:1 (B33) */
 .dg-ch-v { display: none; }
 @media (max-width: 767.98px) {
   .dg-ch-row { grid-template-columns: minmax(0, 1fr); }
@@ -191,7 +195,7 @@
    of each under it (stacked on phones) ---- */
 .dg-nc [hidden] { display: none !important; }
 .dg-nc .dg-two { align-items: start; }
-.dg-nc .dg-legend { margin-top: 0; }
+.dg-nc .dg-legend { margin: 0 0 0.7rem; }   /* clear of the chart titles under it (B33) */
 .dg-nc-out { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem; font-size: 0.86rem; }
 .dg-nc-row { justify-content: flex-start; margin-top: 0; gap: 0.3rem 0.7rem; }
 .dg-nc-pair { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; }
@@ -203,8 +207,6 @@
 .dg-nc-faint { color: #555; font-size: 0.85rem; }
 .dg-nc-tide { display: grid; grid-template-columns: auto repeat(3, auto); align-items: center; justify-items: center; justify-content: start; gap: 0.25rem 0.8rem; }
 .dg-nc-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; }
-.dg-controls .dg-nc-omega { flex: 0 1 12rem; }
-.dg-nc-omega input[type="range"] { min-width: 5rem; }
 
 /* ---- general relativity (lightcones, after Figure 10.1; schwarzschild, after Figure C.19; B28): the drawing at the left,
    the numbers at the right (under it on phones) ---- */
@@ -217,9 +219,6 @@
 .dg-gr-val { font-variant-numeric: tabular-nums; }
 .dg-gr-small { font-size: 0.82rem; }
 .dg-gr-status { font-weight: 700; color: var(--dg-heading); }
-.dg-controls .dg-gr-lam { flex: 1 1 9rem; }
-.dg-gr-lam input[type="range"] { min-width: 5rem; }
-.dg-controls .dg-gr-rs { flex: 0 1 18rem; }
 /* on a chapter opening page (D38) a panel is as wide as the notes' text, like the figure it follows */
 body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-gr-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
@@ -266,9 +265,6 @@ body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-ig-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dg-ig-small { font-size: 0.82rem; }
 .dg-ig-halo { text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #fff; }
-.dg-controls .dg-ig-r { flex: 0 1 10rem; }
-.dg-controls .dg-ig-s { flex: 1 1 13rem; }
-.dg-ig-r input[type="range"], .dg-ig-s input[type="range"] { width: 5rem; min-width: 5rem; }
 
 /* ---- Figure 10.3 step by step (ehsteps, after Figure 10.3, B32, D58): the figure's own SVG inlined, its viewBox on one panel,
    a veil in the paper's colour with a hole over that panel; the stage keeps the proportions of the tallest step ---- */
@@ -278,8 +274,12 @@ body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-ehs-pos { min-width: 7.2em; text-align: center; white-space: nowrap; }
 .dg-ehs .dg-btn[aria-disabled="true"] { opacity: 0.4; cursor: default; }
 .dg-ehs .dg-btn[aria-pressed="true"] { background: var(--dg-accent); color: var(--dg-bg); border-color: var(--dg-accent); }
-.dg-ehs-stage { width: 100%; max-height: 72vh; overflow: hidden; touch-action: pan-y pinch-zoom; }
-.dg-ehs-svg { display: block; width: 100%; height: 100%; touch-action: pan-y pinch-zoom; }
+/* the stage is as high as the svg, which keeps the proportions of the tallest step (--dg-ehs-ar) up to 80vh; the svg is at
+ * least --dg-ehs-minw wide (a panel's text at 8 px, B33), so on a phone the stage is taller (up to 80vh) and scrolls sideways */
+.dg-ehs-stage { width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; touch-action: pan-x pan-y pinch-zoom; }
+.dg-ehs-svg { display: block; width: max(100%, var(--dg-ehs-minw, 0px)); max-width: none; height: auto; aspect-ratio: var(--dg-ehs-ar); max-height: 72vh;
+  touch-action: pan-x pan-y pinch-zoom; }
+@media (max-width: 599.98px) { .dg-ehs-svg { max-height: 80vh; } }
 .dg-ehs-svg:focus { outline: none; }
 .dg-ehs-svg:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: -2px; }
 .dg-ehs-veil { fill: var(--dg-paper); fill-opacity: 0.74; pointer-events: none; }

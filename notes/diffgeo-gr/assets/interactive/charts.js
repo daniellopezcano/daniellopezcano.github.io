@@ -49,7 +49,9 @@ export default async function mount(body) {
   const row = el('div', { class: 'dg-ch-row' });
   const left = el('div', { class: 'dg-panel' }), right = el('div', { class: 'dg-panel' });
   const T = (s, t) => `\\textstyle \\textrm{\\runic ᛖ}_{\\mathcal{${s}}\\mathcal{${t}}} = \\mathscr{${t === 'V' ? 'Y' : 'X'}} \\circ \\mathscr{${t === 'V' ? 'X' : 'Y'}}^{-1}`;
-  const G = x => `{\\color{${C.UV}}${x}}`;
+  // the arrows sit on the panel's surface, not on the white paper: a class (interactive.css) gives them the term colour
+  // green of the page's theme, which reaches 3:1 on the surface in both themes (B33), instead of the figure's green
+  const G = x => `\\class{dg-ch-arr}{${x}}`;
   const arrows = el('div', { class: 'dg-ch-arrows' },
     el('span', { class: 'dg-ch-h' }, `\\(\\overset{${T('U', 'V')}}{${G(`\\xrightarrow{\\hphantom{${T('U', 'V')}}}`)}}\\)`),
     el('span', { class: 'dg-ch-h' }, `\\(\\underset{${T('V', 'U')}}{${G(`\\xleftarrow{\\hphantom{${T('V', 'U')}}}`)}}\\)`),

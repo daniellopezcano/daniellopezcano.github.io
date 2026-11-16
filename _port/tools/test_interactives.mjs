@@ -22,6 +22,7 @@
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { serveDocs, chromium } from './shot.mjs';
 
 const args = process.argv.slice(2);
@@ -2006,8 +2007,10 @@ async function testEhsteps(width) {
   await fr.locator('.dg-ehs-next').click();
   await at(4, 'Next from the whole figure');
   check(await fr.locator('.dg-ehs-whole').getAttribute('aria-pressed') === 'false', 'Whole figure no longer pressed');
-  const inStage = await fr.evaluate(f => { const s = f.querySelector('.dg-ehs-stage').getBoundingClientRect(), v = f.querySelector('svg').getBoundingClientRect(); return v.left >= s.left - 0.5 && v.right <= s.right + 0.5 && v.top >= s.top - 0.5 && v.bottom <= s.bottom + 0.5; });
-  check(inStage, 'the drawing stays inside its stage');
+  // (B33: on a phone the drawing is wider than the stage, which scrolls sideways: inside it means inside its scroll width)
+  const inStage = await fr.evaluate(f => { const st = f.querySelector('.dg-ehs-stage'), s = st.getBoundingClientRect(), v = f.querySelector('svg').getBoundingClientRect();
+    return v.left >= s.left - st.scrollLeft - 0.5 && v.width <= st.scrollWidth + 0.5 && v.top >= s.top - 0.5 && v.bottom <= s.bottom + 0.5; });
+  check(inStage, 'the drawing stays inside its stage (its scroll width on a phone)');
   check(await fr.locator('.dg-interactive-body .dg-ehs-pos[aria-live="polite"]').count() === 1, 'the step is announced (aria-live)');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await panelFoot(page, fr, 'fig_EH_chain_rule', 'Figure 10.3', null);
@@ -2355,7 +2358,8 @@ async function testTouch() {
     const cdp = await page.context().newCDPSession(page);
     const fr = page.locator('.dg-interactive[data-module="ehsteps"]');
     const svg = fr.locator('svg.dg-ehs-svg');
-    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom', 'ehsteps: touch-action pan-y pinch-zoom on the figure');
+    const ta = await svg.evaluate(e => getComputedStyle(e).touchAction);
+    check(ta === 'manipulation' || (/pan-x/.test(ta) && /pan-y/.test(ta) && /pinch-zoom/.test(ta)), `ehsteps: touch-action ${ta} (= pan-x pan-y pinch-zoom) on the figure (B33: the stage scrolls sideways on a phone)`);
     await fr.locator('.dg-ehs-next').click(); await page.waitForTimeout(450);
     await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
     await page.waitForTimeout(300);
@@ -2388,6 +2392,147 @@ async function testTouch() {
   }
 }
 
+// ---- the milestone-3 review nits (B33): charts' arrows reach 3:1 on the panel surface in both themes; laws' level numbers
+// beside their lines; cotangent's level sets never closer than ~3 px; transport's κ slider shown for ∇ᵏ only, its place kept;
+// rotating's legend clear of the chart titles; sliders of one row equally long, and the same rule in every panel; ehsteps at
+// 390 px drawn wide enough for 8 px text, taller, scrolling sideways; tpm's chart names in Unicode; no words of ours inside
+// formulas (static scan of the modules)
+const lum = c => { const v = c.match(/[\d.]+/g).slice(0, 3).map(x => +x / 255).map(x => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+async function testNits(width) {
+  console.log(`B33 nits @${width}`);
+  // charts: the arrows' colour against the frame's surface, light and dark
+  {
+    const { page, errors } = await open(CHARTS, width); await ready(page);
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(t => document.documentElement.setAttribute('data-theme', t), theme); await page.waitForTimeout(150);
+      const r = await page.evaluate(() => { const a = document.querySelector('.dg-ch-arrows .dg-ch-arr'), f = document.querySelector('.dg-interactive');
+        return a && { fg: getComputedStyle(a).color, bg: getComputedStyle(f).backgroundColor }; });
+      check(r && contrast(r.fg, r.bg) >= 3, `charts (${theme}): transition arrows ${r && r.fg} on ${r && r.bg}: ${r ? contrast(r.fg, r.bg).toFixed(2) : '?'}:1 >= 3:1`);
+    }
+    check(errors.length === 0, 'charts: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // laws: no level line passes through the box of any level number (the box shrunk by 0.5 px)
+  {
+    const { page, errors } = await open(LAWS, width); await ready(page);
+    const d = await page.evaluate(() => {
+      const hits = [];
+      const cross = ([x0, y0, x1, y1], b) => {            // Liang–Barsky: does the segment enter the box?
+        let t0 = 0, t1 = 1; const dx = x1 - x0, dy = y1 - y0;
+        for (const [p, q] of [[-dx, x0 - b.x], [dx, b.x + b.width - x0], [-dy, y0 - b.y], [dy, b.y + b.height - y0]]) {
+          if (p === 0) { if (q < 0) return false; continue; }
+          const r = q / p; if (p < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+        }
+        return t0 <= t1;
+      };
+      for (const svg of document.querySelectorAll('.dg-laws svg')) {
+        const lines = [...svg.querySelectorAll('path')].filter(p => (p.getAttribute('stroke') || '').toUpperCase() === '#AA3377').map(p => p.getAttribute('d').match(/-?[\d.]+/g).map(Number));
+        for (const t of svg.querySelectorAll('text.dg-laws-level')) {
+          const b = t.getBBox(), s = { x: b.x + 0.5, y: b.y + 0.5, width: b.width - 1, height: b.height - 1 };
+          if (lines.some(l => cross(l, s))) hits.push(t.textContent);
+        }
+      }
+      return hits;
+    });
+    check(d.length === 0, `laws: no level line runs through a level number${d.length ? ' (' + d.join(', ') + ')' : ''}`);
+    check(errors.length === 0, 'laws: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // cotangent: along vertical scan lines near the right edge of the 𝒴 chart, drawn level sets never cross closer than 2.4 px
+  // (3 px across the lines, less along a slanted scan line)
+  {
+    const { page, errors } = await open('notes/diffgeo-gr/tangent-spaces/cotangent-space.html', width); await ready(page);
+    const gap = await page.evaluate(() => {
+      const svg = document.querySelectorAll('.dg-interactive svg.dg-plot-svg')[1];
+      const segs = [];                                   // [x0, y0, x1, y1, level set]
+      [...svg.querySelectorAll('path.dg-cot-level')].forEach((p, k) => { const v = p.getAttribute('d').match(/-?[\d.]+/g).map(Number); for (let i = 0; i + 3 < v.length; i += 4) segs.push([...v.slice(i, i + 4), k]); });
+      const xs = segs.flatMap(s => [s[0], s[2]]), xmax = Math.max(...xs);
+      let worst = Infinity;
+      for (const off of [4, 8, 12, 16, 20, 30, 40]) {
+        const X = xmax - off, ys = [];
+        for (const [x0, y0, x1, y1, k] of segs) if ((x0 - X) * (x1 - X) < 0) ys.push([y0 + (y1 - y0) * (X - x0) / (x1 - x0), k]);
+        ys.sort((a, b) => a[0] - b[0]);
+        // neighbours of different level sets (two crossings of one level set near its fold are not crowding)
+        for (let i = 1; i < ys.length; i++) if (ys[i][1] !== ys[i - 1][1]) worst = Math.min(worst, ys[i][0] - ys[i - 1][0]);
+      }
+      return worst;
+    });
+    check(gap >= 2.4, `cotangent: drawn level sets near the right edge of 𝒴 at least ${gap.toFixed(2)} px apart (>= 2.4)`);
+    const names = await page.locator('.dg-interactive svg.dg-plot-svg').evaluateAll(ss => ss.map(s => s.getAttribute('aria-label')));
+    check(names.join('|') === '(𝒰, 𝒳)|(𝒱, 𝒴)', `cotangent: chart names ${names.join(', ')}`);
+    check(errors.length === 0, 'cotangent: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // transport: κ invisible for ∇ᴱ and ∇ᵂ, visible for ∇ᵏ; the controls do not move when it appears
+  {
+    const { page, errors } = await open(TR, width); await ready(page);
+    const fr = page.locator('.dg-interactive');
+    const k = () => fr.locator('.dg-tr-kappa').evaluate(e => ({ vis: getComputedStyle(e).visibility, top: Math.round(e.getBoundingClientRect().top), h: Math.round(e.closest('.dg-controls').getBoundingClientRect().height) }));
+    const a = await k();
+    await fr.locator('.dg-choice').first().locator('label').nth(2).click(); await page.waitForTimeout(300);
+    const b = await k();
+    check(a.vis === 'hidden' && b.vis === 'visible', `transport: κ slider hidden for ∇ᴱ (${a.vis}), shown for ∇ᵏ (${b.vis})`);
+    check(a.top === b.top && a.h === b.h, `transport: the controls keep their place (top ${a.top} -> ${b.top}, row height ${a.h} -> ${b.h})`);
+    check(await fr.locator('.dg-tr-out').evaluate(e => !/\bchart\b/.test([...e.querySelectorAll('mjx-container')].map(m => m.getAttribute('aria-label') || '').join(' ')) && /chart/.test(e.textContent)),
+      'transport: "chart" is text, not part of a formula');
+    check(errors.length === 0, 'transport: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // rotating: the legend ends at least 8 px above the chart titles
+  {
+    const { page, errors } = await open(NEWTON, width, { module: 'rotating' }); await ready(page, 'rotating');
+    const g = await page.locator('.dg-interactive[data-module="rotating"]').evaluate(f => {
+      const l = f.querySelector('.dg-legend').getBoundingClientRect(), t = Math.min(...[...f.querySelectorAll('svg.dg-plot-svg')].map(s => s.getBoundingClientRect().top));
+      return t - l.bottom; });
+    check(g >= 8, `rotating: ${g.toFixed(1)} px between the legend and the charts (>= 8)`);
+    check(errors.length === 0, 'rotating: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+  // sliders: on every panel, the visible tracks of one row are equally long and at least 6rem
+  for (const [url, m] of [[TR, 'transport'], [NEWTON, 'rotating'], [NEWTON, 'pointmass'], ['notes/diffgeo-gr/integrals/index.html', 'integration'], [GR, 'lightcones'], [SCH, 'schwarzschild'], [VAR, 'variations']]) {
+    const { page } = await open(url, width, { module: m }); await ready(page, m);
+    const rows = await page.locator(`.dg-interactive[data-module="${m}"] .dg-slider`).evaluateAll(ss => {
+      const by = {};
+      for (const s of ss) { if (getComputedStyle(s).visibility === 'hidden') continue; const r = s.querySelector('input').getBoundingClientRect(); (by[Math.round(r.top)] ||= []).push(r.width); }
+      return Object.values(by); });
+    const flat = rows.flat(), even = rows.every(r => Math.max(...r) - Math.min(...r) <= 2);
+    check(flat.length > 0 && even && Math.min(...flat) >= 6 * 16 - 1, `${m}: slider tracks ${rows.map(r => r.map(Math.round).join('/')).join(' | ')} px (equal in a row, >= 6rem)`);
+    await page.close();
+  }
+  // tpm: chart drawings named in Unicode (D56)
+  {
+    const { page } = await open(TPM, width); await ready(page);
+    const names = await page.locator('.dg-interactive svg.dg-plot-svg').evaluateAll(ss => ss.map(s => s.getAttribute('aria-label')));
+    check(names.join('|') === '(𝒰, 𝒳)|(𝒱, 𝒴)', `tpm: chart names ${names.join(', ')}`);
+    await page.close();
+  }
+  // ehsteps on a phone: a panel's text at >= 8 px, the stage taller than the column is wide, and it scrolls sideways
+  if (width < 600) {
+    const { page, errors } = await open('notes/diffgeo-gr/gr/einstein-hilbert.html', width, { touch: true }); await ready(page);
+    const r = await page.evaluate(async () => {
+      const st = document.querySelector('.dg-ehs-stage'), sv = st.querySelector('svg'), img = document.querySelector('#fig_EH_chain_rule img');
+      const vb = sv.viewBox.baseVal, sw = sv.getBoundingClientRect().width, sh = sv.getBoundingClientRect().height;
+      const whole = (await (await fetch(img.src.replace(/\.svg$/, '.boxes.json'))).json()).viewBox[2];
+      const scale = Math.min(sw / vb.width, sh / vb.height);               // px per user unit in the current step's view
+      const text = +img.getAttribute('data-dg-text') * scale * whole / +img.getAttribute('width');
+      return { text, h: st.clientHeight, w: st.clientWidth, scrolls: st.scrollWidth > st.clientWidth + 10, maxh: innerHeight * 0.8 }; });
+    check(r.text >= 7.9 && r.h > r.w && r.h <= r.maxh + 1 && r.scrolls, `ehsteps @${width}: panel text ${r.text.toFixed(1)} px, stage ${r.w}x${r.h} (<= 80vh), scrolls sideways`);
+    check(errors.length === 0, 'ehsteps: no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
+}
+
+function scanTextWords() {
+  const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'notes', 'diffgeo-gr', 'assets', 'interactive');
+  const bad = [];
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js'))) {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8');
+    for (const m of src.matchAll(/\\\\(?:text|textrm|textsf|textit|mbox)\{([^{}]*)\}/g)) if (/[A-Za-z]{3,}/.test(m[1].replace(/\\\\runic/g, ''))) bad.push(`${f}: ${m[0]}`);
+  }
+  check(bad.length === 0, `no English words inside the formulas of the modules (D31, B33)${bad.length ? ': ' + bad.join(', ') : ''}`);
+}
+
 async function testBroken() {
   console.log('broken module');
   const { page } = await open(VAR, 1280, { breakModule: 'variations.js' });
@@ -2400,6 +2545,8 @@ async function testBroken() {
 
 try {
   for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); await testIntegration(w); await testEhsteps(w); }
+  for (const w of [1280, 390]) await testNits(w);
+  scanTextWords();
   await testTouch();
   await testBroken();
 } catch (e) {

@@ -271,7 +271,10 @@ function place() {
   if (hi < lo - 2) { lo = m; hi = Math.max(m, vw - m - w); }          // wider than the column: the viewport
   else hi = Math.max(hi, lo);                                            // (sub-pixel widths)
   const left = clamp(r.left + r.width / 2 - w / 2, lo, hi);
-  const top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  // below when it fits there or there is more room below, else above; the height limit above makes it fit the side
+  // it opens on, and the clamp keeps it inside the viewport even when neither side has the minimum height (B33)
+  let top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  top = Math.max(topLimit, Math.min(top, vh - m - h));
   el.style.left = `${left + window.scrollX}px`;
   el.style.top = `${top + window.scrollY}px`;
 }
@@ -367,36 +370,104 @@ export async function inlineSvg(url) {
   return document.importNode(svg, true);
 }
 
-/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. */
+/** The badge box (a filled shape drawn around the reference, as the white rounded rectangles of the roadmaps)
+ *  of each reference in `gs`, as Map g -> {box, refs}: refs are the references that share that box, in reading
+ *  order, so that they can split it between them. A reference outside any such box is not in the map. Measured
+ *  on the rendered SVG (screen rectangles); a shape counts as a badge when it is filled, contains the reference
+ *  and is at most BADGE_H times its height (a card's header strip around a badge is taller). */
+const BADGE_H = 2.4;
+function badgeBoxes(svg, gs) {
+  const out = new Map();
+  const refs = gs.map(g => ({ g, r: g.getBoundingClientRect() })).filter(x => x.r.width > 0 && x.r.height > 0);
+  if (!refs.length) return out;
+  const hMax = Math.max(...refs.map(x => x.r.height)) * BADGE_H;
+  const shapes = [];
+  for (const el of svg.querySelectorAll('path, rect')) {
+    if (el.closest('defs, clipPath, mask, a.dg-svg-link, g.dg-xref')) continue;
+    const f = el.closest('[fill]');
+    if (f && f.getAttribute('fill') === 'none') continue;
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.height <= hMax) shapes.push({ el, r });
+  }
+  const inside = (a, b) => a.left >= b.left - 0.5 && a.right <= b.right + 0.5 && a.top >= b.top - 0.5 && a.bottom <= b.bottom + 0.5;
+  const groups = new Map();
+  for (const x of refs) {
+    let best = null;
+    for (const s of shapes) {
+      if (s.r.height > x.r.height * BADGE_H || !inside(x.r, s.r)) continue;
+      if (!best || s.r.width * s.r.height < best.r.width * best.r.height) best = s;
+    }
+    if (!best) continue;
+    if (!groups.has(best.el)) groups.set(best.el, { box: best.r, refs: [] });
+    groups.get(best.el).refs.push(x);
+  }
+  for (const grp of groups.values()) {
+    grp.refs.sort((a, b) => a.r.left - b.r.left);
+    grp.refs.forEach(x => out.set(x.g, grp));
+  }
+  return out;
+}
+
+/** A screen rectangle in the user units of `node` (an untransformed or scaled/translated SVG element). */
+function toUser(node, r) {
+  const m = node.getScreenCTM();
+  if (!m) return null;
+  const inv = m.inverse(), p = new DOMPoint(r.left, r.top).matrixTransform(inv), q = new DOMPoint(r.right, r.bottom).matrixTransform(inv);
+  return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), width: Math.abs(q.x - p.x), height: Math.abs(q.y - p.y) };
+}
+
+/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. Its hit area is the
+ *  whole badge the reference sits in (the box drawn around "Ch. 3", "§ 4.1", "Eq. (6.1)"), shared out between
+ *  the references of one badge at the midpoints between them; a reference outside any badge gets the short
+ *  text it sits in, or its number, with generous padding (B33). */
 export async function linkify(svg) {
   const map = await labels();
-  for (const g of svg.querySelectorAll('g.dg-xref[data-label]')) {
+  const gs = [...svg.querySelectorAll('g.dg-xref[data-label]')].filter(g => {
     const info = map[g.getAttribute('data-label')];
-    if (!info || !info.url || g.parentNode.closest('a')) continue;   // page not converted yet: inert
+    return info && info.url && !g.parentNode.closest('a');                // page not converted yet: inert
+  });
+  let badges = new Map();
+  try { badges = badgeBoxes(svg, gs); } catch (err) { /* not rendered: the fallback below */ }
+  const plan = [];
+  for (const g of gs) {
     let own;
     try { own = g.getBBox(); } catch (err) { continue; }
     if (!own.width && !own.height) continue;
+    const parent = g.parentNode, grp = badges.get(g);
+    let box = null, rx = 0;
+    if (grp) {                                           // the badge, or this reference's share of it
+      const i = grp.refs.findIndex(x => x.g === g), b = grp.box, rs = grp.refs;
+      const left = i ? (rs[i - 1].r.right + rs[i].r.left) / 2 : b.left, right = i < rs.length - 1 ? (rs[i].r.right + rs[i + 1].r.left) / 2 : b.right;
+      box = toUser(parent, { left, right, top: b.top, bottom: b.bottom });
+      if (box) rx = Math.min(box.height * 0.22, box.width / 2);
+    }
+    if (!box) {
+      // the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short text node of its own,
+      // otherwise the number itself; generous padding either way
+      let t = own;
+      if (parent.querySelectorAll('g.dg-xref').length === 1) {
+        const pb = parent.getBBox();
+        if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) t = pb;
+      }
+      const pad = Math.max(own.height * 0.5, 1.5);
+      box = { x: t.x - pad, y: t.y - pad, width: t.width + 2 * pad, height: t.height + 2 * pad };
+      rx = pad;
+    }
+    plan.push({ g, parent, box, rx, info: map[g.getAttribute('data-label')] });
+  }
+  for (const { g, parent, box, rx, info } of plan) {
     const a = document.createElementNS(SVGNS, 'a');
     a.setAttribute('href', new URL(info.url, ROOT).href);
     a.setAttribute('class', 'dg-svg-link');
     const title = document.createElementNS(SVGNS, 'title');
     title.textContent = info.num;
-    // hit area: the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short
-    // text node of its own, otherwise the number itself; generous padding either way
-    let box = own;
-    const parent = g.parentNode;
-    if (parent.querySelectorAll('g.dg-xref').length === 1) {
-      const pb = parent.getBBox();
-      if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) box = pb;
-    }
-    const pad = Math.max(own.height * 0.5, 1.5);
     const rect = document.createElementNS(SVGNS, 'rect');
     rect.setAttribute('class', 'dg-svg-hit');
-    rect.setAttribute('x', box.x - pad);
-    rect.setAttribute('y', box.y - pad);
-    rect.setAttribute('width', box.width + 2 * pad);
-    rect.setAttribute('height', box.height + 2 * pad);
-    rect.setAttribute('rx', pad);
+    rect.setAttribute('x', box.x);
+    rect.setAttribute('y', box.y);
+    rect.setAttribute('width', box.width);
+    rect.setAttribute('height', box.height);
+    rect.setAttribute('rx', rx);
     parent.insertBefore(a, g);
     a.append(title, rect, g);
   }
@@ -412,7 +483,7 @@ const ICONS = {
 };
 const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 
-const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, opener: null,
+const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, text: 13.33, opener: null,
   pointers: new Map(), dragged: false, start: null, pinch: null, lastTap: null, raf: 0, seq: 0 };
 
 function buildViewer() {
@@ -532,10 +603,27 @@ function zoomAt(f, px, py) {
   V.x = px - (px - V.x) * k; V.y = py - (py - V.y) * k; V.s = s;
   apply();
 }
-function fitView() {
+/** The part of the stage a fitted figure may use: a margin all round, and on phones the room of the toolbar
+ *  at the bottom kept free, so that no part of the figure starts under the buttons. */
+function fitBox() {
   const W = V.stage.clientWidth, H = V.stage.clientHeight, m = W < 600 ? 12 : 40;
-  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (H - 2 * m) / V.h));
-  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = (H - V.h * V.s) / 2;
+  const tools = V.dlg.querySelector('.dg-viewer-tools'), st = V.stage.getBoundingClientRect(), tr = tools.getBoundingClientRect();
+  const low = tr.height && tr.top > st.top + H / 2 ? Math.max(m, st.bottom - tr.top + 8) : m;
+  return { W, H, m, top: m, bottom: H - low };
+}
+function fitView() {
+  const { W, m, top, bottom } = fitBox();
+  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (bottom - top) / V.h));
+  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = top + (bottom - top - V.h * V.s) / 2;
+  apply();
+}
+/** The view a figure opens with: the whole figure, except where its text would then be too small to read and the
+ *  figure is held by its height (a tall flowchart, Figure 10.3): then fitted to the width, its top in view (B33). */
+function initialView() {
+  fitView();
+  const { W, m, top } = fitBox(), sw = (W - 2 * m) / V.w;
+  if (V.text * V.s >= TINY_TEXT_PX || sw <= V.s * 1.05) return;
+  V.s = sw; V.x = (W - V.w * V.s) / 2; V.y = top;
   apply();
 }
 function toggleZoom(px, py) {
@@ -569,16 +657,18 @@ async function openViewer(paper) {
   const kind = paper.dataset.dgKind || (img && img.dataset.kind) || '';
   V.w = +(paper.dataset.dgW || (img && (img.getAttribute('width') || img.naturalWidth))) || 1000;
   V.h = +(paper.dataset.dgH || (img && (img.getAttribute('height') || img.naturalHeight))) || 750;
+  V.text = +(paper.dataset.dgText || (img && img.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
   const alt = paper.dataset.dgAlt ?? (img ? img.getAttribute('alt') : '');
   V.dlg.setAttribute('aria-label', alt || 'Figure');
   const pic = document.createElement('img');
   pic.src = src; pic.alt = alt || ''; pic.decoding = 'async';
   V.paper.replaceChildren(pic);
-  V.opener = paper.matches('[tabindex], button') ? paper : (paper.querySelector('.dg-expand') || document.activeElement);
+  const zb = paper.querySelector(':scope > .dg-zoom:not([hidden])'), small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand:not([hidden])');
+  V.opener = paper.matches('[tabindex], button') ? paper : (zb || small || document.activeElement);
   if (!V.dlg.open) V.dlg.showModal();
   document.documentElement.classList.add('dg-viewer-open');
   V.stage.focus({ preventScroll: true });
-  fitView();
+  initialView();
   if (kind !== 'svg') return;
   const seq = ++V.seq;
   try {
@@ -590,24 +680,75 @@ async function openViewer(paper) {
   } catch (err) { /* the image stays */ }
 }
 
-/** Figure cards inside `root` become buttons that open the viewer. */
+/** Figure cards inside `root` become buttons that open the viewer (and get the zoom control, below). */
 function enableFigures(root) {
   for (const paper of root.querySelectorAll('.dg-paper')) {
-    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('role')) continue;
+    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('data-dg-zoom')) continue;
     const img = paper.querySelector('img');
     if (!img) continue;
-    paper.tabIndex = 0;
-    paper.setAttribute('role', 'button');
-    const alt = img.getAttribute('alt');
-    paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : 'Enlarge figure');
+    paper.dataset.dgZoom = 'card';
+    zoomControl(paper);
+  }
+}
+
+// ---- 3b. zoom control (B33, D10 f) ----------------------------------------------------------------
+// The converter writes on each figure's <img> the size of its ordinary text at the image's intrinsic size
+// (data-dg-text, CSS px; figtext.py); a figure without it is taken to have the notes' body size (10 pt) at the
+// PDF's scale. Where that text, shown at the figure's current width, falls below TINY_TEXT_PX, the figure gets a
+// visible labelled "Zoom" button over its top-right corner (web layer) instead of the quiet controls: the card is
+// then no button of its own (a click on it still opens the viewer), and a roadmap's small expand button hides.
+// Elsewhere nothing changes: the card is the button (and a roadmap keeps its small expand button). Measured again
+// whenever the figure changes size.
+const TINY_TEXT_PX = 8, BODY_TEXT_PX = 96 / 72 * 10;
+let zoomRO = null;
+function shownTextPx(paper) {
+  const pic = paper.querySelector(':scope > img, :scope > svg');
+  const W = +(paper.dataset.dgW || (pic && pic.getAttribute('width'))) || 0;
+  const t = +(paper.dataset.dgText || (pic && pic.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
+  const w = pic ? pic.getBoundingClientRect().width : 0;
+  return W && w ? t * w / W : Infinity;
+}
+function zoomControl(paper) {
+  if (!paper.querySelector(':scope > .dg-zoom')) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-zoom dg-web';
+    b.hidden = true;
+    const pic = paper.querySelector('img, svg');
+    const alt = paper.dataset.dgAlt || (pic && pic.getAttribute('alt')) || '';
+    b.setAttribute('aria-label', alt ? `${WORDS.zoom}: ${alt}` : WORDS.zoom);
+    b.innerHTML = `${icon('fit')}<span>${WORDS.zoom}</span>`;
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openViewer(paper); });
+    paper.append(b);
+  }
+  updateZoom(paper);
+  if (!('ResizeObserver' in window)) return;
+  zoomRO ||= new ResizeObserver(entries => { for (const e of entries) updateZoom(e.target); });
+  zoomRO.observe(paper);
+}
+function updateZoom(paper) {
+  const tiny = shownTextPx(paper) < TINY_TEXT_PX, b = paper.querySelector(':scope > .dg-zoom');
+  paper.classList.toggle('dg-tiny', tiny);
+  if (b) b.hidden = !tiny;
+  if (paper.dataset.dgZoom === 'card') {
+    if (tiny) { paper.removeAttribute('role'); paper.removeAttribute('tabindex'); paper.removeAttribute('aria-label'); }
+    else if (paper.getAttribute('role') !== 'button') {
+      const img = paper.querySelector('img'), alt = img && img.getAttribute('alt');
+      paper.tabIndex = 0;
+      paper.setAttribute('role', 'button');
+      paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : WORDS.enlarge);
+    }
+  } else {
+    const small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand');
+    if (small) small.hidden = tiny;
   }
 }
 
 function initFigures() {
   enableFigures(document.querySelector('main') || document.body);
   document.addEventListener('click', e => {
-    const paper = e.target.closest && e.target.closest('.dg-paper[role="button"]');
-    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href]')) return;
+    const paper = e.target.closest && e.target.closest('.dg-paper[data-dg-zoom="card"]');
+    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href], button')) return;
     e.preventDefault();
     openViewer(paper);
   });
@@ -639,7 +780,7 @@ async function liveMap(paper) {
   const img = paper.querySelector('img');
   if (!img) return;
   Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
-    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '' });
+    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '', dgText: img.getAttribute('data-dg-text') || '' });
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'dg-icon-btn dg-expand dg-web';
@@ -648,6 +789,8 @@ async function liveMap(paper) {
   btn.innerHTML = icon('fit');
   btn.addEventListener('click', () => openViewer(paper));
   paper.after(btn);                                    // outside the figure: it hides no badge
+  paper.dataset.dgZoom = 'map';
+  zoomControl(paper);                                  // where its text is tiny: the labelled button instead (3b)
   if (img.dataset.kind !== 'svg') return;
   try {
     const svg = await inlineSvg(img.src);
@@ -1089,7 +1232,7 @@ const WORDS = {
   copy: 'Copy LaTeX', copied: 'Copied',
   search: 'Search', searchNotes: 'Search the notes', searchSite: 'Search the site',
   scopeNotes: 'These notes', scopeSite: 'Whole site', results: 'Results', noResults: 'No results',
-  map: 'Course map', enlarge: 'Enlarge figure', leftOut: '[…]',
+  map: 'Course map', enlarge: 'Enlarge figure', zoom: 'Zoom', leftOut: '[…]',
 };
 const ICON = name => `<i class="dg-i dg-i-${name}" aria-hidden="true"></i>`;
 const escHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1253,7 +1396,8 @@ function buildPanel(doc, target) {
   body.className = 'dg-inline-body';
   body.tabIndex = 0;                                      // it scrolls: keyboard users can scroll it too
   body.setAttribute('aria-labelledby', `${id}-t`);
-  const kept = [...main.children].filter(el => !el.matches('.dg-head, .dg-prevnext, .dg-sidenotes, script'));
+  // the item's content only: nothing that belongs to the page (header, "Mark as read", previous/next, sidenotes, B33)
+  const kept = [...main.children].filter(el => !el.matches('.dg-head, .dg-readbar, .dg-prevnext, .dg-sidenotes, .dg-chapter-web, .dg-chapter-map, script'));
   for (const el of kept) body.append(adopt(document.importNode(el, true), target));
   panelFootnotes(kept, body, id);
   box.append(head, body);
@@ -1642,7 +1786,7 @@ function buildMap() {
   d.className = 'dg-mapdlg dg-dlg dg-web';
   d.setAttribute('aria-label', WORDS.map);
   d.innerHTML = `<div class="dg-mapdlg-head"><span class="dg-mapdlg-sec"></span>
-      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}</button>
+      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}<span class="dg-zoom-word">${WORDS.zoom}</span></button>
       <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
     <div class="dg-mapdlg-body"><div class="dg-mapdlg-fig"><div class="dg-paper dg-mapdlg-paper"></div></div><div class="dg-mapdlg-cap"></div></div>`;
   document.body.append(d);
@@ -1672,6 +1816,9 @@ function fitMap() {
   const s = Math.max(0.05, Math.min(W / M.w, Hh / M.h));
   svg.style.width = `${Math.floor(M.w * s)}px`;
   svg.style.height = `${Math.floor(M.h * s)}px`;
+  // its text too small to read at this size (phones): the enlarge button shows its word, as figures do (3b)
+  const t = (+M.paper.dataset.dgText || BODY_TEXT_PX) * s;
+  M.dlg.querySelector('.dg-expand').classList.toggle('dg-tiny', t < TINY_TEXT_PX);
 }
 
 async function fillMap() {
@@ -1685,7 +1832,8 @@ async function fillMap() {
   const src = new URL(img.getAttribute('src'), page).href;
   M.w = +img.getAttribute('width') || M.w;
   M.h = +img.getAttribute('height') || M.h;
-  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h) });
+  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h),
+    dgText: img.getAttribute('data-dg-text') || '' });
   // the link to the section that holds the figure, with the notes' own number and title
   const title = doc.querySelector('.dg-head .dg-title');
   const sec = M.dlg.querySelector('.dg-mapdlg-sec');

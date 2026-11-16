@@ -25,7 +25,7 @@ sys.path.insert(0, HERE)
 import source                                        # noqa: E402
 import shell                                         # noqa: E402
 from texparse import Parser, ConvertError, Cmd, Text, Par   # noqa: E402
-from render import Renderer, esc, slugify            # noqa: E402
+from render import Renderer, esc, slugify, text_attr  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 # notebooks of the Python package, linked from the interactive panels (D55; _port/interactives.json "notebook")
@@ -915,7 +915,7 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
         out += (f'\n<div class="dg-web dg-chapter-map"><figure class="dg-figure">'
                 f'<div class="dg-paper" data-map="lazy" data-ring="chapter" style="--dg-frac:{cap["frac"]:.3f}">'
                 f'<img src="{rel(p.slug, a["src"])}" alt="{shell.attr(cap["alt"])}" width="{a["width"]}" height="{a["height"]}" '
-                f'loading="lazy" decoding="async" data-kind="{a["kind"]}"></div>'
+                f'loading="lazy" decoding="async" data-kind="{a["kind"]}"{text_attr(a)}></div>'
                 f'<figcaption>{num} {cap["caption"]}</figcaption></figure></div>')
     return out
 
@@ -1275,7 +1275,7 @@ def write_landing(front, pages, matter, ctx, files, cfg: dict, search: list):
     roadmap = ''
     if a:
         roadmap = (f'<div class="dg-landing-map" id="dg-roadmap"><div class="dg-paper" data-map="1"><img src="{a["src"]}" alt="" '
-                   f'width="{a["width"]}" height="{a["height"]}" data-kind="{a["kind"]}"></div></div>')
+                   f'width="{a["width"]}" height="{a["height"]}" data-kind="{a["kind"]}"{text_attr(a)}></div></div>')
     index_page = Page('front', 0, 0)
     index_page.slug = 'index'
     frags = {name: resolve(x, index_page, ctx, {}) for name, x in
