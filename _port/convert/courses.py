@@ -32,6 +32,7 @@ COURSES: dict[str, dict] = {
         # ('chapter' kind), the command that makes one page each ('section' kind), in-page headings and levels
         'pages': {'chapter': 'chapter', 'section': 'section'},
         'heads': {'subsection': 2, 'subsubsection': 3},
+        'slug_camel': False,                                # D2: labels as written
         'label_prefix': r'^(chapter|appendix|section|subsection)_',      # dropped from labels for addresses (D2)
         'words': {'main': 'Chapter', 'appendix': 'Appendix'},           # the kicker's word for a chapter-kind page
         'textwidth_cm': 16.0,                               # A4 minus 2 x 25 mm (figure widths, table lengths)
@@ -62,6 +63,7 @@ COURSES: dict[str, dict] = {
         # an article (L10): \section plays the chapter's role, \subsection the section's
         'pages': {'chapter': 'section', 'section': 'subsection'},
         'heads': {'subsubsection': 2, 'paragraph': 3},
+        'slug_camel': True,                                 # L17: subsec:LineProfile -> line-profile
         'label_prefix': r'^(sec|subsec|subsubsec|app):',
         'words': {'main': 'Section', 'appendix': 'Appendix'},
         'textwidth_cm': 21.0 - 2 * 2.54,                    # A4, 1 in margins (geometry)
@@ -94,6 +96,9 @@ def get(name: str) -> dict:
     c['notes'] = os.environ.get(c['notes_env']) or c['notes']
     c['src'] = os.path.join(REPO, c['work'], 'src')
     c['out'] = os.path.join(REPO, c['dir'])
+    # the converter's report (pages, math, review items): _port/.work/report.json for the first course (as
+    # before), <work>/../report.json for the others
+    c['report'] = os.path.join(REPO, os.path.dirname(c['work']), 'report.json')
     return c
 
 
@@ -108,6 +113,11 @@ def main(argv: list[str]) -> int:
         return 0
     if len(argv) == 1:
         print('\n'.join(COURSES))
+        return 0
+    if argv[1:] == ['--json']:                 # for the Node tools: every course's entry, resolved
+        import json
+        print(json.dumps({n: {k: v for k, v in get(n).items() if isinstance(v, (str, int, float, bool, list, type(None)))}
+                          for n in COURSES}))
         return 0
     print(__doc__)
     return 2

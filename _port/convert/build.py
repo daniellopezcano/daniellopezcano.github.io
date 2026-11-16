@@ -284,7 +284,10 @@ PREFIX = re.compile(r'^(chapter|appendix|section|subsection)_', re.I)
 
 
 def label_slug(label: str) -> str:
-    return slugify(PREFIX.sub('', PREFIX.sub('', label)))
+    lab = PREFIX.sub('', PREFIX.sub('', label))
+    if COURSE_CFG.get('slug_camel'):           # L17: a camel-case label's words become words of the address
+        lab = re.sub(r'([a-z])([A-Z])', r'\1_\2', lab)
+    return slugify(lab)
 
 
 def make_pages(src: source.Source, P: Parser):
@@ -1398,6 +1401,36 @@ def configure(c: dict) -> None:
     render.configure(c)
 
 
+def check_math_macros(src: source.Source, pages: list) -> None:
+    """L16: every argument-less \\newcommand of the preamble that a converted formula uses is defined in the
+    course's mathjax-config.js with the preamble's body, and every \\colorbox macro of the preamble
+    (\\newcommand{\\X}[1]{...\\colorbox{<c>!22}{$\\displaystyle #1$}...}) is in its TEXTBOX table with that colour.
+    A course whose configuration defines no macros of its own (the first one) is not checked."""
+    path = os.path.join(OUT, 'assets', 'mathjax-config.js')
+    js = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
+    if 'TEXTBOX' not in js:
+        return
+    used = set()
+    for p in pages:
+        for t in p.math:
+            used.update(re.findall(r'\\([A-Za-z]+)', t))
+    bad = []
+    for m in re.finditer(r'\\newcommand\s*\{\\([A-Za-z]+)\}\s*\{([^\n]*)\}\s*$', src.preamble, re.M):
+        name, body = m.group(1), m.group(2)
+        if name not in used:
+            continue
+        j = re.search(r'^\s*' + name + r": '((?:[^'\\]|\\.)*)',?\s*$", js, re.M)
+        if not j or j.group(1).replace('\\\\', '\\') != body:
+            bad.append(f'\\{name} (preamble: {body!r}; config: {j.group(1) if j else "missing"!r})')
+    k = js.index('var TEXTBOX')
+    box = dict(re.findall(r"(Text\w+): '(\w+)'", js[k:k + 400]))
+    for m in re.finditer(r'\\newcommand\s*\{\\([A-Za-z]+)\}\[1\]\{[^\n]*\\colorbox\{(\w+)!22\}\{\$\\displaystyle #1\$\}', src.preamble):
+        if m.group(1) in used and box.get(m.group(1)) != m.group(2):
+            bad.append(f'\\{m.group(1)} (preamble colour {m.group(2)}; TEXTBOX: {box.get(m.group(1))})')
+    if bad:
+        raise SystemExit(f'{os.path.relpath(path, REPO)} disagrees with the preamble of main.tex (L16): ' + '; '.join(bad))
+
+
 def copy_shared() -> None:
     """L11: the design files of the course named by 'shared_from', copied byte for byte into this course's
     assets/ (generated copies; check.sh verifies they are identical)."""
@@ -1612,7 +1645,7 @@ def main():
     report = {'pages': [{'slug': p.slug, 'number': p.number, 'kind': p.kind, 'title': plain(p.title_html or ''),
                          'converted': p.html is not None, 'error': p.error} for p in order],
               'review': ctx.review_items}
-    os.makedirs(os.path.join(REPO, '_port', '.work'), exist_ok=True)
+    os.makedirs(os.path.dirname(COURSE_CFG['report']), exist_ok=True)
     chapters = chapter_data(pages, ctx)
     if args.chapters:
         print_chapters(chapters, ctx)
@@ -1624,11 +1657,13 @@ def main():
         for lab, frag in p.anchors.items():
             where[lab] = (p.slug, frag)
     cfg = shell.site_config()
-    shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
+    if not COURSE_CFG.get('shared_from'):       # L11: a course that shares the design copies the fonts (copy_shared)
+        shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
     files: set = set()
     search: list = []
     for p in done:
         write_page(p, ctx, where, order, files, cfg, search, chapters)
+    check_math_macros(src, done)
     LANDINGS[COURSE_CFG.get('landing', 'diffgeo')](front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
     copy_shared()
     for label, mods in ctx.interactives.items():
@@ -1652,7 +1687,7 @@ def main():
                 os.remove(path)
     report['math'] = [{'page': p.slug, 'tex': resolve(t, p, ctx, where)} for p in done for t in p.math]
     report['review'] = ctx.review_items
-    json.dump(report, open(os.path.join(REPO, '_port', '.work', 'report.json'), 'w', encoding='utf-8'),
+    json.dump(report, open(COURSE_CFG['report'], 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
     return 1 if args.strict and len(done) < len(order) else 0
 

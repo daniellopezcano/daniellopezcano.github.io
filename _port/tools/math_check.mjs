@@ -2,9 +2,11 @@
 // Build-time math check: typesets every distinct equation the course pages carry
 // (the `math` array of _port/.work/report.json, written by _port/convert/build.py)
 // with a math engine in Node, using the tex configuration of the browser
-// (read from notes/diffgeo-gr/assets/mathjax-config.js, never duplicated here).
+// (read from notes/<course>/assets/mathjax-config.js, never duplicated here; a TeX pre-filter the config
+// exports as window.dgMathPrefilter is applied as the browser applies it, Lyα DECISIONS L16).
 //
-//   node _port/tools/math_check.mjs [--engine mathjax3|mathjax4|katex|all] [--json FILE] [--report FILE]
+//   node _port/tools/math_check.mjs [--course NAME] [--engine mathjax3|mathjax4|katex|all] [--json FILE] [--report FILE]
+//   (without --course: every course of _port/convert/courses.py, one after the other)
 //   (--json writes the grouped failures; --report reads another {math: [{page, tex}]} file)
 //
 // An expression fails when the engine throws or its output carries an error node
@@ -17,11 +19,26 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 
 const PORT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPO = path.resolve(PORT, '..');
-const DEFAULT_REPORT = path.join(PORT, '.work', 'report.json');
-const CONFIG = path.join(REPO, 'notes', 'diffgeo-gr', 'assets', 'mathjax-config.js');
+const COURSES = JSON.parse(spawnSync('python3', [path.join(PORT, 'convert', 'courses.py'), '--json'], { encoding: 'utf8' }).stdout);
+const courseArg = process.argv.indexOf('--course');
+if (courseArg < 0 && !process.argv.includes('--report')) {     // every course, each in a process of its own
+  let rc = 0;
+  for (const name of Object.keys(COURSES)) {
+    console.log(`== ${name}`);
+    const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--course', name, ...process.argv.slice(2)], { stdio: 'inherit' });
+    rc = rc || r.status;
+  }
+  process.exit(rc);
+}
+const COURSE = COURSES[courseArg < 0 ? 'diffgeo-gr' : process.argv[courseArg + 1]];
+if (!COURSE) { console.error(`unknown course; courses: ${Object.keys(COURSES).join(', ')}`); process.exit(2); }
+const DEFAULT_REPORT = COURSE.report;
+const CONFIG = path.join(REPO, COURSE.dir, 'assets', 'mathjax-config.js');
+let PREFILTER = null;
 const require = createRequire(path.join(PORT, 'package.json'));
 const ENGINES = ['mathjax3', 'mathjax4', 'katex'];
 const DEFAULT_ENGINE = 'mathjax3';   // the engine of _port/convert/shell.py (MATHJAX)
@@ -34,6 +51,7 @@ function browserConfig() {
   vm.runInNewContext(fs.readFileSync(CONFIG, 'utf8'), sandbox, { filename: CONFIG });
   const cfg = sandbox.window.MathJax;
   if (!cfg || !cfg.tex) throw new Error(`${CONFIG} does not define window.MathJax.tex`);
+  PREFILTER = sandbox.window.dgMathPrefilter || null;
   return cfg;
 }
 
@@ -54,7 +72,11 @@ function expressions(report) {
     if (!byTex.has(tex)) byTex.set(tex, new Set());
     byTex.get(tex).add(page);
   }
-  return [...byTex].map(([tex, pages]) => ({ tex, ...strip(tex), pages: [...pages].sort() }));
+  return [...byTex].map(([tex, pages]) => {
+    const it = { tex, ...strip(tex), pages: [...pages].sort() };
+    if (PREFILTER) { const data = { math: { math: it.math } }; PREFILTER(data); it.math = data.math.math; }
+    return it;
+  });
 }
 
 /** What the browser's TeX finder hands to the engine for this page string. */
@@ -219,6 +241,7 @@ function parseArgs(argv) {
   const args = { engine: DEFAULT_ENGINE, json: null, report: DEFAULT_REPORT };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
+    if (a === '--course') { i++; continue; }
     if (a === '--engine') args.engine = argv[++i];
     else if (a.startsWith('--engine=')) args.engine = a.slice(9);
     else if (a === '--json') args.json = argv[++i];
