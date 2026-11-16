@@ -51,7 +51,7 @@ export default async function mount(body) {
   const out = el('div', { class: 'dg-eqrow', style: 'gap: 0.4rem 1.6rem' });
   out.append(pair('C_{12} =', v.C), pair('\\bar T_1,\\ \\bar T_2 =', v.Tb), pair('\\xi\\big(c\\ln\\tfrac{\\lambda_1}{\\lambda_2}\\big) =', v.at),
     pair('\\tfrac{\\xi_{12,\\mathrm{sym}}}{(1+C_{12})^2}\\big(c\\ln\\tfrac{\\lambda_1}{\\lambda_2}\\big) =', v.cross));
-  body.append(box, legend([{ label: '\\(\\xi\\)', color: C.total, width: 2.4 }, { label: '\\(-C_{12}C_{12}\\)', color: C.c, width: 1.6 },
+  body.append(box, legend([{ label: '\\(\\xi\\)', color: 'currentColor', width: 2.4 }, { label: '\\(-C_{12}C_{12}\\)', color: C.c, width: 1.6 },
     { label: '\\(\\xi_{11}\\)', color: C.x11, width: 1.6 }, { label: '\\(\\xi_{22}\\)', color: C.x22, width: 1.6, dash: DASH.x22 },
     { label: '\\(\\xi_{12,\\mathrm{sym}}\\)', color: C.x12, width: 1.6, dash: DASH.x12 }, { label: '\\(\\xi_{1(12),\\mathrm{sym}}\\)', color: C.x1p, width: 1.6 },
     { label: '\\(\\xi_{2(12),\\mathrm{sym}}\\)', color: C.x2p, width: 1.6, dash: DASH.x2p }, { label: '\\(\\xi_{(12)(12)}\\)', color: C.xpp, width: 1.6 }]), out);

@@ -31,7 +31,8 @@ The gas of panels 2, 3 and 7 is a stated toy (L25); everything from the gas to t
 - **Status words (L6).** "Review notes / working draft" is shown under the subtitle as on your title page; `\today` became "Last updated <date of the last commit touching the converted files>".
 - **No bibliography (L4)**: nothing in the converted part cites.
 - **References to what was cut** would show the "in preparation" marker (L3); there are none today.
-- Presentation choices inherited from the first course (D-decisions): pages per section, sidenotes, figures on paper cards, underlined references.
+- Presentation choices inherited from the first course (D-decisions): pages per section, sidenotes, figures on paper cards, underlined references. Display equations wider than the column (a few in § 3.6 and § 4, more on a phone) are set slightly smaller and then scroll sideways in their own box with a shaded edge (D27, D45); the PDF prints them whole.
+- **Web-only behaviour added for these notes**: references to Appendices A–C open the appendix page in place ("open here", L23); read marks are kept per course (L24); TeX quotes inside two formulas of Eq. (4.1) are shown as the PDF's curly quotes (L27).
 
 ## 3. What waits for you in `REVIEW.md`
 
@@ -58,4 +59,8 @@ or `python3 -m http.server -d docs 8000` and open `http://localhost:8000/notes/l
 
 ## 6. How to publish
 
-CHECKSUMMARY
+Nothing is pushed or merged. The branch `course-lya` holds the whole job, with the rendered site committed in `docs/` (D28). The last full `bash _port/check.sh` printed ALL CHECKS PASSED. It covers both courses and the rest of the site against `main`. When you are happy with the preview:
+```bash
+git checkout main && git merge course-lya && git push      # GitHub Pages serves docs/ from main
+```
+If you edit the notes first, rebuild (§ 4) and run `bash _port/check.sh` again before merging. One check of `check.sh` needs internet access, because the pages load MathJax and Lato from their CDNs; a network outage shows up as `page_check` and interactive failures, not as a defect of the pages.

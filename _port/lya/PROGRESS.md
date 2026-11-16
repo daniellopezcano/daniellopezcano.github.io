@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L17 — page-by-page review of the 28 Lyα pages against the PDF (author's `main.pdf` pages), at 1440 and 390 px, light and dark: screenshots of each page, compared with the PDF page images; defects fixed in the converter, typos/slips listed in `REVIEW.md`.
+**Next action:** L18 — final full `bash _port/check.sh` (needs internet: CDNs), then commit `docs/` (D28) and the ledger; `git status` clean.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -25,7 +25,7 @@
 | L14 | Panel 6: 1D 2PCF and ergodicity | done | `ergodicity` (after Eq. (5.9), L21): ξ̂^(s), their average, ξ; test recomputes Eqs. (5.2), (5.9) and the 1/√N and L_Λ trends | (this commit) |
 | L15 | Panel 7: 2PCF decomposition (L = 2) | done | `decomposition` + `decompstats.js` (after Eq. (5.10), L21): Lyα + Si III in one gas, the terms of Eq. (5.10) in the notes' colours; test recomputes them and the total | (this commit) |
 | L16 | Panel 8: velocity units examples | done (not built) | L25: Figure 6 is a schematic and Appendix B's results are constants; its B.2 shift is used and shown by panel 7. Seven panels | (this commit) |
-| L17 | Page-by-page review against the PDF | todo | | |
+| L17 | Page-by-page review against the PDF | done | 112 screenshots (28 pages × 1440/390 × light/dark) against the PDF pages (port-checker, reviewed); fixed: TeX quotes in Eq. (4.1) (L27), the ξ legend swatch of panel 7 in dark; wide displays scroll by design (D27/D45); 6 slips logged in REVIEW.md | 75a0888, (this commit) |
 | L18 | Report, final check, `docs/` | todo | | |
 
 ## Appendices included (L2)
