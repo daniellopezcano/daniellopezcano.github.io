@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L10–L15 — wire panel 7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
+**Next action:** L17 — page-by-page review of the 28 Lyα pages against the PDF (author's `main.pdf` pages), at 1440 and 390 px, light and dark: screenshots of each page, compared with the PDF page images; defects fixed in the converter, typos/slips listed in `REVIEW.md`.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -23,8 +23,8 @@
 | L12 | Panel 4: observed wavelength → gas frame | done | `velocityunits` (end of § 3.2.4, L26): u_exact vs u_H across a box, the L² drift against b_th; `ray.js`; test with its own RK4 | (this commit) |
 | L13 | Panel 5: scale factor along the photon path | done | `scalefactor` (after Figure 1): any Ω mix over Figure 1's backgrounds and analytic solutions; test checks −2c/H0, −c/H0, +c/H0 and the closed case | (this commit) |
 | L14 | Panel 6: 1D 2PCF and ergodicity | done | `ergodicity` (after Eq. (5.9), L21): ξ̂^(s), their average, ξ; test recomputes Eqs. (5.2), (5.9) and the 1/√N and L_Λ trends | (this commit) |
-| L15 | Panel 7: 2PCF decomposition (L = 2) | todo | | |
-| L16 | Panel 8: velocity units examples | todo | | |
+| L15 | Panel 7: 2PCF decomposition (L = 2) | done | `decomposition` + `decompstats.js` (after Eq. (5.10), L21): Lyα + Si III in one gas, the terms of Eq. (5.10) in the notes' colours; test recomputes them and the total | (this commit) |
+| L16 | Panel 8: velocity units examples | done (not built) | L25: Figure 6 is a schematic and Appendix B's results are constants; its B.2 shift is used and shown by panel 7. Seven panels | (this commit) |
 | L17 | Page-by-page review against the PDF | todo | | |
 | L18 | Report, final check, `docs/` | todo | | |
 
