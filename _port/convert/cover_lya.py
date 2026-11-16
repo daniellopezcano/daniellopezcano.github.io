@@ -34,6 +34,9 @@ _PIECES = [
     # the keywords line with its bold label "Keywords:", as the notes print it (lya.css: p.dg-keywords strong)
     ('keywords', r'\\noindent(?P<keywords>\\textbf\{Keywords:\}[^\n]*)\n'),
 ]
+# Pieces that are left out (L5) and may be absent: the author's main.tex of 2026-11-16 comments out the second and
+# third affiliation lines (L28). Absent is safe, since they never reach the page; present, they must match once.
+_OPTIONAL = ('affil2', 'affil3')
 _LAYOUT = re.compile(r'(?:\s|\\centering|\\vspace\*?\{[^{}]*\})*')
 _FRONT_REST = re.compile(r'\s*(?:\\pagenumbering\{(?:roman|arabic)\}|\\tableofcontents|\\bigskip|\\newpage|\\clearpage|\s)*')
 
@@ -71,6 +74,8 @@ def extract(preamble: str, front: str, base: int) -> dict:
     spans, out = [], {}
     for key, rx in _PIECES:
         found = list(re.finditer(rx, body, re.S))
+        if key in _OPTIONAL and not found:
+            continue
         if len(found) != 1:
             raise SystemExit(f'cover_lya.py: the title page piece "{key}" is found {len(found)} times (expected once); '
                              f'the title page changed, update cover_lya.py')

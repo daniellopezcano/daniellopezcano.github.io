@@ -14,6 +14,8 @@ Everything here waits for you. Nothing in the notes has been changed: typos are 
 | 6 | The old Lyα PDF and its thumbnail are deleted from `assets/` and `docs/` (they show the co-authors). Reversible: `git checkout main -- assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf assets/img/docs/absorption_lines_in_cosmological_sightlines.png`. | L19 |
 | 7 | The first course's thumbnail (`assets/img/docs/from_differential_geometry_to_general_relativity.png`) is now shown by no page (it was only in the removed "Lecture Notes" section); kept in `assets/`, no longer copied to `docs/`. | L19 |
 | 8 | Your CV PDF (`assets/files/DLC_CV.pdf`) still lists OJALÁ as it was; not edited. | L19 |
+| 9 | (2026-11-16, superseding row 1) The web version ends with § 4 "Decomposition of the 2PCF"; § 5 and everything after it is not published, nor panels 6 and 7 (kept in `_port/lya/parked/`). Your `main.tex` now comments out `\input{sec_summary_statistics}`, so your PDF ends at § 3; the scratch build restores that one input so that § 4 exists with its number (you chose this). | L28 |
+| 10 | The Lyα PDF is your current build, compressed, at the old Lyα PDF's address (`assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf`); the landing page's button reads "Download PDF", as the first course's. The differential-geometry PDF is your `main.pdf` (created 2026-10-15), compressed, in place. | L28 |
 
 ## Author material left out (brief: "No authors")
 

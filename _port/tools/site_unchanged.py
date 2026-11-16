@@ -13,7 +13,7 @@ Accepted differences, and nothing else (KICKOFF rule 6; Lyα brief "Site updates
     section's "Ly$\alpha$" needed; the same in its search.json entries;
   * the Research page: the OJALÁ card's title as accepted and "Astronomy & Astrophysics, in press (accepted
     12 November 2026)" instead of the arXiv preprint line; the same in its search.json entries;
-  * the files in ALLOWED_DELETED (the old Lyα PDF and its thumbnail, deleted as asked; the first course's
+  * the files in ALLOWED_DELETED (the old Lyα PDF's thumbnail, deleted as asked; the first course's
     thumbnail, which no page shows any more, so Quarto no longer copies it);
   * links with class `dg-read-online` (the "Read online" buttons on the Teaching page), and their label in the
     Teaching page's entries of search.json;
@@ -32,12 +32,14 @@ REF = sys.argv[1] if len(sys.argv) > 1 else 'main'
 ALLOWED_CHANGED = {
     'docs/assets/files/docs/from_differential_geometry_to_general_relativity.pdf',
     'docs/assets/img/docs/from_differential_geometry_to_general_relativity.png',
+    # Lyα DECISIONS L28: the author's current build of the Lyα notes, at the old Lyα PDF's address
+    'docs/assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf',
 }
 
-# Files deleted on purpose (Lyα brief, site update 2; REVIEW.md): the old Lyα PDF and its thumbnail show the
-# co-authors and lost their last link; the first course's thumbnail was shown only in the removed section.
+# Files deleted on purpose (Lyα brief, site update 2; REVIEW.md): the old Lyα PDF's thumbnail shows the
+# co-authors and lost its last link (the PDF's address holds the current build since L28); the first course's
+# thumbnail was shown only in the removed section.
 ALLOWED_DELETED = {
-    'docs/assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf',
     'docs/assets/img/docs/absorption_lines_in_cosmological_sightlines.png',
     'docs/assets/img/docs/from_differential_geometry_to_general_relativity.png',
 }

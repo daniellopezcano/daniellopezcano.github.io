@@ -12,7 +12,7 @@
 "flux/overflux.html": "2026-11-16T19:21:25.024Z",
 "flux/top-down-summary.html": "2026-11-16T17:58:19.390Z",
 "flux/transmission-and-flux.html": "2026-11-16T17:58:19.390Z",
-"index.html": "2026-11-16T17:58:19.390Z",
+"index.html": "2026-11-16T22:39:43.008Z",
 "introduction-and-scope/index.html": "2026-11-16T17:58:19.390Z",
 "odes/index.html": "2026-11-16T17:58:19.390Z",
 "velocity-units-example/app-redshift-independent-line-separation.html": "2026-11-16T17:58:19.390Z",
@@ -22,9 +22,5 @@
 "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning.html": "2026-11-16T17:58:19.390Z",
 "velocity-units-snapshot-approx/index.html": "2026-11-16T17:58:19.390Z",
 "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra.html": "2026-11-16T17:58:19.390Z",
-"xi-decomposition/index.html": "2026-11-16T17:58:19.390Z",
-"xi1d/ensemble-1d-2pcf-and-translation-invariance.html": "2026-11-16T17:58:19.390Z",
-"xi1d/from-per-sample-to-ensemble-estimates-ergodicity-and-averaging-over-sightlines.html": "2026-11-16T19:25:25.314Z",
-"xi1d/index.html": "2026-11-16T17:58:19.390Z",
-"xi1d/per-sample-realization-level-1d-two-point-correlation.html": "2026-11-16T17:58:19.390Z"
+"xi-decomposition/index.html": "2026-11-16T17:58:19.390Z"
 }

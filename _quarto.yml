@@ -9,6 +9,8 @@ project:
     - notes/diffgeo-gr/**
     # course section "SkewerJAX: Absorption Lines in Cosmological Sightlines" (Lyman-α Forest), built the same way
     - notes/lya-forest/**
+    # its PDF, linked only from the course's landing page (Lyα DECISIONS L28)
+    - assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf
   # adds the course pages to search.json and sitemap.xml (Quarto does not index .html files)
   post-render: python3 _port/tools/post_render.py
 

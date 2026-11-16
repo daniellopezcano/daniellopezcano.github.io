@@ -33,8 +33,8 @@ const NARROW = ({
     'examples/example-connection-torsion-curvature', 'examples/example-variations', 'tangent-spaces/tangent-space',
     'proofs-and-additional-material/metric-properties', 'fields/vector-fields', 'gr/spacetime',
     'proofs-and-additional-material/proof-sylvester', 'vector-spaces/foundations-sets-maps', 'computational-ressources/index'],
-  'lya-forest': ['index', 'cosmo-background/index', 'flux/index', 'xi-decomposition/index', 'xi1d/index', 'flux/overflux',
-    'xi1d/from-per-sample-to-ensemble-estimates-ergodicity-and-averaging-over-sightlines', 'flux/observed-wavelength-velocity',
+  'lya-forest': ['index', 'cosmo-background/index', 'flux/index', 'xi-decomposition/index', 'flux/overflux',
+    'flux/observed-wavelength-velocity',
     'flux/top-down-summary', 'odes/index', 'velocity-units-example/app-relative-line-centered-velocity-units',
     'velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra'],
 }[COURSE_NAME] || []).filter(s => all.has(s) && pages.includes(s));

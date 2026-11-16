@@ -1,10 +1,10 @@
 # Ledger of the Lyα forest course
 
-**Next action:** none — every unit is done. Waiting for the author's preview and review of `_port/lya/REVIEW.md`; nothing is pushed or merged.
+**Next action:** none — the follow-up L19 (cut at § 4, both PDFs) is done. Waiting for the author's preview and review of `_port/lya/REVIEW.md` (rows 9–10 are new); nothing is pushed or merged.
 
 **State of the working tree:** clean; `docs/` holds the committed render of the final check (D28); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
-**Notes directory:** `SkewerJAX_Review_and_Equations`, read-only; fingerprint at the start `3ed78561…cfd23` (L7).
+**Notes directory:** `SkewerJAX_Review_and_Equations`, read-only; fingerprint at the start `3ed78561…cfd23` (L7). On 2026-11-16 23:27 the author changed `main.tex` (title page; `\input{sec_summary_statistics}` commented out) and rebuilt `main.pdf`; the scratch build restores that input (L28).
 
 | # | Unit | Status | Checks | Commit |
 |---|---|---|---|---|
@@ -27,6 +27,7 @@
 | L16 | Panel 8: velocity units examples | done (not built) | L25: Figure 6 is a schematic and Appendix B's results are constants; its B.2 shift is used and shown by panel 7. Seven panels | (this commit) |
 | L17 | Page-by-page review against the PDF | done | 112 screenshots (28 pages × 1440/390 × light/dark) against the PDF pages (port-checker, reviewed); fixed: TeX quotes in Eq. (4.1) (L27), the ξ legend swatch of panel 7 in dark; wide displays scroll by design (D27/D45); 6 slips logged in REVIEW.md | 75a0888, (this commit) |
 | L18 | Report, final check, `docs/` | done | full `bash _port/check.sh` on 2026-11-16: ALL CHECKS PASSED (26 checks, both courses and the rest of the site); `REPORT.md` written; `docs/` rendered and committed | (this commit) |
+| L19 | Follow-up: cut at the end of § 4, the restored input, both PDFs | done | `build_scratch.sh lya-forest`: § 4 restored, the 138 labels of the author's `main.aux` with the same numbers; `build.py`: 23 pages (+ landing), 19 left out (§§ 5–8, D, E); panels 6, 7 parked; PDFs compressed (27.0 → 6.97 MB, 5.24 → 1.66 MB; pages, outline, links compared); first course unchanged (navbar only); full `bash _port/check.sh`: ALL CHECKS PASSED | 72463b1 (renames only) + the next commit |
 
 ## Appendices included (L2)
 

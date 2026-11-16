@@ -47,6 +47,7 @@ COURSES: dict[str, dict] = {
         'runic': True,                                      # preload the notes' runic font (D8)
         'stylesheets': [],                                  # course stylesheets after course.css
         'last': None,                                       # L1: label of the last main-text section converted
+        'restore_inputs': [],                               # L28: commented-out \input lines the scratch copy restores
         'appendices': 'all',                                # L2: 'all' or 'referenced'
         'shared_from': None,                                # L11: course whose design files this one copies
         'open_here': None,                                  # L23: None = course.js's rule (D35), 'appendices'
@@ -79,7 +80,10 @@ COURSES: dict[str, dict] = {
         'landing': 'lya',
         'runic': False,
         'stylesheets': ['lya.css'],
-        'last': 'sec:xi1D',                                 # L1: up to the end of section 5, xi1D
+        'last': 'sec:xi_decomposition',                     # L1, L28: up to the end of section 4, Decomposition of the 2PCF
+        # L28: the author's main.tex (2026-11-16 23:27) comments out this \input, which holds sections 4-8; the
+        # scratch copy restores it (with its \newpage) so that section 4 exists and keeps its number
+        'restore_inputs': ['sec_summary_statistics'],
         'appendices': 'referenced',                         # L2
         'shared_from': 'diffgeo-gr',                        # L11
         'open_here': 'appendices',                          # L23: every page of an included appendix opens in place
@@ -114,6 +118,7 @@ def main(argv: list[str]) -> int:
                 raise SystemExit(f'courses.py --shell: {k} of {argv[2]} contains a quote or $')
             print(f'C_{k.upper()}="{c[k]}"')
         print('C_COPY=(' + ' '.join(f'"{x}"' for x in c['copy']) + ')')
+        print('C_RESTORE=(' + ' '.join(f'"{x}"' for x in c['restore_inputs']) + ')')
         return 0
     if len(argv) == 1:
         print('\n'.join(COURSES))
