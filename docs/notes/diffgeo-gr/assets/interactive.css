@@ -110,3 +110,15 @@
   .dg-interactive { padding: 0.5rem 0.55rem 0.7rem; }
   .dg-controls { gap: 0.45rem 0.9rem; }
 }
+
+/* ---- footer of the panel (D55): Reset, the static figure, the notebook ---- */
+.dg-interactive-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem;
+  margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-rule);
+  font-size: 0.86rem;
+}
+.dg-interactive-foot a { color: var(--dg-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.dg-interactive-foot a:hover { text-decoration-thickness: 2px; }
+.dg-ia-static::before { content: "\2191\00a0"; text-decoration: none; display: inline-block; }
+.dg-ia-notebook { margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem; }
+.dg-ia-notebook .dg-i { width: 1em; height: 1em; }

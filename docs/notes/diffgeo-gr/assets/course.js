@@ -77,11 +77,12 @@ function adopt(node, base) {
 }
 
 // ---- 1. popovers ----------------------------------------------------------------------------
-// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">.
+// Footnote marks: <sup class="dg-fnref"><a href="#fn-N">; cross-references: <a class="dg-xref">; citations:
+// <a class="dg-cite">, previewing their entry of the Bibliography page (D52).
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
 // With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6).
-const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href]';
+const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href], a.dg-cite[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
 let lastPointer = 'mouse';
@@ -138,10 +139,10 @@ async function show(t) {
   try { content = await popContent(t); } catch (err) { content = null; }
   if (token !== pop.token || !content) { if (token === pop.token) pop.trigger = null; return; }
   const el = popEl();
-  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : 'footnote';
+  el.dataset.kind = t.matches('a.dg-xref') ? (t.dataset.kind || 'xref') : t.matches('a.dg-cite') ? 'cite' : 'footnote';
   el.replaceChildren(content);
   el.hidden = false;
-  if (t.matches('a.dg-xref')) t.setAttribute('aria-describedby', 'dg-pop');
+  if (t.matches('a.dg-xref, a.dg-cite')) t.setAttribute('aria-describedby', 'dg-pop');
   place();
   if (content.classList.contains('dg-pop-raw')) {
     try { await typeset(content); } catch (err) { /* the TeX source stays readable */ }
@@ -204,7 +205,8 @@ function extract(doc, id, base) {
   }
   let el = doc.getElementById(id);
   if (!el) return null;
-  if (el.matches('.dg-anchor, a:empty, span:empty')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
+  // an anchor, or a defined term (id term-<k>, the chips of the definitions page, D53): the block that holds it
+  if (el.matches('.dg-anchor, a:empty, span:empty, .dg-term')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
   if (el && el.matches('h2, h3, h4')) {                  // a subsection: its heading and first lines
     const h = document.createElement('p');
     h.className = 'dg-pop-title';
@@ -748,6 +750,17 @@ function fitDisplayMath(root = document.querySelector('main')) {
     if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
     else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
   }
+  for (const t of root.querySelectorAll('.dg-table-wrap')) {             // tables follow the same rule (D48)
+    const tb = t.firstElementChild;
+    tb.style.fontSize = '';
+    let scale = 1;
+    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_DISPLAY_SCALE; k++) {
+      scale = Math.max(MIN_DISPLAY_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
+      tb.style.fontSize = (scale * 100).toFixed(1) + '%';
+    }
+    if (t.scrollWidth > t.clientWidth + 1) { t.tabIndex = 0; t.dataset.dgScroll = '1'; }
+    else if (t.dataset.dgScroll) { t.removeAttribute('tabindex'); delete t.dataset.dgScroll; }
+  }
 }
 async function initWideMath() {
   await mathReady();
@@ -762,6 +775,49 @@ async function initWideMath() {
 // _port/interactives.json attaches one. The module assets/interactive/<name>.js is imported only
 // when its frame comes near the viewport; it exports `default async function mount(body, frame)`.
 // A frame becomes visible (class dg-ready) only after its module mounted without error.
+// The panel (D55): badge bar, the module's body, and a footer built here: Reset (empties the body and
+// mounts the module again, so every module gets it without code of its own), a link back to the static
+// figure the panel accompanies (labelled with the figure's own number, read from its caption), and the
+// notebook of the Python package (data-notebook, from _port/interactives.json) where there is one.
+function panelFooter(frame, mount) {
+  const body = frame.querySelector('.dg-interactive-body');
+  const foot = document.createElement('div');
+  foot.className = 'dg-interactive-foot';
+  const reset = document.createElement('button');
+  reset.type = 'button'; reset.className = 'dg-btn dg-ia-reset'; reset.textContent = 'Reset';
+  reset.addEventListener('click', async () => {
+    reset.disabled = true;
+    try {
+      const { dispose } = await import(new URL('assets/interactive/dg.js', ROOT));
+      dispose(body);
+      if (window.MathJax && MathJax.typesetClear) { try { MathJax.typesetClear([body]); } catch (_) { /* nothing typeset */ } }
+      body.replaceChildren();
+      await mount();
+    } catch (err) {
+      console.error(`interactive "${frame.dataset.module}" failed:`, err);
+    } finally { reset.disabled = false; reset.focus(); }
+  });
+  foot.append(reset);
+  const fig = frame.dataset.for && document.getElementById(frame.dataset.for);
+  const num = fig && fig.matches('figure') && fig.querySelector('.dg-fignum');
+  if (num) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-static'; a.href = '#' + fig.id;
+    a.textContent = num.textContent.replace(/[:.\s]+$/, '');
+    a.title = 'Static figure';
+    a.addEventListener('click', e => { e.preventDefault(); fig.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); history.replaceState(null, '', '#' + fig.id); });
+    foot.append(a);
+  }
+  if (frame.dataset.notebook) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-notebook'; a.href = frame.dataset.notebook;
+    a.innerHTML = '<i class="dg-i dg-i-github" aria-hidden="true"></i> Notebook';
+    a.title = decodeURIComponent(frame.dataset.notebook.split('/').pop());
+    foot.append(a);
+  }
+  frame.append(foot);
+}
+
 function loadInteractives() {
   const frames = document.querySelectorAll('.dg-interactive[data-module]');
   if (!frames.length) return;
@@ -769,7 +825,10 @@ function loadInteractives() {
     try {
       const mod = await import(new URL(`assets/interactive/${frame.dataset.module}.js`, ROOT));
       await mathReady();
-      await mod.default(frame.querySelector('.dg-interactive-body'), frame);
+      const body = frame.querySelector('.dg-interactive-body');
+      const mount = () => mod.default(body, frame);
+      await mount();
+      panelFooter(frame, mount);
       frame.classList.add('dg-ready');
     } catch (err) {
       console.error(`interactive "${frame.dataset.module}" failed:`, err);

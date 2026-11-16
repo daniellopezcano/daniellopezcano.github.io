@@ -8,6 +8,7 @@
 //   slider / choice / stepper / toggle / button / readout / note / legend     labelled native controls
 //   Plot2D                        SVG plot: data->pixel scales, axes, lines, arrows, keyed draggable handles
 //   Scene3D                       canvas-2D 3D scene: shaded surfaces, curves, points, arrows, drag to rotate
+//   dispose(root)                 stop the observers of the plots and scenes inside root (Reset re-mounts, D55)
 import { typeset } from '../course.js';
 
 // ---- colours -------------------------------------------------------------------------------
@@ -25,6 +26,14 @@ export const palette = {
 export const tol = { blue: '#4477AA', red: '#EE6677', green: '#228833', yellow: '#CCBB44', cyan: '#66CCEE', purple: '#AA3377', grey: '#BBBBBB' };
 /** Paul Tol "vibrant" scheme (the curves of the plots in Appendix C, e.g. Figure C.12). */
 export const vibrant = { blue: '#0077BB', orange: '#EE7733', cyan: '#33BBEE', magenta: '#EE3377', red: '#CC3311', teal: '#009988', grey: '#BBBBBB' };
+
+// ---- lifecycle -----------------------------------------------------------------------------
+// Plots and scenes observe their size. Reset (course.js, D55) empties the panel and mounts the
+// module again, so the old ones must stop observing: they register here and dispose() ends them.
+const live = new Set();
+export function dispose(root) {
+  for (const x of live) if (!x.wrap.isConnected || root.contains(x.wrap)) { x.ro.disconnect(); live.delete(x); }
+}
 
 // ---- DOM helpers ---------------------------------------------------------------------------
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -208,6 +217,7 @@ export class Plot2D {
     this.drag = null;
     this.ro = new ResizeObserver(() => this.update());
     this.ro.observe(this.wrap);
+    live.add(this);
     this.update();
   }
   set(opt) { Object.assign(this.o, opt); this.update(); }
@@ -411,6 +421,7 @@ export class Scene3D {
     this.wire();
     this.ro = new ResizeObserver(() => this.render());
     this.ro.observe(this.wrap);
+    live.add(this);
   }
   clear(tag) { this.prims = tag == null ? [] : this.prims.filter(p => p.tag !== tag); return this; }
   /**

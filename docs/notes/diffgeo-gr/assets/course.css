@@ -292,13 +292,27 @@ h1.dg-title { margin: 0; padding-bottom: 0.55rem; color: var(--dg-heading); font
    is not (D45 b): two covers in the box's own colour scroll with the content (attachment local) and hide the
    two shadows (attachment scroll) when an end is reached. CSS only; the shadows lie under the content, so
    an equation number at the edge stays legible. --dg-scroll-bg is the colour of the surface behind the box. */
-.math.display, mjx-container.dg-math-wide {
+.math.display, mjx-container.dg-math-wide, .dg-table-wrap {
   background:
     linear-gradient(to right, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) left center / 2rem 100% no-repeat local,
     linear-gradient(to left, var(--dg-scroll-bg, var(--dg-bg)) 1rem, transparent) right center / 2rem 100% no-repeat local,
     linear-gradient(to right, var(--dg-scroll-shadow), transparent) left center / 1rem 100% no-repeat scroll,
     linear-gradient(to left, var(--dg-scroll-shadow), transparent) right center / 1rem 100% no-repeat scroll;
 }
+/* tables: the notes' tabular as an HTML table (D48). Alignment, widths and the gaps of @{..} come from the
+   column spec as inline styles; the rules (| and \hline) are classes; \arraystretch scales the cell padding.
+   A table wider than the column scrolls inside its box like a wide display. */
+.dg-table-wrap { overflow-x: auto; max-width: 100%; margin: 0.9rem 0; }
+/* rows as in LaTeX: \arraystretch x the 1.2 em baselineskip (line-height 1.2 + the stretch as padding) */
+.dg-table { --dg-cell-pad: calc(0.08em + (var(--dg-arraystretch, 1) - 1) * 0.6em); border-collapse: collapse; margin: 0; line-height: 1.2; }
+.dg-center > .dg-table-wrap > .dg-table, .dg-table-display > .dg-table { margin-inline: auto; }
+.dg-table :is(td, th) { padding: var(--dg-cell-pad) 0.6em; font-weight: inherit; vertical-align: baseline; }
+/* \\[dim]: a strut 0.3 em (LaTeX's strut depth) + dim deep, no width, no ink */
+.dg-row-strut { display: inline-block; width: 0; height: calc(0.3em + var(--dg-strut-dp)); vertical-align: calc(-0.3em - var(--dg-strut-dp)); }
+.dg-table .dg-rule-l { border-left: 1px solid var(--dg-text); }
+.dg-table .dg-rule-r { border-right: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-above > * { border-top: 1px solid var(--dg-text); }
+.dg-table tr.dg-hline-below > * { border-bottom: 1px solid var(--dg-text); }
 .dg-pop { --dg-scroll-bg: var(--dg-pop-bg); }
 .dg-chapter-card { --dg-scroll-bg: var(--dg-surface); }
 .dg-motivation-upper { --dg-scroll-bg: color-mix(in srgb, #bdc9ed 7%, var(--dg-bg)); }          /* the box's tints, made opaque */
@@ -373,6 +387,9 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 /* ---- 7. web layer ------------------------------------------------------------------------------ */
 .dg-web { font-family: var(--dg-ui); }
 .dg-main .dg-web { font-size: 0.93rem; }
+/* a page title of ours (copyright page, Definitions and notation; D51, D53): Lato, at the size of the other
+   titles of the front and back matter (an h1's 2 em), not at the small size of the web layer's labels */
+.dg-main h1.dg-title.dg-web { font-size: 2em; }
 
 /* chapter opening pages (D38): cards for the chapter's sections and for the related items of Appendices B and C
  * (side by side from 900 px), then the chapter's roadmap from section 1.1. The card heads are the notes' own
@@ -643,6 +660,8 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 .dg-landing p.dg-cover-affiliation { margin: 0 0 0.4rem; color: var(--dg-text-soft); font-size: 1rem; line-height: 1.55; }
 .dg-landing p.dg-cover-email { margin: 0; padding-bottom: 1.8rem; font-size: 0.98rem; overflow-wrap: anywhere; }
 .dg-cover-email a, .dg-cover-email .dg-code { color: var(--dg-accent); background: transparent; padding: 0; font-size: 0.95em; }
+/* where the PDF's cover prints \today under a rule across the text block: "Last updated <date>" (web layer, D54) */
+.dg-landing .dg-cover p.dg-cover-date { margin: 0 clamp(1.2rem, 5vw, 3.2rem); padding: 0.5rem 0 1.3rem; border-top: 1px solid var(--dg-heading); color: var(--dg-heading); text-align: right; }
 
 /* the three buttons (web layer) */
 .dg-landing-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
@@ -662,13 +681,13 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 
 /* contents: a card per chapter; long lists (Appendix B) take the whole row in two columns */
 .dg-contents > ol { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 1rem; align-items: start; list-style: none; margin: 0; padding: 0; }
-.dg-contents li.dg-contents-chapter { margin: 0; padding: 1rem 1.15rem 0.9rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
+.dg-contents li.dg-contents-chapter, .dg-contents li.dg-contents-front { margin: 0; padding: 1rem 1.15rem 0.9rem; background: var(--dg-surface); border: 1px solid var(--dg-rule); border-radius: 10px; }
 .dg-contents li.dg-contents-chapter:has(> ul > li:nth-child(12)) { grid-column: 1 / -1; }
 .dg-contents li.dg-contents-chapter:has(> ul > li:nth-child(12)) > ul { columns: 2 22rem; column-gap: 2rem; }
-.dg-main .dg-contents-chapter > a { display: block; padding-bottom: 0.55rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--dg-rule); text-decoration: none; }
+.dg-main .dg-contents-chapter > a, .dg-main .dg-contents-front > a { display: block; padding-bottom: 0.55rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--dg-rule); text-decoration: none; }
 .dg-contents-kicker { display: block; color: var(--dg-text-soft); font-variant: small-caps; letter-spacing: 0.04em; font-size: 0.95rem; }
 .dg-contents-title { display: block; color: var(--dg-heading); font-weight: 700; font-size: 1.2rem; line-height: 1.25; }
-.dg-contents-chapter > a:hover .dg-contents-title { color: var(--dg-accent); }
+.dg-contents-chapter > a:hover .dg-contents-title, .dg-contents-front > a:hover .dg-contents-title { color: var(--dg-accent); }
 .dg-contents-chapter > ul { list-style: none; margin: 0; padding: 0; }
 .dg-main .dg-contents-chapter > ul > li { margin: 0; padding: 0.22rem 0 0.22rem 2.6rem; text-indent: -2.6rem; font-size: 0.93rem; line-height: 1.4; break-inside: avoid; }
 .dg-main .dg-contents-chapter > ul a { text-decoration: none; }
@@ -699,6 +718,95 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
 .dg-landing .dg-dedication p { margin: 0 auto; max-width: 34rem; color: #fff; font-size: 1.12rem; font-style: italic; line-height: 1.75; text-align: center; hyphens: manual; }
 .dg-landing-end > .dg-mesh-dedication { position: absolute; z-index: 2; right: -2%; bottom: -1.4rem; width: 42%; pointer-events: none; }
 .dg-mesh-dedication .dg-mesh-grid { stroke-opacity: 0.13; stroke-width: 0.6px; }
+
+/* ---- 8b. front matter: copyright page, About the Author (unit B4, D51) ----------------------------- */
+.dg-rule { display: inline-block; vertical-align: baseline; background: currentColor; }
+.dg-main h2:has(> .dg-cp-heading) { font-size: 1.05rem; margin: 2.2rem 0 0.7rem; }      /* \normalsize\bfseries in the PDF */
+.dg-cp-heading { display: flex; align-items: baseline; gap: 0.5em; color: var(--dg-color-blue-0); }
+.dg-cp-heading::after { content: ""; flex: 1; align-self: center; height: 1px; background: var(--dg-color-blue-2); }   /* the \leaders rule to the margin */
+.dg-tcb { margin: 0.5rem 0 1rem; padding: 0.55em 0.8em 0.55em 0.9em; }
+.dg-tcb p { margin: 0; }
+.dg-grant { display: inline-block; padding: 0.22em 0.5em; border-radius: 2px; background: var(--dg-color-blue-0); color: var(--dg-on-accent);
+  font-size: 0.8em; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.dg-landing-legal { margin: 1.4rem 0 0.4rem; text-align: center; font-size: 0.85rem; }
+.dg-tree-matter { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--dg-rule); }
+
+.dg-about-head { margin: 0.4rem 0 1.8rem; }
+.dg-about-band { position: relative; display: flex; align-items: flex-end; aspect-ratio: 1440 / 692; overflow: hidden;
+  background: #142864; border-bottom: 2px solid var(--dg-color-blue-2); border-radius: 6px 6px 0 0; }
+.dg-about-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* the PDF's navy tint (30 %) and its fade to navy over the lower 60 mm of the 101 mm block (20 steps of 4.5 %) */
+.dg-about-band::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(20, 40, 100, 0.30) 0%, rgba(20, 40, 100, 0.30) 40%, rgba(20, 40, 100, 0.72) 100%); }
+.dg-about-titles { position: relative; z-index: 1; padding: 0 12rem 1.1rem 1.6rem; }   /* right: room for the portrait */
+h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; font-weight: 400; font-variant: small-caps; letter-spacing: 0.02em; }
+.dg-about-name { margin: 0; color: #fff; font-size: clamp(1.7rem, 4.2vw, 2.55rem); font-weight: 700; line-height: 1.15; }
+.dg-about-rule { width: 4.6rem; height: 2px; margin-top: 0.75rem; background: #bdc9ed; }
+.dg-about-under { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 0 1.6rem; }
+.dg-about-affil { margin: 0.8rem 0 0; line-height: 1.4; }
+.dg-about-role { color: var(--dg-color-blue-0); font-size: 1.15em; font-style: italic; }
+.dg-about-institute { color: color-mix(in srgb, var(--dg-text) 75%, var(--dg-bg)); }
+.dg-about-portrait { flex: none; width: 9.5rem; height: auto; margin-top: -5.6rem; position: relative; z-index: 1; border-radius: 50%;
+  border: 3px solid var(--dg-bg); outline: 1px solid var(--dg-color-blue-0); outline-offset: 3px; }
+.dg-timeline { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 40rem; margin: 0.4rem auto; padding: 0; }
+.dg-timeline li { display: grid; grid-template-rows: auto 1.5rem auto auto; align-content: start; justify-items: center; padding: 0 0.25rem; text-align: center; line-height: 1.25; }
+.dg-timeline li::before { content: ""; grid-row: 2; grid-column: 1; align-self: center; justify-self: stretch; height: 3px; margin: 0 -0.25rem; background: var(--dg-color-blue-2); }
+.dg-timeline li:first-child::before { margin-left: 50%; border-radius: 2px 0 0 2px; }
+.dg-timeline li:last-child::before { margin-right: 50%; border-radius: 0 2px 2px 0; }
+.dg-timeline li::after { content: ""; grid-row: 2; grid-column: 1; align-self: center; width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%;
+  border: 1.6px solid var(--dg-color-blue-0); background: radial-gradient(circle, var(--dg-color-blue-1) 0 2.3px, var(--dg-bg) 2.7px); }
+.dg-tl-years { grid-row: 1; color: var(--dg-color-blue-0); font-size: 0.9em; font-weight: 700; }
+.dg-tl-role { grid-row: 3; margin-top: 0.15rem; color: var(--dg-color-blue-0); font-size: 0.78em; font-weight: 700; }
+.dg-tl-place { grid-row: 4; color: color-mix(in srgb, var(--dg-text) 65%, var(--dg-bg)); font-size: 0.78em; }
+.dg-about-links { margin-top: 2.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-color-blue-0); text-align: right; font-size: 0.9em; }
+.dg-about-links p { margin: 0; }
+@media (max-width: 599.98px) {
+  .dg-about-band { aspect-ratio: auto; min-height: 12rem; }
+  .dg-about-titles { padding: 0 7.2rem 0.9rem 1rem; }
+  .dg-about-links { font-size: 0.78em; }
+  .dg-about-under { padding: 0 1rem; }
+  .dg-about-portrait { width: 6.5rem; margin-top: -3.6rem; }
+  .dg-timeline { font-size: 0.92em; }
+}
+.dg-landing-legal + .dg-landing-legal { margin-top: 0.15rem; }
+
+/* ---- 8c. List of Figures and Bibliography (unit B5, D52) ------------------------------------------- */
+/* LoF: as the PDF's, a number column and the caption beside it (hanging), the book class's 10 pt between
+   chapters (\addvspace); no page numbers (they are the PDF's layout) */
+.dg-lof { list-style: none; margin: 1rem 0 1.5rem 1.5em; padding: 0; }
+.dg-lof > li { display: grid; grid-template-columns: 3.1em minmax(0, 1fr); margin: 0.12rem 0; line-height: 1.45; }
+.dg-lof > li.dg-lof-gap { margin-top: 0.85rem; }
+/* Bibliography: plainnat author-year, no labels, hanging indent (natbib's \bibhang, 1 em) */
+.dg-bib { list-style: none; margin: 1rem 0 1.5rem; padding: 0; }
+.dg-bib > li { margin: 0 0 0.75rem; padding-left: 1em; text-indent: -1em; }
+.dg-bib .dg-code { overflow-wrap: anywhere; }
+@media (max-width: 599.98px) { .dg-lof { margin-left: 0; } }
+
+/* ---- 8d. Definitions and notation (unit B35, D53) -------------------------------------------------- */
+/* web layer throughout, except the reproduced Notation table and the terms (the notes' words, colours kept).
+   Part and letter headings are the web layer's words (Lato) at the size of the notes' headings. Each entry: the
+   term, then its occurrences as chips (the page's number, linked to the term), then "used in" and the pages that
+   refer to where it stands, as chips; a wrapped line is indented under the term. */
+.dg-main :is(h2, h3) > .dg-defs-head { font-size: inherit; }
+.dg-defs-table { margin: 0.9rem 0 1.4rem; }
+.dg-main .dg-defs-from { margin: 0; }
+.dg-defs-links { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.dg-defs-links > li { margin: 0.3rem 0; }
+.dg-defs-list { list-style: none; margin: 0.3rem 0 0.8rem; padding: 0; }
+.dg-defs-list > li { margin: 0; padding: 0.25rem 0 0.25rem 1.5em; text-indent: -1.5em; line-height: 1.55; }
+.dg-defs-at, .dg-defs-used { font-size: 0.8em; }
+.dg-main .dg-defs-used > .dg-web { margin: 0 0.1rem 0 0.9rem; font-size: 0.95em; color: var(--dg-text-soft); white-space: nowrap; }
+
+@media print {
+  .dg-about-band { border-radius: 0; }
+  .dg-lof > li, .dg-bib > li { break-inside: avoid; }
+  /* Definitions and notation (D53): its words print (the page is all web layer), the chips as plain text */
+  body:has(.dg-defs-list) h1.dg-title.dg-web, .dg-main .dg-defs-head, .dg-main .dg-defs-from, .dg-main .dg-defs-links,
+  .dg-main .dg-defs-used > .dg-web { display: revert !important; }
+  .dg-main .dg-defs-list .dg-chip { display: inline !important; height: auto; min-width: 0; margin: 0 0 0 0.4em; padding: 0; border: 0; font: inherit; color: inherit !important; }
+  .dg-defs-list > li { break-inside: avoid; }
+  .dg-about-band, .dg-about-band::after, .dg-grant, .dg-tcb { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 
 /* ---- 9. narrow screens ------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
@@ -736,6 +844,8 @@ h1.dg-cover-title { margin: 0 0 1.5rem; padding: clamp(9rem, 22vw, 15rem) clamp(
   .dg-main a, .dg-main a:hover { color: inherit; text-decoration: none; }
   .dg-footnotes { display: block; }
   .math.display { overflow: visible; background: none; }
+  .dg-table-wrap { overflow: visible; background: none; }
+  .dg-table { font-size: inherit !important; }
   mjx-container.dg-math-wide { background: none; }
   .dg-paper { border: 0; cursor: auto; }
   .dg-figure, .dg-diagram, .dg-motivation, .dg-fn { break-inside: avoid; }
