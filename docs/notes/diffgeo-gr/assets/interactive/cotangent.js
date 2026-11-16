@@ -17,6 +17,7 @@ import { PI, A, height, Y, Yinv, jacobian, inUV, bU, bV, bUV } from './eggs.js';
 export { Y, Yinv, jacobian, inUV };
 
 export const P0 = [PI / 4, -PI / 8], U0 = [0, 1], UMIN = 0.25, UMAX = 1.25, STEP = 0.25;
+const MIN_GAP = 3;                                                     // px: the closest two drawn level sets of f may lie (B33)
 const C = { U: tol.blue, V: tol.red, ker: tol.green, ink: '#000000' };
 const GREENS = ['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'];   // matplotlib Greens
 
@@ -54,13 +55,17 @@ function sample(lim, inv, nx = 96) {
   }
   return { nx, ny, v, x0, y0, dx, dy };
 }
-/** Marching squares: the segments of each level set f = fp + n·STEP, as Map n -> [[x, y], ...] (pairs of points). */
+/** Marching squares: the segments of each level set f = fp + n·STEP, as Map n -> [[x, y], ...] (pairs of points), and
+ *  for each segment the gradient of f over its grid cell in chart units, [gx, gy] (the level sets' spacing there,
+ *  used to thin them out where they would crowd, B33). */
 function contours(g, fp) {
   const out = new Map(), { nx, ny, v, x0, y0, dx, dy } = g, W = nx + 1;
+  out.grad = new Map();
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     const c = [v[j * W + i], v[j * W + i + 1], v[(j + 1) * W + i + 1], v[(j + 1) * W + i]];
     if (c.some(Number.isNaN)) continue;
     const xy = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+    const grad = [(c[1] - c[0] + c[2] - c[3]) / (2 * dx), (c[3] - c[0] + c[2] - c[1]) / (2 * dy)];
     const lo = Math.ceil((Math.min(...c) - fp) / STEP), hi = Math.floor((Math.max(...c) - fp) / STEP);
     for (let n = lo; n <= hi; n++) {
       const L = fp + n * STEP, cut = [];
@@ -69,8 +74,10 @@ function contours(g, fp) {
         if ((a > L) !== (b > L)) { const t = (L - a) / (b - a), P = xy[e], Q = xy[(e + 1) % 4]; cut.push([x0 + (P[0] + t * (Q[0] - P[0])) * dx, y0 + (P[1] + t * (Q[1] - P[1])) * dy]); }
       }
       if (cut.length < 2) continue;
-      if (!out.has(n)) out.set(n, []);
-      out.get(n).push(...cut.slice(0, 4 - (cut.length % 2)));
+      if (!out.has(n)) { out.set(n, []); out.grad.set(n, []); }
+      const pts = cut.slice(0, 4 - (cut.length % 2));
+      out.get(n).push(...pts);
+      for (let k = 0; k < pts.length; k += 2) out.grad.get(n).push(grad);
     }
   }
   return out;
@@ -150,10 +157,19 @@ export default async function mount(body) {
       pl.label('r' + nm, q, `\\(${ch.ax}(\\mathcal{${nm}})\\)`, { anchor: low ? 'n' : 'e', dx: low ? 0 : -5, dy: low ? 3 : 0, color: col });
     }
     if (ch.fp !== cur.f) { ch.fp = cur.f; ch.lines = contours(ch.grid, cur.f); }  // the level sets move with f(p) only
+    // where neighbouring level sets would lie closer than MIN_GAP px (they crowd into a moiré near the edge of 𝒴(𝒰 ∪ 𝒱)),
+    // only every 2nd, 4th, … of them is drawn there, so that the drawn ones stay at least MIN_GAP apart; the level set
+    // through p (n = 0) is always drawn (B33)
+    const kx = Math.abs(pl.sx(1) - pl.sx(0)), ky = Math.abs(pl.sy(1) - pl.sy(0));
     for (const [n, seg] of ch.lines) {
+      const gr = ch.lines.grad.get(n);
       let d = '';
-      for (let k = 0; k < seg.length; k += 2) d += `M${pl.sx(seg[k][0]).toFixed(1)} ${pl.sy(seg[k][1]).toFixed(1)}L${pl.sx(seg[k + 1][0]).toFixed(1)} ${pl.sy(seg[k + 1][1]).toFixed(1)}`;
-      pl.node('path', { d, fill: 'none', stroke: green(cur.f + n * STEP), 'stroke-width': n ? 0.9 : 1.4, 'stroke-linecap': 'round', class: 'dg-cot-level' });
+      for (let k = 0; k < seg.length; k += 2) {
+        const [gx, gy] = gr[k / 2], gap = STEP / (Math.hypot(gx / kx, gy / ky) || 1e-12);   // px between level sets here
+        if (gap < MIN_GAP && n % 2 ** Math.ceil(Math.log2(MIN_GAP / gap))) continue;
+        d += `M${pl.sx(seg[k][0]).toFixed(1)} ${pl.sy(seg[k][1]).toFixed(1)}L${pl.sx(seg[k + 1][0]).toFixed(1)} ${pl.sy(seg[k + 1][1]).toFixed(1)}`;
+      }
+      if (d) pl.node('path', { d, fill: 'none', stroke: green(cur.f + n * STEP), 'stroke-width': n ? 0.9 : 1.4, 'stroke-linecap': 'round', class: 'dg-cot-level' });
     }
     // γ: the straight line through p along x_p in X, inside the drawn part of M and the window
     const runs = []; let r = [];

@@ -195,7 +195,7 @@ export default async function mount(body) {
   async function update(retex) {
     const L = cur(), lam = lamOf(L), q = at(L, lam), p = P();
     sL.input.min = L.l0; sL.input.max = L.l1; sL.input.step = (L.l1 - L.l0) / NSTEP; sL.set(lam, false);
-    sK.input.disabled = st.conn !== 'k'; sK.el.classList.toggle('dg-disabled', st.conn !== 'k');
+    sK.input.disabled = st.conn !== 'k'; sK.el.classList.toggle('dg-tr-off', st.conn !== 'k');   // shown for ∇ᵏ only, its place kept (B33)
     plot.update();
     const [zl, zE] = transport(st.conn, L, st.z0, lam < L.l1 ? [lam, L.l1] : [L.l1, L.l1], st.kappa);
     const col = v => v.map(x => [x]);
@@ -225,7 +225,7 @@ export default async function mount(body) {
     if (retex) {
       const g = LOOP[st.loop];
       await Promise.all([
-        setMath(tX, `\\(\\text{chart } \\mathscr{X}: \\; z^k(\\lambda) =\\)`), setMath(tY, `\\(\\text{chart } \\mathscr{Y}: \\; z^k(\\lambda) =\\)`),
+        setMath(tX, `chart \\(\\mathscr{X}: \\; z^k(\\lambda) =\\)`), setMath(tY, `chart \\(\\mathscr{Y}: \\; z^k(\\lambda) =\\)`),   // the word is ours: Lato (D31)
         setMath(tD, '\\(\\Delta z^k =\\)'), setMath(tF, ftex && !val && F ? ftex.replace(/\\\)$/, ' =\\)') : ftex),
         setMath(tT, `\\(\\mathtt{T}^i_{12}\\big( ${g}(\\lambda) \\big) =\\)`), setMath(tR, `\\(\\mathrm{Riem}^i_{j12}\\big( ${g}(\\lambda) \\big) =\\)`)]);
       leg.replaceChildren(legend([{ label: `\\(${g}\\)`, color: C.loop, width: 2.4 }, { label: '\\(\\mathcal{Z}\\) at \\(p\\)', color: 'currentColor', width: 2.4 },

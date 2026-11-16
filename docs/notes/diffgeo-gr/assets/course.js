@@ -64,14 +64,17 @@ function fetchPage(href) {
 
 /** Make a copied fragment safe to insert: no duplicate ids, links and images relative to `base`. */
 function adopt(node, base) {
+  const rebase = v => !/^(#|[a-z]+:)/i.test(v) ? new URL(v, base).href : v.startsWith('#') ? base.split('#')[0] + v : v;
   for (const el of [node, ...node.querySelectorAll('*')]) {
     el.removeAttribute('id');
     if (!base) continue;
     for (const attr of ['src', 'href']) {
       const v = el.getAttribute(attr);
-      if (v != null && !/^(#|[a-z]+:)/i.test(v)) el.setAttribute(attr, new URL(v, base).href);
-      else if (v != null && v.startsWith('#') && attr === 'href') el.setAttribute(attr, base.split('#')[0] + v);
+      if (v != null && (attr === 'href' || !v.startsWith('#'))) el.setAttribute(attr, rebase(v));
     }
+    // a formula not typeset yet: the links it will make (\href, D7) are relative to its own page too
+    if (el.matches('.math') && !el.querySelector('mjx-container') && el.textContent.includes('\\href{'))
+      el.textContent = el.textContent.replace(/\\href\{([^{}]*)\}/g, (m, u) => `\\href{${rebase(u)}}`);
   }
   node.querySelectorAll('.dg-interactive, .dg-anchor, script').forEach(n => n.remove());
   return node;
@@ -82,7 +85,8 @@ function adopt(node, base) {
 // <a class="dg-cite">, previewing their entry of the Bibliography page (D52).
 // Mouse: hover (with a short delay, and the popover stays while the pointer is over it).
 // Keyboard: focus. Touch: the first tap opens, the second follows the link; tap elsewhere closes.
-// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6).
+// With sidenotes (margin from 1000 px), a footnote mark highlights its sidenote instead (section 6), unless
+// its footnote is not a sidenote (D60).
 const TRIGGER = '.dg-fnref > a[href^="#"], a.dg-xref[href], a.dg-cite[href]';
 const pop = { el: null, trigger: null, token: 0, showTimer: 0, hideTimer: 0 };
 const previewCache = new Map();
@@ -91,10 +95,16 @@ let tapWasOpen = false;
 const H = document.documentElement;
 const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
 
+// a footnote mark of the page whose footnote is shown in the margin (D60: not every footnote is a sidenote);
+// a mark inside an appendix panel (D35) never is: its footnote is in the panel's own list, shown at its end
+const inMargin = a => sidenotesOn() && !a.closest('.dg-inline')
+  && !!document.getElementById(decodeURIComponent(a.hash.slice(1)))?.classList.contains('dg-fn-margin');
+
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
   if (!t || t.closest('.dg-pop, dialog')) return null;           // a modal dialog would cover the popover
-  return sidenotesOn() && t.matches('.dg-fnref > a') ? null : t;
+  if (t.matches('.dg-fnref > a') && inMargin(t)) return null;
+  return t;
 }
 
 function popEl() {
@@ -261,7 +271,10 @@ function place() {
   if (hi < lo - 2) { lo = m; hi = Math.max(m, vw - m - w); }          // wider than the column: the viewport
   else hi = Math.max(hi, lo);                                            // (sub-pixel widths)
   const left = clamp(r.left + r.width / 2 - w / 2, lo, hi);
-  const top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  // below when it fits there or there is more room below, else above; the height limit above makes it fit the side
+  // it opens on, and the clamp keeps it inside the viewport even when neither side has the minimum height (B33)
+  let top = (h <= below || below >= above) ? r.bottom + gap : r.top - gap - h;
+  top = Math.max(topLimit, Math.min(top, vh - m - h));
   el.style.left = `${left + window.scrollX}px`;
   el.style.top = `${top + window.scrollY}px`;
 }
@@ -357,36 +370,104 @@ export async function inlineSvg(url) {
   return document.importNode(svg, true);
 }
 
-/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. */
+/** The badge box (a filled shape drawn around the reference, as the white rounded rectangles of the roadmaps)
+ *  of each reference in `gs`, as Map g -> {box, refs}: refs are the references that share that box, in reading
+ *  order, so that they can split it between them. A reference outside any such box is not in the map. Measured
+ *  on the rendered SVG (screen rectangles); a shape counts as a badge when it is filled, contains the reference
+ *  and is at most BADGE_H times its height (a card's header strip around a badge is taller). */
+const BADGE_H = 2.4;
+function badgeBoxes(svg, gs) {
+  const out = new Map();
+  const refs = gs.map(g => ({ g, r: g.getBoundingClientRect() })).filter(x => x.r.width > 0 && x.r.height > 0);
+  if (!refs.length) return out;
+  const hMax = Math.max(...refs.map(x => x.r.height)) * BADGE_H;
+  const shapes = [];
+  for (const el of svg.querySelectorAll('path, rect')) {
+    if (el.closest('defs, clipPath, mask, a.dg-svg-link, g.dg-xref')) continue;
+    const f = el.closest('[fill]');
+    if (f && f.getAttribute('fill') === 'none') continue;
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.height <= hMax) shapes.push({ el, r });
+  }
+  const inside = (a, b) => a.left >= b.left - 0.5 && a.right <= b.right + 0.5 && a.top >= b.top - 0.5 && a.bottom <= b.bottom + 0.5;
+  const groups = new Map();
+  for (const x of refs) {
+    let best = null;
+    for (const s of shapes) {
+      if (s.r.height > x.r.height * BADGE_H || !inside(x.r, s.r)) continue;
+      if (!best || s.r.width * s.r.height < best.r.width * best.r.height) best = s;
+    }
+    if (!best) continue;
+    if (!groups.has(best.el)) groups.set(best.el, { box: best.r, refs: [] });
+    groups.get(best.el).refs.push(x);
+  }
+  for (const grp of groups.values()) {
+    grp.refs.sort((a, b) => a.r.left - b.r.left);
+    grp.refs.forEach(x => out.set(x.g, grp));
+  }
+  return out;
+}
+
+/** A screen rectangle in the user units of `node` (an untransformed or scaled/translated SVG element). */
+function toUser(node, r) {
+  const m = node.getScreenCTM();
+  if (!m) return null;
+  const inv = m.inverse(), p = new DOMPoint(r.left, r.top).matrixTransform(inv), q = new DOMPoint(r.right, r.bottom).matrixTransform(inv);
+  return { x: Math.min(p.x, q.x), y: Math.min(p.y, q.y), width: Math.abs(q.x - p.x), height: Math.abs(q.y - p.y) };
+}
+
+/** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. Its hit area is the
+ *  whole badge the reference sits in (the box drawn around "Ch. 3", "§ 4.1", "Eq. (6.1)"), shared out between
+ *  the references of one badge at the midpoints between them; a reference outside any badge gets the short
+ *  text it sits in, or its number, with generous padding (B33). */
 export async function linkify(svg) {
   const map = await labels();
-  for (const g of svg.querySelectorAll('g.dg-xref[data-label]')) {
+  const gs = [...svg.querySelectorAll('g.dg-xref[data-label]')].filter(g => {
     const info = map[g.getAttribute('data-label')];
-    if (!info || !info.url || g.parentNode.closest('a')) continue;   // page not converted yet: inert
+    return info && info.url && !g.parentNode.closest('a');                // page not converted yet: inert
+  });
+  let badges = new Map();
+  try { badges = badgeBoxes(svg, gs); } catch (err) { /* not rendered: the fallback below */ }
+  const plan = [];
+  for (const g of gs) {
     let own;
     try { own = g.getBBox(); } catch (err) { continue; }
     if (!own.width && !own.height) continue;
+    const parent = g.parentNode, grp = badges.get(g);
+    let box = null, rx = 0;
+    if (grp) {                                           // the badge, or this reference's share of it
+      const i = grp.refs.findIndex(x => x.g === g), b = grp.box, rs = grp.refs;
+      const left = i ? (rs[i - 1].r.right + rs[i].r.left) / 2 : b.left, right = i < rs.length - 1 ? (rs[i].r.right + rs[i + 1].r.left) / 2 : b.right;
+      box = toUser(parent, { left, right, top: b.top, bottom: b.bottom });
+      if (box) rx = Math.min(box.height * 0.22, box.width / 2);
+    }
+    if (!box) {
+      // the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short text node of its own,
+      // otherwise the number itself; generous padding either way
+      let t = own;
+      if (parent.querySelectorAll('g.dg-xref').length === 1) {
+        const pb = parent.getBBox();
+        if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) t = pb;
+      }
+      const pad = Math.max(own.height * 0.5, 1.5);
+      box = { x: t.x - pad, y: t.y - pad, width: t.width + 2 * pad, height: t.height + 2 * pad };
+      rx = pad;
+    }
+    plan.push({ g, parent, box, rx, info: map[g.getAttribute('data-label')] });
+  }
+  for (const { g, parent, box, rx, info } of plan) {
     const a = document.createElementNS(SVGNS, 'a');
     a.setAttribute('href', new URL(info.url, ROOT).href);
     a.setAttribute('class', 'dg-svg-link');
     const title = document.createElementNS(SVGNS, 'title');
     title.textContent = info.num;
-    // hit area: the whole badge text ("Ch. 3", "Eq. (6.1)") when the reference sits in a short
-    // text node of its own, otherwise the number itself; generous padding either way
-    let box = own;
-    const parent = g.parentNode;
-    if (parent.querySelectorAll('g.dg-xref').length === 1) {
-      const pb = parent.getBBox();
-      if (pb.width <= own.width + 4.5 * own.height && pb.height <= 2 * own.height) box = pb;
-    }
-    const pad = Math.max(own.height * 0.5, 1.5);
     const rect = document.createElementNS(SVGNS, 'rect');
     rect.setAttribute('class', 'dg-svg-hit');
-    rect.setAttribute('x', box.x - pad);
-    rect.setAttribute('y', box.y - pad);
-    rect.setAttribute('width', box.width + 2 * pad);
-    rect.setAttribute('height', box.height + 2 * pad);
-    rect.setAttribute('rx', pad);
+    rect.setAttribute('x', box.x);
+    rect.setAttribute('y', box.y);
+    rect.setAttribute('width', box.width);
+    rect.setAttribute('height', box.height);
+    rect.setAttribute('rx', rx);
     parent.insertBefore(a, g);
     a.append(title, rect, g);
   }
@@ -402,7 +483,7 @@ const ICONS = {
 };
 const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 
-const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, opener: null,
+const V = { dlg: null, stage: null, paper: null, w: 1, h: 1, s: 1, x: 0, y: 0, fit: 1, text: 13.33, opener: null,
   pointers: new Map(), dragged: false, start: null, pinch: null, lastTap: null, raf: 0, seq: 0 };
 
 function buildViewer() {
@@ -522,10 +603,27 @@ function zoomAt(f, px, py) {
   V.x = px - (px - V.x) * k; V.y = py - (py - V.y) * k; V.s = s;
   apply();
 }
-function fitView() {
+/** The part of the stage a fitted figure may use: a margin all round, and on phones the room of the toolbar
+ *  at the bottom kept free, so that no part of the figure starts under the buttons. */
+function fitBox() {
   const W = V.stage.clientWidth, H = V.stage.clientHeight, m = W < 600 ? 12 : 40;
-  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (H - 2 * m) / V.h));
-  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = (H - V.h * V.s) / 2;
+  const tools = V.dlg.querySelector('.dg-viewer-tools'), st = V.stage.getBoundingClientRect(), tr = tools.getBoundingClientRect();
+  const low = tr.height && tr.top > st.top + H / 2 ? Math.max(m, st.bottom - tr.top + 8) : m;
+  return { W, H, m, top: m, bottom: H - low };
+}
+function fitView() {
+  const { W, m, top, bottom } = fitBox();
+  V.fit = Math.max(0.01, Math.min((W - 2 * m) / V.w, (bottom - top) / V.h));
+  V.s = V.fit; V.x = (W - V.w * V.s) / 2; V.y = top + (bottom - top - V.h * V.s) / 2;
+  apply();
+}
+/** The view a figure opens with: the whole figure, except where its text would then be too small to read and the
+ *  figure is held by its height (a tall flowchart, Figure 10.3): then fitted to the width, its top in view (B33). */
+function initialView() {
+  fitView();
+  const { W, m, top } = fitBox(), sw = (W - 2 * m) / V.w;
+  if (V.text * V.s >= TINY_TEXT_PX || sw <= V.s * 1.05) return;
+  V.s = sw; V.x = (W - V.w * V.s) / 2; V.y = top;
   apply();
 }
 function toggleZoom(px, py) {
@@ -559,16 +657,18 @@ async function openViewer(paper) {
   const kind = paper.dataset.dgKind || (img && img.dataset.kind) || '';
   V.w = +(paper.dataset.dgW || (img && (img.getAttribute('width') || img.naturalWidth))) || 1000;
   V.h = +(paper.dataset.dgH || (img && (img.getAttribute('height') || img.naturalHeight))) || 750;
+  V.text = +(paper.dataset.dgText || (img && img.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
   const alt = paper.dataset.dgAlt ?? (img ? img.getAttribute('alt') : '');
   V.dlg.setAttribute('aria-label', alt || 'Figure');
   const pic = document.createElement('img');
   pic.src = src; pic.alt = alt || ''; pic.decoding = 'async';
   V.paper.replaceChildren(pic);
-  V.opener = paper.matches('[tabindex], button') ? paper : (paper.querySelector('.dg-expand') || document.activeElement);
+  const zb = paper.querySelector(':scope > .dg-zoom:not([hidden])'), small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand:not([hidden])');
+  V.opener = paper.matches('[tabindex], button') ? paper : (zb || small || document.activeElement);
   if (!V.dlg.open) V.dlg.showModal();
   document.documentElement.classList.add('dg-viewer-open');
   V.stage.focus({ preventScroll: true });
-  fitView();
+  initialView();
   if (kind !== 'svg') return;
   const seq = ++V.seq;
   try {
@@ -580,24 +680,75 @@ async function openViewer(paper) {
   } catch (err) { /* the image stays */ }
 }
 
-/** Figure cards inside `root` become buttons that open the viewer. */
+/** Figure cards inside `root` become buttons that open the viewer (and get the zoom control, below). */
 function enableFigures(root) {
   for (const paper of root.querySelectorAll('.dg-paper')) {
-    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('role')) continue;
+    if (paper.hasAttribute('data-map') || paper.closest('.dg-interactive') || paper.hasAttribute('data-dg-zoom')) continue;
     const img = paper.querySelector('img');
     if (!img) continue;
-    paper.tabIndex = 0;
-    paper.setAttribute('role', 'button');
-    const alt = img.getAttribute('alt');
-    paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : 'Enlarge figure');
+    paper.dataset.dgZoom = 'card';
+    zoomControl(paper);
+  }
+}
+
+// ---- 3b. zoom control (B33, D10 f) ----------------------------------------------------------------
+// The converter writes on each figure's <img> the size of its ordinary text at the image's intrinsic size
+// (data-dg-text, CSS px; figtext.py); a figure without it is taken to have the notes' body size (10 pt) at the
+// PDF's scale. Where that text, shown at the figure's current width, falls below TINY_TEXT_PX, the figure gets a
+// visible labelled "Zoom" button over its top-right corner (web layer) instead of the quiet controls: the card is
+// then no button of its own (a click on it still opens the viewer), and a roadmap's small expand button hides.
+// Elsewhere nothing changes: the card is the button (and a roadmap keeps its small expand button). Measured again
+// whenever the figure changes size.
+const TINY_TEXT_PX = 8, BODY_TEXT_PX = 96 / 72 * 10;
+let zoomRO = null;
+function shownTextPx(paper) {
+  const pic = paper.querySelector(':scope > img, :scope > svg');
+  const W = +(paper.dataset.dgW || (pic && pic.getAttribute('width'))) || 0;
+  const t = +(paper.dataset.dgText || (pic && pic.getAttribute('data-dg-text'))) || BODY_TEXT_PX;
+  const w = pic ? pic.getBoundingClientRect().width : 0;
+  return W && w ? t * w / W : Infinity;
+}
+function zoomControl(paper) {
+  if (!paper.querySelector(':scope > .dg-zoom')) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dg-zoom dg-web';
+    b.hidden = true;
+    const pic = paper.querySelector('img, svg');
+    const alt = paper.dataset.dgAlt || (pic && pic.getAttribute('alt')) || '';
+    b.setAttribute('aria-label', alt ? `${WORDS.zoom}: ${alt}` : WORDS.zoom);
+    b.innerHTML = `${icon('fit')}<span>${WORDS.zoom}</span>`;
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openViewer(paper); });
+    paper.append(b);
+  }
+  updateZoom(paper);
+  if (!('ResizeObserver' in window)) return;
+  zoomRO ||= new ResizeObserver(entries => { for (const e of entries) updateZoom(e.target); });
+  zoomRO.observe(paper);
+}
+function updateZoom(paper) {
+  const tiny = shownTextPx(paper) < TINY_TEXT_PX, b = paper.querySelector(':scope > .dg-zoom');
+  paper.classList.toggle('dg-tiny', tiny);
+  if (b) b.hidden = !tiny;
+  if (paper.dataset.dgZoom === 'card') {
+    if (tiny) { paper.removeAttribute('role'); paper.removeAttribute('tabindex'); paper.removeAttribute('aria-label'); }
+    else if (paper.getAttribute('role') !== 'button') {
+      const img = paper.querySelector('img'), alt = img && img.getAttribute('alt');
+      paper.tabIndex = 0;
+      paper.setAttribute('role', 'button');
+      paper.setAttribute('aria-label', alt ? `Enlarge ${alt}` : WORDS.enlarge);
+    }
+  } else {
+    const small = paper.parentNode && paper.parentNode.querySelector(':scope > .dg-expand');
+    if (small) small.hidden = tiny;
   }
 }
 
 function initFigures() {
   enableFigures(document.querySelector('main') || document.body);
   document.addEventListener('click', e => {
-    const paper = e.target.closest && e.target.closest('.dg-paper[role="button"]');
-    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href]')) return;
+    const paper = e.target.closest && e.target.closest('.dg-paper[data-dg-zoom="card"]');
+    if (!paper || paper.closest('.dg-pop, .dg-viewer') || e.target.closest('a[href], button')) return;
     e.preventDefault();
     openViewer(paper);
   });
@@ -629,7 +780,7 @@ async function liveMap(paper) {
   const img = paper.querySelector('img');
   if (!img) return;
   Object.assign(paper.dataset, { dgSrc: img.src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '',
-    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '' });
+    dgW: img.getAttribute('width') || '', dgH: img.getAttribute('height') || '', dgText: img.getAttribute('data-dg-text') || '' });
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'dg-icon-btn dg-expand dg-web';
@@ -638,6 +789,8 @@ async function liveMap(paper) {
   btn.innerHTML = icon('fit');
   btn.addEventListener('click', () => openViewer(paper));
   paper.after(btn);                                    // outside the figure: it hides no badge
+  paper.dataset.dgZoom = 'map';
+  zoomControl(paper);                                  // where its text is tiny: the labelled button instead (3b)
   if (img.dataset.kind !== 'svg') return;
   try {
     const svg = await inlineSvg(img.src);
@@ -711,18 +864,37 @@ function drawDecor() {
 // ---- narrow screens: inline formulas wider than their line --------------------------------------
 // MathJax 3 cannot break an inline formula; one wider than the column would widen the whole page.
 // Only those (measured after typesetting) scroll sideways in place, like the display equations.
+// In a sidenote such a formula is first set smaller until it fits, never below 85 % of the note's text size
+// (D60, as displays in the text, D59); one still too wide scrolls in place (with the shadow cue of D45), and
+// its footnote is then no sidenote (initSidenotes).
+const MIN_SIDENOTE_SCALE = 0.85;
+// font size of a formula scaled by s, on top of the size MathJax gave it (kept in data-dg-fs)
+function scaleMath(m, s) {
+  if (m.dataset.dgFs === undefined) m.dataset.dgFs = m.style.fontSize;
+  const base = m.dataset.dgFs, pct = base.endsWith('%') ? parseFloat(base) : 100;
+  m.style.fontSize = s === 1 ? base : (pct * s).toFixed(1) + '%';
+}
 function fitWideInlineMath(root = document.querySelector('main')) {
   if (!root) return;
   const all = root.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
-  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; });
+  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; if (m.dataset.dgFs !== undefined) scaleMath(m, 1); });
   for (const m of all) {
     const block = m.closest('p, li, td, th, figcaption, div');
     if (!block || m.closest('.math.display, .dg-pop')) continue;
     // the run the converter glued around the formula (D44: brackets, punctuation, a footnote mark) has to
     // fit the line as a whole: the formula scrolls within what the rest of the run leaves
     const run = m.closest('.dg-nb');
-    const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
-    if (r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5)) {
+    const measure = () => {
+      const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
+      return { r, rr, b, wide: r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5) };
+    };
+    let { r, rr, b, wide } = measure();
+    if (wide && m.closest('.dg-sidenote')) {
+      const room = b.width - (rr.width - r.width) - 1;           // what the rest of the glued run leaves
+      scaleMath(m, Math.max(MIN_SIDENOTE_SCALE, Math.min(1, room / r.width)));
+      ({ r, rr, b, wide } = measure());
+    }
+    if (wide) {
       m.classList.add('dg-math-wide');
       const extra = Math.ceil(rr.width - r.width);
       if (run && extra > 0) m.style.maxWidth = `calc(100% - ${extra}px)`;
@@ -734,20 +906,29 @@ function fitWideInlineMath(root = document.querySelector('main')) {
     else if (m.dataset.dgTab) { m.removeAttribute('tabindex'); delete m.dataset.dgTab; }
   }
 }
-// A display equation slightly wider than the column is set a little smaller so that it fits
-// (never below 80% of the text size); only what is still too wide scrolls inside its own box, which shows
-// a soft shadow at the edge where more is hidden (D45; CSS only, course.css). Class dg-math-scroll marks it.
-const MIN_DISPLAY_SCALE = 0.8;
+// A display equation is set at the text size at every width (D59). One wider than its box is set smaller
+// until it fits, never below 85 % of the text size (in a sidenote too, D60); only what is still too wide scrolls
+// inside its own box, which shows a soft shadow at the edge where more is hidden (D45; CSS only, course.css).
+// Class dg-math-scroll marks it. Tables keep D48's rule (never below 80 %).
+const MIN_DISPLAY_SCALE = 0.85, MIN_TABLE_SCALE = 0.8;
 function fitDisplayMath(root = document.querySelector('main')) {
   if (!root) return;
   for (const d of root.querySelectorAll('.math.display')) {
     d.style.fontSize = '';
-    const need = d.scrollWidth, have = d.clientWidth;
-    if (need > have + 1 && have > 0) {
-      d.style.fontSize = (Math.max(MIN_DISPLAY_SCALE, (have - 2) / need) * 100).toFixed(1) + '%';
+    const min = d.closest('.dg-sidenote') ? MIN_SIDENOTE_SCALE : MIN_DISPLAY_SCALE;
+    let scale = 1;
+    for (let k = 0; k < 3 && d.scrollWidth > d.clientWidth + 1 && d.clientWidth > 0 && scale > min; k++) {
+      scale = Math.max(min, scale * (d.clientWidth - 2) / d.scrollWidth);      // rules and rounding: not exactly linear
+      d.style.fontSize = (scale * 100).toFixed(1) + '%';
     }
     const scrolls = d.scrollWidth > d.clientWidth + 1;
     d.classList.toggle('dg-math-scroll', scrolls);
+    // its equation number stays in view (sticky, course.css); its shadow goes when the end is reached
+    if (scrolls && !d.dgEnd && d.querySelector('mjx-labels')) {
+      d.dgEnd = () => d.classList.toggle('dg-scroll-end', d.scrollLeft + d.clientWidth >= d.scrollWidth - 1);
+      d.addEventListener('scroll', d.dgEnd, { passive: true });
+    }
+    if (d.dgEnd) d.dgEnd();
     if (scrolls) { d.tabIndex = 0; d.dataset.dgScroll = '1'; }        // keyboard users can scroll it too
     else if (d.dataset.dgScroll) { d.removeAttribute('tabindex'); delete d.dataset.dgScroll; }
   }
@@ -755,8 +936,8 @@ function fitDisplayMath(root = document.querySelector('main')) {
     const tb = t.firstElementChild;
     tb.style.fontSize = '';
     let scale = 1;
-    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_DISPLAY_SCALE; k++) {
-      scale = Math.max(MIN_DISPLAY_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
+    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_TABLE_SCALE; k++) {
+      scale = Math.max(MIN_TABLE_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
       tb.style.fontSize = (scale * 100).toFixed(1) + '%';
     }
     if (t.scrollWidth > t.clientWidth + 1) { t.tabIndex = 0; t.dataset.dgScroll = '1'; }
@@ -947,7 +1128,12 @@ function initScroll() {
 
 /** Footnotes as sidenotes (D33): from 1000 px each footnote is copied into the margin at the height of
  *  its mark (pushed down when it would overlap the previous one); the list at the foot of the page is
- *  hidden then, and stays the form used below 1000 px, without JavaScript and in print. */
+ *  hidden then, and stays the form used below 1000 px, without JavaScript and in print.
+ *  D60: a footnote is a sidenote only if all its math fits the note, set smaller to 85 % at most (MIN_SIDENOTE_SCALE);
+ *  otherwise its mark opens the popover, as below 1000 px, and it stays in the list at the foot of the page
+ *  (the only entries the list then shows). Decided after typesetting, at every width and on resize. The
+ *  page contains its sidenotes: when the last one ends below the text, <main> grows so that the footer
+ *  starts below it. */
 function initSidenotes() {
   const main = document.getElementById('dg-main');
   const notes = main ? [...main.querySelectorAll('.dg-footnotes .dg-fn')] : [];
@@ -971,28 +1157,39 @@ function initSidenotes() {
     main.append(box);
   };
   const layout = () => {
+    main.style.minHeight = '';
     if (!wide.matches) { H.classList.remove('dg-has-sidenotes'); return; }
     if (!box) build();
     H.classList.add('dg-has-sidenotes');
-    // the math of the notes obeys D27 in the margin too (D45 a): displays scroll in their own box, inline
-    // formulas wider than the note scroll in place; done before the heights are measured
+    // every footnote is tried in the margin: its math is set smaller until it fits the note, never below
+    // 85 % (D60); a footnote with a formula that still does not fit is no sidenote. Before heights are measured.
+    for (const n of box.children) n.hidden = false;
     fitDisplayMath(box);
     fitWideInlineMath(box);
+    for (const n of box.children) {
+      const off = !!n.querySelector('.math.display.dg-math-scroll, mjx-container.dg-math-wide');
+      n.hidden = off;
+      document.getElementById(n.dataset.for)?.classList.toggle('dg-fn-margin', !off);
+    }
     const top0 = main.getBoundingClientRect().top;
-    let floor = 0;
+    let floor = 0, end = 0;
     for (const n of box.children) {
       const ref = mark(n.dataset.for);
-      if (!ref) continue;
+      if (!ref || n.hidden) continue;
       const y = Math.max(ref.getBoundingClientRect().top - top0 - 4, floor);
       n.style.top = `${y}px`;
-      floor = y + n.offsetHeight + 14;
+      end = y + n.offsetHeight;
+      floor = end + 14;
     }
+    // the page contains its sidenotes (D60): the last one ends as far above the footer as the text does
+    const need = end ? Math.ceil(end + parseFloat(getComputedStyle(main).paddingBottom)) : 0;
+    if (need > main.offsetHeight) main.style.minHeight = `${need}px`;
   };
   // a footnote mark points at its sidenote: highlighted while the mark is hovered or focused
   const note = a => box && box.querySelector(`.dg-sidenote[data-for="${CSS.escape(a.hash.slice(1))}"]`);
   const hot = (e, on) => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn() && !a.closest('.dg-inline')) note(a)?.classList.toggle('dg-hot', on);
+    if (a && inMargin(a)) note(a)?.classList.toggle('dg-hot', on);
   };
   document.addEventListener('pointerover', e => hot(e, true));
   document.addEventListener('pointerout', e => hot(e, false));
@@ -1000,7 +1197,7 @@ function initSidenotes() {
   document.addEventListener('focusout', e => hot(e, false));
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('.dg-fnref > a');
-    if (a && sidenotesOn() && !a.closest('.dg-inline')) e.preventDefault();         // the note is beside the mark: no jump to the hidden list
+    if (a && inMargin(a)) e.preventDefault();         // the note is beside the mark: no jump to the hidden list entry
   });
   let t = 0;
   const later = () => { clearTimeout(t); t = setTimeout(layout, 120); };
@@ -1035,7 +1232,7 @@ const WORDS = {
   copy: 'Copy LaTeX', copied: 'Copied',
   search: 'Search', searchNotes: 'Search the notes', searchSite: 'Search the site',
   scopeNotes: 'These notes', scopeSite: 'Whole site', results: 'Results', noResults: 'No results',
-  map: 'Course map', enlarge: 'Enlarge figure', leftOut: '[…]',
+  map: 'Course map', enlarge: 'Enlarge figure', zoom: 'Zoom', leftOut: '[…]',
 };
 const ICON = name => `<i class="dg-i dg-i-${name}" aria-hidden="true"></i>`;
 const escHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1068,7 +1265,8 @@ function announce(text) {
 // time, so the panel cannot disagree with the page. The buttons are copied with the footnotes into the
 // sidenotes and the footnote popover; all of them work through one delegated click handler.
 const APPENDIX_PAGE = /^(proofs-and-additional-material|examples)\/(?!index\.html$)[^/]+\.html$/;
-const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, nav, .dg-web';
+// .dg-lof: the List of Figures is a list; its numbers preview the figures (D52), its captions open nothing
+const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, .dg-lof, nav, .dg-web';
 const panels = new Set();
 let panelSeq = 0;
 
@@ -1198,12 +1396,41 @@ function buildPanel(doc, target) {
   body.className = 'dg-inline-body';
   body.tabIndex = 0;                                      // it scrolls: keyboard users can scroll it too
   body.setAttribute('aria-labelledby', `${id}-t`);
-  for (const el of main.children) {
-    if (el.matches('.dg-head, .dg-prevnext, .dg-sidenotes, script')) continue;
-    body.append(adopt(document.importNode(el, true), target));
-  }
+  // the item's content only: nothing that belongs to the page (header, "Mark as read", previous/next, sidenotes, B33)
+  const kept = [...main.children].filter(el => !el.matches('.dg-head, .dg-readbar, .dg-prevnext, .dg-sidenotes, .dg-chapter-web, .dg-chapter-map, script'));
+  for (const el of kept) body.append(adopt(document.importNode(el, true), target));
+  panelFootnotes(kept, body, id);
   box.append(head, body);
   return box;
+}
+
+/** The footnotes of a panel stay in the panel, at every width: each mark and its entry in the panel's own
+ *  list (shown at its end, never in the margin) get ids of the panel, so the mark opens the popover with that
+ *  footnote and a click jumps to it, as below 1000 px on the page (D11). `src`: the elements of the fetched
+ *  page copied into `body`, whose marks and entries correspond one to one with the copies (adopt removed
+ *  their ids); if they do not, the marks stay links to the item's page. */
+function panelFootnotes(src, body, id) {
+  const all = sel => src.flatMap(el => [...(el.matches(sel) ? [el] : []), ...el.querySelectorAll(sel)]);
+  const marks = all('.dg-fnref > a[href^="#"]'), copies = [...body.querySelectorAll('.dg-fnref > a')];
+  const fns = all('.dg-footnotes .dg-fn[id]'), fnCopies = [...body.querySelectorAll('.dg-footnotes .dg-fn')];
+  if (marks.length !== copies.length || fns.length !== fnCopies.length) return;      // not the page's structure
+  const local = new Map();                                 // the page's footnote id -> the panel's
+  fns.forEach((fn, i) => {
+    const c = fnCopies[i];
+    c.id = `${id}-${fn.id}`;
+    local.set(fn.id, c.id);
+    const b = c.querySelector('.dg-fn-body');
+    if (b) b.id = `${c.id}-body`;
+  });
+  marks.forEach((a, i) => {
+    const to = local.get(decodeURIComponent(a.hash.slice(1))), c = copies[i];
+    if (!to) return;
+    c.setAttribute('href', `#${to}`);
+    if (a.id) c.id = `${id}-${a.id}`;
+    c.setAttribute('aria-describedby', `${to}-body`);
+    const back = body.querySelector(`#${CSS.escape(to)} > a.dg-fn-num`);
+    if (back && a.id) back.setAttribute('href', `#${c.id}`);
+  });
 }
 
 // ---- 9. copy LaTeX (D39) ------------------------------------------------------------------------
@@ -1559,7 +1786,7 @@ function buildMap() {
   d.className = 'dg-mapdlg dg-dlg dg-web';
   d.setAttribute('aria-label', WORDS.map);
   d.innerHTML = `<div class="dg-mapdlg-head"><span class="dg-mapdlg-sec"></span>
-      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}</button>
+      <button type="button" class="dg-icon-btn dg-expand" aria-label="${WORDS.enlarge}" title="${WORDS.enlarge}">${icon('fit')}<span class="dg-zoom-word">${WORDS.zoom}</span></button>
       <button type="button" class="dg-icon-btn dg-dlg-close" aria-label="${WORDS.closeLabel}" title="${WORDS.closeLabel}">${ICON('x')}</button></div>
     <div class="dg-mapdlg-body"><div class="dg-mapdlg-fig"><div class="dg-paper dg-mapdlg-paper"></div></div><div class="dg-mapdlg-cap"></div></div>`;
   document.body.append(d);
@@ -1589,6 +1816,9 @@ function fitMap() {
   const s = Math.max(0.05, Math.min(W / M.w, Hh / M.h));
   svg.style.width = `${Math.floor(M.w * s)}px`;
   svg.style.height = `${Math.floor(M.h * s)}px`;
+  // its text too small to read at this size (phones): the enlarge button shows its word, as figures do (3b)
+  const t = (+M.paper.dataset.dgText || BODY_TEXT_PX) * s;
+  M.dlg.querySelector('.dg-expand').classList.toggle('dg-tiny', t < TINY_TEXT_PX);
 }
 
 async function fillMap() {
@@ -1602,7 +1832,8 @@ async function fillMap() {
   const src = new URL(img.getAttribute('src'), page).href;
   M.w = +img.getAttribute('width') || M.w;
   M.h = +img.getAttribute('height') || M.h;
-  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h) });
+  Object.assign(M.paper.dataset, { dgSrc: src, dgKind: img.dataset.kind || '', dgAlt: img.getAttribute('alt') || '', dgW: String(M.w), dgH: String(M.h),
+    dgText: img.getAttribute('data-dg-text') || '' });
   // the link to the section that holds the figure, with the notes' own number and title
   const title = doc.querySelector('.dg-head .dg-title');
   const sec = M.dlg.querySelector('.dg-mapdlg-sec');

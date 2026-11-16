@@ -28,7 +28,7 @@
   --dg-ring: #3152b8; --dg-ring-fill: rgba(49, 82, 184, 0.14);   /* marks drawn on the white paper of a figure: same in both themes */
   --dg-backdrop: rgba(20, 30, 60, 0.38);                        /* behind the search and map dialogs */
   --dg-mark: rgba(255, 208, 0, 0.42);                           /* search matches */
-  --dg-scroll-shadow: rgba(20, 40, 100, 0.2);                   /* the edge of a box that scrolls sideways (D45) */
+  --dg-scroll-shadow: rgba(20, 40, 100, 0.34);                  /* the edge of a box that scrolls sideways (D45; stronger in B12-B17) */
 
   /* the notes' colours as printed (color_<name>_1 in main.tex); green, orange, yellow and olive are darkened
    * just enough to reach 4.5:1 on the paper (hue kept). The _2 shades are the notes' own in both themes. */
@@ -56,7 +56,7 @@
     --dg-ui-hover: rgba(189, 201, 237, 0.09); --dg-ui-current: rgba(142, 173, 255, 0.14);
     --dg-web-bg: rgba(142, 173, 255, 0.05); --dg-web-rule: rgba(142, 173, 255, 0.5);
     --dg-pop-bg: #1a2640; --dg-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
-    --dg-backdrop: rgba(2, 5, 12, 0.66); --dg-mark: rgba(255, 208, 0, 0.3); --dg-scroll-shadow: rgba(142, 173, 255, 0.3);
+    --dg-backdrop: rgba(2, 5, 12, 0.66); --dg-mark: rgba(255, 208, 0, 0.3); --dg-scroll-shadow: rgba(142, 173, 255, 0.45);
     --dg-color-blue-0: #cbd9ff;
     --dg-color-blue-1: #86a8ff;   --dg-color-green-1: #58cf58;  --dg-color-purple-1: #d98ad9; --dg-color-orange-1: #f2a933;
     --dg-color-red-1: #ff6b6b;    --dg-color-yellow-1: #dcdc4a; --dg-color-brown-1: #cf9a6c;  --dg-color-teal-1: #3cc6c6;
@@ -201,6 +201,7 @@ body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5r
 body.dg-page-chapter .dg-shell { display: block; font-size: 1.17rem; }
 body.dg-page-chapter .dg-main { max-width: 1120px; margin: 0 auto; padding: 2.2rem 1.25rem 5rem; }
 body.dg-page-chapter .dg-main > :not(.dg-web) { max-width: 52.65rem; }      /* 45 em of the text size (1.17rem), also for the smaller footnotes */
+body.dg-page-chapter .dg-main > .dg-prevnext { max-width: 52.65rem; }       /* previous/next as wide as the text column (B18-B22) */
 body.dg-page-chapter .dg-bar-menu { display: inline-flex; }
 body.dg-page-chapter .dg-tree { position: fixed; z-index: 41; top: 0; bottom: 0; left: 0; width: min(21rem, 88vw); max-height: none; padding-top: 1.2rem;
   background: var(--dg-bg); font-size: 0.88rem; transform: translateX(-102%); visibility: hidden; transition: transform 0.18s ease, visibility 0s linear 0.18s; }
@@ -319,6 +320,16 @@ h1.dg-title { margin: 0; padding-bottom: 0.55rem; color: var(--dg-heading); font
 .dg-motivation-lower { --dg-scroll-bg: color-mix(in srgb, #bdc9ed 14%, var(--dg-bg)); }
 .dg-inline { --dg-scroll-bg: color-mix(in srgb, var(--dg-accent) 4%, var(--dg-bg)); }
 .math.display:focus-visible { outline: 1px dashed var(--dg-rule); outline-offset: 2px; }
+/* the number of a display that scrolls stays in view (D45 b; B12-B17): MathJax sets the tags of a display in
+   a column at the right end of the formula, which then lay in the hidden part of the box (§6.3, "(6.1)" at
+   390 px). Made sticky, the column stays at the right edge of the box at rest, opaque over the formula passing
+   beneath it, and reaches its own place when the box is scrolled to its end. While formula is hidden beneath
+   it, its left edge has the shadow of D45 and a fade (course.js marks the box dg-scroll-end at the end). */
+.math.display.dg-math-scroll mjx-mtable[side="right"] > mjx-labels > mjx-itable {
+  position: sticky; display: table; margin-left: auto; background: var(--dg-scroll-bg, var(--dg-bg)); }
+.math.display.dg-math-scroll:not(.dg-scroll-end) mjx-mtable[side="right"] > mjx-labels > mjx-itable::before {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 100%; width: 1.4em; pointer-events: none;
+  background: linear-gradient(to left, var(--dg-scroll-shadow), transparent 0.9em), linear-gradient(to left, var(--dg-scroll-bg, var(--dg-bg)) 0.3em, transparent); }
 /* MathJax's own stylesheet gives display containers a 1em margin: (0,2,1) beats it */
 .math.display mjx-container[jax="CHTML"][display="true"] { margin: 0; min-width: max-content; }
 /* an inline formula (or reference) and the punctuation glued to it by the converter: no line break inside (D44) */
@@ -366,7 +377,9 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 /* footnotes: numbered as in the PDF (per chapter), listed at the foot of the page (the no-JS and print form);
  * sidenotes in the margin from 1000 px, popovers below (D33) */
 .dg-fnref { line-height: 0; }
-.dg-main .dg-fnref a { padding: 0 0.12em; font-family: var(--dg-ui); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: none; }
+/* the mark touches the word it follows, as in the PDF (LaTeX sets \footnote's mark right after the preceding
+   box): no padding on its left (B12-B17: "form ¹⁰"); the right padding keeps a little more to click */
+.dg-main .dg-fnref a { padding: 0 0.12em 0 0; font-family: var(--dg-ui); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: none; }
 .dg-footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--dg-rule); font-size: 0.9rem; color: var(--dg-text-soft); }
 .dg-fn { display: grid; grid-template-columns: 2rem minmax(0, 1fr); margin: 0.5rem 0; }   /* minmax(0, …): a wide display in a footnote scrolls in its box (D27) */
 .dg-main .dg-fn-num { text-decoration: none; font-variant-numeric: tabular-nums; }
@@ -466,7 +479,11 @@ a:has(> .dg-readmark) { position: relative; }
 @media screen {
   html.dg-has-sidenotes .dg-main { position: relative; }
   html.dg-has-sidenotes .dg-sidenotes { display: block; position: absolute; top: 0; left: 100%; width: var(--dg-margin-w); height: 100%; pointer-events: none; }
-  html.dg-has-sidenotes .dg-footnotes { display: none; }
+  html.dg-has-sidenotes #dg-main > .dg-footnotes { display: none; }       /* the page's list; a panel (D35) keeps its own */
+  /* D60: a footnote whose math does not fit the margin is no sidenote: its mark opens the popover and the
+     list at the foot of the page shows it (only those; course.js marks the others dg-fn-margin) */
+  html.dg-has-sidenotes #dg-main > .dg-footnotes:has(> .dg-fn:not(.dg-fn-margin)) { display: block; }
+  html.dg-has-sidenotes #dg-main > .dg-footnotes > .dg-fn.dg-fn-margin { display: none; }
 }
 .dg-sidenote { position: absolute; left: 2.2rem; right: 1.2rem; pointer-events: auto; font-family: var(--dg-text-font); font-size: 0.97rem; line-height: 1.42; color: var(--dg-text-soft); transition: color 0.15s; }
 /* the number ends a fixed gap before the note's text, so that two digits never touch it ("10The …") */
@@ -487,7 +504,7 @@ a:has(> .dg-readmark) { position: relative; }
 .dg-pop a { color: var(--dg-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em;
   text-decoration-color: color-mix(in srgb, var(--dg-accent) 45%, transparent); }
 .dg-pop a:hover { text-decoration-color: currentColor; }
-.dg-pop .dg-fnref a { padding: 0 0.12em; font-family: var(--dg-ui); font-weight: 700; text-decoration: none; }
+.dg-pop .dg-fnref a { padding: 0 0.12em 0 0; font-family: var(--dg-ui); font-weight: 700; text-decoration: none; }
 .dg-pop-raw .math { visibility: hidden; }                                  /* until typeset */
 .dg-pop-title { color: var(--dg-heading); font-weight: 700; font-size: 1.05rem; line-height: 1.3; }
 .dg-pop .math.display { margin: 0.3rem 0; }
@@ -500,6 +517,19 @@ a:has(> .dg-readmark) { position: relative; }
 
 /* figure cards are buttons that open the viewer */
 .dg-paper[role="button"]:focus-visible, .dg-icon-btn:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 3px; }
+/* a figure whose text is too small to read at its current width (course.js 3b, B33): a labelled "Zoom" button over
+ * its top-right corner, half on the card's edge (it covers the card's padding, hardly the figure) */
+.dg-paper { position: relative; }
+.dg-zoom { position: absolute; top: -0.85rem; right: 0.7rem; z-index: 2; display: inline-flex; align-items: center; gap: 0.3rem;
+  height: 1.75rem; padding: 0 0.75rem 0 0.55rem; border: 1.5px solid var(--dg-accent); border-radius: 999px; background: var(--dg-bg);
+  color: var(--dg-accent); font: 700 0.82rem/1 var(--dg-ui); letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 2px 8px rgba(20, 30, 60, 0.16); }
+.dg-zoom svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.dg-zoom:hover { background: var(--dg-accent); color: var(--dg-on-accent); }
+.dg-zoom:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: 2px; }
+.dg-zoom[hidden], .dg-expand[hidden] { display: none !important; }
+.dg-paper.dg-tiny:not([role]) { cursor: zoom-in; }
+.dg-landing-map .dg-paper.dg-tiny, .dg-chapter-map .dg-paper.dg-tiny { cursor: default; }
+.dg-figure:has(.dg-zoom:not([hidden])) { margin-top: 2.3rem; }
 
 /* figure viewer: a white sheet over the dimmed page; the figure is zoomed and panned in it (D10e) */
 html.dg-viewer-open { overflow: hidden; }
@@ -620,6 +650,11 @@ dialog.dg-mapdlg[open] { display: flex; flex-direction: column; }
 .dg-mapdlg-sec a:hover { color: var(--dg-accent); text-decoration: underline; }
 .dg-mapdlg-sec .dg-secnum { margin-right: 0.4em; }
 .dg-mapdlg .dg-expand { background: transparent; border: 0; }
+.dg-mapdlg .dg-zoom-word { display: none; }
+/* the roadmap's text too small at the dialog's size (phones): the button shows its word, as figures do (B33) */
+.dg-mapdlg .dg-expand.dg-tiny { width: auto; gap: 0.3rem; padding: 0 0.8rem 0 0.6rem; border: 1.5px solid var(--dg-accent); color: var(--dg-accent);
+  font: 700 0.85rem/1 var(--dg-ui); }
+.dg-mapdlg .dg-expand.dg-tiny .dg-zoom-word { display: inline; }
 .dg-mapdlg-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0.8rem; }
 .dg-mapdlg-fig { display: flex; justify-content: center; align-items: flex-start; min-width: 0; }
 .dg-main .dg-mapdlg-paper, .dg-mapdlg-paper { width: auto; min-width: 0; margin: 0; padding: 8px; cursor: default; border-radius: 8px; }
@@ -759,7 +794,13 @@ h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; fon
 .dg-tl-role { grid-row: 3; margin-top: 0.15rem; color: var(--dg-color-blue-0); font-size: 0.78em; font-weight: 700; }
 .dg-tl-place { grid-row: 4; color: color-mix(in srgb, var(--dg-text) 65%, var(--dg-bg)); font-size: 0.78em; }
 .dg-about-links { margin-top: 2.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-color-blue-0); text-align: right; font-size: 0.9em; }
-.dg-about-links p { margin: 0; }
+/* B18-B22: a link that does not fit goes to the next line whole, and the separator "·" (with its two \quad) hangs
+   in the gap before the next link: at the end of a line it falls outside the box and is clipped, so no line ends
+   or starts with it (the 3 px padding keeps the links' focus rings inside the clip) */
+.dg-about-links p { display: flex; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; overflow: clip; margin: -3px; padding: 3px; }
+.dg-about-link { white-space: nowrap; }
+.dg-about-link + .dg-about-link { margin-left: 2.6em; }
+.dg-about-sep { display: inline-block; width: 2.6em; margin-right: -2.6em; text-align: center; }
 @media (max-width: 599.98px) {
   .dg-about-band { aspect-ratio: auto; min-height: 12rem; }
   .dg-about-titles { padding: 0 7.2rem 0.9rem 1rem; }
