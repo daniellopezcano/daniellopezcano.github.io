@@ -296,9 +296,9 @@ def document(*, cfg: dict, slug: str, source: str, title: str, desc: str, crumbs
             f'{sitefoot(cfg, page_dir)}\n</body>\n</html>\n')
 
 
-def landing_main(fragments: dict) -> str:
-    """templates/landing.html (hand-written) with the generated fragments put in."""
-    tpl = open(os.path.join(HERE, 'templates', 'landing.html'), encoding='utf-8').read()
+def landing_main(fragments: dict, template: str = 'landing.html') -> str:
+    """templates/<template> (hand-written) with the generated fragments put in."""
+    tpl = open(os.path.join(HERE, 'templates', template), encoding='utf-8').read()
     tpl = re.sub(r'\A\s*<!--.*?-->\s*', '', tpl, flags=re.S)          # its header comment is for the source only
     for k, v in fragments.items():
         if '{{' + k + '}}' not in tpl:

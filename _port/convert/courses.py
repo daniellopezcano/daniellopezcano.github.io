@@ -35,6 +35,7 @@ COURSES: dict[str, dict] = {
         'label_prefix': r'^(chapter|appendix|section|subsection)_',      # dropped from labels for addresses (D2)
         'words': {'main': 'Chapter', 'appendix': 'Appendix'},           # the kicker's word for a chapter-kind page
         'textwidth_cm': 16.0,                               # A4 minus 2 x 25 mm (figure widths, table lengths)
+        'pt': 10,                                           # the notes' type size: table lengths in em (D48)
         'front': {'Chapters/Copyrigh_page.tex': 'copyright', 'Chapters/About_the_author.tex': 'about'},   # D51
         'copyright_title': 'Copyright, License and Funding',
         'lists': ('lof', 'bib'),                            # D52: \listoffigures and \bibliography make pages
@@ -64,6 +65,7 @@ COURSES: dict[str, dict] = {
         'label_prefix': r'^(sec|subsec|subsubsec|app):',
         'words': {'main': 'Section', 'appendix': 'Appendix'},
         'textwidth_cm': 21.0 - 2 * 2.54,                    # A4, 1 in margins (geometry)
+        'pt': 11,
         'front': {},
         'copyright_title': None,
         'lists': (),                                        # L4: nothing cited, no List of Figures in main.tex

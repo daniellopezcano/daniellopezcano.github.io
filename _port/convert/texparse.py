@@ -126,12 +126,14 @@ CMDS: dict[str, str] = {
     'rule': 'orr', 'phantomsection': '', 'markboth': 'rr', 'cpheading': 'm', 'grantbadge': 'm',
     # bibliography entries of main.bbl (unit B5): plainnat's block separator and a TeX penalty (n: a TeX integer)
     'newblock': '', 'penalty': 'n',
+    # Lyα notes (L13): an article's run-in heading, the Angstrom sign, \setlength (only \tabcolsep before a tabular)
+    'paragraph': 'Om', 'AA': '', 'setlength': 'rr',
 }
 for _c in ('blue', 'green', 'purple', 'orange', 'red', 'yellow', 'brown', 'teal', 'rose', 'olive', 'indigo'):
     CMDS[_c + 'one'] = 'm'
     CMDS[_c + 'two'] = 'm'
 
-STARRED = {'chapter', 'section', 'subsection', 'subsubsection', 'vspace', 'hspace', 'ref', 'caption'}
+STARRED = {'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'vspace', 'hspace', 'ref', 'caption'}
 
 # control symbols: \\ takes an optional [len]; accents take one argument
 SYMBOLS = {'\\': 'o', ',': '', ';': '', ':': '', '!': '', ' ': '', '\n': '', '&': '', '%': '', '#': '',
@@ -147,7 +149,7 @@ ENVS: dict[str, str] = {
 }
 # Environments captured as raw source and given to a dedicated handler
 RAW_ENVS = {'figure', 'tikzpicture', 'tabular', 'titlepage', 'lstlisting', 'verbatim',
-            'thebibliography'}
+            'thebibliography', 'table'}
 # Environments whose \begin and \end are markers that may stand on different pages (the appendix package's
 # `appendices` wraps every appendix, i.e. several pages): each one is read as the print-only \appendix
 MARKER_ENVS = {'appendices'}

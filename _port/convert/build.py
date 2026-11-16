@@ -1416,6 +1416,87 @@ def copy_shared() -> None:
 LANDINGS['diffgeo'] = write_landing
 
 
+def forest_svg(seed: int = 7, n: int = 150) -> str:
+    """The decorative spectrum behind the Lyα cover (web layer, aria-hidden; L14): a transmitted flux
+    F = exp(-tau) with tau a sum of Voigt-like lines at fixed pseudo-random positions (a fixed seed, so every
+    build writes the same bytes). Drawn as one polyline in a 600 x 120 box; the CSS colours it."""
+    import math
+    import random
+    rnd = random.Random(seed)
+    lines = [(rnd.uniform(0, 600), rnd.uniform(1.5, 7.0), 10 ** rnd.uniform(-0.8, 0.9)) for _ in range(46)]
+    pts = []
+    for k in range(n * 4 + 1):
+        x = 600 * k / (n * 4)
+        tau = sum(t0 * math.exp(-((x - x0) / w) ** 2) for x0, w, t0 in lines) * (0.35 + 0.65 * x / 600)
+        y = 10 + 100 * (1 - math.exp(-tau))
+        pts.append(f'{x:.1f},{y:.1f}')
+    return (f'<svg class="dg-forest" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+            f'<polyline points="{" ".join(pts)}"/></svg>')
+
+
+def write_landing_lya(front, pages, matter, ctx, files, cfg: dict, search: list):
+    """The landing page of the Lyα notes (L5, L6, L14): templates/landing-lya.html with the cover (title,
+    subtitle, version line from the preamble's macros, "Last updated"), the abstract and keywords (parsed in
+    place, so errors give file:line) and the contents; never the authors, affiliations or e-mail."""
+    import cover
+    import cover_lya
+    text = ctx.src.text
+    t = cover_lya.extract(ctx.src.preamble, text[front.a:front.b], front.a)
+    r = Renderer(ctx, front, Parser(text), {})
+    h = {k: r.inline(Parser(t[k]).parse(0, len(t[k]))) for k in cover_lya.META}
+    a, b = t['abstract']
+    abstract = r.flow(r.P.parse(a, b))
+    ka, kb = t['keywords']
+    keywords = r.inline(r.P.parse(ka, kb)).strip()
+    if r.footnotes or r.refs:
+        raise ConvertError('the title page has a footnote or a reference: no handler (cover_lya.py)', front.a)
+    cover_text = (f'<header class="dg-cover"><h1 class="dg-cover-title">{h["notetitle"]}</h1>'
+                  f'<p class="dg-cover-subtitle">{h["notesubtitle"]}</p><div class="dg-cover-rule"></div>'
+                  f'<p class="dg-cover-version">{h["noteversion"]}</p>')
+    # L6: "Last updated" = the last commit of the notes that touched a file the converted pages come from
+    used = {'main.tex'}
+    for p in pages:
+        used.update(ctx.src.loc(o)[0] for o in ctx.src.mark_off[bisect.bisect_left(ctx.src.mark_off, p.a):
+                                                                    bisect.bisect_left(ctx.src.mark_off, p.b)])
+        used.update(m.group(1).strip() for m in re.finditer(r'\\includegraphics\s*(?:\[[^\]]*\])?\s*\{([^}]+)\}', text[p.a:p.b]))
+    iso, day = cover.last_updated(SRC, NOTES, sorted(used))
+    cover_html = cover_text + f'<p class="dg-web dg-cover-date">Last updated <time datetime="{iso}">{day}</time></p></header>'
+    cover_text += '</header>'
+    abstract_html = (f'<section class="dg-abstract" aria-labelledby="dg-abstract-h"><h2 id="dg-abstract-h">Abstract</h2>'
+                     f'{abstract}<p class="dg-keywords">{keywords}</p></section>')
+    lis = []
+    for c in (p for p in pages if p.kind == 'chapter'):
+        if c.part_html:
+            lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
+        word = chapter_word(c) if c.number else WORDS['main']
+        tt = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
+        head = f'<a href="{c.slug}.html">{tt}</a>' if c.html is not None else f'<span class="dg-pending">{tt}</span>'
+        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}{shell.readmark()}</a></li>'
+                       if k.html is not None else
+                       f'<li class="dg-pending"><span class="dg-secnum">{k.number or ""}</span> {k.title_html}</li>' for k in c.children)
+        lis.append(f'<li class="dg-contents-chapter">{head}' + (f'<ul>{subs}</ul>' if subs else '') + '</li>')
+    contents = f'<nav class="dg-contents" aria-label="Contents"><ol>{"".join(lis)}</ol></nav>'
+    first = next(p for p in pages if p.html is not None)
+    index_page = Page('front', 0, 0)
+    index_page.slug = 'index'
+    frags = {name: resolve(x, index_page, ctx, {}) for name, x in
+             (('cover', cover_html), ('abstract', abstract_html), ('contents', contents), ('spectrum', forest_svg()),
+              ('start', f'{first.slug}.html'), ('cover_text', cover_text))}
+    cover_text = frags.pop('cover_text')
+    main = glue(shell.landing_main(frags, 'landing-lya.html'))
+    label = shell.course_label(cfg)
+    search.insert(0, {'objectID': f'{COURSE}/index.html', 'href': f'{COURSE}/index.html', 'title': shell.COURSE_TITLE,
+                      'section': '', 'text': text_of(cover_text + frags['abstract'])})
+    out = shell.document(cfg=cfg, slug='index', source='main.tex and _port/convert/templates/landing-lya.html',
+                         title=f'{shell.COURSE_TITLE} – {shell.SITE_NAME}', desc=shell.description(text_of(frags['abstract'])),
+                         crumbs=[f'<span aria-current="page">{esc(label)}</span>'], tree='', main=main, pos=0.0,
+                         landing=True)
+    write(os.path.join(OUT, 'index.html'), out, files)
+
+
+LANDINGS['lya'] = write_landing_lya
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--status', action='store_true')
@@ -1436,8 +1517,11 @@ def main():
 
     src = source.load(SRC)
     P = Parser(src.text)
+    import tables
+    tables.cell_macros(src.preamble)                 # the notes' cell-colour macros (L13)
     aux = read_aux(os.path.join(SRC, 'main.aux'))
-    bib = read_bbl(os.path.join(SRC, 'main.bbl'))
+    # the bibliography only where the course has a Bibliography page (Lyα DECISIONS L4: none for these notes)
+    bib = read_bbl(os.path.join(SRC, 'main.bbl')) if 'bib' in COURSE_CFG['lists'] else {}
     records = read_records(os.path.join(SRC, 'main.port'), src)
     for k, v in aux.items():
         PLAIN_NUM[k] = v['num']
@@ -1490,7 +1574,7 @@ def main():
         except ConvertError as e:
             p.error = f'{src.where(e.pos if e.pos is not None else p.a)}: {e.msg}'
             # the heading is still needed for the sidebar
-            p.number = next((n for o, c, n in records if c == p.kind and o >= p.a), None)
+            p.number = next((n for o, c, n in records if c == COURSE_CFG['pages'][p.kind] and o >= p.a), None)
             try:
                 title = P.read_args('Om', p.title_span[0], p.b, p.a)[0][1]
                 p.title_html = Renderer(ctx, p, P, {}).inline(title)

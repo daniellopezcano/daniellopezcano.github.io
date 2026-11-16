@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L2 — `_port/tex/build_scratch.sh lya-forest` (pdfLaTeX, ~1 min); compare the scratch `main.aux` labels with the author's `main.aux` and `pdftotext` of both PDFs.
+**Next action:** L6 (navbar dropdown, done before L3's end because the course pages need their navbar entry), then finish L3: full `build.py --course lya-forest`, look at every page, commit `notes/lya-forest/`.
 
 **State of the working tree:** clean after each commit; branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -9,9 +9,9 @@
 | # | Unit | Status | Checks | Commit |
 |---|---|---|---|---|
 | L0 | Plan, inventory, decisions, ledger | done | — | 41c965a |
-| L1 | Course configuration; converter/scratch build/shell take a course | done | first course: `course_unchanged.py` 150 files identical, `test_converter.py` ALL PASSED, `build.py --status` 81/81 | (this commit) |
-| L2 | Scratch LaTeX build of the Lyα notes | todo | | |
-| L3 | Converter: article structure, cut, appendices, author material, constructs | todo | | |
+| L1 | Course configuration; converter/scratch build/shell take a course | done | first course: `course_unchanged.py` 150 files identical, `test_converter.py` ALL PASSED, `build.py --status` 81/81 | 08449a0 |
+| L2 | Scratch LaTeX build of the Lyα notes | done | 57 pages, 296 records (L12); labels = author's `main.aux`; `pdftotext` = author's PDF; first course `main.port` identical | (this commit) |
+| L3 | Converter: article structure, cut, appendices, author material, constructs | in progress | `--status` 27/27 pages; first course unchanged | (this commit: part 1) |
 | L4 | Math configuration | todo | | |
 | L5 | Landing page, accent, cover | todo | | |
 | L6 | Navbar dropdown | todo | | |

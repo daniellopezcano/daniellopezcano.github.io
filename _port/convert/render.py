@@ -35,7 +35,7 @@ WRAP = {'textbf': ('<strong>', '</strong>'), 'textit': ('<em>', '</em>'), 'emph'
         'textsf': ('<span class="dg-sf">', '</span>'), 'textsc': ('<span class="dg-sc">', '</span>'),
         'textup': ('<span class="dg-up">', '</span>'), 'underline': ('<u>', '</u>'), 'mbox': ('<span class="dg-nowrap">', '</span>')}
 SYMBOL = {'S': '§', 'dots': '…', 'ldots': '…', 'textbullet': '•', 'textcopyright': '©', 'textperiodcentered': '·',
-          'checkmark': '✓', 'textbackslash': '\\', 'LaTeX': 'LaTeX', 'TeX': 'TeX',
+          'checkmark': '✓', 'textbackslash': '\\', 'LaTeX': 'LaTeX', 'TeX': 'TeX', 'AA': 'Å',
           'i': 'i', 'j': 'j',
           ',': '\u2009', ';': '\u2005', ':': '\u2005', '!': '', ' ': ' ', '\n': ' ', '&': '&amp;', '%': '%', '#': '#',
           '_': '_', '$': '$', '{': '{', '}': '}', '-': '\u00ad', '/': '', '@': '',
@@ -61,6 +61,7 @@ def configure(c: dict) -> None:
     """The course's values (courses.py, Lyα DECISIONS L9)."""
     global HEAD_LEVEL, TEXTWIDTH_CM
     HEAD_LEVEL, TEXTWIDTH_CM = dict(c['heads']), c['textwidth_cm']
+    tables.configure(c)
 NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'}
 
 _WS = re.compile(r'[^\S\u00a0]+')     # any whitespace but the no-break space of ~ (D9): it must survive
@@ -144,6 +145,7 @@ class Renderer:
         self.macros: dict[str, str] = {}      # \edef'ed numbers (footnote marks used inside math)
         self.defs: list[str] = []             # in-body \def lines, needed by later TikZ pictures
         self.arraystretch = None              # \renewcommand{\arraystretch}{x} in force (None = LaTeX's 1); for tabular
+        self.tabcolsep = None                 # \setlength{\tabcolsep}{x} in force (None = LaTeX's 6pt); for tabular
         self.local: dict[str, str] = {}       # page-local \newcommand bodies (front matter, LOCAL_SHAPE)
 
     # -- numbering ---------------------------------------------------------------
@@ -175,9 +177,9 @@ class Renderer:
                 out.append(self.math(nd))
             elif isinstance(nd, Env):
                 flush()
-                stretch = self.arraystretch       # a definition made inside an environment ends with it (TeX group)
+                stretch = (self.arraystretch, self.tabcolsep)    # a definition made inside an environment ends with it (TeX group)
                 out.append(self.env(nd))
-                self.arraystretch = stretch
+                self.arraystretch, self.tabcolsep = stretch
             elif isinstance(nd, Cmd) and nd.name in DECL:
                 flush()
                 rest = self.flow(nodes[i:])
@@ -204,9 +206,9 @@ class Renderer:
                 out.append(self.cpheading(nd))
             elif isinstance(nd, Group) and self.block_group(nd):
                 flush()                           # {\footnotesize ... \par\smallskip ... \par}: paragraphs inside
-                stretch = self.arraystretch
+                stretch = (self.arraystretch, self.tabcolsep)
                 out.append(self.flow(nd.body))
-                self.arraystretch = stretch
+                self.arraystretch, self.tabcolsep = stretch
             elif isinstance(nd, Cmd) and nd.name == 'tcblower':
                 flush()
                 out.append('\x03LOWER\x03')
@@ -241,7 +243,7 @@ class Renderer:
     def heading(self, nd: Cmd, labels: list[str]) -> str:
         level = HEAD_LEVEL[nd.name]
         title = self.inline(nd.args[1])
-        if nd.star:
+        if nd.star or nd.name == 'paragraph':    # \paragraph: unnumbered (article's secnumdepth 3; L13)
             hid = labels[0] if labels else 'sec-' + slugify(re.sub(r'<[^>]+>|\x02[^\x02]*\x02', '', title))
             html = title
         else:
@@ -263,6 +265,8 @@ class Renderer:
             return self.diagram(nd)
         if name == 'tabular':                       # a real HTML table (D48)
             return tables.tabular(self, nd.pos, nd.pos + len(nd.raw), nd.pos)
+        if name == 'table':                         # a numbered table float (L13)
+            return self.table(nd)
         if name == 'center':
             return f'<div class="dg-center">{self.flow(nd.body)}</div>'
         if name == 'quote':
@@ -482,6 +486,47 @@ class Renderer:
         frac = min(1.0, asset.get('width_frac', 1.0))
         return self.figure_html(num, fid, labels, cap.args[1:], asset, frac)
 
+    def table(self, nd: Env) -> str:
+        """A `table` float (L13): its \\centering, \\renewcommand{\\arraystretch}, \\setlength{\\tabcolsep}, one
+        tabular, one \\caption and its \\label, in source order. Numbered by the LaTeX build (counter table); the
+        caption stands where the source puts it (before or after the tabular), "Table N:" as article prints it.
+        Anything else in the float stops the page."""
+        raw, base = nd.raw, nd.pos
+        m = re.match(r'\\begin\{table\}\s*(\[[^\]]*\])?', raw)
+        a, b = base + m.end(), base + raw.rindex('\\end{table}')
+        old = (self.arraystretch, self.tabcolsep)
+        parts, labels, cap, num = [], [], None, None
+        try:
+            for c in self.P.parse(a, b):
+                if isinstance(c, Par) or (isinstance(c, Text) and not c.s.strip()):
+                    continue
+                if isinstance(c, Cmd) and c.name in ('centering', 'renewcommand', 'setlength'):
+                    if c.name != 'centering':
+                        self.inline_node(c)
+                    continue
+                if isinstance(c, Env) and c.name == 'tabular' and not any(k == 'tab' for k, _ in parts):
+                    parts.append(('tab', tables.tabular(self, c.pos, c.pos + len(c.raw), c.pos)))
+                elif isinstance(c, Cmd) and c.name == 'caption' and cap is None:
+                    num = self.take('table', c.pos)
+                    cap = c
+                    parts.append(('cap', None))
+                elif isinstance(c, Cmd) and c.name == 'label' and cap is not None:
+                    labels.append(c.args[0].strip())
+                else:
+                    raise ConvertError('table float: no handler for this content', c.pos)
+        finally:
+            self.arraystretch, self.tabcolsep = old
+        if cap is None or not any(k == 'tab' for k, _ in parts):
+            raise ConvertError('table float without one tabular and one \\caption: no handler yet', nd.pos)
+        tid = labels[0] if labels else 'tab-' + num.replace('.', '-')
+        for lab in labels:
+            self.anchors[lab] = tid
+        extra = ''.join(f'<span class="dg-anchor" id="{esc(l)}"></span>' for l in labels[1:])
+        caption = f'<figcaption><span class="dg-fignum">Table {num}:</span> {self.inline(cap.args[1])}</figcaption>'
+        body = ''.join(caption if k == 'cap' else h for k, h in parts)
+        return (f'<figure class="dg-figure dg-table-float" id="{esc(tid)}">{extra}{body}</figure>'
+                + ''.join(self.ctx.interactive(l) for l in labels))
+
     def tikz(self, snippet: str, name: str, textwidth_cm: float, boxes: bool = False) -> dict:
         """A TikZ figure body as an SVG (D10). Its \\ref's are references of this page like those of the
         text (they become links in the SVG), so the chapter opening pages count them (D38). boxes: also its named
@@ -594,9 +639,9 @@ class Renderer:
         if isinstance(nd, Math):
             return self.math(nd)
         if isinstance(nd, Group):
-            stretch = self.arraystretch           # ... and one made inside {..} ends with the group
+            stretch = (self.arraystretch, self.tabcolsep)    # ... and one made inside {..} ends with the group
             html = self.inline(nd.body)
-            self.arraystretch = stretch
+            self.arraystretch, self.tabcolsep = stretch
             return html
         if isinstance(nd, Par):
             return ' '
@@ -619,6 +664,12 @@ class Renderer:
                 self.arraystretch = a[1].strip()      # prints nothing; read by the tabular that follows
                 return ''
             raise ConvertError(f'\\renewcommand{a[0]}: no handler for this definition', nd.pos)
+        if name == 'setlength':                   # only \tabcolsep, read by the tabular that follows (L13)
+            if re.fullmatch(r'\s*\\tabcolsep\s*', a[0]):
+                tables.length_em(a[1], self.textwidth_cm, nd.pos)         # a length it can read, or stop here
+                self.tabcolsep = a[1].strip()
+                return ''
+            raise ConvertError(f'\\setlength{{{a[0]}}}: no handler for this length', nd.pos)
         if name == 'label':
             lab = a[0].strip()
             self.anchors[lab] = lab
@@ -697,7 +748,8 @@ class Renderer:
         name = name.strip()
         if re.fullmatch(r'color_[a-z]+_[012]', name):
             return f'var(--dg-{name.replace("_", "-")})'
-        if name in ('red', 'blue', 'black', 'white', 'gray'):
+        if name in ('red', 'blue', 'black', 'white', 'gray', 'cyan', 'magenta', 'yellow', 'green', 'orange', 'violet',
+                    'purple', 'teal', 'brown', 'olive', 'lime', 'pink'):     # xcolor's base names (course.css)
             return f'var(--dg-tex-{name})'
         m = re.fullmatch(r'([a-z_0-9]+)!(\d{1,2})', name)        # xcolor's c!p: p % of c, the rest white (paper)
         if m:

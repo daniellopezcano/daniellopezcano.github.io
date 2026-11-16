@@ -45,6 +45,10 @@
   --dg-color-olive-1: #5f6c10;  --dg-color-olive-2: #dde4b2;
   --dg-color-indigo-1: #3949ab; --dg-color-indigo-2: #c5cae9;
   --dg-tex-red: #d60202; --dg-tex-blue: #3859bd; --dg-tex-black: var(--dg-text); --dg-tex-white: #ffffff; --dg-tex-gray: #6b7280;
+  /* xcolor's other base colours, as xcolor defines them (the Lyα notes' table cells mix them with the paper, L13) */
+  --dg-tex-cyan: #00ffff; --dg-tex-magenta: #ff00ff; --dg-tex-yellow: #ffff00; --dg-tex-green: #00ff00; --dg-tex-orange: #ff8000;
+  --dg-tex-violet: #800080; --dg-tex-purple: #bf0040; --dg-tex-teal: #008080; --dg-tex-brown: #bf8040; --dg-tex-olive: #808000;
+  --dg-tex-lime: #bfff00; --dg-tex-pink: #ffbfbf;
   color-scheme: light;
 }
 /* the site's palette (the pilot's), for readers who prefer it; screen only: print is always on paper */
