@@ -15,7 +15,9 @@
 // and as df⌈·⌋; finite differences of f along γ_x0, δ_r0; the drawing in pixels and its raster), those of the cotangent module
 // against §4.2.1 (𝚡_i^p, 𝚢_i^p by finite differences of f in each chart, the transformation law, the pairing, the lines of
 // (df)_p crossed), those of the integration module against C.7 (the two terms of the partition of unity against Gauss–Legendre,
-// their sum against 2πR; the drawing in pixels), checks touch on a phone (D56: a swipe
+// their sum against 2πR; the drawing in pixels), drives the ehsteps panel through Figure 10.3 (D58: steps in the caption's order,
+// the viewBox on each box of figures/fig-eh-chain-rule.boxes.json plus its margin, buttons, keys, whole figure, the \ref links
+// inside the inlined SVG), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -1923,6 +1925,102 @@ async function integrationCrossChecks(page) {
   check(okc && wx < 1e-12, `𝒳(p) ∈ (0, 2π), 𝒴(p) ∈ (−π, π) with 𝒳⁻¹(α) = 𝒴⁻¹(β) = p (200 angles; p ∉ 𝒰 exactly at (R, 0), p ∉ 𝒱 at (−R, 0)); max distance ${wx.toExponential(1)}`);
 }
 
+// ---- Figure 10.3 step by step (ehsteps, B32, D58): the figure's own SVG inlined, the viewBox on one box at a time
+const EH = 'notes/diffgeo-gr/gr/einstein-hilbert.html';
+const EH_STEPS = ['Sbox', 'Abox', 'Bbox', 'Cbox', 'Dbox', 'Ebox', 'Xbox', 'Fbox', 'Gbox', 'Hbox'];      // the caption's order
+const EH_TAGS = ['', '(A)', '(B)', '(C)', '(D)', '(E)', '(∗) of (E)', '(F)', '(G)', '(H)'];               // as the figure prints them
+const EH_MARGIN = 0.7 * 72 / 2.54, EH_HOLE = 0.5 * 72 / 2.54;
+const DOCS = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'docs', 'notes', 'diffgeo-gr');
+const EH_BOXES = JSON.parse(fs.readFileSync(path.join(DOCS, 'figures', 'fig-eh-chain-rule.boxes.json'), 'utf-8'));
+const LABELS = JSON.parse(fs.readFileSync(path.join(DOCS, 'assets', 'labels.json'), 'utf-8'));
+const grow = ([x, y, w, h], m) => [x - m, y - m, w + 2 * m, h + 2 * m];
+async function testEhsteps(width) {
+  console.log(`ehsteps @ ${width}px`);
+  const { page, errors } = await open(EH, width, { module: 'ehsteps' });
+  await ready(page, 'ehsteps');
+  const fr = page.locator('.dg-interactive[data-module="ehsteps"]');
+  const pl = await placedAfter(fr, 'fig_EH_chain_rule');
+  check(pl.after, 'panel right after Figure 10.3 (fig_EH_chain_rule)');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  check(await fr.getAttribute('data-steps') === EH_STEPS.join(' '), `steps in the caption's order: ${await fr.getAttribute('data-steps')}`);
+  const svg = fr.locator('svg.dg-ehs-svg');
+  const state = async () => JSON.parse(await fr.locator('.dg-ehs').getAttribute('data-state'));
+  check(await svg.count() === 1 && await svg.evaluate(e => e.querySelectorAll('use').length > 4000 && e.getAttribute('role') === 'group' && e.getAttribute('aria-label') === 'Figure 10.3'),
+    'the figure\'s own SVG is inlined (all its glyphs), role group "Figure 10.3"');
+  // the same file as the static figure, fetched only by the panel (the static image is lazy)
+  const src = await page.locator('#fig_EH_chain_rule img').getAttribute('src');
+  check(src === '../figures/fig-eh-chain-rule.svg', `static figure ${src}`);
+  // the two \ref badges inside the figure are links to their targets (as on the roadmaps)
+  const links = await svg.evaluate(e => [...e.querySelectorAll('a.dg-svg-link')].map(a => [a.getAttribute('href'), a.querySelector('g.dg-xref').getAttribute('data-label'), a.querySelector('title').textContent]));
+  const want = ['subsection_metric_prop_parallel', 'subsection_metric_prop_det'];
+  check(links.length === 2 && want.every(l => links.some(([h, lab, t]) => lab === l && h === `${base}/notes/diffgeo-gr/${LABELS[l].url}` && t === LABELS[l].num)),
+    `the two \\ref badges are links: ${links.map(([h, l, t]) => `${l} (${t}) -> ${h.replace(base, '')}`).join(', ')}`);
+  const vb = async () => (await svg.getAttribute('viewBox')).split(' ').map(Number);
+  const near4 = (a, b, t = 2e-3) => a.length === 4 && a.every((v, i) => Math.abs(v - b[i]) <= t);
+  const hole = async () => svg.evaluate(e => { const n = e.querySelector('.dg-ehs-veil').getAttribute('d').match(/-?[\d.]+/g).map(Number); return n.slice(5, 9); });
+  async function at(k, what) {
+    const st = await state(), v = await vb(), pos = await fr.locator('.dg-ehs-pos').textContent(), h = await hole();
+    const box = EH_BOXES.boxes[EH_STEPS[k]];
+    const ok = st.k === k && st.step === EH_STEPS[k] && !st.whole && near4(v, grow(box, EH_MARGIN))
+      && near4([h[0], h[1], h[0] + h[2], h[1] + h[3]].map(Number), (([x, y, w, hh]) => [x, y, x + w, y + hh])(grow(box, EH_HOLE)))
+      && pos === `${k + 1} / 10` + (EH_TAGS[k] ? ' ' + EH_TAGS[k] : '');
+    check(ok, `${what}: step ${k + 1} "${pos}", viewBox ${v.map(x => +x.toFixed(1)).join(' ')} = ${EH_STEPS[k]} + 0.7 cm, the undimmed hole = ${EH_STEPS[k]} + 0.5 cm`);
+    return ok;
+  }
+  check(await at(0, 'start'), 'starting state: the first line');
+  check(await fr.locator('.dg-ehs-prev').getAttribute('aria-disabled') === 'true' && await fr.locator('.dg-ehs-next').getAttribute('aria-disabled') === 'false', 'Previous marked unavailable at the first step, Next available');
+  await shot(page, `ehsteps-${width}.png`, fr);
+  // buttons, with the transition (no reduced motion)
+  for (let k = 1; k < 10; k++) {
+    await fr.locator('.dg-ehs-next').click();
+    if (k === 1) { await page.waitForTimeout(90); const v = await vb(); check(!near4(v, grow(EH_BOXES.boxes.Abox, EH_MARGIN)) && !near4(v, grow(EH_BOXES.boxes.Sbox, EH_MARGIN)), 'a short transition between two steps (without prefers-reduced-motion)'); }
+    await page.waitForTimeout(420);
+    await at(k, 'Next');
+  }
+  check(await fr.locator('.dg-ehs-next').getAttribute('aria-disabled') === 'true', 'Next marked unavailable at the last step');
+  await shot(page, `ehsteps-H-${width}.png`, fr);
+  // keyboard, with reduced motion (no transition): ← / → when the panel has the focus; nothing past the ends
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await svg.focus();
+  await page.keyboard.press('ArrowRight');
+  await at(9, 'ArrowRight at the last step');
+  for (let k = 8; k >= 0; k--) { await page.keyboard.press('ArrowLeft'); if (k === 6 || k === 3 || k === 0) await at(k, 'ArrowLeft'); }
+  await page.keyboard.press('ArrowLeft');
+  await at(0, 'ArrowLeft at the first step');
+  await fr.locator('.dg-ehs-next').focus();
+  await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
+  await at(3, 'ArrowRight ×3 on the Next button (the focus is in the panel)');
+  check(await page.evaluate(() => document.activeElement && document.activeElement.classList.contains('dg-ehs-next')), 'the focus stays on Next');
+  check(page.url().endsWith('/' + EH), 'the arrow keys in the panel step it, not the page (course.js leaves them to the panel)');
+  await shot(page, `ehsteps-C-${width}.png`, fr);
+  // whole figure, and back
+  await fr.locator('.dg-ehs-whole').click();
+  let st = await state();
+  check(st.whole && near4(await vb(), EH_BOXES.viewBox) && await fr.locator('.dg-ehs-whole').getAttribute('aria-pressed') === 'true'
+    && (await hole()).every((v, i) => Math.abs(v - grow(EH_BOXES.viewBox, 1)[i]) < 2e-3),
+    `Whole figure: viewBox = the figure's (${EH_BOXES.viewBox.map(x => +x.toFixed(1)).join(' ')}), nothing dimmed, pressed`);
+  await shot(page, `ehsteps-whole-${width}.png`, fr);
+  await fr.locator('.dg-ehs-whole').click();
+  await at(3, 'Whole figure again: back to the step');
+  await fr.locator('.dg-ehs-whole').click();
+  await fr.locator('.dg-ehs-next').click();
+  await at(4, 'Next from the whole figure');
+  check(await fr.locator('.dg-ehs-whole').getAttribute('aria-pressed') === 'false', 'Whole figure no longer pressed');
+  const inStage = await fr.evaluate(f => { const s = f.querySelector('.dg-ehs-stage').getBoundingClientRect(), v = f.querySelector('svg').getBoundingClientRect(); return v.left >= s.left - 0.5 && v.right <= s.right + 0.5 && v.top >= s.top - 0.5 && v.bottom <= s.bottom + 0.5; });
+  check(inStage, 'the drawing stays inside its stage');
+  check(await fr.locator('.dg-interactive-body .dg-ehs-pos[aria-live="polite"]').count() === 1, 'the step is announced (aria-live)');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await panelFoot(page, fr, 'fig_EH_chain_rule', 'Figure 10.3', null);
+  await at(0, 'Reset -> the first line again');
+  check(await fr.locator('svg.dg-ehs-svg').count() === 1 && await fr.locator('a.dg-svg-link').count() === 2, 'Reset: one figure, its two links');
+  await svg.focus(); await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(450);
+  await at(1, 'one ArrowRight after Reset moves one step (no key handler left from the first mount)');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  await page.close();
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -2250,6 +2348,24 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // ehsteps (B32): a vertical swipe over the inlined figure scrolls the page and leaves the step as it was
+  {
+    const { page, errors } = await open(EH, 390, { touch: true, module: 'ehsteps' });
+    await ready(page, 'ehsteps');
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive[data-module="ehsteps"]');
+    const svg = fr.locator('svg.dg-ehs-svg');
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom', 'ehsteps: touch-action pan-y pinch-zoom on the figure');
+    await fr.locator('.dg-ehs-next').click(); await page.waitForTimeout(450);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const b = await svg.boundingBox(), s0 = await fr.locator('.dg-ehs').getAttribute('data-state'), y0 = await scrollY(page);
+    await swipe(page, cdp, [b.x + b.width / 2, b.y + b.height * 0.7], [b.x + b.width / 2, b.y + b.height * 0.7 - 150]);
+    const y1 = await scrollY(page);
+    check(y1 > y0 + 50 && await fr.locator('.dg-ehs').getAttribute('data-state') === s0, `ehsteps: a vertical swipe over the figure scrolls the page (scrollY ${y0} -> ${y1}) and leaves the step as it was`);
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -2283,7 +2399,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); await testIntegration(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); await testIntegration(w); await testEhsteps(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

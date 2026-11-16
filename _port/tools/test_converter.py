@@ -23,6 +23,11 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     (markup only) and their sites, entries merged by text (one chip per page), alphabetical order with "Symbols"
     first, "used in" from \\ref / \\ref* / \\pageref (not \\eqref; not inside pictures, captions excepted), the Notation table found by the title rule, the links to
     the titles with "notation", the headings, and a term in a footnote stopping the page.
+  * "steps" in interactives.json and the boxes of a TikZ figure (unit B32, D58): an entry with steps asks the figure
+    pipeline for the figure's boxes and puts the steps on the frame (data-steps); a step that is not a box, malformed
+    steps, steps with "at" or on a heading stop the build; figboxes.py on the flowchart's source (its top-level local
+    bounding boxes), on small pictures (nesting, options, comments), the log lines, and a small dvisvgm-like SVG (the
+    transform, the frame, the heading; a shifted box, a box outside the viewBox, no frame, a wrong transform stop it).
   * "at": "end" in interactives.json (unit B24, D57), on a small source of its own: the panel closes a subsection
     (before the next heading of its level, after its subsubsections and lists), or a section / subsection that runs
     to the end of the page (after its last block, footnotes kept apart; inner before outer); an entry without "at"
@@ -152,9 +157,13 @@ def main() -> int:
         def __init__(self):
             self.calls = []
 
-        def tex(self, snippet, name, textwidth_cm):
+        def tex(self, snippet, name, textwidth_cm, boxes=False):
             self.calls.append((snippet, name, textwidth_cm))
-            return {'src': f'figures/{name}.svg', 'width': 1000, 'height': 1200, 'kind': 'svg', 'width_frac': 0.99}
+            self.boxes = boxes
+            res = {'src': f'figures/{name}.svg', 'width': 1000, 'height': 1200, 'kind': 'svg', 'width_frac': 0.99}
+            if boxes:
+                res['boxes'] = {'viewBox': [0, 0, 100, 100], 'boxes': {'Abox': [1, 2, 3, 4], 'Bbox': [5, 6, 7, 8]}, 'order': ['Abox', 'Bbox']}
+            return res
     real_figures, ctx.figures = ctx.figures, FakeFigures()
     pic = '\\begin{tikzpicture}\\node {$\\EHs$ \\ref{lab_in_pic}};\\end{tikzpicture}'
     fp = ('\\begin{custompage}[Head]{53cm}{67cm}{hmargin=2.2cm, top=2.6cm}\n'
@@ -186,7 +195,87 @@ def main() -> int:
             check(f'{name} stops the page', False, 'no error')
         except ConvertError as e:
             check(f"{name} stops the page ({e.msg})", True)
+    check('figure page: built without boxes when no interactive steps through it (D58)', ctx.figures.boxes is False, ctx.figures.boxes)
+    # D58: an entry with "steps" on the figure's label asks for its boxes; the steps go to the frame as data-steps
+    saved = dict(ctx.interactives)
+    ctx.interactives = {}
+    ctx.load_interactives([{'label': 'fig_test_page', 'module': 'steps1', 'steps': ['Bbox', 'Abox']}])
+    rr, html = run(fp, {'figure': ['10.3']})
+    check('D58: a figure page whose label has "steps" is built with its boxes; the frame carries the steps in their order',
+          ctx.figures.boxes is True and 'data-module="steps1" data-for="fig_test_page" data-steps="Bbox Abox"' in html, html[-400:])
+    ctx.interactives = {}
+    ctx.load_interactives([{'label': 'fig_test_page', 'module': 'steps1', 'steps': ['Abox', 'Cbox']}])
+    try:
+        run(fp, {'figure': ['10.3']})
+        check('D58: a step that is not a box of the figure stops the page', False, 'no error')
+    except ConvertError as e:
+        check(f'D58: a step that is not a box of the figure stops the page ({e.msg[:80]}...)', 'Cbox' in e.msg)
+    for bad, why in [({'label': 'x', 'module': 'm', 'steps': 'Abox'}, 'as a string instead of a list'),
+                     ({'label': 'x', 'module': 'm', 'steps': []}, 'as an empty list'),
+                     ({'label': 'x', 'module': 'm', 'steps': ['Abox', 'Abox']}, 'with a repeated name'),
+                     ({'label': 'x', 'module': 'm', 'steps': ['Abox'], 'at': 'end'}, 'with "at"')]:
+        try:
+            ctx.load_interactives([bad])
+            check(f'D58: "steps" {why} stops the build', False, 'no error')
+        except SystemExit as e:
+            check(f'D58: "steps" {why} stops the build', 'D58' in str(e), str(e))
+    ctx.interactives = {'sec_x': [('m', None, None, ['Abox'])]}
+    try:
+        ctx.interactive('sec_x')
+        check('D58: "steps" on a heading (no TikZ figure) stops the page', False, 'no error')
+    except ConvertError as e:
+        check(f'D58: "steps" on a heading (no TikZ figure) stops the page ({e.msg[:60]}...)', True)
+    ctx.interactives = saved
+    check('D58: the real entry asks for the boxes of fig_EH_chain_rule, and only of it',
+          ctx.wants_boxes(['fig_EH_chain_rule']) and not ctx.wants_boxes(['fig_light_cones', 'fig_test_page']))
     ctx.figures = real_figures
+
+    # -- figboxes (D58): the top-level local bounding boxes of the flowchart, the typeout lines, the log, the SVG ----
+    import figboxes
+    with open(os.path.join(build.SRC, 'Chapters', 'fig_eh_chain_rule.tex'), encoding='utf-8') as f:
+        eh = f.read()
+    names = figboxes.top_level(eh)
+    check('figboxes: the flowchart\'s top-level boxes in source order (nested S1, B2, D3, D4, E2, E5 left out)',
+          names == ['Sbox', 'Abox', 'Bbox', 'Cbox', 'Dbox', 'Hbox', 'Gbox', 'Fbox', 'Ebox', 'Xbox'], names)
+    pic = ('\\begin{tikzpicture}[a/.style={x=1}]\\begin{scope}[local bounding box = P1, b={[x]}]'
+           '\\begin{scope}[local bounding box=Q]\\end{scope}\\end{scope}\\begin{scope}[c]\\end{scope}'
+           '% \\begin{scope}[local bounding box=Commented]\n\\begin{scope}[local bounding box=P2]\\end{scope}\\end{tikzpicture}')
+    check('figboxes: options with braces and brackets, nesting, a scope without a box, comments',
+          figboxes.top_level(pic) == ['P1', 'P2'], figboxes.top_level(pic))
+    ins = figboxes.insert('\\tikz{\\end{tikzpicture}}' + pic, ['P1', 'P2'])
+    check('figboxes: the typeout lines go right before the last \\end{tikzpicture}, one per box',
+          ins.endswith('\\typeout{PORTBOX P2 \\PortBx\\space\\PortBy\\space\\PortBX\\space\\PortBY}\n\\end{tikzpicture}')
+          and ins.count('PORTBOX') == 2 and ins.startswith('\\tikz{\\end{tikzpicture}}'), ins[-300:])
+    got = figboxes.parse_log('x\nPORTBOX P1 0.0pt -10.5pt 20.0pt 0.0pt\nPORTBOX P2 1.0pt -2.0pt 3.0pt 4.0pt\n', ['P1', 'P2'])
+    check('figboxes: corners read back from the log', got == {'P1': (0.0, -10.5, 20.0, 0.0), 'P2': (1.0, -2.0, 3.0, 4.0)}, got)
+    try:
+        figboxes.parse_log('PORTBOX P1 0.0pt -10.5pt 20.0pt 0.0pt\n', ['P1', 'P2'])
+        check('figboxes: a box missing from the log stops the build', False, 'no error')
+    except figboxes.BoxError as e:
+        check(f'figboxes: a box missing from the log stops the build ({e})', True)
+    # a dvisvgm-like SVG: the picture group maps pt to bp with y flipped; a frame 10 pt around a box (0,-40)-(200,0) pt,
+    # and a heading of three glyphs at its top left
+    a = 72 / 72.27
+    svg = ("<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='-12 -2 226 54'>"
+           "<defs><path id='g1-1' d='M0 0V-6H4V0Z'/></defs><g id='page1'>"
+           f"<g transform='matrix({a} 0 0 -{a} 1 10)'><path d='M-10 10H210V-50H-10Z'/>"
+           f"<g transform='matrix({1 / a} 0 0 -{1 / a} 0 0)'><use x='3' y='8' xlink:href='#g1-1'/>"
+           "<use x='9' y='8' xlink:href='#g1-1'/><use x='15' y='8.5' xlink:href='#g1-1'/>"
+           "<use x='3' y='30' xlink:href='#g1-1'/></g></g></g></svg>")
+    box = {'P': (0.0, -40.0, 200.0, 0.0)}
+    res, det = figboxes.place(svg, box)
+    want = [1.0, 10.0, round(200 * a, 3), round(40 * a, 3)]
+    check('figboxes: a box in the SVG\'s user units through the picture group\'s transform; frame and heading found',
+          res['boxes']['P'] == want and res['order'] == ['P'] and det['P']['heading_glyphs'] == 3, (res, det))
+    for why, b2, svg2 in [('a box shifted off its heading', {'P': (6.0, -40.0, 206.0, 0.0)}, svg),
+                          ('a box not inside the viewBox', box, svg.replace("viewBox='-12 -2 226 54'", "viewBox='0 0 100 54'")),
+                          ('a box without a frame', box, svg.replace("<path d='M-10 10H210V-50H-10Z'/>", '')),
+                          ('a picture group that is not pt -> bp', box, svg.replace(f'matrix({a} 0 0 -{a} 1 10)', 'matrix(1 0 0 -1 1 10)'))]:
+        try:
+            figboxes.place(svg2, b2)
+            check(f'figboxes: {why} stops the build', False, 'no error')
+        except figboxes.BoxError as e:
+            check(f'figboxes: {why} stops the build ({str(e)[:70]})', True)
 
     # -- tabular (D48) ----------------------------------------------------------------
     import tables

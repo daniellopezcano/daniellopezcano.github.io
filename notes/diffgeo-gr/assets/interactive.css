@@ -269,3 +269,21 @@ body.dg-page-chapter .dg-main > .dg-interactive { max-width: 52.65rem; }
 .dg-controls .dg-ig-r { flex: 0 1 10rem; }
 .dg-controls .dg-ig-s { flex: 1 1 13rem; }
 .dg-ig-r input[type="range"], .dg-ig-s input[type="range"] { width: 5rem; min-width: 5rem; }
+
+/* ---- Figure 10.3 step by step (ehsteps, after Figure 10.3, B32, D58): the figure's own SVG inlined, its viewBox on one panel,
+   a veil in the paper's colour with a hole over that panel; the stage keeps the proportions of the tallest step ---- */
+.dg-ehs { display: flex; flex-direction: column; gap: 0.55rem; }
+.dg-ehs-bar { justify-content: space-between; gap: 0.5rem 1rem; }
+.dg-ehs-step { gap: 0.5rem; }
+.dg-ehs-pos { min-width: 7.2em; text-align: center; white-space: nowrap; }
+.dg-ehs .dg-btn[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.dg-ehs .dg-btn[aria-pressed="true"] { background: var(--dg-accent); color: var(--dg-bg); border-color: var(--dg-accent); }
+.dg-ehs-stage { width: 100%; max-height: 72vh; overflow: hidden; touch-action: pan-y pinch-zoom; }
+.dg-ehs-svg { display: block; width: 100%; height: 100%; touch-action: pan-y pinch-zoom; }
+.dg-ehs-svg:focus { outline: none; }
+.dg-ehs-svg:focus-visible { outline: 2px solid var(--dg-accent); outline-offset: -2px; }
+.dg-ehs-veil { fill: var(--dg-paper); fill-opacity: 0.74; pointer-events: none; }
+@media (max-width: 479.98px) {
+  .dg-ehs-step { flex: 1 1 100%; justify-content: space-between; }
+  .dg-ehs-pos { min-width: 0; }
+}

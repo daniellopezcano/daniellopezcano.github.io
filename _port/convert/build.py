@@ -175,7 +175,7 @@ class Ctx:
         self.assets = {}              # figure label -> asset dict (for the landing page)
         self.captions = {}            # figure label -> {'num', 'page', 'caption', 'frac'} (chapter opening pages)
         path = os.path.join(REPO, '_port', 'interactives.json')
-        self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None, 'end' or None)
+        self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None, 'end' or None, steps or None)
         self.interactives_used = set()
         if os.path.exists(path):
             self.load_interactives(json.load(open(path, encoding='utf-8'))['interactives'])
@@ -197,17 +197,41 @@ class Ctx:
                 if it['label'] in self.aux and kind not in ('section', 'subsection'):
                     raise SystemExit(f'_port/interactives.json: "at": "end" of {it["module"]} names {it["label"]}, a {kind} label; '
                                      f'it closes a section or subsection only (D57)')
-            self.interactives.setdefault(it['label'], []).append((it['module'], nb, at))
+            steps = it.get('steps')
+            if steps is not None:
+                if (not isinstance(steps, list) or not steps or not all(isinstance(x, str) and re.fullmatch(r'[A-Za-z][\w-]*', x) for x in steps)
+                        or len(set(steps)) != len(steps)):
+                    raise SystemExit(f'_port/interactives.json: "steps" of {it["module"]} (label {it["label"]}) must be a list of '
+                                     f'distinct box names (D58)')
+                if at is not None:
+                    raise SystemExit(f'_port/interactives.json: "steps" of {it["module"]} name boxes of a figure; "at" does not go with them (D58)')
+            self.interactives.setdefault(it['label'], []).append((it['module'], nb, at, steps))
 
-    def interactive(self, label, end=False):
+    def wants_boxes(self, labels) -> bool:
+        """D58: a TikZ figure with one of these labels is built with its named boxes (an interactive steps through them)."""
+        return any(steps for lab in labels for _, _, _, steps in self.interactives.get(lab, []))
+
+    def interactive(self, label, end=False, asset=None):
         """Web-layer placeholders for the interactive figures attached to a LaTeX label: those placed right after
-        the figure or heading (end=False), or those that close the label's (sub)section (end=True, D57)."""
+        the figure or heading (end=False), or those that close the label's (sub)section (end=True, D57). An entry
+        with "steps" (D58) needs the figure's asset with its boxes (figures.py, boxes=True): every step must name
+        one of them; the steps go to the frame as data-steps."""
         out = []
-        for module, nb, at in self.interactives.get(label, []):
+        for module, nb, at, steps in self.interactives.get(label, []):
             if (at == 'end') != end:
                 continue
             self.interactives_used.add((label, module))
             nb = f' data-notebook="{esc(PACKAGE_BLOB + nb)}"' if nb else ''
+            if steps:
+                if asset is None:
+                    raise ConvertError(f'interactives.json: "steps" of {module} on {label}, which is not a TikZ figure (D58)')
+                if asset.get('kind') != 'stub':
+                    known = (asset.get('boxes') or {}).get('boxes', {})
+                    missing = [x for x in steps if x not in known]
+                    if missing:
+                        raise ConvertError(f'interactives.json: steps {missing} of {module} are not boxes of {label} '
+                                           f'(it has {list(known)}; D58)')
+                nb += f' data-steps="{esc(" ".join(steps))}"'
             out.append(f'<div class="dg-web dg-interactive" role="group" data-module="{module}" data-for="{esc(label)}"{nb} '
                        f'aria-label="Interactive figure"><div class="dg-interactive-bar"><span class="dg-badge">Interactive</span>'
                        f'</div><div class="dg-interactive-body"></div></div>')
@@ -1266,7 +1290,7 @@ def main():
     if args.no_figures or args.status or args.chapters:
         class Stub:
             def graphic(self, path, name): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub'}
-            def tex(self, snippet, name, tw=16.0): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub', 'width_frac': 1.0}
+            def tex(self, snippet, name, tw=16.0, boxes=False): return {'src': f'figures/{name}.svg', 'width': 800, 'height': 500, 'kind': 'stub', 'width_frac': 1.0}
             def image_size(self, path): return (1000, 1000)
             def crop(self, path, name, box, px, q): return {'src': f'figures/{name}.webp', 'width': 800, 'height': 500, 'kind': 'stub'}
         figures = Stub()
@@ -1359,7 +1383,7 @@ def main():
         write_page(p, ctx, where, order, files, cfg, search, chapters)
     write_landing(front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
-        mods = [m for m, _, _ in mods]
+        mods = [m for m, _, _, _ in mods]
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:
                 print(f'  WARNING interactive "{mod}" is attached to label {label}, which no converted page defines')

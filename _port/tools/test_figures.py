@@ -2,7 +2,8 @@
 """Test driver for _port/convert/figures.py. Hand-written, part of the web port.
 
 Builds the master roadmap and the variation figure of the Metric chapter with
-Figures.tex, and every graphic in plots/ and plots/exercises/ with
+Figures.tex, the Einstein-Hilbert flowchart with its boxes and without (D58: the
+boxes file, the ten boxes inside the viewBox, the same SVG bytes either way), and every graphic in plots/ and plots/exercises/ with
 Figures.graphic, into --out (default: a scratch directory under _port/.work/,
 never notes/). Checks the outputs, prints a size table, then builds everything
 a second time to check that the cache makes it a no-op. Exit status 0 = pass.
@@ -135,6 +136,13 @@ def main() -> int:
         for name, snippet, tw, refs in jobs:
             t = time.time()
             results[name] = (figs.tex(snippet, name, tw), refs, time.time() - t)
+        # D58: the Einstein-Hilbert flowchart (Figure 10.3) with its boxes, and the same picture without them
+        with open(os.path.join(SRC, 'Chapters', 'fig_eh_chain_rule.tex'), encoding='utf-8') as f:
+            eh = f.read()
+        eh = eh[:eh.index('\\end{tikzpicture}') + len('\\end{tikzpicture}')].replace('\\centering', '')
+        for name, boxes in (('fig_EH_chain_rule', True), ('fig_EH_chain_rule_plain', False)):
+            t = time.time()
+            results[name] = (figs.tex(eh, name, 48.6, boxes=boxes), collections.Counter(), time.time() - t)
         if not skip_graphics:
             files = sorted(glob.glob(os.path.join(SRC, 'plots', '*.pdf'))) + \
                 sorted(glob.glob(os.path.join(SRC, 'plots', 'exercises', '*.pdf'))) + \
@@ -173,12 +181,34 @@ def main() -> int:
                             f'--export-filename={os.path.join(out, name + ".preview.png")}', path],
                            check=True, capture_output=True)
 
+    # -- D58: boxes of the flowchart
+    info = res['fig_EH_chain_rule'][0]
+    bpath = os.path.join(out, 'fig_EH_chain_rule.boxes.json')
+    check(os.path.exists(bpath) and not os.path.exists(os.path.join(out, 'fig_EH_chain_rule_plain.boxes.json')),
+          'boxes: fig_EH_chain_rule.boxes.json written, and no boxes file for the build without boxes')
+    import json
+    bj = json.load(open(bpath, encoding='utf-8')) if os.path.exists(bpath) else {}
+    order = ['Sbox', 'Abox', 'Bbox', 'Cbox', 'Dbox', 'Hbox', 'Gbox', 'Fbox', 'Ebox', 'Xbox']
+    check(list(bj.get('boxes', {})) == order and 'do not edit' in bj.get('_generated', '') and bj.get('figure') == 'fig_EH_chain_rule.svg',
+          f'boxes: the ten top-level boxes in source order, with the generated header ({list(bj.get("boxes", {}))})')
+    vb = bj.get('viewBox', [0, 0, 0, 0])
+    check(all(vb[0] <= x and vb[1] <= y and x + w <= vb[0] + vb[2] and y + h <= vb[1] + vb[3] for x, y, w, h in bj.get('boxes', {}).values()),
+          'boxes: every box inside the viewBox')
+    eh_svg = open(os.path.join(out, 'fig_EH_chain_rule.svg'), 'rb').read()
+    check(eh_svg == open(os.path.join(out, 'fig_EH_chain_rule_plain.svg'), 'rb').read(),
+          'boxes: the SVG built with the typeout lines is byte-identical with the one built without them')
+    check(info.get('boxes', {}).get('order') == order, 'boxes: returned with the asset (the converter checks the steps against them)')
+    det = figs.stats.get('fig_EH_chain_rule', {}).get('boxes', {})
+    if det:
+        print('boxes fig_EH_chain_rule: ' + ', '.join(f'{k} {bj["boxes"][k][2]:.0f}x{bj["boxes"][k][3]:.0f} (frame {d["frame"][2]:+.2f}, '
+                                                       f'heading {d["heading_glyphs"]} glyphs)' for k, d in det.items()))
+
     # -- graphics table
     total = 0
     if not args.skip_graphics:
         print(f'\n{"file":<52} {"pdf":>6} {"pdftocairo":>14} {"dvisvgm --pdf":>14} {"chosen":<15} {"final":>6}  size(px)')
         for name, (info, _, dt) in res.items():
-            if name in ('roadmap_master', 'fig_variation_curve'):
+            if name in ('roadmap_master', 'fig_variation_curve', 'fig_EH_chain_rule', 'fig_EH_chain_rule_plain'):
                 continue
             path = os.path.join(out, os.path.basename(info['src']))
             check(os.path.exists(path), f'{name}: missing output {path}')

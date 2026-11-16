@@ -394,7 +394,7 @@ class Renderer:
             frac = self.width_frac(g.group(1) or '', nd.pos)
         else:
             snippet = '\n'.join(self.defs + [rest])
-            asset = self.tikz(snippet, slugify(fid), self.textwidth_cm)
+            asset = self.tikz(snippet, slugify(fid), self.textwidth_cm, boxes=self.ctx.wants_boxes(labels))
             frac = min(1.0, asset.get('width_frac', 1.0))
         return self.figure_html(num, fid, labels, args, asset, frac)
 
@@ -438,15 +438,16 @@ class Renderer:
         num = self.take('figure', cap.pos)
         fid = labels[0] if labels else 'fig-' + num.replace('.', '-')
         snippet = '\n'.join(self.defs + pre + [pic.raw])
-        asset = self.tikz(snippet, slugify(fid), self.textwidth_cm)
+        asset = self.tikz(snippet, slugify(fid), self.textwidth_cm, boxes=self.ctx.wants_boxes(labels))
         frac = min(1.0, asset.get('width_frac', 1.0))
         return self.figure_html(num, fid, labels, cap.args[1:], asset, frac)
 
-    def tikz(self, snippet: str, name: str, textwidth_cm: float) -> dict:
+    def tikz(self, snippet: str, name: str, textwidth_cm: float, boxes: bool = False) -> dict:
         """A TikZ figure body as an SVG (D10). Its \\ref's are references of this page like those of the
-        text (they become links in the SVG), so the chapter opening pages count them (D38)."""
+        text (they become links in the SVG), so the chapter opening pages count them (D38). boxes: also its named
+        regions (D58), for an interactive that steps through them."""
         self.refs.extend(m.strip() for m in _TIKZ_REF.findall(snippet))
-        return self.ctx.figures.tex(snippet, name, textwidth_cm)
+        return self.ctx.figures.tex(snippet, name, textwidth_cm, boxes=boxes)
 
     def figure_html(self, num: str, fid: str, labels: list[str], args: list, asset: dict, frac: float) -> str:
         """The <figure> of a numbered figure: `args` are the caption's [short] and {long} nodes."""
@@ -463,7 +464,7 @@ class Renderer:
         return (f'<figure class="dg-figure" id="{esc(fid)}">{extra}'
                 f'<div class="dg-paper" style="--dg-frac:{frac:.3f}">{img}</div>'
                 f'<figcaption><span class="dg-fignum">Figure {num}:</span> {caption}</figcaption></figure>'
-                + ''.join(self.ctx.interactive(l) for l in labels))
+                + ''.join(self.ctx.interactive(l, asset=asset) for l in labels))
 
     def diagram(self, nd: Env) -> str:
         """A tikzpicture that is not inside a figure environment: no number, no caption."""

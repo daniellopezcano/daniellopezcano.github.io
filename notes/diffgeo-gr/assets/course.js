@@ -5,7 +5,8 @@
 // tree in the page on wide screens).
 //
 //   1. popovers: footnotes below 1000 px (D11) and cross-reference previews (D25), one shared .dg-pop
-//   2. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c)
+//   2. links inside TikZ figures: <g class="dg-xref" data-label> in inlined SVGs -> <a> (D10c); inlineSvg and
+//      linkify are exported for the interactive that shows Figure 10.3 step by step (ehsteps, D58)
 //   3. figure viewer: click / Enter on a .dg-paper opens a zoom-and-pan <dialog> (D10e)
 //   4. roadmaps inlined so their badges are links (landing page; chapter opening pages, lazily, with the
 //      chapter's badges ringed, D38); cover decorations
@@ -329,7 +330,7 @@ function labels() {
 /** Fetches one of our SVG figures and returns it as a DOM node for this document.
  *  Scripts and event attributes are dropped; ids get a per-copy prefix, because dvisvgm
  *  names its glyphs alike in every file (g0-42, ...) and two inlined copies would collide. */
-async function inlineSvg(url) {
+export async function inlineSvg(url) {
   if (!svgTexts.has(url)) {
     svgTexts.set(url, fetch(url).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
       .catch(err => { svgTexts.delete(url); throw err; }));
@@ -357,7 +358,7 @@ async function inlineSvg(url) {
 }
 
 /** Turns every <g class="dg-xref" data-label> of an inlined, rendered SVG into a link. */
-async function linkify(svg) {
+export async function linkify(svg) {
   const map = await labels();
   for (const g of svg.querySelectorAll('g.dg-xref[data-label]')) {
     const info = map[g.getAttribute('data-label')];
