@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L10–L15 — wire panels 2–7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
+**Next action:** L10–L15 — wire panels 3–7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -17,8 +17,8 @@
 | L6 | Navbar dropdown | done | first course: 82 pages differ only in the navbar (`course_unchanged.py`); behaviour/look checks added to `navbar_check` in L8 | 34f7805 |
 | L7 | Site updates (Teaching, old PDF, OJALÁ) | done | full `quarto render`; `site_unchanged.py` passes with exactly these changes (L19), fails on others | (this commit) |
 | L8 | Tools and `check.sh` for both courses | done | `check.sh` covers both courses (L22); "open here" for the Lyα appendices (L23), read marks per course (L24); `test_page_script` Lyα block; first course unchanged except navbar | (this commit) |
-| L9 | Panel 1: line profile | todo | | |
-| L10 | Panel 2: optical depth along a sightline | todo | | |
+| L9 | Panel 1: line profile | done | `test_lya_interactives`: lineprofile passes at 1440/390 (controls driven through their labels) | 5577944, 06d9c87 |
+| L10 | Panel 2: optical depth along a sightline | done | `opticaldepth` (after Figure 5) + `skewer.js` (L25); test recomputes τ of Eq. (3.20) cell by cell | (this commit) |
 | L11 | Panel 3: transmission and saturation | todo | | |
 | L12 | Panel 4: observed wavelength → gas frame | todo | | |
 | L13 | Panel 5: scale factor along the photon path | todo | | |
