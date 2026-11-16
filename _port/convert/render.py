@@ -54,7 +54,7 @@ SKIPS = {'medskip': 'dg-medskip', 'smallskip': 'dg-smallskip', 'bigskip': 'dg-bi
 HEAD_LEVEL = {'subsection': 2, 'subsubsection': 3}
 NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'}
 
-_WS = re.compile(r'\s+')
+_WS = re.compile(r'[^\S\u00a0]+')     # any whitespace but the no-break space of ~ (D9): it must survive
 _REF_IN_MATH = re.compile(r'\\(eqref|ref)\*?\s*\{([^}]+)\}')
 _LABEL = re.compile(r'\\label\s*\{([^}]+)\}')
 _TIKZ_REF = re.compile(r'\\ref\*?\s*\{([^}]+)\}')
@@ -71,7 +71,8 @@ def esc(s: str) -> str:
 
 
 def typo(s: str) -> str:
-    """TeX input conventions -> the characters the PDF shows."""
+    """TeX input conventions -> the characters the PDF shows. Runs of white space become one space; a
+    no-break space (U+00A0, what the parser makes of ~) is kept as it is (D9)."""
     s = _WS.sub(' ', s)
     s = s.replace('---', '—').replace('--', '–').replace('``', '“').replace("''", '”')
     return s.replace('`', '‘').replace("'", '’')
@@ -457,14 +458,31 @@ class Renderer:
         caption = self.inline(args[1])
         short = self.inline(args[0]) if args[0] is not None else ''
         self.ctx.figure_list.append((num, self.page.slug, fid, short or caption))
-        img = (f'<img src="\x02U|{asset["src"]}\x02" alt="Figure {num}" width="{asset["width"]}" '
+        alt = f'Figure {num}: {self.alt_text(short or caption)}'
+        img = (f'<img src="\x02U|{asset["src"]}\x02" alt="{html.escape(alt, quote=True)}" width="{asset["width"]}" '
                f'height="{asset["height"]}" loading="lazy" decoding="async" data-kind="{asset["kind"]}">')
         self.ctx.assets[fid] = asset
-        self.ctx.captions[fid] = {'num': num, 'page': self.page.slug, 'caption': caption, 'frac': frac}
+        self.ctx.captions[fid] = {'num': num, 'page': self.page.slug, 'caption': caption, 'frac': frac, 'alt': alt}
         return (f'<figure class="dg-figure" id="{esc(fid)}">{extra}'
                 f'<div class="dg-paper" style="--dg-frac:{frac:.3f}">{img}</div>'
                 f'<figcaption><span class="dg-fignum">Figure {num}:</span> {caption}</figcaption></figure>'
                 + ''.join(self.ctx.interactive(l, asset=asset) for l in labels))
+
+    def alt_text(self, caption: str) -> str:
+        """A caption (rendered HTML) as plain text for the figure's alt (unit B11): tags and footnote marks
+        dropped, a formula as its TeX source without \\( \\), a reference as the number it shows, every run of
+        white space (the no-break space of ~ included) one space. The caption itself stays under the figure."""
+        def ref(m):
+            lab, kind = m.group(1), m.group(2)
+            v = self.ctx.aux.get(lab)
+            if v is None:
+                return '…'
+            return v['page'] if kind == 'pageref' else f'({v["num"]})' if kind == 'eqref' else v['num']
+        t = re.sub(r'<sup class="dg-fnref">.*?</sup>', '', caption, flags=re.S)
+        t = re.sub(r'<span class="math inline">\\\((.*?)\\\)</span>', lambda m: m.group(1).strip(), t, flags=re.S)
+        t = re.sub('\x02R\\|([^|\x02]+)\\|([a-z]+)\x02', ref, t)
+        t = html.unescape(re.sub(r'<[^>]+>', '', t))
+        return ' '.join(t.split())
 
     def diagram(self, nd: Env) -> str:
         """A tikzpicture that is not inside a figure environment: no number, no caption."""

@@ -896,7 +896,7 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
         num = f'<a class="dg-fignum" href="{rel(p.slug, slug + ".html")}#{frag}">Figure {cap["num"]}:</a>'
         out += (f'\n<div class="dg-web dg-chapter-map"><figure class="dg-figure">'
                 f'<div class="dg-paper" data-map="lazy" data-ring="chapter" style="--dg-frac:{cap["frac"]:.3f}">'
-                f'<img src="{rel(p.slug, a["src"])}" alt="Figure {cap["num"]}" width="{a["width"]}" height="{a["height"]}" '
+                f'<img src="{rel(p.slug, a["src"])}" alt="{shell.attr(cap["alt"])}" width="{a["width"]}" height="{a["height"]}" '
                 f'loading="lazy" decoding="async" data-kind="{a["kind"]}"></div>'
                 f'<figcaption>{num} {cap["caption"]}</figcaption></figure></div>')
     return out

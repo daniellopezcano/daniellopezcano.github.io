@@ -711,18 +711,36 @@ function drawDecor() {
 // ---- narrow screens: inline formulas wider than their line --------------------------------------
 // MathJax 3 cannot break an inline formula; one wider than the column would widen the whole page.
 // Only those (measured after typesetting) scroll sideways in place, like the display equations.
+// In a sidenote (D59) such a formula is first set smaller until it fits, never below 75 % of the note's
+// text size; only one still too wide then scrolls in place (with the shadow cue of D45).
+const MIN_SIDENOTE_SCALE = 0.75;
+// font size of a formula scaled by s, on top of the size MathJax gave it (kept in data-dg-fs)
+function scaleMath(m, s) {
+  if (m.dataset.dgFs === undefined) m.dataset.dgFs = m.style.fontSize;
+  const base = m.dataset.dgFs, pct = base.endsWith('%') ? parseFloat(base) : 100;
+  m.style.fontSize = s === 1 ? base : (pct * s).toFixed(1) + '%';
+}
 function fitWideInlineMath(root = document.querySelector('main')) {
   if (!root) return;
   const all = root.querySelectorAll('mjx-container[jax="CHTML"]:not([display="true"])');
-  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; });
+  all.forEach(m => { m.classList.remove('dg-math-wide'); m.style.maxWidth = ''; if (m.dataset.dgFs !== undefined) scaleMath(m, 1); });
   for (const m of all) {
     const block = m.closest('p, li, td, th, figcaption, div');
     if (!block || m.closest('.math.display, .dg-pop')) continue;
     // the run the converter glued around the formula (D44: brackets, punctuation, a footnote mark) has to
     // fit the line as a whole: the formula scrolls within what the rest of the run leaves
     const run = m.closest('.dg-nb');
-    const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
-    if (r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5)) {
+    const measure = () => {
+      const r = m.getBoundingClientRect(), rr = run ? run.getBoundingClientRect() : r, b = block.getBoundingClientRect();
+      return { r, rr, b, wide: r.width && (rr.right > b.right + 0.5 || rr.left < b.left - 0.5) };
+    };
+    let { r, rr, b, wide } = measure();
+    if (wide && m.closest('.dg-sidenote')) {
+      const room = b.width - (rr.width - r.width) - 1;           // what the rest of the glued run leaves
+      scaleMath(m, Math.max(MIN_SIDENOTE_SCALE, Math.min(1, room / r.width)));
+      ({ r, rr, b, wide } = measure());
+    }
+    if (wide) {
       m.classList.add('dg-math-wide');
       const extra = Math.ceil(rr.width - r.width);
       if (run && extra > 0) m.style.maxWidth = `calc(100% - ${extra}px)`;
@@ -734,17 +752,20 @@ function fitWideInlineMath(root = document.querySelector('main')) {
     else if (m.dataset.dgTab) { m.removeAttribute('tabindex'); delete m.dataset.dgTab; }
   }
 }
-// A display equation slightly wider than the column is set a little smaller so that it fits
-// (never below 80% of the text size); only what is still too wide scrolls inside its own box, which shows
-// a soft shadow at the edge where more is hidden (D45; CSS only, course.css). Class dg-math-scroll marks it.
-const MIN_DISPLAY_SCALE = 0.8;
+// A display equation is set at the text size at every width (D59). One wider than its box is set smaller
+// until it fits, never below 85 % of the text size (75 % in a sidenote); only what is still too wide scrolls
+// inside its own box, which shows a soft shadow at the edge where more is hidden (D45; CSS only, course.css).
+// Class dg-math-scroll marks it. Tables keep D48's rule (never below 80 %).
+const MIN_DISPLAY_SCALE = 0.85, MIN_TABLE_SCALE = 0.8;
 function fitDisplayMath(root = document.querySelector('main')) {
   if (!root) return;
   for (const d of root.querySelectorAll('.math.display')) {
     d.style.fontSize = '';
-    const need = d.scrollWidth, have = d.clientWidth;
-    if (need > have + 1 && have > 0) {
-      d.style.fontSize = (Math.max(MIN_DISPLAY_SCALE, (have - 2) / need) * 100).toFixed(1) + '%';
+    const min = d.closest('.dg-sidenote') ? MIN_SIDENOTE_SCALE : MIN_DISPLAY_SCALE;
+    let scale = 1;
+    for (let k = 0; k < 3 && d.scrollWidth > d.clientWidth + 1 && d.clientWidth > 0 && scale > min; k++) {
+      scale = Math.max(min, scale * (d.clientWidth - 2) / d.scrollWidth);      // rules and rounding: not exactly linear
+      d.style.fontSize = (scale * 100).toFixed(1) + '%';
     }
     const scrolls = d.scrollWidth > d.clientWidth + 1;
     d.classList.toggle('dg-math-scroll', scrolls);
@@ -755,8 +776,8 @@ function fitDisplayMath(root = document.querySelector('main')) {
     const tb = t.firstElementChild;
     tb.style.fontSize = '';
     let scale = 1;
-    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_DISPLAY_SCALE; k++) {
-      scale = Math.max(MIN_DISPLAY_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
+    for (let k = 0; k < 4 && t.scrollWidth > t.clientWidth + 1 && t.clientWidth > 0 && scale > MIN_TABLE_SCALE; k++) {
+      scale = Math.max(MIN_TABLE_SCALE, scale * (t.clientWidth - 2) / t.scrollWidth);    // rules and rounding: not exactly linear
       tb.style.fontSize = (scale * 100).toFixed(1) + '%';
     }
     if (t.scrollWidth > t.clientWidth + 1) { t.tabIndex = 0; t.dataset.dgScroll = '1'; }

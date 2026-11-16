@@ -96,6 +96,23 @@ def main() -> int:
     missing = build.resolve('\x02R|no_such_label|pageref\x02', page, ctx, where)
     check('missing label: "in preparation" marker (D17)', 'class="dg-inprep"' in missing and 'in preparation' in missing, missing)
 
+    # -- ~ is a no-break space (D9; fixed in unit B10) ------------------------------------------
+    nb = '\u00a0'                                     # what the parser makes of ~
+    check('~ before \\pageref: a no-break space (U+00A0), not a plain space', pre == '(page' + nb, pre)
+    tex = f'See Figure~\\ref{{{lab}}}, by L.~D.~Landau \t and E.{nb}M. Lifshitz.'
+    Q = Parser(tex)
+    html = Renderer(ctx, page, Q, {}).inline(Q.parse(0, len(tex)))
+    check('~ (and a literal U+00A0) survive typo(); other runs of white space become one plain space',
+          html.count(nb) == 4 and f'L.{nb}D.{nb}Landau and E.{nb}M. Lifshitz.' in html
+          and html.startswith(f'See Figure{nb}\x02R|') and '  ' not in html and '\t' not in html, html)
+    glued = build.glue(build.resolve(html, page, ctx, where))
+    check('D44 glue with ~: the no-break space stays before the glued run (reference + comma), text unchanged',
+          f'Figure{nb}<span class="dg-nb"><a class="dg-xref" href="#{lab}"' in glued
+          and build.text_of(glued.replace('<span class="dg-nb">', '').replace('</span>', ''))
+          == build.text_of(glued), glued)
+    check('search text and descriptions: the no-break space becomes a plain space (text_of)',
+          nb not in build.text_of(glued) and 'L. D. Landau and E. M. Lifshitz.' in build.text_of(glued), build.text_of(glued))
+
     # -- \renewcommand{\arraystretch}{x} ------------------------------------------------------
     tex = ('\\begin{center}\n\\renewcommand{\\arraystretch}{1.3}\nA\n\\end{center}\nB '
            '{\\renewcommand{\\arraystretch}{2}C} D \\renewcommand\\arraystretch{1.5}E')
@@ -175,7 +192,18 @@ def main() -> int:
     snip, name, tw = ctx.figures.calls[0] if ctx.figures.calls else ('', '', 0)
     check('figure page: one numbered <figure> with the label as id, number from the records, caption',
           html.startswith('<figure class="dg-figure" id="fig_test_page">') and '<span class="dg-fignum">Figure 10.3:</span> Long, see' in html
-          and 'alt="Figure 10.3"' in html and not rr.rec['figure'] and rr.anchors.get('fig_test_page') == 'fig_test_page', html)
+          and 'alt="Figure 10.3: Short (§…)"' in html and not rr.rec['figure'] and rr.anchors.get('fig_test_page') == 'fig_test_page', html)
+    tex = (f'\\captionof{{figure}}[Map $f\\colon A\\to B$, $a<b$ \\& Figure~\\ref{{{lab}}}\\footnote{{N.}} '
+           f'(eq.~\\eqref{{{lab}}}, page~\\pageref{{{lab}}}, \\textbf{{bold}} \\ref{{no_such_label}})]{{Long.}}')
+    Q = Parser(tex)
+    ar = Renderer(ctx, page, Q, {'footnote': ['7']})
+    alt = ar.alt_text(ar.inline(Q.parse(0, len(tex))[0].args[1]))
+    check('figure alt (B11): the caption\'s short form as plain text: TeX of a formula without \\( \\), numbers of '
+          'references, no footnote mark, entities decoded, one plain space for ~',
+          alt == f'Map f\\colon A\\to B, a<b & Figure {aux[lab]["num"]} (eq. ({aux[lab]["num"]}), page {aux[lab]["page"]}, '
+                 'bold …)', alt)
+    check('figure alt (B11): <img alt="Figure <n>: <short caption>">, attribute-escaped',
+          '<img src="\x02U|figures/fig-test-page.svg\x02" alt="Figure 10.3: Short (§…)"' in html, html)
     check('figure page: snippet = local definitions in source order, then the picture; text width of the custompage',
           snip == ('\\def\\EHs{\\textrm{s}}\n\\def\\EHgo#1#2{\\coordinate (here) at (#1,#2);}\n\\colorlet{EHup}{color_blue_1}\n'
                    '\\pgfdeclarelayer{EHback}\n\\pgfsetlayers{EHback,main}\n' + pic)

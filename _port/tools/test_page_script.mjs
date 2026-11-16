@@ -700,12 +700,25 @@ try {
   // R10c (D44, D45 a): on every page at 1440 and 390 px, no rendered line of the notes' text begins with , . ; : ) ]
   // or a hyphen right after an inline formula or a reference (or with a footnote mark after one), and none ends
   // with a lone ( or [ before one; at 1440, no math in a sidenote is wider than the note unless it is in a scroll box,
-  // and no two sidenotes overlap.
+  // and no two sidenotes overlap. D59: a display of the text is at the text size or shrunk to fit, never below 85 %,
+  // and scrolls only at 85 %; math in a sidenote is shrunk to fit, never below 75 %, and scrolls only at 75 %.
   {
     const { coursePages, pool } = await import('./course_pages.mjs');
     const all = coursePages();
     const audit = () => {
-      const main = document.getElementById('dg-main'), out = { breaks: [], notes: [] };
+      const main = document.getElementById('dg-main'), out = { breaks: [], notes: [], sizes: [] };
+      // D59: the scale course.js applied (display: its font-size; inline: over MathJax's own size, data-dg-fs)
+      const scaleOf = m => m.matches('.math.display') ? (parseFloat(m.style.fontSize) || 100) / 100
+        : (parseFloat(m.style.fontSize) || 100) / (parseFloat(m.dataset.dgFs) || 100);
+      const sizeRule = (m, floor, where) => {
+        const s = scaleOf(m), scrolls = (m.matches('.math.display') || m.classList.contains('dg-math-wide')) && m.scrollWidth > m.clientWidth + 1;
+        if (s < floor - 0.002) out.sizes.push(`${where}: math at ${s.toFixed(3)} < ${floor}`);
+        if (scrolls && s > floor + 0.002) out.sizes.push(`${where}: math scrolls at ${s.toFixed(3)} before reaching ${floor}`);
+      };
+      for (const d of main.querySelectorAll('.math.display')) {
+        if (d.closest('.dg-sidenotes, .dg-pop') || !d.getBoundingClientRect().width) continue;
+        sizeRule(d, 0.85, 'text display');
+      }
       const BLOCK = 'p, li, div, h1, h2, h3, figcaption, td, th, blockquote';
       const tw = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
       const skipText = n => n.parentElement.closest('.dg-open-here') || !n.data.length;
@@ -740,6 +753,7 @@ try {
           const box = m.closest('.math.display') || (m.matches('mjx-container.dg-math-wide') ? m : null);
           const mr = (box || m).getBoundingClientRect();
           if (mr.right > r.right + 1 || mr.left < r.left - 1) out.notes.push(`sidenote ${note.dataset.n}: math wider than the note${box ? ' (its scroll box too)' : ''}`);
+          if (m.matches('.math.display') || (m.matches('mjx-container') && !m.closest('.math.display'))) sizeRule(m, 0.75, `sidenote ${note.dataset.n}`);
         }
       }
       return out;
@@ -757,6 +771,8 @@ try {
       const breaks = res.filter(([, r]) => r.breaks.length), notes = res.filter(([, r]) => r.notes.length);
       ok(!breaks.length, `@${width} D44: no line of the notes' text begins with punctuation after a formula or reference, or ends with a lone bracket before one (${all.length} pages)${breaks.length ? ': ' + breaks.slice(0, 6).map(([s, r]) => `${s}: ${r.breaks.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
       if (width >= 1000) ok(!notes.length, `@${width} D45: sidenote math stays within its note (or scrolls in its own box), no overlapping sidenotes${notes.length ? ': ' + notes.slice(0, 6).map(([s, r]) => `${s}: ${r.notes.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
+      const sizes = res.filter(([, r]) => r.sizes.length);
+      ok(!sizes.length, `@${width} D59: displays at the text size or shrunk to fit (floor 85 %, sidenotes 75 %), scrolling only at the floor${sizes.length ? ': ' + sizes.slice(0, 6).map(([s, r]) => `${s}: ${r.sizes.slice(0, 2).join('; ')}`).join(' | ') : ''}`);
     }
   }
   // console errors and horizontal overflow

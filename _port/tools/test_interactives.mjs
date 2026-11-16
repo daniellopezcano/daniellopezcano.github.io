@@ -1945,8 +1945,8 @@ async function testEhsteps(width) {
   check(await fr.getAttribute('data-steps') === EH_STEPS.join(' '), `steps in the caption's order: ${await fr.getAttribute('data-steps')}`);
   const svg = fr.locator('svg.dg-ehs-svg');
   const state = async () => JSON.parse(await fr.locator('.dg-ehs').getAttribute('data-state'));
-  check(await svg.count() === 1 && await svg.evaluate(e => e.querySelectorAll('use').length > 4000 && e.getAttribute('role') === 'group' && e.getAttribute('aria-label') === 'Figure 10.3'),
-    'the figure\'s own SVG is inlined (all its glyphs), role group "Figure 10.3"');
+  check(await svg.count() === 1 && await svg.evaluate(e => e.querySelectorAll('use').length > 4000 && e.getAttribute('role') === 'group' && /^Figure 10\.3: \S/.test(e.getAttribute('aria-label') || '')),
+    'the figure\'s own SVG is inlined (all its glyphs), role group labelled with the figure\'s alt ("Figure 10.3: <short caption>", B11)');
   // the same file as the static figure, fetched only by the panel (the static image is lazy)
   const src = await page.locator('#fig_EH_chain_rule img').getAttribute('src');
   check(src === '../figures/fig-eh-chain-rule.svg', `static figure ${src}`);
