@@ -45,6 +45,9 @@ entries reduced like the text, after the class's \\bibname ("Bibliography"), the
 Figures page is checked only for its title (\\listfigurename, "List of Figures"): its entries are the
 figures' short captions, which LaTeX writes to main.lof, not text of the page's source segment, and the
 converter already checks them figure by figure against main.lof (D52); so `ol.dg-lof` is skipped.
+Definitions and notation (D53, `definitions.html`) is not checked: it is web layer throughout and not a span
+of the source (it is not in the previous/next chain either); the only text of the notes on it, the Notation
+table and the terms, are copies of text that is checked where it stands (EXCLUDED).
 Cases that need no allow entry because both streams agree: \\pageref prints the PDF's page number (D47),
 the caption of Figure 10.3 (\\captionof, D50), the tables (D48), the copyright page (D51).
 
@@ -980,6 +983,11 @@ def page_tokens(html: str):
     return final, p.prev, p.next
 
 
+# pages that are not checked, with the reason (see the header)
+EXCLUDED = {'definitions': 'Definitions and notation (D53): web layer; its Notation table and terms are copies '
+                           'of text checked on its own page'}
+
+
 def page_order():
     """Slugs in the notes' order: the landing page, then the previous/next chain from the page without a
     previous link."""
@@ -989,6 +997,8 @@ def page_order():
             if n.endswith('.html'):
                 path = os.path.join(root, n)
                 slug = os.path.relpath(path, COURSE)[:-5].replace(os.sep, '/')
+                if slug in EXCLUDED:
+                    continue
                 pages[slug] = page_tokens(open(path, encoding='utf-8').read())
     firsts = [s for s, (_, prev, _n) in pages.items() if prev is None and s != 'index']
     if len(firsts) != 1:

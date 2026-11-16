@@ -19,6 +19,10 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
   * List of Figures and Bibliography (unit B5, D52): where main.tex places them (page order, course tree),
     main.lof parsed and compared with the converter's figures (a mismatch stops the page), the entries of
     main.bbl (accents, \\emph, \\url, --, \\penalty0, \\newblock, ids) and the forms that stop the page.
+  * Definitions and notation (unit B35, D53), on a small source of its own: ids term-<k> on the term spans
+    (markup only) and their sites, entries merged by text (one chip per page), alphabetical order with "Symbols"
+    first, "used in" from \\ref / \\ref* / \\pageref (not \\eqref; not inside pictures, captions excepted), the Notation table found by the title rule, the links to
+    the titles with "notation", the headings, and a term in a footnote stopping the page.
 """
 from __future__ import annotations
 import os
@@ -314,6 +318,13 @@ def main() -> int:
     check('course tree: the front and back matter group, in the notes\' order',
           group is not None and _re.findall(r'>([^<>]+)</a>', group.group(1))
           == ['Copyright, License and Funding', 'List of Figures', 'About the Author', 'Bibliography'], tree[-600:])
+    dpage = build.Page('back', len(src.text), len(src.text))
+    dpage.role, dpage.slug, dpage.title_html, dpage.html = 'defs', build.DEFS_SLUG, build.DEFS_TITLE, ''
+    tree = build.course_tree(order[-1], order + [dpage], [])
+    group = _re.search(r'<ol class="dg-tree-list dg-tree-matter">(.*?)</ol>', tree)
+    check('course tree: Definitions and notation (D53) ends the group, after the Bibliography',
+          group is not None and _re.findall(r'>([^<>]+)</a>', group.group(1))[-2:] == ['Bibliography', 'Definitions and notation'],
+          tree[-600:])
     for q in order:
         q.html = None
 
@@ -384,6 +395,104 @@ def main() -> int:
     line = ctx.bib['Poisson_2004']['line']
     check('main.bbl line of an entry is where its text starts',
           open(bbl, encoding='utf-8').read().split('\n')[line - 1].startswith('Eric Poisson.'), line)
+
+    # -- Definitions and notation (unit B35, D53) ----------------------------------------------------
+    import types
+    T = ('\\chapter{Ch}\\label{chapter_X}\n'
+         '\\section{Alpha}\\label{section_A}\nAn \\blueone{Basis} here.\n'
+         '\\subsection{{Notation}}\\label{nt_A}\nA \\greentwo{$\\mathbb{R}$-vector space} and '
+         '\\begin{tabular}{c|c} $x$ & y \\\\ \\hline a & \\redone{b} \\end{tabular}\n'
+         '\\subsection{Other}\nAn \\purpleone{atlas} and \\begin{tabular}{c} z \\end{tabular}\n'
+         '\\section{Beta and more notation}\\label{section_B}\nThe \\blueone{basis}, see \\ref{nt_A}. Again \\blueone{Basis}.\n'
+         '\\subsection{Notations used}\\label{nt_B}\nA \\redone{(multi-)linear} map, \\eqref{section_A}.\n'
+         '\\section{Gamma}\\label{section_C}\nAs in \\ref*{nt_A} and \\pageref{section_A}; \\blueone{ basis } and '
+         '\\oliveone{$ C^\\infty $-compatible}.\n')
+    tctx = build.Ctx(types.SimpleNamespace(text=T, where=lambda pos: f'test:{pos}'), {}, {}, None)
+    TP = Parser(T)
+    tch = build.Page('chapter', 0, T.index('\\section{Alpha}'))
+    tch.number, tch.slug, tch.title_html = '2', 'ch/index', 'Ch'
+    cuts = [T.index(x) for x in ('\\section{Alpha}', '\\section{Beta', '\\section{Gamma}')] + [len(T)]
+    tpages = []
+    for (a, b), num, sub in zip(zip(cuts, cuts[1:]), ('2.1', '2.2', '2.3'), (['2.1.1', '2.1.2'], ['2.2.1'], [])):
+        q = build.Page('section', a, b)
+        q.parent, q.slug = tch, f'ch/s{num[-1]}'
+        q.label = build.LABEL_AFTER.match(T, T.index('}', a) + 1).group(1)
+        build.render_page(q, tctx, TP, {'section': [num], 'subsection': list(sub)})
+        tpages.append(q)
+    tch.html = ''
+    s1, s2, s3 = tpages
+    ids = _re.findall(r'<span class="dg-term dg-term-(\w+)" id="(term-\d+)">', s1.html)
+    check('D53: every term span of a page gets id term-<k>, k in the order of the page (table cells included)',
+          ids == [('blue', 'term-1'), ('green2', 'term-2'), ('red', 'term-3'), ('purple', 'term-4')], ids)
+    check('D53: only markup is added (the page without the ids is the page as before)',
+          _re.sub(r' id="term-\d+"', '', s1.html).count('class="dg-term') == 4
+          and build.text_of(s1.html) == build.text_of(_re.sub(r' id="term-\d+"', '', s1.html)), s1.html[:200])
+    check('D53: the site of a term is its labelled \\subsection, else the page\'s label',
+          [t['site'] for t in s1.terms] == ['section_A', 'nt_A', 'nt_A', 'section_A'] and [t['site'] for t in s2.terms] == ['section_B', 'section_B', 'nt_B'],
+          ([t['site'] for t in s1.terms], [t['site'] for t in s2.terms]))
+    parts = lambda h: build._term_parts(h)
+    check('D53: one entry per term text: case-insensitive, whitespace collapsed, formulas by their source without spaces',
+          build.term_key(parts('Basis')) == build.term_key(parts(' basis ')) == 'basis'
+          and build.term_key(parts('<span class="math inline">\\( C^\\infty \\)</span>-compatible'))
+          == build.term_key(parts('<span class="math inline">\\(C^\\infty\\)</span>-compatible'))
+          and build.term_key(parts('<span class="math inline">\\(M\\)</span>')) != build.term_key(parts('<span class="math inline">\\(m\\)</span>')))
+    names = ['Basis', 'atlas', '(multi-)linear', '<span class="math inline">\\(\\mathbb{R}\\)</span>-vector space',
+             'chart map', 'Charts', '(smooth) <span class="math inline">\\((r,s)\\)</span>-tensor field',
+             '<span class="math inline">\\((0,2)\\)</span>-tensor', 'smooth atlas', 'Élan']
+    got = [n for n in sorted(names, key=lambda n: build.term_sort(parts(n)))]
+    check('D53: alphabetical by letters (TeX, case and leading brackets ignored), formulas first under Symbols',
+          got == [names[7], names[3], names[1], names[0], names[4], names[5], names[9], names[2], names[8], names[6]]
+          and [build.term_sort(parts(n))[0] for n in got][:3] == ['', '', 'A'] and build.term_sort(parts('Élan'))[0] == 'E', got)
+    dp = build.Page('back', len(T), len(T))
+    dp.role, dp.slug = 'defs', build.DEFS_SLUG
+    build.render_defs(dp, tctx, [tch] + tpages)
+    h = dp.html
+    tables = _re.findall(r'<div class="dg-defs-table">.*?</table></div></div>', h, _re.S)
+    check('D53: Notation = the tables of a (sub)section titled "Notation", labelled with its number and title, ids removed',
+          len(tables) == 1 and '<a href="\x02U|ch/s1#nt_A\x02"><span class="dg-secnum">2.1.1</span> Notation</a>' in tables[0]
+          and '>y</th>' in tables[0] and ' z ' not in tables[0] and 'z</td>' not in tables[0] and ' id=' not in tables[0], tables)
+    links = _re.search(r'<ul class="dg-web dg-defs-links">(.*?)</ul>', h)
+    check('D53: then links to every section and subsection whose title contains "notation", in the notes\' order',
+          links is not None and _re.findall(r'href="\x02U\|([^\x02]+)\x02"', links.group(1)) == ['ch/s1#nt_A', 'ch/s2', 'ch/s2#nt_B'],
+          links and links.group(1))
+    entry = lambda word: next((li for li in _re.findall(r'<li><span class="dg-term.*?</li>', h)
+                               if _re.sub(r'<[^>]+>', '', li.split('<span class="dg-defs-at">')[0]).strip().casefold() == word), '')
+    b = entry('basis')
+    chips = lambda s, kind: _re.findall(rf'href="\x02U\|([^\x02]+)\x02" data-kind="{kind}" title="[^"]*">([^<]+)</a>', s)
+    check('D53: occurrences merged (Basis, basis, " basis "), one chip per page (twice on 2.2: one chip, to the first), '
+          'its page number linked to #term-<k>, first spelling shown',
+          b.startswith('<li><span class="dg-term dg-term-blue">Basis</span>')
+          and chips(b, 'term') == [('ch/s1#term-1', '2.1'), ('ch/s2#term-1', '2.2'), ('ch/s3#term-1', '2.3')], b)
+    used = lambda li: chips(li.split('dg-defs-used')[1], 'page') if 'dg-defs-used' in li else []
+    rv = entry('$\\mathbb{r}$-vector space') or next(li for li in _re.findall(r'<li><span class="dg-term.*?</li>', h) if '-vector space' in li)
+    check('D53: "used in" = the other section pages that \\ref / \\ref* a site (here \\subsection nt_A), in the notes\' order',
+          '<span class="dg-web">used in</span>' in rv and used(rv) == [('ch/s2', '2.2'), ('ch/s3', '2.3')], rv)
+    check('D53: "used in" counts \\pageref, not \\eqref; duplicates merged over the occurrences of an entry; never the page itself',
+          used(b) == [('ch/s3', '2.3')] and used(entry('atlas')) == [('ch/s3', '2.3')], (used(b), used(entry('atlas'))))
+    check('D53: a site that no page refers to shows no "used in"',
+          entry('(multi-)linear') and 'dg-defs-used' not in entry('(multi-)linear'), entry('(multi-)linear'))
+    heads = _re.findall('\x01H(\\d)\\|([^|]*)\\|<span class="dg-web dg-defs-head">([^<]*)</span>\x01', h)
+    check('D53: headings Notation, Defined terms, Symbols, then the letters that occur (web layer)',
+          heads == [('2', 'dg-notation', 'Notation'), ('2', 'dg-terms', 'Defined terms'), ('3', 'dg-terms-symbols', 'Symbols'),
+                    ('3', 'dg-terms-a', 'A'), ('3', 'dg-terms-b', 'B'), ('3', 'dg-terms-m', 'M')], heads)
+    check('D53: Symbols holds the entries that start with a formula',
+          h.index('dg-terms-symbols') < h.index('-compatible') < h.index('-vector space', h.index('dg-terms-symbols')) < h.index('dg-terms-a'),
+          h[h.index('dg-terms-symbols'):][:600])
+    s3.footnotes = [('1', 'a <span class="dg-term dg-term-blue">term</span>')]
+    try:
+        build.render_defs(dp, tctx, [tch] + tpages)
+        check('D53: a term in a footnote stops the definitions page', False, 'no error')
+    except ConvertError as e:
+        check(f'D53: a term in a footnote stops the definitions page ({e.msg[:70]}...)', True)
+    s3.footnotes = []
+    pic = ('A \\ref{x1}. \\begin{figure}[H]\\centering\\figbox\\gA{\\ref{x3}}\\begin{tikzpicture}\\node {\\ref{x2}};'
+           '\\begin{tikzpicture}\\node{\\ref{x9}};\\end{tikzpicture}\\end{tikzpicture}'
+           '\\caption[short \\ref{x4}]{Long \\ref*{x5}.}\\label{f}\\end{figure} '
+           '\\begin{tikzpicture}\\node{\\pageref{x6}};\\end{tikzpicture} B \\pageref{x7} \\eqref{x8} '
+           '\\begin{custompage}\\begin{tikzpicture}\\node{\\ref{x10}};\\end{tikzpicture}\\captionof{figure}[s]{C \\ref{x11}}\\end{custompage}')
+    got = build.used_refs(pic, 0, len(pic), Parser(pic))
+    check('D53: "used in" ignores references inside a picture (figure body, saved boxes, tikzpicture, nested) but not in a '
+          'caption (\\caption, its short form, \\captionof)', got == {'x1', 'x4', 'x5', 'x7', 'x11'}, sorted(got))
 
     print('ALL PASSED' if not FAIL else f'{len(FAIL)} FAILED')
     return 1 if FAIL else 0

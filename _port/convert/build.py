@@ -17,6 +17,7 @@ _port/interactives.json) is never touched.
 """
 from __future__ import annotations
 import argparse, bisect, json, os, posixpath, re, sys
+from html import unescape as html_unescape
 from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -162,6 +163,7 @@ class Page:
         self.head_html = self.foot_html = None   # a front page's own header / foot (frontmatter.py), else the standard ones
         self.web_title = False        # the title is ours, not the notes' (web layer, REVIEW.md)
         self.source = None            # what the page is generated from, when it is not a span of the source (D52)
+        self.terms = []               # the term-macro spans of the body, in order (anchor_terms; D53)
 
 
 class Ctx:
@@ -366,6 +368,7 @@ def render_front(p: Page, ctx: Ctx, P: Parser, records: dict):
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
     p.html, p.footnotes, p.math, p.anchors, p.refs = body, r.footnotes, r.math_log, r.anchors, r.refs
+    anchor_terms(p)
 
 
 def assign_slugs(pages, P, src):
@@ -396,6 +399,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
     p.html, p.footnotes, p.math, p.anchors, p.refs = body, r.footnotes, r.math_log, r.anchors, r.refs
+    anchor_terms(p)
 
 
 # ---------------------------------------------------------------------------------------
@@ -828,6 +832,212 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
     return out
 
 
+# ---------------------------------------------------------------------------------------
+# Definitions and notation (unit B35, D53): one generated page, built only from the notes' own markers
+# ---------------------------------------------------------------------------------------
+DEFS_SLUG, DEFS_TITLE = 'definitions', 'Definitions and notation'          # the title is ours (web layer, REVIEW.md)
+DEFS_WORDS = {'notation': 'Notation', 'terms': 'Defined terms', 'symbols': 'Symbols', 'used': 'used in'}   # ours (REVIEW.md)
+TERM_OPEN = re.compile(r'<span class="dg-term dg-term-([a-z]+2?)">')        # render.py: \<colour>one / \<colour>two
+_TERM_SCAN = re.compile('\x01H(?P<lvl>\\d)\\|(?P<hid>[^|\x01]*)\\||<span class="dg-term dg-term-(?P<cls>[a-z]+2?)">')
+_SPAN_TAG = re.compile(r'<span\b|</span>')
+_MATH_INLINE = re.compile(r'<span class="math inline">\\\((.*?)\\\)</span>', re.S)
+_TABLE_HTML = re.compile(r'<div class="dg-table-wrap[^"]*"><table\b.*?</table></div>', re.S)
+_NOTATION = re.compile(r'\bnotation', re.I)                                 # a title that "contains the word notation"
+SRC_USE = re.compile(r'\\(?:ref\*?|pageref)\s*\{([^}]+)\}')                # the references "used in" counts (D53)
+_PICTURE = re.compile(r'\\(begin|end)\s*\{(figure\*?|tikzpicture)\}')
+_CAPTION = re.compile(r'\\caption(of)?(?![A-Za-z])')
+
+
+def _span_end(html_: str, i: int) -> int:
+    """html_[i:] starts with a <span ...>: the offset just after its matching </span>."""
+    depth = 0
+    for m in _SPAN_TAG.finditer(html_, i):
+        depth += 1 if m.group(0) == '<span' else -1
+        if depth == 0:
+            return m.end()
+    raise ConvertError('a term span that does not close')
+
+
+def _no_ids(html_: str) -> str:
+    """A copy of the notes' HTML for another page: no anchors, no ids."""
+    return re.sub(r'\s+id="[^"]*"', '', re.sub(r'<span class="dg-anchor"[^>]*></span>', '', html_))
+
+
+def anchor_terms(p: Page) -> None:
+    """D53: every term-macro span of the page's body gets the id term-<k> (k counts them in the page's order);
+    only markup is added. Each is recorded in p.terms with its colour class, its inner HTML and its site, the
+    label of the \\subsection it stands in when that one is labelled, else the page's own label."""
+    out, pos, site, k = [], 0, p.label, 0
+    for m in _TERM_SCAN.finditer(p.html):
+        if m.group('lvl'):
+            if m.group('lvl') == '2':                     # a \subsection; \subsubsections do not change the site
+                hid = m.group('hid')
+                site = hid if p.anchors.get(hid) == hid else p.label
+            continue
+        k += 1
+        end = _span_end(p.html, m.start())
+        p.terms.append({'k': k, 'cls': m.group('cls'), 'inner': p.html[m.end():end - len('</span>')], 'site': site})
+        out.append(p.html[pos:m.start()] + f'<span class="dg-term dg-term-{m.group("cls")}" id="term-{k}">')
+        pos = m.end()
+    out.append(p.html[pos:])
+    p.html = ''.join(out)
+
+
+def _term_parts(inner: str) -> list:
+    """[(is_math, text)] of a term: its words (tags dropped) and its formulas (their TeX source)."""
+    out, i = [], 0
+    text = lambda h: html_unescape(re.sub(r'<[^>]+>', '', h))
+    for m in _MATH_INLINE.finditer(inner):
+        out.append((False, text(inner[i:m.start()])))
+        out.append((True, html_unescape(m.group(1))))
+        i = m.end()
+    out.append((False, text(inner[i:])))
+    return out
+
+
+def term_key(parts: list) -> str:
+    """Two occurrences are one entry when their text is the same: words case-insensitive (whitespace
+    collapsed), formulas by their source (whitespace removed)."""
+    return ''.join(f'${re.sub(r"\s+", "", t)}$' if m else re.sub(r'\s+', ' ', t).casefold() for m, t in parts).strip()
+
+
+def term_sort(parts: list) -> tuple:
+    """(group, letters): group '' for an entry that starts with a formula (leading brackets ignored), else its
+    initial A-Z; letters = the term's letters and digits with TeX control words stripped, case-folded."""
+    import unicodedata
+    s = ''.join(re.sub(r'\\[A-Za-z]+', '', t) if m else t for m, t in parts)
+    letters = ''.join(c for c in unicodedata.normalize('NFKD', s) if c.isalnum()).casefold()
+    formula = False
+    for m, t in parts:
+        if m:
+            formula = True
+            break
+        if re.sub(r'^[\s(\[{]+', '', t):
+            break
+    first = letters[:1].upper()
+    return ('' if formula or not ('A' <= first <= 'Z') else first), letters
+
+
+def used_refs(text: str, a: int, b: int, P: Parser) -> set:
+    """The labels that text[a:b] refers to with \\ref, \\ref* or \\pageref, for "used in" (D53): a reference inside a
+    picture (a figure environment, or a tikzpicture) does not count, except in the figure's \\caption / \\captionof:
+    a roadmap badge pointing at a section is navigation, not a place that relies on what is defined there."""
+    pics, stack = [], []
+    for m in _PICTURE.finditer(text, a, b):
+        if m.group(1) == 'begin':
+            stack.append(m.start())
+        elif stack:
+            start = stack.pop()
+            if not stack:
+                pics.append((start, m.end()))
+    caps = []
+    for s_, e_ in pics:
+        for m in _CAPTION.finditer(text, s_, e_):
+            caps.append((m.start(), P.read_args('ror' if m.group(1) else 'or', m.end(), e_, m.start())[1]))
+    inside = lambda i, spans: any(x <= i < y for x, y in spans)
+    return {m.group(1).strip() for m in SRC_USE.finditer(text, a, b)
+            if not inside(m.start(), pics) or inside(m.start(), caps)}
+
+
+def render_defs(p: Page, ctx: Ctx, pages: list) -> None:
+    """The page "Definitions and notation" (D53). `pages`: every other page, in the notes' order.
+    Notation: every tabular of a section or subsection titled "Notation" (the converter's own HTML of the table,
+    ids removed), labelled with that heading's number and title and linked to it; then links to every section
+    and subsection whose title contains the word "notation". Defined terms: one entry per distinct term text
+    (term_key), alphabetical (term_sort; "Symbols" first), each with one chip per page where it occurs (page
+    number, linked to the first occurrence there, #term-<k>) and, after "used in", the section pages other than
+    its own that \\ref / \\ref* / \\pageref the site of an occurrence outside a picture (used_refs), in the notes'
+    order."""
+    done = [q for q in pages if q.html is not None]
+    for q in done:
+        for what, h in [('title', q.title_html or '')] + [('footnote', b) for _, b in q.footnotes]:
+            if TERM_OPEN.search(h):
+                raise ConvertError(f'{q.slug}: a defined term in a {what}: no handler yet (D53 anchors the terms of the body only)')
+    # -- Notation
+    tables, links = [], []
+
+    def link(q, frag, num, title):
+        n = f'<span class="dg-secnum">{num}</span> ' if num else ''
+        return f'<a href="\x02U|{q.slug}{"#" + frag if frag else ""}\x02">{n}{nolinks(_no_ids(title))}</a>'
+
+    def copy(q, frag, num, title, part):
+        for t in _TABLE_HTML.findall(part):
+            if 'dg-fnref' in t:
+                raise ConvertError(f'{q.slug}: a Notation table with a footnote mark: no handler yet (D53)')
+            tables.append(f'<div class="dg-defs-table"><p class="dg-web dg-defs-from">{link(q, frag, num, title)}</p>'
+                          f'{_no_ids(t)}</div>')
+
+    is_notation = lambda h: plain(h).strip().casefold() == 'notation'
+    for q in done:
+        if q.kind != 'section':
+            continue
+        if _NOTATION.search(plain(q.title_html)):
+            links.append(f'<li>{link(q, "", q.number, q.title_html)}</li>')
+        if is_notation(q.title_html):
+            copy(q, '', q.number, q.title_html, q.html)
+        heads = list(HEAD_MARK.finditer(q.html))
+        for i, m in enumerate(heads):
+            if m.group(1) != '2':
+                continue
+            t = re.sub(r'<sup class="dg-fnref">.*?</sup>', '', m.group(3))
+            n = re.match(r'<span class="dg-secnum">([^<]*)</span>\s*', t)
+            num, t = (n.group(1), t[n.end():]) if n else (None, t)
+            if _NOTATION.search(plain(t)):
+                links.append(f'<li>{link(q, m.group(2), num, t)}</li>')
+            if is_notation(t):
+                end = next((h.start() for h in heads[i + 1:] if int(h.group(1)) <= 2), len(q.html))
+                copy(q, m.group(2), num, t, q.html[m.end():end])
+    # -- Defined terms
+    rank = {q: i for i, q in enumerate(pages)}
+    sections = [q for q in done if q.kind == 'section']
+    TP = Parser(ctx.src.text)
+    uses = {q: used_refs(ctx.src.text, q.a, q.b, TP) for q in sections}
+    entries = {}
+    for q in done:
+        for t in q.terms:
+            if not q.number:
+                raise ConvertError(f'{q.slug}: a defined term on a page without a number: no handler yet (D53 shows page numbers)')
+            parts = _term_parts(t['inner'])
+            e = entries.setdefault(term_key(parts), {'term': t, 'sort': term_sort(parts), 'occ': [], 'used': set()})
+            e['occ'].append((q, t))
+            if t['site']:
+                e['used'] |= {s for s in sections if s is not q and t['site'] in uses[s]}
+
+    def chip(q, frag, kind):
+        return (f'<a class="dg-chip dg-xref" href="\x02U|{q.slug}{frag}\x02" data-kind="{kind}" '
+                f'title="{shell.attr(plain(q.title_html))}">{q.number}</a>')
+
+    groups = {}
+    for e in sorted(entries.values(), key=lambda e: e['sort']):
+        t = e['term']
+        first = {}                                        # one chip per page: its first occurrence there
+        for q, x in e['occ']:
+            first.setdefault(q, x)
+        occ = ''.join(chip(q, f'#term-{x["k"]}', 'term') for q, x in first.items())
+        used = ''
+        if e['used']:
+            used = (f' <span class="dg-defs-used"><span class="dg-web">{DEFS_WORDS["used"]}</span>'
+                    + ''.join(chip(s, '', 'page') for s in sorted(e['used'], key=rank.get)) + '</span>')
+        groups.setdefault(e['sort'][0], []).append(
+            f'<li><span class="dg-term dg-term-{t["cls"]}">{_no_ids(t["inner"])}</span>'
+            f'<span class="dg-defs-at">{occ}</span>{used}</li>')
+    head = lambda lvl, hid, words: f'\x01H{lvl}|{hid}|<span class="dg-web dg-defs-head">{words}</span>\x01'
+    body = []
+    if tables or links:
+        body.append(head(2, 'dg-notation', DEFS_WORDS['notation']))
+        body += tables
+        if links:
+            body.append(f'<ul class="dg-web dg-defs-links">{"".join(links)}</ul>')
+    if groups:
+        body.append(head(2, 'dg-terms', DEFS_WORDS['terms']))
+        for g, lis in groups.items():                     # sorted: '' (Symbols) before A-Z
+            body.append(head(3, f'dg-terms-{g.lower() or "symbols"}', g or DEFS_WORDS['symbols']))
+            body.append(f'<ul class="dg-defs-list">{"".join(lis)}</ul>')
+    p.html = '\n'.join(body)
+    p.defs_counts = (len(entries), sum(len({q for q, _ in e['occ']}) for e in entries.values()),
+                     sum(len(e['used']) for e in entries.values()))
+
+
 def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dict, search: list, chapters: dict):
     num = f'<span class="dg-secnum">{p.number}</span> ' if p.number and p.kind == 'section' else ''
     if p.kind in MATTER:
@@ -850,8 +1060,10 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
     if p.kind == 'chapter':
         body += chapter_web(p, chapters[p], ctx, where)
     k = order.index(p)
-    prev = next((q for q in reversed(order[:k]) if q.html is not None), None)
-    nxt = next((q for q in order[k + 1:] if q.html is not None), None)
+    # the previous/next chain is the notes' reading order: the definitions page (D53) is not in it
+    chain = lambda qs: (q for q in qs if q.html is not None and q.role != 'defs')
+    prev = next(chain(reversed(order[:k])), None)
+    nxt = next(chain(order[k + 1:]), None)
 
     def navlink(q, cls, arrow):
         if q is None:
@@ -860,14 +1072,16 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
         return f'<a class="{cls}" href="{rel(p.slug, q.slug + ".html")}" rel="{cls[3:]}">{arrow}<span>{n}{nolinks(q.title_html)}</span></a>'
     if p.kind == 'section':
         body += '\n' + shell.readtoggle()                 # D40: the "read" toggle, next to previous/next
-    body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
-             f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
-             f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
+    if p.role != 'defs':
+        body += (f'\n<nav class="dg-web dg-prevnext" aria-label="Previous and next page">'
+                 f'{navlink(prev, "dg-prev", "<span aria-hidden=\"true\">←</span> ")}'
+                 f'{navlink(nxt, "dg-next", "<span aria-hidden=\"true\">→</span> ")}</nav>')
     head, body = resolve(head, p, ctx, where), resolve(body, p, ctx, where)
 
     title = (f'{p.number} ' if p.number else '') + plain(p.title_html)
     href = f'{COURSE}/{p.slug}.html'
-    search += search_entries(href, re.sub(r'\$(.+?)\$', r'\\(\1\\)', title), body)    # math delimited as in the text
+    if p.role != 'defs':              # D53: not in the search index (every term is found on its own page)
+        search += search_entries(href, re.sub(r'\$(.+?)\$', r'\\(\1\\)', title), body)    # math delimited as in the text
     chap = p if p.kind == 'chapter' else p.parent
     home = rel(p.slug, 'index.html')
     crumbs = [f'<a href="{home}">{esc(shell.course_label(cfg))}</a>']
@@ -949,10 +1163,10 @@ def write_landing(front, pages, matter, ctx, files, cfg: dict, search: list):
         if q.role == 'about' and q.html is not None:
             lis.append(f'<li class="dg-contents-front"><a href="{q.slug}.html">'
                        f'<span class="dg-contents-title">{nolinks(q.title_html)}</span></a></li>')
-    # the pages that are not in the notes' contents (the copyright page, the List of Figures, the Bibliography):
-    # small links after the dedication, in the notes' order (D51, D52)
+    # the pages that are not in the notes' contents (the copyright page, the List of Figures, the Bibliography,
+    # then the web layer's Definitions and notation): small links after the dedication, in the notes' order (D51-D53)
     legal = ''.join(f'<p class="dg-web dg-landing-legal"><a href="{q.slug}.html">{q.title_html}</a></p>'
-                    for q in matter if q.role in ('copyright', 'lof', 'bib') and q.html is not None)
+                    for q in matter if q.role in ('copyright', 'lof', 'bib', 'defs') and q.html is not None)
     for c in (p for p in pages if p.kind == 'chapter'):
         if c.part_html:                 # a part title of the notes' contents ("Appendices")
             lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
@@ -1062,6 +1276,16 @@ def main():
             q.error = f'{src.where(e.pos if e.pos is not None else q.a)}: {e.msg}'
     # the notes' order (front matter, chapters, appendices, back matter): where main.tex places each page
     order = sorted(fronts + lists + pages, key=lambda q: q.a)
+    # Definitions and notation (D53): web layer, after every page of the notes (course tree: after the Bibliography;
+    # not in the previous/next chain, not in the search index)
+    defs = Page('back', len(src.text), len(src.text))
+    defs.role, defs.slug, defs.title_html, defs.web_title = 'defs', DEFS_SLUG, esc(DEFS_TITLE), True
+    defs.source = 'the term macros and the Notation tables of the notes (DECISIONS D53)'
+    try:
+        render_defs(defs, ctx, order)
+    except ConvertError as e:
+        defs.error = f'{src.where(e.pos) if e.pos is not None else "(definitions page)"}: {e.msg}'
+    order.append(defs)
     done = [p for p in order if p.html is not None]
     print(f'{len(done)} of {len(order)} pages convert')
     for p in order:

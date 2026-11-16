@@ -387,6 +387,9 @@ li.dg-labelled > .dg-item-label { float: left; margin-left: -1.6rem; margin-righ
 /* ---- 7. web layer ------------------------------------------------------------------------------ */
 .dg-web { font-family: var(--dg-ui); }
 .dg-main .dg-web { font-size: 0.93rem; }
+/* a page title of ours (copyright page, Definitions and notation; D51, D53): Lato, at the size of the other
+   titles of the front and back matter (an h1's 2 em), not at the small size of the web layer's labels */
+.dg-main h1.dg-title.dg-web { font-size: 2em; }
 
 /* chapter opening pages (D38): cards for the chapter's sections and for the related items of Appendices B and C
  * (side by side from 900 px), then the chapter's roadmap from section 1.1. The card heads are the notes' own
@@ -779,9 +782,29 @@ h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; fon
 .dg-bib .dg-code { overflow-wrap: anywhere; }
 @media (max-width: 599.98px) { .dg-lof { margin-left: 0; } }
 
+/* ---- 8d. Definitions and notation (unit B35, D53) -------------------------------------------------- */
+/* web layer throughout, except the reproduced Notation table and the terms (the notes' words, colours kept).
+   Part and letter headings are the web layer's words (Lato) at the size of the notes' headings. Each entry: the
+   term, then its occurrences as chips (the page's number, linked to the term), then "used in" and the pages that
+   refer to where it stands, as chips; a wrapped line is indented under the term. */
+.dg-main :is(h2, h3) > .dg-defs-head { font-size: inherit; }
+.dg-defs-table { margin: 0.9rem 0 1.4rem; }
+.dg-main .dg-defs-from { margin: 0; }
+.dg-defs-links { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.dg-defs-links > li { margin: 0.3rem 0; }
+.dg-defs-list { list-style: none; margin: 0.3rem 0 0.8rem; padding: 0; }
+.dg-defs-list > li { margin: 0; padding: 0.25rem 0 0.25rem 1.5em; text-indent: -1.5em; line-height: 1.55; }
+.dg-defs-at, .dg-defs-used { font-size: 0.8em; }
+.dg-main .dg-defs-used > .dg-web { margin: 0 0.1rem 0 0.9rem; font-size: 0.95em; color: var(--dg-text-soft); white-space: nowrap; }
+
 @media print {
   .dg-about-band { border-radius: 0; }
   .dg-lof > li, .dg-bib > li { break-inside: avoid; }
+  /* Definitions and notation (D53): its words print (the page is all web layer), the chips as plain text */
+  body:has(.dg-defs-list) h1.dg-title.dg-web, .dg-main .dg-defs-head, .dg-main .dg-defs-from, .dg-main .dg-defs-links,
+  .dg-main .dg-defs-used > .dg-web { display: revert !important; }
+  .dg-main .dg-defs-list .dg-chip { display: inline !important; height: auto; min-width: 0; margin: 0 0 0 0.4em; padding: 0; border: 0; font: inherit; color: inherit !important; }
+  .dg-defs-list > li { break-inside: avoid; }
   .dg-about-band, .dg-about-band::after, .dg-grant, .dg-tcb { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 

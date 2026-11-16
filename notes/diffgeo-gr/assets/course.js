@@ -205,7 +205,8 @@ function extract(doc, id, base) {
   }
   let el = doc.getElementById(id);
   if (!el) return null;
-  if (el.matches('.dg-anchor, a:empty, span:empty')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
+  // an anchor, or a defined term (id term-<k>, the chips of the definitions page, D53): the block that holds it
+  if (el.matches('.dg-anchor, a:empty, span:empty, .dg-term')) el = el.closest('h2, h3, h4, figure, li, .dg-fn-body, p') || el.parentElement;
   if (el && el.matches('h2, h3, h4')) {                  // a subsection: its heading and first lines
     const h = document.createElement('p');
     h.className = 'dg-pop-title';
