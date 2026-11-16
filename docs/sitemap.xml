@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://daniellopezcano.github.io/research_and_publications.html</loc>
-    <lastmod>2026-11-15T00:44:20.110Z</lastmod>
+    <lastmod>2026-11-16T16:57:14.559Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/cv.html</loc>
@@ -18,334 +18,446 @@
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/teaching_and_projects.html</loc>
-    <lastmod>2026-11-15T23:49:54.282Z</lastmod>
+    <lastmod>2026-11-16T16:57:14.559Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/about-the-author.html</loc>
-    <lastmod>2026-11-16T10:38:16.153Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/bibliography.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/computational-ressources/index.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/copyright.html</loc>
-    <lastmod>2026-11-16T10:46:12.119Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/covariant-derivative/connection-coefficient-functions.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/covariant-derivative/connections-affine-manifolds.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/covariant-derivative/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/covariant-derivative/parallel-transport-autoparallels.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/covariant-derivative/torsion-curvature.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/definitions.html</loc>
-    <lastmod>2026-11-16T10:46:12.119Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-connection-torsion-curvature.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-d-dim-mfld.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-fields.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-integration.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-newtonian.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-schwarzschild.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-tpm.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-variations.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/example-vector-space.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/examples/index.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/fields/covector-fields.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/fields/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/fields/tensor-fields-and-notation.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/fields/vector-fields.html</loc>
-    <lastmod>2026-11-16T08:11:13.572Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/gr/einstein-hilbert.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/gr/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/gr/matter.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/gr/spacetime.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/integrals/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/integrals/integration-manifolds.html</loc>
-    <lastmod>2026-11-16T09:00:31.115Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/integrals/metric-volume-form.html</loc>
-    <lastmod>2026-11-16T09:00:31.115Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/integrals/volume-forms-orientation.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/introduction/index.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/introduction/roadmaps.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/list-of-figures.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/metric/curvature-metric.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/metric/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/metric/length-geodesics.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/metric/levi-civita-connection.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/metric/metric.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/gravity-connection.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/index.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/newton-axioms.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/newtonian-spacetime.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/pseudo-forces.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/newtonian/stratified-atlas.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/connection-vs-covariant-derivative.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/exact-covector-fields.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/flat-connections.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/hamel-schauder.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/index.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/metric-properties.html</loc>
-    <lastmod>2026-11-16T09:00:31.115Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/newtonian-formulations.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/partitions-of-unity.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tpm.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-basis-tstarpm.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-dual-basis-transformation.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-euler-lagrange.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-existence-sum-prod-curves-tpm.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-geodesic-equation.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-higher-order-el.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-length-reparametrization.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-metric-compatibility.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-sylvester.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-topology-tm.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/proof-torsion-tensorial.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/set-theory-foundations.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/support-integrals.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/proofs-and-additional-material/torsion-newton.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/tangent-spaces/cotangent-space.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/tangent-spaces/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/tangent-spaces/tangent-space.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/tangent-spaces/tensor-space.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html</loc>
-    <lastmod>2026-11-16T08:11:13.572Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/topological-manifolds/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/topological-manifolds/smooth-manifolds.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/topological-manifolds/topological-spaces.html</loc>
-    <lastmod>2026-11-16T00:10:25.603Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/vector-spaces/basis-components-transformations.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/vector-spaces/foundations-sets-maps.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/vector-spaces/index.html</loc>
-    <lastmod>2026-11-16T11:24:48.693Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/vector-spaces/vectors-duals-tensors.html</loc>
-    <lastmod>2026-11-16T08:08:22.165Z</lastmod>
+    <lastmod>2026-11-16T17:06:44.583Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight.html</loc>
+    <lastmod>2026-11-16T19:24:04.719Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/minimal-background-cosmology.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/photon-propagation-as-a-null-geodesic.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/why-this-matters-for-the-absorption-formalism.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/gas-properties.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/line-profile.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/observed-wavelength-velocity.html</loc>
+    <lastmod>2026-11-16T19:23:04.664Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/optical-depth.html</loc>
+    <lastmod>2026-11-16T19:18:40.218Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/overflux.html</loc>
+    <lastmod>2026-11-16T19:21:25.024Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/top-down-summary.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/transmission-and-flux.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/introduction-and-scope/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/odes/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/app-redshift-independent-line-separation.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/app-relative-line-centered-velocity-units.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi-decomposition/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi1d/ensemble-1d-2pcf-and-translation-invariance.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi1d/from-per-sample-to-ensemble-estimates-ergodicity-and-averaging-over-sightlines.html</loc>
+    <lastmod>2026-11-16T19:25:25.314Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi1d/index.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi1d/per-sample-realization-level-1d-two-point-correlation.html</loc>
+    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
   </url>
 </urlset>

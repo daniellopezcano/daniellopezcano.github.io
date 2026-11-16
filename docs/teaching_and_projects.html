@@ -120,35 +120,6 @@ ul.task-list li input[type="checkbox"] {
 }
 </script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -177,10 +148,21 @@ window.Quarto = {
     <a class="nav-link active" href="./teaching_and_projects.html" aria-current="page"> 
 <span class="menu-text">Teaching &amp; Projects</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./notes/diffgeo-gr/index.html"> 
-<span class="menu-text">Lecture Notes</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lecture-notes" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lecture Notes</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lecture-notes">    
+        <li>
+    <a class="dropdown-item" href="./notes/diffgeo-gr/index.html">
+ <span class="dropdown-text">From Differential Geometry to General Relativity</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./notes/lya-forest/index.html">
+ <span class="dropdown-text">Lyman-α Forest</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./outreach.html"> 
 <span class="menu-text">Outreach</span></a>
@@ -280,7 +262,7 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="from-differential-geometry-to-general-relativity">From Differential Geometry to General Relativity</h3>
 <p>Graduate course at IFUSP, University of São Paulo (3 credits; 18 h of lectures + 9 h of practical sessions), built on my open lecture notes and accompanying Python material.</p>
 <div class="media-actions">
-<p><a href="notes/diffgeo-gr/index.html" class="btn btn-outline-info btn-sm dg-read-online">Read online</a> <a href="assets/files/docs/from_differential_geometry_to_general_relativity.pdf" class="btn btn-outline-info btn-sm">Lecture notes</a> <a href="https://github.com/daniellopezcano/differential_geometry" class="btn btn-outline-info btn-sm">GitHub</a></p>
+<p><a href="notes/diffgeo-gr/index.html" class="btn btn-outline-info btn-sm dg-read-online">Read online</a> <a href="assets/files/docs/from_differential_geometry_to_general_relativity.pdf" class="btn btn-outline-info btn-sm">Download PDF</a> <a href="https://github.com/daniellopezcano/differential_geometry" class="btn btn-outline-info btn-sm">GitHub</a></p>
 </div>
 </section>
 </div>
@@ -298,31 +280,6 @@ window.Quarto = {
 </div>
 </section>
 </div>
-</div>
-</div>
-</section>
-<section id="lecture-notes" class="level2">
-<h2 class="anchored" data-anchor-id="lecture-notes">Lecture Notes</h2>
-<div class="doc-grid doc-grid-compact">
-<div class="doc-card">
-<p><a href="assets/files/docs/from_differential_geometry_to_general_relativity.pdf"><img src="assets/img/docs/from_differential_geometry_to_general_relativity.png" class="doc-thumb doc-thumb-compact img-fluid" alt="Preview of From Differential Geometry to General Relativity"></a></p>
-<section id="from-differential-geometry-to-general-relativity-1" class="level3 doc-body">
-<h3 class="anchored" data-anchor-id="from-differential-geometry-to-general-relativity-1">From Differential Geometry to General Relativity</h3>
-<p>Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.</p>
-<div class="media-actions">
-<p><a href="notes/diffgeo-gr/index.html" class="btn btn-outline-info btn-sm dg-read-online">Read online</a> <a href="assets/files/docs/from_differential_geometry_to_general_relativity.pdf" class="btn btn-outline-info btn-sm">Download PDF</a> <a href="https://github.com/daniellopezcano/differential_geometry" class="btn btn-outline-info btn-sm">GitHub</a></p>
-</div>
-</section>
-</div>
-<div class="doc-card">
-<p><a href="assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf"><img src="assets/img/docs/absorption_lines_in_cosmological_sightlines.png" class="doc-thumb doc-thumb-compact img-fluid" alt="Preview of Absorption Lines in Cosmological Sightlines"></a></p>
-<section id="notes-on-lyalpha-forest-and-absorption-processes-in-cosmology" class="level3 doc-body">
-<h3 class="anchored" data-anchor-id="notes-on-lyalpha-forest-and-absorption-processes-in-cosmology">Notes on Ly<span class="math inline">\(\alpha\)</span> Forest and Absorption Processes in Cosmology</h3>
-<p>Pedagogical notes on Ly<span class="math inline">\(\alpha\)</span> skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.</p>
-<div class="media-actions">
-<p><a href="assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf" class="btn btn-outline-info btn-sm">Download PDF</a> <a href="https://github.com/daniellopezcano/SkewerJAX" class="btn btn-outline-info btn-sm">GitHub</a></p>
-</div>
-</section>
 </div>
 </div>
 </section>
@@ -395,6 +352,37 @@ window.Quarto = {
 </section>
 
 </main> <!-- /main -->
+<!-- The "Lecture Notes" dropdown of the site navbar (_quarto.yml: website: navbar: left: menu). Bootstrap opens
+     it on click, tap and Enter/Space; this adds: open while the mouse is over it (devices that hover, wide
+     navbar), open when it receives keyboard focus, close when focus or the mouse leaves it, and keep it open on
+     a click once hovering has opened it. The course pages carry the same behaviour in their navbar replica
+     (notes/diffgeo-gr/assets/course.js, initSiteNav). Lyα course DECISIONS L15. -->
+<script>
+(function () {
+  var hover = window.matchMedia('(hover: hover) and (min-width: 992px)');
+  function setup() {
+    if (!window.bootstrap || !bootstrap.Dropdown) return;
+    document.querySelectorAll('#quarto-header .nav-item.dropdown').forEach(function (li) {
+      var t = li.querySelector('.dropdown-toggle');
+      if (!t) return;
+      var dd = bootstrap.Dropdown.getOrCreateInstance(t), timer = 0, escaped = false;
+      var open = function () { clearTimeout(timer); dd.show(); };
+      li.addEventListener('mouseenter', function () { if (hover.matches) open(); });
+      li.addEventListener('mouseleave', function () { if (hover.matches) timer = setTimeout(function () { dd.hide(); }, 200); });
+      t.addEventListener('click', function (e) {
+        if (hover.matches && t.getAttribute('aria-expanded') === 'true') { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      li.addEventListener('keydown', function (e) { if (e.key === 'Escape') escaped = true; });
+      t.addEventListener('focus', function () {
+        if (!escaped && t.matches(':focus-visible')) open();
+        escaped = false;
+      });
+      li.addEventListener('focusout', function (e) { if (!li.contains(e.relatedTarget)) dd.hide(); });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup); else setup();
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

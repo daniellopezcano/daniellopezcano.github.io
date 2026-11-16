@@ -1,0 +1,33 @@
+/* Hand-written: what tells the Lyα course apart from its sibling (Lyα DECISIONS L18). Loaded after course.css
+ * (the shared "Paper" design system, copied from the first course, L11) on every page of this course.
+ *   1. accent: the first course's navy and blue become a deep teal, in both themes (contrast >= 4.5 : 1 for
+ *      text on the paper and on the surfaces, as course.css requires)
+ *   2. cover: the title block in the same teal with a transmitted-flux spectrum drawn behind the title
+ *      (build.py: forest_svg; decorative), the version line, the abstract and the keywords
+ */
+
+/* ---- 1. accent ----------------------------------------------------------------------------------- */
+:root {
+  --dg-heading: #0b4652; --dg-accent: #0a6a7b; --dg-accent-hover: #0b4652;
+  --dg-ui-hover: rgba(11, 70, 82, 0.07); --dg-ui-current: rgba(10, 106, 123, 0.10);
+}
+:root[data-theme="dark"] {
+  --dg-heading: #b8eef6; --dg-accent: #62cfe0; --dg-accent-hover: #b8eef6;
+  --dg-ui-hover: rgba(184, 238, 246, 0.09); --dg-ui-current: rgba(98, 207, 224, 0.14);
+}
+
+/* ---- 2. cover ------------------------------------------------------------------------------------ */
+.dg-landing-lya { --dg-navy: #0b3a44; --dg-light: #9fe3ee; }
+.dg-landing-lya .dg-forest { position: absolute; z-index: 1; top: clamp(1.4rem, 4vw, 2.6rem); left: 0; width: 100%;
+  height: clamp(5.2rem, 13vw, 8.6rem); pointer-events: none; }
+.dg-landing-lya .dg-forest polyline { fill: none; stroke: var(--dg-light); stroke-width: 1.3; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke; opacity: 0.8; }
+.dg-landing-lya h1.dg-cover-title { position: relative; z-index: 0; }
+.dg-landing-lya p.dg-cover-version { margin: 0 0 1.3rem; color: var(--dg-text-soft); font-size: 1.02rem; }
+.dg-landing-lya .dg-cover p.dg-cover-date { margin-top: 0; }
+
+.dg-abstract { max-width: 45em; margin-inline: auto; }
+.dg-main .dg-abstract h2 { margin: 0 0 0.6rem; text-align: center; font-size: 1.05rem; letter-spacing: 0.02em; }
+.dg-abstract p { margin: 0 0 0.8rem; }
+.dg-abstract p.dg-keywords { margin-top: 1.1rem; color: var(--dg-text-soft); }
+.dg-abstract p.dg-keywords strong { color: var(--dg-text); }
