@@ -199,7 +199,12 @@ class Ctx:
                     raise SystemExit(f'_port/interactives.json: "at": {at!r} of {it["module"]} (label {it["label"]}): '
                                      f'the only placement is "end" (D57)')
                 kind = self.aux.get(it['label'], {}).get('kind')
-                if it['label'] in self.aux and kind not in ('section', 'subsection'):
+                # D57: a section or subsection; Lyα DECISIONS L26: in a course whose in-page headings go deeper
+                # (courses.py 'heads' beyond subsection, e.g. the article's subsubsection), those headings too
+                ends = ('section', 'subsection')
+                if COURSE_CFG.get('pages', {}).get('section') == 'subsection':       # an article (L10)
+                    ends += tuple(COURSE_CFG['heads'])
+                if it['label'] in self.aux and kind not in ends:
                     raise SystemExit(f'_port/interactives.json: "at": "end" of {it["module"]} names {it["label"]}, a {kind} label; '
                                      f'it closes a section or subsection only (D57)')
             steps = it.get('steps')
