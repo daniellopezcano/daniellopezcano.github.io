@@ -27,6 +27,8 @@ from texparse import Parser, ConvertError, Cmd, Text, Par   # noqa: E402
 from render import Renderer, esc, slugify            # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
+# notebooks of the Python package, linked from the interactive panels (D55; _port/interactives.json "notebook")
+PACKAGE_BLOB = 'https://github.com/daniellopezcano/differential_geometry/blob/main/'
 SRC = os.path.join(REPO, '_port', '.work', 'tex', 'src')
 # the notes directory (read-only; only `git log` is run there, for the landing page's "Last updated", D54);
 # same default and NOTES override as _port/tex/build_scratch.sh and _port/check.sh
@@ -171,18 +173,22 @@ class Ctx:
         self.assets = {}              # figure label -> asset dict (for the landing page)
         self.captions = {}            # figure label -> {'num', 'page', 'caption', 'frac'} (chapter opening pages)
         path = os.path.join(REPO, '_port', 'interactives.json')
-        self.interactives = {}        # LaTeX label -> list of interactive module names
+        self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None)
         self.interactives_used = set()
         if os.path.exists(path):
             for it in json.load(open(path, encoding='utf-8'))['interactives']:
-                self.interactives.setdefault(it['label'], []).append(it['module'])
+                nb = it.get('notebook')
+                if nb is not None and not re.fullmatch(r'notebooks/[\w./-]+\.ipynb', nb):
+                    raise SystemExit(f'_port/interactives.json: notebook {nb!r} of {it["module"]} is not a path notebooks/<...>.ipynb')
+                self.interactives.setdefault(it['label'], []).append((it['module'], nb))
 
     def interactive(self, label):
         """Web-layer placeholders for the interactive figures attached to a LaTeX label."""
         out = []
-        for module in self.interactives.get(label, []):
+        for module, nb in self.interactives.get(label, []):
             self.interactives_used.add((label, module))
-            out.append(f'<div class="dg-web dg-interactive" role="group" data-module="{module}" data-for="{esc(label)}" '
+            nb = f' data-notebook="{esc(PACKAGE_BLOB + nb)}"' if nb else ''
+            out.append(f'<div class="dg-web dg-interactive" role="group" data-module="{module}" data-for="{esc(label)}"{nb} '
                        f'aria-label="Interactive figure"><div class="dg-interactive-bar"><span class="dg-badge">Interactive</span>'
                        f'</div><div class="dg-interactive-body"></div></div>')
         return ''.join(out)
@@ -1083,6 +1089,7 @@ def main():
         write_page(p, ctx, where, order, files, cfg, search, chapters)
     write_landing(front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
     for label, mods in ctx.interactives.items():
+        mods = [m for m, _ in mods]
         for mod in mods:
             if (label, mod) not in ctx.interactives_used:
                 print(f'  WARNING interactive "{mod}" is attached to label {label}, which no converted page defines')

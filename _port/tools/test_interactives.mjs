@@ -50,6 +50,27 @@ const center = async loc => {
   const b = await loc.boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2];
 };
 
+// the panel's footer (D55): Reset re-mounts (one body, one set of controls), the static-figure link
+// names the figure and scrolls to it, the notebook link where interactives.json gives one
+async function panelFoot(page, fr, figId, figName, notebook) {
+  const foot = fr.locator('.dg-interactive-foot');
+  check(await foot.count() === 1, 'panel footer present');
+  const stat = foot.locator('a.dg-ia-static');
+  check(await stat.textContent() === figName && await stat.getAttribute('href') === '#' + figId, `static-figure link "${figName}" -> #${figId}`);
+  const nb = foot.locator('a.dg-ia-notebook');
+  if (notebook) check(await nb.count() === 1 && (await nb.getAttribute('href')).endsWith('/' + notebook), `notebook link -> ${notebook}`);
+  else check(await nb.count() === 0, 'no notebook link');
+  await foot.locator('button.dg-ia-reset').click();
+  await page.waitForFunction(f => !f.querySelector('.dg-ia-reset').disabled, await fr.elementHandle());
+  await page.waitForTimeout(300);
+  check(await fr.locator('.dg-interactive-body > .dg-controls').count() >= 1 && await fr.locator('.dg-interactive-foot').count() === 1, 'Reset leaves one body and one footer');
+  check(await page.evaluate(() => document.activeElement && document.activeElement.classList.contains('dg-ia-reset')), 'focus stays on Reset');
+  await stat.click();
+  await page.waitForTimeout(700);
+  const top = await page.locator('#' + figId).evaluate(e => e.getBoundingClientRect().top);
+  check(top > -2 && top < 200, `static-figure link scrolls to the figure (top ${Math.round(top)} px)`);
+}
+
 async function testMaps(width) {
   console.log(`maps @ ${width}px`);
   const { page, errors } = await open(MAPS, width);
@@ -99,6 +120,8 @@ async function testMaps(width) {
   check(await status() === 'Only Injective' && await fr.locator('.dg-target').count() === 5, 'one more element of N -> Only Injective');
   await fr.locator('.dg-stepper').nth(0).locator('button', { hasText: '−' }).click();
   check(await fr.locator('.dg-domain').count() === 3 && await status() === 'Only Injective', 'one element of M fewer -> 3 elements, its arrow gone');
+  await panelFoot(page, fr, 'fig_maps_examples', 'Figure 2.1', '1_vector_spaces.ipynb');
+  check(await status() === 'Bijective' && await fr.locator('.dg-domain').count() === 4, 'Reset -> the starting state again (Bijective, 4 elements)');
   check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
   await noSideScroll(page, width);
   await page.close();
@@ -149,6 +172,8 @@ async function testVariations(width) {
   check(await canvasHash() !== h1, 'dragging the 3D view rotates it');
   await fr.locator('canvas').dblclick(); await page.waitForTimeout(100);
   check(await canvasHash() === h1, 'double click resets the view');
+  await panelFoot(page, fr, 'fig_Example_Variations_length', 'Figure C.12', null);
+  check(near(num(await fr.locator('.dg-slider output').textContent()), 0.5, 1e-9) && near(await L(), L05, 1e-9), `Reset -> curve gamma, family (i), parameter 0.5 again (L = ${await L()})`);
   check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
   await noSideScroll(page, width);
   if (width === 1280) await crossChecks(page);

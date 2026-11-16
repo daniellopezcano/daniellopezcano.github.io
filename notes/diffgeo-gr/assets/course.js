@@ -774,6 +774,49 @@ async function initWideMath() {
 // _port/interactives.json attaches one. The module assets/interactive/<name>.js is imported only
 // when its frame comes near the viewport; it exports `default async function mount(body, frame)`.
 // A frame becomes visible (class dg-ready) only after its module mounted without error.
+// The panel (D55): badge bar, the module's body, and a footer built here: Reset (empties the body and
+// mounts the module again, so every module gets it without code of its own), a link back to the static
+// figure the panel accompanies (labelled with the figure's own number, read from its caption), and the
+// notebook of the Python package (data-notebook, from _port/interactives.json) where there is one.
+function panelFooter(frame, mount) {
+  const body = frame.querySelector('.dg-interactive-body');
+  const foot = document.createElement('div');
+  foot.className = 'dg-interactive-foot';
+  const reset = document.createElement('button');
+  reset.type = 'button'; reset.className = 'dg-btn dg-ia-reset'; reset.textContent = 'Reset';
+  reset.addEventListener('click', async () => {
+    reset.disabled = true;
+    try {
+      const { dispose } = await import(new URL('assets/interactive/dg.js', ROOT));
+      dispose(body);
+      if (window.MathJax && MathJax.typesetClear) { try { MathJax.typesetClear([body]); } catch (_) { /* nothing typeset */ } }
+      body.replaceChildren();
+      await mount();
+    } catch (err) {
+      console.error(`interactive "${frame.dataset.module}" failed:`, err);
+    } finally { reset.disabled = false; reset.focus(); }
+  });
+  foot.append(reset);
+  const fig = frame.dataset.for && document.getElementById(frame.dataset.for);
+  const num = fig && fig.matches('figure') && fig.querySelector('.dg-fignum');
+  if (num) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-static'; a.href = '#' + fig.id;
+    a.textContent = num.textContent.replace(/[:.\s]+$/, '');
+    a.title = 'Static figure';
+    a.addEventListener('click', e => { e.preventDefault(); fig.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); history.replaceState(null, '', '#' + fig.id); });
+    foot.append(a);
+  }
+  if (frame.dataset.notebook) {
+    const a = document.createElement('a');
+    a.className = 'dg-ia-notebook'; a.href = frame.dataset.notebook;
+    a.innerHTML = '<i class="dg-i dg-i-github" aria-hidden="true"></i> Notebook';
+    a.title = decodeURIComponent(frame.dataset.notebook.split('/').pop());
+    foot.append(a);
+  }
+  frame.append(foot);
+}
+
 function loadInteractives() {
   const frames = document.querySelectorAll('.dg-interactive[data-module]');
   if (!frames.length) return;
@@ -781,7 +824,10 @@ function loadInteractives() {
     try {
       const mod = await import(new URL(`assets/interactive/${frame.dataset.module}.js`, ROOT));
       await mathReady();
-      await mod.default(frame.querySelector('.dg-interactive-body'), frame);
+      const body = frame.querySelector('.dg-interactive-body');
+      const mount = () => mod.default(body, frame);
+      await mount();
+      panelFooter(frame, mount);
       frame.classList.add('dg-ready');
     } catch (err) {
       console.error(`interactive "${frame.dataset.module}" failed:`, err);

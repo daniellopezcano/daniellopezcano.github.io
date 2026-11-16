@@ -70,7 +70,7 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | sidebar | "Course home", "Appendices" (the latter is the part title in your table of contents) |
 | page outline title | "On this page" |
 | unresolved references | "in preparation" (tooltip: "This part of the notes is in preparation") |
-| interactive frames | badge "Interactive" |
+| interactive frames | badge "Interactive"; footer (R12, D55): button "Reset", link to the static figure labelled with its number ("Figure 2.1", tooltip "Static figure"), link "Notebook" (tooltip: the notebook's file name) |
 | screen-reader labels (not visible) | "Footnote n", "Footnote n, back to the text" (the number link of a footnote; was "Back to the text", R9: the name must contain the visible number), "Sections", "Contents", "Previous and next page", "Interactive figure" |
 | figure numbers | "Figure n:" (as the PDF prints it) |
 | page headers | "Chapter n • Title" / "Appendix X • Title" (as in the PDF running header) |
