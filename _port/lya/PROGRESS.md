@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L10–L15 — wire panels 5–7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
+**Next action:** L10–L15 — wire panels 6–7 (modules drafted in L8's session, L25): copy `skewer.js`, `opticaldepth.js`, `transmission.js`, `scalefactor.js`, `velocityunits.js`, `decompstats.js`, `decomposition.js` into `notes/lya-forest/assets/interactive/`, add their entries to `_port/lya/interactives.json`, rebuild, run `node _port/tools/test_lya_interactives.mjs` (tests in `_port/lya/tests/`), commit panel by panel.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -21,7 +21,7 @@
 | L10 | Panel 2: optical depth along a sightline | done | `opticaldepth` (after Figure 5) + `skewer.js` (L25); test recomputes τ of Eq. (3.20) cell by cell | (this commit) |
 | L11 | Panel 3: transmission and saturation | done | `transmission` (after Eq. (3.26), L21): T, T̄ at each Λ, δ_j, ⟨δ_j⟩_ens = 0 vs the sightline mean; test recomputes from τ | (this commit) |
 | L12 | Panel 4: observed wavelength → gas frame | done | `velocityunits` (end of § 3.2.4, L26): u_exact vs u_H across a box, the L² drift against b_th; `ray.js`; test with its own RK4 | (this commit) |
-| L13 | Panel 5: scale factor along the photon path | todo | | |
+| L13 | Panel 5: scale factor along the photon path | done | `scalefactor` (after Figure 1): any Ω mix over Figure 1's backgrounds and analytic solutions; test checks −2c/H0, −c/H0, +c/H0 and the closed case | (this commit) |
 | L14 | Panel 6: 1D 2PCF and ergodicity | todo | | |
 | L15 | Panel 7: 2PCF decomposition (L = 2) | todo | | |
 | L16 | Panel 8: velocity units examples | todo | | |
