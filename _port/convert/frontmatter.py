@@ -12,7 +12,7 @@ the LaTeX around the text: if the page is restructured the build stops with a cl
 """
 from __future__ import annotations
 import re
-from texparse import Parser, ConvertError, Env, Text, Par
+from texparse import Parser, ConvertError, Env, Text, Par, Cmd
 
 PAPER_CM = (21.0, 29.7)               # a4paper (checked against the preamble in about())
 
@@ -88,7 +88,25 @@ def about(nodes: list, r, preamble: str):
             f'<span class="dg-about-institute">{text("institute")}</span></p>'
             f'<img class="dg-about-portrait" src="\x02U|{pt["src"]}\x02" alt="{plain_name}" '
             f'width="{pt["width"]}" height="{pt["height"]}" decoding="async"></div></header>')
-    foot = f'<footer class="dg-about-links"><p>{text("links")}</p></footer>'
+    src = _find('links', tex, pos).group(1)
+    foot = f'<footer class="dg-about-links"><p>{links_html(Parser(src).parse(0, len(src)), r)}</p></footer>'
     rest = nodes[:k] + nodes[k + 1:]
     return rest, head, foot
 
+
+def links_html(nodes: list, r) -> str:
+    """The foot's links (`\\href{..}{..}` separated by `\\quad·\\quad`): each link with what follows it up to
+    the next link in one `span.dg-about-link`, that separator in `span.dg-about-sep` (units B18-B22). Only
+    markup is added (every node is rendered, in order). The CSS (`.dg-about-links`) lets a link that does not
+    fit wrap to a new line as a whole and clips the separator at the end of the line, so no line ends or
+    starts with "·"."""
+    hrefs = [i for i, n in enumerate(nodes) if isinstance(n, Cmd) and n.name == 'href']
+    if not hrefs:
+        return r.inline(nodes)
+    out = [r.inline(nodes[:hrefs[0]])]
+    for k, h in enumerate(hrefs):
+        end = hrefs[k + 1] if k + 1 < len(hrefs) else len(nodes)
+        link, rest = r.inline(nodes[h:h + 1]), r.inline(nodes[h + 1:end])
+        sep = f'<span class="dg-about-sep">{rest}</span>' if k + 1 < len(hrefs) and rest.strip() else rest
+        out.append(f'<span class="dg-about-link">{link}{sep}</span>')
+    return ''.join(out)

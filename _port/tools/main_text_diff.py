@@ -15,6 +15,9 @@ layer text changed are listed for information. Exit code 0 when (a) holds on eve
              `\\href{<url>}{X}`, and nothing else: with every `\\href{..}{X}` replaced by its X the texts are
              identical, and every \\href of --rev is still there (proof for the links of D7 rewrite 2, units
              B12-B17); the number of new links is reported.
+    --dlc    accept, in (a), whitespace removed right before punctuation (.,;:!?) or a line break, and nothing
+             else: --rev's text with those spaces deleted equals the new text (proof for the space before a
+             dropped \\DLC note, D18, units B18-B22); the number of such places is reported.
 """
 import argparse, os, re, subprocess, sys
 from collections import Counter
@@ -89,14 +92,37 @@ def only_mathref(a: str, b: str):
     return sum((new - old).values())
 
 
+PUNCT_AFTER = '.,;:!?)\n'
+
+
+def only_unskip(a: str, b: str):
+    """Number of whitespace runs of a (not in b) each followed by punctuation or a line break, if deleting them
+    from a gives b exactly; else None."""
+    i = j = k = 0
+    while i < len(a):
+        if j < len(b) and a[i] == b[j]:
+            i += 1
+            j += 1
+            continue
+        e = i
+        while e < len(a) and a[e] in ' \t':
+            e += 1
+        if e == i or e >= len(a) or a[e] not in PUNCT_AFTER or j >= len(b) or b[j] != a[e]:
+            return None
+        k += 1
+        i = e
+    return k if j == len(b) else None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--rev', default='HEAD')
     ap.add_argument('--nbsp', action='store_true', help='accept U+0020 -> U+00A0 and nothing else (D9 fix, B10)')
     ap.add_argument('--mathref', action='store_true', help='accept X -> \\href{url}{X} inside formulas and nothing else (B12-B17)')
+    ap.add_argument('--dlc', action='store_true', help='accept a space removed before punctuation or a line break and nothing else (B18-B22)')
     args = ap.parse_args()
     rev = args.rev
-    bad, web, n, nb, nbp, mr, mrp = [], [], 0, 0, 0, 0, 0
+    bad, web, n, nb, nbp, mr, mrp, dl, dlp = [], [], 0, 0, 0, 0, 0, 0, 0
     for root, _, names in os.walk(COURSE):
         for name in sorted(names):
             if not name.endswith('.html'):
@@ -115,6 +141,11 @@ def main():
                 mrp += 1
                 if only_mathref(a[1], b[1]) is None:
                     web.append(rel)
+            elif a[0] != b[0] and args.dlc and only_unskip(a[0], b[0]) is not None:
+                dl += only_unskip(a[0], b[0])
+                dlp += 1
+                if only_unskip(a[1], b[1]) is None:
+                    web.append(rel)
             elif a[0] != b[0] and args.nbsp and only_nbsp(a[0], b[0]) is not None:
                 nb += only_nbsp(a[0], b[0])
                 nbp += 1
@@ -131,6 +162,8 @@ def main():
         print(f'web layer text changed on {len(web)} page(s): ' + ', '.join(os.path.relpath(w, 'notes/diffgeo-gr') for w in web))
     if args.mathref:
         print(f'--mathref: {mr} reference number(s) inside formulas became links on {mrp} page(s); no other change of the notes\' text there')
+    if args.dlc:
+        print(f'--dlc: {dl} space(s) before punctuation or a line break removed on {dlp} page(s); no other change of the notes\' text there')
     if args.nbsp:
         print(f'--nbsp: {nb} space(s) became no-break spaces on {nbp} page(s); no other change of the notes\' text there')
     print(f'{n - len(bad)} of {n} pages: text of <main> without the web layer identical to {rev}')

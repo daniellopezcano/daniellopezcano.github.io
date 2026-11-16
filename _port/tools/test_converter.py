@@ -323,6 +323,9 @@ def main() -> int:
           and '<tr class="dg-hline-above">' in html and 'dg-hline-below' in html and 'C &amp; D' in html
           and "--dg-strut-dp:1.00em" in html and '--dg-arraystretch:1.3' in html
           and rr.arraystretch is None, html)
+    rr, html = run('As a sum of these \\DLC{PROOF}. Then a \\DLC{note} word, and the end \\DLC{x}\n\nNext.', {})
+    check('\\DLC (D18): prints nothing; the space before it goes too when punctuation or the paragraph\'s end follows (B18-B22)',
+          '<p>As a sum of these. Then a  word, and the end</p>' in html and 'PROOF' not in html, html)
     rr, html = run('Text: \\[ \\begin{tabular}{cc} \\textbf{a} & $y$ \\end{tabular} \\] more.', {})
     check('display tabular: a centred table that ends the paragraph, cells as text (math inline)',
           html.startswith('<p>Text:</p>\n<div class="dg-table-wrap dg-table-display">') and '<td style="text-align:center;white-space:nowrap"><strong>a</strong></td>' in html
@@ -417,6 +420,13 @@ def main() -> int:
           and 'alt="Daniel López Cano"' in head and 'alt=""' in head
           and 'href="https://daniellopezcano.github.io"' in foot and 'href="https://github.com/daniellopezcano"' in foot
           and not any(getattr(n, 'raw', '') and 'overlay' in n.raw for n in rest), (head, foot))
+    import re as _re
+    lsrc = _re.search(frontmatter.PATTERNS['links'], P.s[about.a:about.b], _re.S).group(1)
+    links = _re.findall(r'<span class="dg-about-link">(.*?)</span>(?=<span class="dg-about-link">|</p>)', foot)
+    check('About: each foot link is one span.dg-about-link, the separator "·" with its \\quads in span.dg-about-sep of '
+          'the link before it; only markup added (B18-B22)',
+          len(links) == 2 and links[0].count('class="dg-about-sep"') == 1 and '\\cdot' in links[0] and 'dg-about-sep' not in links[1]
+          and build.text_of(foot) == build.text_of(ra.inline(Parser(lsrc).parse(0, len(lsrc)))), foot)
     ctx.figures = real_figures
 
     # -- List of Figures and Bibliography (unit B5, D52) ----------------------------------------
@@ -573,8 +583,9 @@ def main() -> int:
           len(tables) == 1 and '<a href="\x02U|ch/s1#nt_A\x02"><span class="dg-secnum">2.1.1</span> Notation</a>' in tables[0]
           and '>y</th>' in tables[0] and ' z ' not in tables[0] and 'z</td>' not in tables[0] and ' id=' not in tables[0], tables)
     links = _re.search(r'<ul class="dg-web dg-defs-links">(.*?)</ul>', h)
-    check('D53: then links to every section and subsection whose title contains "notation", in the notes\' order',
-          links is not None and _re.findall(r'href="\x02U\|([^\x02]+)\x02"', links.group(1)) == ['ch/s1#nt_A', 'ch/s2', 'ch/s2#nt_B'],
+    check('D53: then links to every section and subsection whose title contains "notation", in the notes\' order, '
+          'except those whose table is shown above (2.1.1; B18-B22)',
+          links is not None and _re.findall(r'href="\x02U\|([^\x02]+)\x02"', links.group(1)) == ['ch/s2', 'ch/s2#nt_B'],
           links and links.group(1))
     entry = lambda word: next((li for li in _re.findall(r'<li><span class="dg-term.*?</li>', h)
                                if _re.sub(r'<[^>]+>', '', li.split('<span class="dg-defs-at">')[0]).strip().casefold() == word), '')

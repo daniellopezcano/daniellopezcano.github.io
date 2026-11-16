@@ -201,6 +201,7 @@ body.dg-page-landing .dg-main { max-width: 1120px; margin: 0 auto; padding: 1.5r
 body.dg-page-chapter .dg-shell { display: block; font-size: 1.17rem; }
 body.dg-page-chapter .dg-main { max-width: 1120px; margin: 0 auto; padding: 2.2rem 1.25rem 5rem; }
 body.dg-page-chapter .dg-main > :not(.dg-web) { max-width: 52.65rem; }      /* 45 em of the text size (1.17rem), also for the smaller footnotes */
+body.dg-page-chapter .dg-main > .dg-prevnext { max-width: 52.65rem; }       /* previous/next as wide as the text column (B18-B22) */
 body.dg-page-chapter .dg-bar-menu { display: inline-flex; }
 body.dg-page-chapter .dg-tree { position: fixed; z-index: 41; top: 0; bottom: 0; left: 0; width: min(21rem, 88vw); max-height: none; padding-top: 1.2rem;
   background: var(--dg-bg); font-size: 0.88rem; transform: translateX(-102%); visibility: hidden; transition: transform 0.18s ease, visibility 0s linear 0.18s; }
@@ -478,7 +479,7 @@ a:has(> .dg-readmark) { position: relative; }
 @media screen {
   html.dg-has-sidenotes .dg-main { position: relative; }
   html.dg-has-sidenotes .dg-sidenotes { display: block; position: absolute; top: 0; left: 100%; width: var(--dg-margin-w); height: 100%; pointer-events: none; }
-  html.dg-has-sidenotes .dg-footnotes { display: none; }
+  html.dg-has-sidenotes #dg-main > .dg-footnotes { display: none; }       /* the page's list; a panel (D35) keeps its own */
   /* D60: a footnote whose math does not fit the margin is no sidenote: its mark opens the popover and the
      list at the foot of the page shows it (only those; course.js marks the others dg-fn-margin) */
   html.dg-has-sidenotes #dg-main > .dg-footnotes:has(> .dg-fn:not(.dg-fn-margin)) { display: block; }
@@ -775,7 +776,13 @@ h1.dg-about-kicker { margin: 0 0 0.35rem; color: #bdc9ed; font-size: 1.2rem; fon
 .dg-tl-role { grid-row: 3; margin-top: 0.15rem; color: var(--dg-color-blue-0); font-size: 0.78em; font-weight: 700; }
 .dg-tl-place { grid-row: 4; color: color-mix(in srgb, var(--dg-text) 65%, var(--dg-bg)); font-size: 0.78em; }
 .dg-about-links { margin-top: 2.6rem; padding-top: 0.5rem; border-top: 1px solid var(--dg-color-blue-0); text-align: right; font-size: 0.9em; }
-.dg-about-links p { margin: 0; }
+/* B18-B22: a link that does not fit goes to the next line whole, and the separator "·" (with its two \quad) hangs
+   in the gap before the next link: at the end of a line it falls outside the box and is clipped, so no line ends
+   or starts with it (the 3 px padding keeps the links' focus rings inside the clip) */
+.dg-about-links p { display: flex; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; overflow: clip; margin: -3px; padding: 3px; }
+.dg-about-link { white-space: nowrap; }
+.dg-about-link + .dg-about-link { margin-left: 2.6em; }
+.dg-about-sep { display: inline-block; width: 2.6em; margin-right: -2.6em; text-align: center; }
 @media (max-width: 599.98px) {
   .dg-about-band { aspect-ratio: auto; min-height: 12rem; }
   .dg-about-titles { padding: 0 7.2rem 0.9rem 1rem; }

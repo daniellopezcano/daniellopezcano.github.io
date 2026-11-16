@@ -66,6 +66,8 @@ Answered in `REDESIGN.md`; recorded in `PROGRESS.md` § "Pilot review".
 | `Chapters/Integrals.tex:118`, §8.1, footnote on densities | "requires intoducing the frame bundle" ("introducing") (found in B31) |
 | `Chapters/Integrals.tex:121`, §8.1, same footnote | "can be viewed simply as function on \(\mathcal{U}\)" ("as a function") (found in B31) |
 | `Chapters/Integrals.tex:111`, §8.1 | "Therefore, under a change of basis, the scalar density \(\omega_\mathscr{X}\) picks up a Jacobian determinant term": the transformation just derived is under a change of chart ("change of chart" is used everywhere else in the chapter); minor (found in B31) |
+| `Appendices/examples_and_exercises/example_smooth_manifold.tex:62`, C.2 (PDF p. 134) | the display \(\mathcal{U}_\uparrow \cap \mathcal{U}_\rightarrow = \left\lbrace q \in \mathcal{S}^1 : q_1 > 0, \; q_2 > 0 \right\rbrace,\) ends with a comma, but the sentence ends there (what followed, "whose image is \((0, 1)\) …", is commented out) (found in B18-B22) |
+| `Appendices/proofs_and_comments/supports_and_compactness.tex:158`, Figure B.1(b) (PDF p. 119) | the arrow label "left ends \(1/n \to 0\)" overlaps the panel's caption in the figure (layout of the TikZ source; found in B18-B22) |
 
 (Only the files read closely during the pilot so far; the chapter-by-chapter review will add to this table.)
 

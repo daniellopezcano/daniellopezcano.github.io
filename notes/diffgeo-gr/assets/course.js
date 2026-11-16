@@ -95,14 +95,15 @@ let tapWasOpen = false;
 const H = document.documentElement;
 const sidenotesOn = () => H.classList.contains('dg-has-sidenotes');
 
-// a footnote mark of the page whose footnote is shown in the margin (D60: not every footnote is a sidenote)
+// a footnote mark of the page whose footnote is shown in the margin (D60: not every footnote is a sidenote);
+// a mark inside an appendix panel (D35) never is: its footnote is in the panel's own list, shown at its end
 const inMargin = a => sidenotesOn() && !a.closest('.dg-inline')
   && !!document.getElementById(decodeURIComponent(a.hash.slice(1)))?.classList.contains('dg-fn-margin');
 
 function trigger(target) {
   const t = target && target.closest ? target.closest(TRIGGER) : null;
   if (!t || t.closest('.dg-pop, dialog')) return null;           // a modal dialog would cover the popover
-  if (t.matches('.dg-fnref > a') && sidenotesOn() && (t.closest('.dg-inline') || inMargin(t))) return null;
+  if (t.matches('.dg-fnref > a') && inMargin(t)) return null;
   return t;
 }
 
@@ -1121,7 +1122,8 @@ function announce(text) {
 // time, so the panel cannot disagree with the page. The buttons are copied with the footnotes into the
 // sidenotes and the footnote popover; all of them work through one delegated click handler.
 const APPENDIX_PAGE = /^(proofs-and-additional-material|examples)\/(?!index\.html$)[^/]+\.html$/;
-const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, nav, .dg-web';
+// .dg-lof: the List of Figures is a list; its numbers preview the figures (D52), its captions open nothing
+const NOT_OPENABLE = 'h1, h2, h3, h4, h5, h6, .dg-head, .dg-kicker, .dg-prevnext, .dg-chapter-sections, .dg-inline, .dg-lof, nav, .dg-web';
 const panels = new Set();
 let panelSeq = 0;
 
@@ -1251,12 +1253,40 @@ function buildPanel(doc, target) {
   body.className = 'dg-inline-body';
   body.tabIndex = 0;                                      // it scrolls: keyboard users can scroll it too
   body.setAttribute('aria-labelledby', `${id}-t`);
-  for (const el of main.children) {
-    if (el.matches('.dg-head, .dg-prevnext, .dg-sidenotes, script')) continue;
-    body.append(adopt(document.importNode(el, true), target));
-  }
+  const kept = [...main.children].filter(el => !el.matches('.dg-head, .dg-prevnext, .dg-sidenotes, script'));
+  for (const el of kept) body.append(adopt(document.importNode(el, true), target));
+  panelFootnotes(kept, body, id);
   box.append(head, body);
   return box;
+}
+
+/** The footnotes of a panel stay in the panel, at every width: each mark and its entry in the panel's own
+ *  list (shown at its end, never in the margin) get ids of the panel, so the mark opens the popover with that
+ *  footnote and a click jumps to it, as below 1000 px on the page (D11). `src`: the elements of the fetched
+ *  page copied into `body`, whose marks and entries correspond one to one with the copies (adopt removed
+ *  their ids); if they do not, the marks stay links to the item's page. */
+function panelFootnotes(src, body, id) {
+  const all = sel => src.flatMap(el => [...(el.matches(sel) ? [el] : []), ...el.querySelectorAll(sel)]);
+  const marks = all('.dg-fnref > a[href^="#"]'), copies = [...body.querySelectorAll('.dg-fnref > a')];
+  const fns = all('.dg-footnotes .dg-fn[id]'), fnCopies = [...body.querySelectorAll('.dg-footnotes .dg-fn')];
+  if (marks.length !== copies.length || fns.length !== fnCopies.length) return;      // not the page's structure
+  const local = new Map();                                 // the page's footnote id -> the panel's
+  fns.forEach((fn, i) => {
+    const c = fnCopies[i];
+    c.id = `${id}-${fn.id}`;
+    local.set(fn.id, c.id);
+    const b = c.querySelector('.dg-fn-body');
+    if (b) b.id = `${c.id}-body`;
+  });
+  marks.forEach((a, i) => {
+    const to = local.get(decodeURIComponent(a.hash.slice(1))), c = copies[i];
+    if (!to) return;
+    c.setAttribute('href', `#${to}`);
+    if (a.id) c.id = `${id}-${a.id}`;
+    c.setAttribute('aria-describedby', `${to}-body`);
+    const back = body.querySelector(`#${CSS.escape(to)} > a.dg-fn-num`);
+    if (back && a.id) back.setAttribute('href', `#${c.id}`);
+  });
 }
 
 // ---- 9. copy LaTeX (D39) ------------------------------------------------------------------------

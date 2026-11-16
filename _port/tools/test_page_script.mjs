@@ -18,6 +18,8 @@
 // Units B12-B17 (D60, D45): which footnotes are sidenotes (math fits at 85 % at most, else popover + list), sidenotes
 // never over previous/next or the footer (1000, 1280, 1440 px); equation numbers in view at rest; edge shadows.
 // Unit B5 (D52): a citation previews its Bibliography entry; a List of Figures number previews its figure.
+// Units B18-B22: footnotes inside an appendix panel (popover, the panel's list), no "open here" on the List of Figures,
+// previous/next of chapter opening pages as wide as the text, About the Author's foot links without a line ending or starting with "·".
 import { chromium, serveDocs } from './shot.mjs';
 
 const C = 'notes/diffgeo-gr/';
@@ -159,6 +161,8 @@ try {
     await x.hover();
     const f = await waitPop(p2, s => s.includes('Figure 2.1'));
     ok(f.includes('Figure 2.1') && (await p2.locator('#dg-pop figure img').count()) === 1, 'List of Figures: the number previews its figure');
+    ok(await p2.locator('.dg-open-here').count() === 0 && await p2.locator('.dg-lof a.dg-xref[href*="examples/"]').count() > 0,
+      'List of Figures: no "open here" (B18-B22), although captions refer to Appendix C items');
     await p2.close();
   }
   // 1b. touch: first tap previews, tap elsewhere closes
@@ -275,6 +279,48 @@ try {
       await b.click(); await page.waitForTimeout(200);
       ok(await page.locator('#dg-main .dg-inline').count() === 0, `${W} footnote: a second click closes the panel`);
       ok(errors.length === 0, `${W} footnote: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      await page.close();
+    }
+    // footnotes inside a panel (B18-B22): §9.1 opens B.21, whose footnotes 1-5 are in the panel; at every width the
+    // mark opens the popover with the panel's own footnote, and the panel's list is visible at its end (never sidenotes)
+    {
+      const { page, errors } = await open('newtonian/newtonian-spacetime.html', width, width < 600 ? { hasTouch: true, isMobile: true } : {});
+      const b = page.locator(width >= 1000 ? '.dg-sidenote .dg-open-here' : '.dg-footnotes .dg-open-here')
+        .filter({ has: page.locator('xpath=self::*[preceding-sibling::a[contains(@href,"newtonian-formulations")]]') }).first();
+      ok(await b.count() === 1, `${W} panel footnotes: §9.1 has "open here" on its reference to B.21`);
+      await b.scrollIntoViewIfNeeded(); await b.click();
+      await page.waitForSelector('#dg-main .dg-inline:not(.dg-inline-raw)', { timeout: 10000 }).catch(() => {});
+      const info = await page.evaluate(() => {
+        const box = document.querySelector('#dg-main .dg-inline');
+        if (!box) return null;
+        const marks = [...box.querySelectorAll('.dg-fnref > a')], list = box.querySelector('.dg-footnotes');
+        return { marks: marks.length, local: marks.every(a => a.hash && box.contains(document.getElementById(a.hash.slice(1)))),
+          list: !!list && getComputedStyle(list).display !== 'none' && list.getBoundingClientRect().height > 0,
+          entries: list ? list.querySelectorAll('.dg-fn').length : 0,
+          back: [...box.querySelectorAll('.dg-fn > a.dg-fn-num')].every(a => box.contains(document.getElementById(a.hash.slice(1)))) };
+      });
+      ok(info && info.marks >= 2 && info.local && info.back, `${W} panel footnotes: each mark points at the panel's own entry and back (${info && info.marks} marks)`);
+      ok(info && info.list && info.entries === info.marks, `${W} panel footnotes: the panel's footnote list is visible at its end (${info && info.entries} entries)`);
+      const mark = page.locator('#dg-main .dg-inline .dg-fnref > a').first();
+      const want = await page.evaluate(() => { const a = document.querySelector('#dg-main .dg-inline .dg-fnref > a'); return document.getElementById(a.hash.slice(1)).querySelector('.dg-fn-body').textContent.trim().slice(0, 20); });
+      await mark.scrollIntoViewIfNeeded();
+      if (width >= 1000) await mark.hover(); else await mark.tap();
+      const t = await waitPop(page, s => s.length > 0);
+      ok(t.length > 0 && t.startsWith(want.slice(0, 10)), `${W} panel footnotes: the mark opens the popover with its footnote ("${t.slice(0, 30)}")`);
+      ok((await dupIds(page)).length === 0, `${W} panel footnotes: ids stay unique`);
+      ok(errors.length === 0, `${W} panel footnotes: no console errors${errors.length ? ': ' + errors.slice(0, 3).join(' / ') : ''}`);
+      await page.close();
+    }
+    // About the Author (B18-B22): the foot links wrap whole; the separator shows between two links on one line and is
+    // clipped where a line ends, so no line ends or starts with "·"
+    {
+      const { page } = await open('about-the-author.html', width);
+      const r = await page.evaluate(() => {
+        const p = document.querySelector('.dg-about-links p'), [a, b] = p.querySelectorAll('.dg-about-link'), sep = p.querySelector('.dg-about-sep mjx-container, .dg-about-sep .math');
+        const R = e => e.getBoundingClientRect(), pr = R(p), sr = R(sep), ar = R(a.querySelector('a')), br = R(b.querySelector('a'));
+        return { oneLine: Math.abs(ar.top - br.top) < 2, sepIn: sr.left >= pr.left && sr.right <= pr.right, between: sr.left > ar.right && sr.right < br.left };
+      });
+      ok(r.oneLine ? r.sepIn && r.between : !r.sepIn, `${W} About the Author: ${r.oneLine ? 'links on one line, "·" between them' : 'links on two lines, "·" clipped at the end of the first'}`);
       await page.close();
     }
     // copy LaTeX: a numbered equation (source rewritten for the web, original in data-tex) and an unnumbered one
@@ -461,6 +507,10 @@ try {
         .filter(y => !want[y] || !gotMap[y] || !sameSet(want[y], gotMap[y])).map(y => y.replace(/^.*\/diffgeo-gr\//, ''));
       ok(Object.keys(want).length >= 4 && diff.length === 0, `${W} chapter page: related items and their page numbers match the pages' links (${Object.keys(want).length} items${diff.length ? '; differ: ' + diff.join(', ') : ''})`);
       ok(await page.locator('.dg-chapter-web .dg-open-here, .dg-chapter-map .dg-open-here').count() === 0, `${W} chapter page: no "open here" inside the lists or the roadmap`);
+      const edges = await page.evaluate(() => { const r = e => document.querySelector(e).getBoundingClientRect();
+        return { bar: r('.dg-prevnext').right, text: r('.dg-motivation').right, cards: r('.dg-chapter-web').right }; });
+      ok(Math.abs(edges.bar - edges.text) <= 1 && Math.abs(edges.cards - edges.text) <= 1,
+        `${W} chapter page: previous/next ends with the text column (B18-B22; ${Math.round(edges.bar)} / ${Math.round(edges.text)} px)`);
       // roadmap: lazy, inlined near the viewport, linked, the chapter's badges ringed
       const map = await page.evaluate(() => { const m = document.querySelector('.dg-chapter-map'); return m && { top: m.getBoundingClientRect().top, svg: !!m.querySelector('svg'),
         cap: m.querySelector('figcaption a.dg-fignum')?.href || '', num: m.querySelector('figcaption .dg-fignum')?.textContent || '' }; });

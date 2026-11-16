@@ -92,6 +92,27 @@ def _captionof(nd) -> bool:
     return isinstance(nd, Env) and nd.name == 'minipage' and any(_captionof(c) for c in nd.body)
 
 
+_CLAUSE_END = '.,;:!?)'
+
+
+def dlc_unskip(nodes: list, i: int) -> bool:
+    """True if nodes[i] is a \\DLC note (it prints nothing, D18) written after a space, and what follows it starts
+    with punctuation or ends the paragraph (only spaces before the end or a paragraph break): the caller then
+    drops that space too, so that the page never shows "elements ." where the PDF prints "elements DLC: PROOF."
+    (units B18-B22)."""
+    nd = nodes[i]
+    if not (isinstance(nd, Cmd) and nd.name == 'DLC' and i and isinstance(nodes[i - 1], Text)):
+        return False
+    for nd in nodes[i + 1:]:
+        if isinstance(nd, Par):
+            return True
+        if not isinstance(nd, Text):
+            return False
+        if nd.s.strip():
+            return nd.s[0] in _CLAUSE_END
+    return True
+
+
 class Renderer:
     def __init__(self, ctx, page, parser: Parser, records: dict):
         self.ctx = ctx                  # build context: labels (aux), bib, figures, review log, where()
@@ -178,6 +199,8 @@ class Renderer:
             elif isinstance(nd, Cmd) and nd.name == 'footnotetext':
                 buf.append(self.footnotetext(nd))
             else:
+                if dlc_unskip(nodes, i - 1) and buf:
+                    buf[-1] = buf[-1].rstrip(' \t\n')     # D18: no space before the note's place either
                 buf.append(self.inline_node(nd))
         flush()
         return '\n'.join(out)
@@ -539,6 +562,8 @@ class Renderer:
     def inline(self, nodes: list) -> str:
         out = []
         for i, nd in enumerate(nodes):
+            if dlc_unskip(nodes, i):
+                out[-1] = out[-1].rstrip(' \t\n')       # D18: the note prints nothing, nor the space written before it
             if isinstance(nd, Cmd) and nd.name in DECL:
                 rest = self.inline(nodes[i + 1:])
                 out.append(f'<span class="{DECL[nd.name]}">{rest}</span>' if DECL[nd.name] else rest)

@@ -1049,20 +1049,22 @@ def render_defs(p: Page, ctx: Ctx, pages: list) -> None:
         return f'<a href="\x02U|{q.slug}{"#" + frag if frag else ""}\x02">{n}{nolinks(_no_ids(title))}</a>'
 
     def copy(q, frag, num, title, part):
-        for t in _TABLE_HTML.findall(part):
+        found = _TABLE_HTML.findall(part)
+        for t in found:
             if 'dg-fnref' in t:
                 raise ConvertError(f'{q.slug}: a Notation table with a footnote mark: no handler yet (D53)')
             tables.append(f'<div class="dg-defs-table"><p class="dg-web dg-defs-from">{link(q, frag, num, title)}</p>'
                           f'{_no_ids(t)}</div>')
+        return bool(found)
 
+    # the links list omits a (sub)section whose table is already shown above, labelled with the same link (B18-B22)
     is_notation = lambda h: plain(h).strip().casefold() == 'notation'
     for q in done:
         if q.kind != 'section':
             continue
-        if _NOTATION.search(plain(q.title_html)):
+        shown = is_notation(q.title_html) and copy(q, '', q.number, q.title_html, q.html)
+        if _NOTATION.search(plain(q.title_html)) and not shown:
             links.append(f'<li>{link(q, "", q.number, q.title_html)}</li>')
-        if is_notation(q.title_html):
-            copy(q, '', q.number, q.title_html, q.html)
         heads = list(HEAD_MARK.finditer(q.html))
         for i, m in enumerate(heads):
             if m.group(1) != '2':
@@ -1070,11 +1072,12 @@ def render_defs(p: Page, ctx: Ctx, pages: list) -> None:
             t = re.sub(r'<sup class="dg-fnref">.*?</sup>', '', m.group(3))
             n = re.match(r'<span class="dg-secnum">([^<]*)</span>\s*', t)
             num, t = (n.group(1), t[n.end():]) if n else (None, t)
-            if _NOTATION.search(plain(t)):
-                links.append(f'<li>{link(q, m.group(2), num, t)}</li>')
+            shown = False
             if is_notation(t):
                 end = next((h.start() for h in heads[i + 1:] if int(h.group(1)) <= 2), len(q.html))
-                copy(q, m.group(2), num, t, q.html[m.end():end])
+                shown = copy(q, m.group(2), num, t, q.html[m.end():end])
+            if _NOTATION.search(plain(t)) and not shown:
+                links.append(f'<li>{link(q, m.group(2), num, t)}</li>')
     # -- Defined terms
     rank = {q: i for i, q in enumerate(pages)}
     sections = [q for q in done if q.kind == 'section']
