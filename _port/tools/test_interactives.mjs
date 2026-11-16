@@ -14,7 +14,8 @@
 // length ∫ dr/√f and the circles of Figure C.19a), those of the fields module against C.4 (𝒳⌊f⌉, 𝒴⌊f⌉ in both charts, from the curves
 // and as df⌈·⌋; finite differences of f along γ_x0, δ_r0; the drawing in pixels and its raster), those of the cotangent module
 // against §4.2.1 (𝚡_i^p, 𝚢_i^p by finite differences of f in each chart, the transformation law, the pairing, the lines of
-// (df)_p crossed), checks touch on a phone (D56: a swipe
+// (df)_p crossed), those of the integration module against C.7 (the two terms of the partition of unity against Gauss–Legendre,
+// their sum against 2πR; the drawing in pixels), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -1740,6 +1741,188 @@ async function cotangentCrossChecks(page) {
   check(nbad === 0, `lines of (df)_p crossed, trunc((df)_p(𝒳_p)/0.25) from either chart's pairing, against the test's: ${nbad} of 200 differ`);
 }
 
+// ---- integration (Figure 8.1, B31): the circle of C.7 (example_integration.tex), written here independently of the module:
+// ᚹ₁(p) = χ(a/R), ᚹ₂ = 1 − ᚹ₁, the two terms ∫_0^{2π} dα R χ(cos α) and ∫_{−π}^{π} dβ R (1 − χ(cos β)) (Gauss–Legendre on the whole
+// interval, no splitting at the transition), their sum and the notes' closed form 2πR. χ is the panel's smooth step (its choice
+// within C.7's conditions): 1 for s <= s1, 0 for s >= s2, 1 − ψ(t)/(ψ(t) + ψ(1 − t)) in between, t = (s − s1)/(s2 − s1), ψ(t) = e^{−1/t}.
+const IG = 'notes/diffgeo-gr/integrals/index.html';
+const IG_START = { R: 1, s1: -0.5, s2: 0.5, th: 100 };
+const igChi = (s, s1, s2) => { const t = (s - s1) / (s2 - s1); if (t <= 0) return 1; if (t >= 1) return 0; const a = Math.exp(-1 / t), b = Math.exp(-1 / (1 - t)); return b / (a + b); };
+const igTerms = ({ R, s1, s2 }, pieces = 1500) => ({
+  I1: gl(a => R * igChi(Math.cos(a), s1, s2), 0, 2 * Math.PI, pieces),
+  I2: gl(b => R * (1 - igChi(Math.cos(b), s1, s2)), -Math.PI, Math.PI, pieces) });
+function igExpect(st) {
+  const t = igTerms(st), th = st.th * Math.PI / 180, w1 = igChi(Math.cos(th), st.s1, st.s2);
+  const m = ((st.th % 360) + 360) % 360;
+  return { r1: w1, r2: 1 - w1, a: m === 0 ? null : m * Math.PI / 180, b: m === 180 ? null : (m < 180 ? m : m - 360) * Math.PI / 180,
+    I1: t.I1, I2: t.I2, J1: t.I1, J2: t.I2, sum: t.I1 + t.I2, closed: 2 * Math.PI * st.R };
+}
+// the drawing, in pixels: p on the circle at its angle (the centre and R from the two open circles at (±R, 0)); the colour of ℳ at
+// 12 angles is the mix of blue_1 and green_1 in the proportion ᚹ₂ (green channel; ᚹ₂ within ±3° of the angle); in each chart the solid area (this chart's term)
+// is the fraction term/(2πR) of the two areas together (the rectangle of height R); the bar at 𝒳(p), 𝒴(p) is split at ᚹ₁(p) : ᚹ₂(p)
+async function igGeometry(fr, st, what) {
+  const r = await fr.evaluate((f, st) => {
+    const svgs = [...f.querySelectorAll('.dg-ig svg.dg-plot-svg')], M = svgs[0];
+    M.scrollIntoView({ block: 'center', behavior: 'instant' });                // elementsFromPoint only sees the viewport
+    const box = M.getBoundingClientRect();
+    const opens = [...M.querySelectorAll('circle')].filter(c => c.getAttribute('fill') === '#fff').map(c => [+c.getAttribute('cx'), +c.getAttribute('cy')]);
+    const c = [(opens[0][0] + opens[1][0]) / 2, (opens[0][1] + opens[1][1]) / 2], Rpx = Math.abs(opens[0][0] - opens[1][0]) / 2;
+    const h = M.querySelector('[data-key="p"]'), hp = [+h.getAttribute('cx') - c[0], +h.getAttribute('cy') - c[1]];
+    const cols = [];
+    for (let k = 0; k < 12; k++) {
+      const t = (k * 30 + 7) * Math.PI / 180, x = box.left + c[0] + Rpx * Math.cos(t), y = box.top + c[1] - Rpx * Math.sin(t);
+      const e = document.elementsFromPoint(x, y).find(e => e.tagName === 'path' && e.getAttribute('stroke-width') === '5');
+      cols.push([t, e ? e.getAttribute('stroke') : null]);
+    }
+    const pts = d => d.slice(1, -1).split(/[LM]/).map(q => q.trim().split(/\s+/).map(Number));
+    const area = d => { const p = pts(d); let s = 0; for (let i = 0; i < p.length; i++) { const [a, b] = p[i], [u, v] = p[(i + 1) % p.length]; s += a * v - u * b; } return Math.abs(s) / 2; };
+    const charts = svgs.slice(1).map(S => {
+      const fills = [...S.querySelectorAll('path')].filter(p => p.getAttribute('fill') && p.getAttribute('fill') !== 'none' && p.getAttribute('d').endsWith('Z') && !p.closest('.dg-arrow'));
+      const own = fills.find(p => p.getAttribute('fill-opacity') === '1'), other = fills.find(p => p.getAttribute('fill-opacity') !== '1');
+      const bars = [...S.querySelectorAll('path')].filter(p => p.getAttribute('stroke-width') === '3.5').map(p => { const q = pts(p.getAttribute('d') + 'Z'); return Math.abs(q[1][1] - q[0][1]); });
+      return { frac: area(own.getAttribute('d')) / (area(own.getAttribute('d')) + area(other.getAttribute('d'))), bars };
+    });
+    return { Rpx, hp, cols, charts };
+  }, st);
+  const th = st.th * Math.PI / 180, ang = Math.atan2(-r.hp[1], r.hp[0]), dAng = Math.abs(((ang - th) % (2 * Math.PI) + 3 * Math.PI) % (2 * Math.PI) - Math.PI);
+  const okP = dAng < 0.02 && Math.abs(Math.hypot(...r.hp) - r.Rpx) < 1;
+  let wc = 0;
+  // the arc is drawn in runs of 1.5° whose round caps overlap their neighbours by up to 2.5 px: compare with the range of ᚹ₂ within ±3°
+  for (const [t, col] of r.cols) {
+    const g = col ? +col.match(/\d+/g)[1] : NaN, w = (g - 89) / (172 - 89);
+    const near = Array.from({ length: 61 }, (_, i) => 1 - igChi(Math.cos(t + (i - 30) * Math.PI / 1800), st.s1, st.s2));
+    wc = Math.max(wc, Number.isNaN(w) ? Infinity : Math.max(0, Math.min(...near) - w, w - Math.max(...near)));
+  }
+  const e = igExpect(st), m = ((st.th % 360) + 360) % 360, w1 = e.r1;
+  const wf = Math.max(Math.abs(r.charts[0].frac - e.I1 / e.closed), Math.abs(r.charts[1].frac - e.I2 / e.closed));
+  const barOk = (bars, own, has) => has ? bars.length === 2 && Math.abs(bars[0] / (bars[0] + bars[1]) - own) < 0.02 : bars.length === 0;
+  const okB = barOk(r.charts[0].bars, w1, m !== 0) && barOk(r.charts[1].bars, 1 - w1, m !== 180);
+  check(okP && wc < 0.015 && wf < 0.005 && okB, `${what}, the drawing in pixels: p at its angle on ℳ (off by ${dAng.toFixed(4)} rad); colour of ℳ = mix of blue and green in the proportion ᚹ₂ at 12 angles (within ±3°; max deviation ${wc.toFixed(3)}); solid area / (2πR rectangle) = term/(2πR) in both charts (max deviation ${wf.toExponential(1)}); bars at 𝒳(p), 𝒴(p) split as ᚹ₁(p) : ᚹ₂(p) (${okB ? 'yes' : 'no'})`);
+}
+
+async function testIntegration(width) {
+  console.log(`integration @ ${width}px`);
+  const { page, errors } = await open(IG, width, { module: 'integration' });
+  await ready(page, 'integration');
+  const fr = page.locator('.dg-interactive[data-module="integration"]');
+  const pl = await placedAfter(fr, 'fig_integration_charts');
+  check(pl.after, 'panel right after Figure 8.1 (fig_integration_charts), on the chapter opening page');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const wd = await page.evaluate(() => [document.querySelector('.dg-interactive[data-module="integration"]').getBoundingClientRect().width, document.querySelector('#fig_integration_charts').getBoundingClientRect().width]);
+  check(Math.abs(wd[0] - wd[1]) < 2, `as wide as the figure it follows (${Math.round(wd[0])} px, figure ${Math.round(wd[1])} px; D38)`);
+  const state = async () => JSON.parse(await fr.locator('.dg-ig').getAttribute('data-state'));
+  const svgM = fr.locator('.dg-ig svg.dg-plot-svg').nth(0);
+  async function numbers(what) {
+    const st = await state(), e = igExpect(st);
+    const shown = await fr.locator('.dg-ig-val').evaluateAll(vs => vs.map(v => [v.dataset.k, v.textContent, !!v.closest('[hidden]')]));
+    const text = await fr.locator('.dg-interactive-body').textContent();
+    let err = 0, bad = [];
+    for (const [k, t, hidden] of shown) {
+      if (e[k] === null) { if (!hidden) bad.push(k + ' shown'); continue; }
+      if (hidden) { bad.push(k + ' hidden'); continue; }
+      const tol = ['r1', 'r2', 'a', 'b'].includes(k) ? 5.1e-4 : 5.1e-7;
+      err = Math.max(err, Math.abs(num(t) - e[k]) / tol);
+    }
+    const nots = await fr.locator('.dg-ig-not').evaluateAll(ns => ns.map(n => !n.hidden));
+    const notOk = nots[0] === (e.a === null) && nots[1] === (e.b === null);
+    const val = k => shown.find(s => s[0] === k)[1];
+    check(err <= 1 && !bad.length && notOk && val('sum') === val('closed') && st.s1 >= -0.5 && st.s2 <= 0.5 && st.s2 - st.s1 >= 0.02 - 1e-9 && !/NaN|Infinity/.test(text),
+      `${what} (R = ${st.R}, ᚹ₁ = 1 for a/R <= ${st.s1}, ᚹ₂ = 1 for a/R >= ${st.s2}, θ = ${st.th}°): ${val('I1')} + ${val('I2')} = ${val('sum')}, 2πR = ${val('closed')}; ᚹ₁(p) = ${val('r1')}${e.a === null ? ', p ∉ 𝒰' : ''}${e.b === null ? ', p ∉ 𝒱' : ''}; largest deviation / tolerance ${err.toFixed(2)}${bad.length ? '; ' + bad.join(', ') : ''}`);
+    await igGeometry(fr, st, what);
+    return { st, val };
+  }
+  await shot(page, `integration-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-ig > .dg-two').nth(1).locator('.dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 100 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'chart (𝒱, 𝒴) below chart (𝒰, 𝒳)' : 'the two charts side by side');
+  let { st, val } = await numbers('start (Figure C.13c: ᚹ₁, ᚹ₂ shared on −R/2 < a < R/2)');
+  check(JSON.stringify(st) === JSON.stringify(IG_START), 'starting state');
+  check(val('I1') === val('I2') && Math.abs(num(val('I1')) - Math.PI) < 5.1e-7, `symmetric partition: both terms πR (${val('I1')}, ${val('I2')})`);
+  const sums = new Set([val('sum')]);
+  const sl = fr.locator('.dg-slider input');
+  await sl.nth(1).focus(); await page.keyboard.press('End');
+  ({ st, val } = await numbers('End on ᚹ₁ = 1 for a/R <= (pushes the other)')); sums.add(val('sum'));
+  check(st.s1 === 0.48 && st.s2 === 0.5, `s1 = ${st.s1}, s2 = ${st.s2}`);
+  await sl.nth(2).focus(); await page.keyboard.press('Home');
+  ({ st, val } = await numbers('Home on ᚹ₂ = 1 for a/R >= (pushes the other)')); sums.add(val('sum'));
+  check(st.s1 === -0.5 && st.s2 === -0.48, `s1 = ${st.s1}, s2 = ${st.s2}`);
+  for (let i = 0; i < 30; i++) await page.keyboard.press('ArrowRight');
+  ({ st, val } = await numbers('ArrowRight ×30 on the second slider')); sums.add(val('sum'));
+  check(Math.abs(st.s2 + 0.18) < 1e-9 && num(val('I1')) < Math.PI, `s2 = ${st.s2}: the ᚹ₁ term is smaller (${val('I1')}), the sum is not`);
+  check(sums.size === 1, `the sum shown never changed with the partition of unity (${[...sums].join(', ')})`);
+  await sl.nth(0).focus(); await page.keyboard.press('End');
+  ({ st, val } = await numbers('End on R')); check(st.R === 1.5, `R = ${st.R}`);
+  // p: keyboard, then the mouse onto (R, 0) and (−R, 0), the points missing from 𝒰 and 𝒱
+  const hp = svgM.locator('[data-key="p"]');
+  await hp.focus(); for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowRight');
+  ({ st } = await numbers('ArrowRight ×4 on p')); check(st.th === 120, `θ = ${st.th}°`);
+  let [x, y] = await center(hp);
+  const box = await svgM.boundingBox();
+  const cy = box.y + box.height / 2 + (await svgM.evaluate(s => { const o = [...s.querySelectorAll('circle')].find(c => c.getAttribute('fill') === '#fff'); return +o.getAttribute('cy') - s.getBoundingClientRect().height / 2; }));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(box.x + box.width - 2, cy, { steps: 8 }); await page.mouse.up();
+  ({ st } = await numbers('p dragged onto (R, 0)')); check(st.th === 0, `θ = ${st.th}°: p ∉ 𝒰`);
+  [x, y] = await center(hp);
+  const box2 = await svgM.boundingBox(), cy2 = cy - box.y + box2.y;
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 60, y - 120, { steps: 6 }); await page.mouse.move(box2.x + 2, cy2, { steps: 8 }); await page.mouse.up();
+  ({ st } = await numbers('p dragged onto (−R, 0)')); check(st.th === 180, `θ = ${st.th}°: p ∉ 𝒱`);
+  await shot(page, `integration-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_integration_charts', 'Figure 8.1', null);
+  check(JSON.stringify(await state()) === JSON.stringify(IG_START), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await integrationCrossChecks(page);
+  await page.close();
+}
+
+async function integrationCrossChecks(page) {
+  console.log('integration: the module against C.7 (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/integration.js');
+    let seed = 31; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const states = [], chis = [], clamp = [], coords = [];
+    for (let n = 0; n < 300; n++) {
+      const R = rnd(0.6, 1.5), s1 = rnd(-0.5, 0.48), s2 = n % 4 ? rnd(s1 + 0.02, 0.5) : Math.min(0.5, s1 + 0.02);
+      states.push({ R, s1, s2, t: m.terms({ R, s1, s2 }) });
+      const ss = [-1, -0.75, -0.5, s1 - 1e-9, s1, (s1 + s2) / 2, s2, s2 + 1e-9, 0.5, 0.75, 1, rnd(-1, 1), rnd(s1, s2)];
+      chis.push({ s1, s2, ss, c: ss.map(s => m.chi(s, s1, s2)), w: [0.3, 1.7, 2.9, 4.4].map(th => m.rho({ s1, s2 }, th)) });
+    }
+    for (let n = 0; n < 200; n++) { const k = n % 2 ? 's1' : 's2'; clamp.push(m.clampS({ s1: rnd(-1, 1), s2: rnd(-1, 1) }, k)); }
+    for (let n = 0; n < 200; n++) { const th = n < 4 ? [0, 180, 360, -90][n] : Math.round(rnd(-720, 720)); coords.push({ th, c: m.coords(th) }); }
+    const fixedR = [0, 1, 2, 3, 4, 5].map(k => m.terms({ R: 1.3, s1: -0.5 + 0.15 * k, s2: -0.5 + 0.15 * k + 0.02 + 0.1 * (k % 3) }));
+    return { states, chis, clamp, coords, fixedR, sym: [0.1, 0.25, 0.5].map(s => m.terms({ R: 1, s1: -s, s2: s })) };
+  });
+  let wt = 0, wc = 0, wg = 0;
+  for (const { R, s1, s2, t } of r.states) {
+    const e = igTerms({ R, s1, s2 }, 3000);
+    wt = Math.max(wt, Math.abs(t.I1 - e.I1), Math.abs(t.I2 - e.I2));
+    wc = Math.max(wc, Math.abs(t.sum - 2 * Math.PI * R), Math.abs(t.closed - 2 * Math.PI * R));
+    wg = Math.max(wg, Math.abs(e.I1 + e.I2 - 2 * Math.PI * R));
+  }
+  check(wt < 1e-8, `each term (the module: Simpson, split at the transition) against Gauss–Legendre on the whole interval, max difference ${wt.toExponential(2)} (300 random R, s1, s2; a quarter with the sharpest transition, s2 − s1 = 0.02)`);
+  check(wc < 1e-6 && wg < 1e-9, `the sum against the notes' closed form 2πR, max difference ${wc.toExponential(2)} (the test's own terms: ${wg.toExponential(2)})`);
+  const spread = Math.max(...r.fixedR.map(t => t.sum)) - Math.min(...r.fixedR.map(t => t.sum)), moved = Math.max(...r.fixedR.map(t => t.I1)) - Math.min(...r.fixedR.map(t => t.I1));
+  check(spread < 1e-12 && moved > 1, `R = 1.3, six partitions of unity: the ᚹ₁ term ranges over ${moved.toFixed(3)}, the sum over ${spread.toExponential(1)}`);
+  check(r.sym.every(t => Math.abs(t.I1 - Math.PI) < 1e-12 && Math.abs(t.I2 - Math.PI) < 1e-12), 'symmetric transitions (s1 = −s2): both terms πR (χ(s) + χ(−s) = 1)');
+  let wchi = 0, cond = true;
+  for (const { s1, s2, ss, c, w } of r.chis) {
+    ss.forEach((s, i) => { wchi = Math.max(wchi, Math.abs(c[i] - igChi(s, s1, s2))); });
+    cond = cond && c.every(x => x >= 0 && x <= 1) && c.slice(0, 5).every(x => x === 1) && c.slice(6, 11).every(x => x === 0) && w.every(([a, b]) => Math.abs(a + b - 1) < 1e-15);
+    for (let k = 1; k < 400 && cond; k++) cond = m1(s1, s2, k);
+  }
+  function m1(s1, s2, k) { return igChi(-1 + k / 200, s1, s2) <= igChi(-1 + (k - 1) / 200, s1, s2); }
+  check(wchi < 1e-15 && cond, `χ as C.7 requires: values in [0, 1], χ = 1 on (−∞, −1/2] (and up to s1), χ = 0 on [1/2, ∞) (and from s2), non-increasing; ᚹ₁ + ᚹ₂ = 1 (300 random partitions; max difference to the test's χ ${wchi.toExponential(1)})`);
+  check(r.clamp.every(s => s.s1 >= -0.5 && s.s2 <= 0.5 && s.s2 - s.s1 >= 0.02 - 1e-9 && Math.abs(s.s1 * 100 - Math.round(s.s1 * 100)) < 1e-9 && Math.abs(s.s2 * 100 - Math.round(s.s2 * 100)) < 1e-9),
+    '−1/2 <= s1, s1 + 0.02 <= s2 <= 1/2 on a grid of 0.01 whatever the sliders do (200 random)');
+  let wx = 0, okc = true;
+  for (const { th, c } of r.coords) {
+    const t = th * Math.PI / 180, p = [Math.cos(t), Math.sin(t)], m = ((th % 360) + 360) % 360;
+    okc = okc && (c.alpha === null) === (m === 0) && (c.beta === null) === (m === 180);
+    if (c.alpha !== null) { okc = okc && c.alpha > 0 && c.alpha < 2 * Math.PI; wx = Math.max(wx, Math.hypot(Math.cos(c.alpha) - p[0], Math.sin(c.alpha) - p[1])); }
+    if (c.beta !== null) { okc = okc && c.beta > -Math.PI && c.beta < Math.PI; wx = Math.max(wx, Math.hypot(Math.cos(c.beta) - p[0], Math.sin(c.beta) - p[1])); }
+  }
+  check(okc && wx < 1e-12, `𝒳(p) ∈ (0, 2π), 𝒴(p) ∈ (−π, π) with 𝒳⁻¹(α) = 𝒴⁻¹(β) = p (200 angles; p ∉ 𝒰 exactly at (R, 0), p ∉ 𝒱 at (−R, 0)); max distance ${wx.toExponential(1)}`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -2037,6 +2220,36 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // integration (B31): on ℳ, a finger 10 px off p (drawn radius 6) drags it along the circle; a vertical swipe from an empty point scrolls the page
+  {
+    const { page, errors } = await open(IG, 390, { touch: true, module: 'integration' });
+    await ready(page, 'integration');
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator('.dg-interactive[data-module="integration"]');
+    const state = async () => JSON.parse(await fr.locator('.dg-ig').getAttribute('data-state'));
+    const svg = fr.locator('.dg-ig svg.dg-plot-svg').nth(0);
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator('[data-key="p"]').evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      'integration: touch-action pan-y pinch-zoom on the drawing, none on the handle');
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator('[data-key="p"]').boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx - 60, hy + 25]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(s1.th > s0.th + 10 && y1 === y0, `integration: a swipe starting 10 px from p drags it along ℳ (θ ${s0.th}° -> ${s1.th}°) and does not scroll (scrollY ${y0} -> ${y1})`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(svg);
+    check(!!pt, 'integration: found an empty point of the drawing');
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && JSON.stringify(await state()) === JSON.stringify(s0), `integration: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -2070,7 +2283,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); await testFields(w); await testCotangent(w); await testIntegration(w); }
   await testTouch();
   await testBroken();
 } catch (e) {
