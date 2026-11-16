@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L1 — create `_port/convert/courses.py` and make `build.py`, `shell.py`, `source.py`, `figures.py`, `_port/tex/build_scratch.sh` take a course; prove the first course byte-identical with a new `_port/tools/course_unchanged.py`.
+**Next action:** L2 — `_port/tex/build_scratch.sh lya-forest` (pdfLaTeX, ~1 min); compare the scratch `main.aux` labels with the author's `main.aux` and `pdftotext` of both PDFs.
 
 **State of the working tree:** clean after each commit; branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -8,8 +8,8 @@
 
 | # | Unit | Status | Checks | Commit |
 |---|---|---|---|---|
-| L0 | Plan, inventory, decisions, ledger | done | — | (this commit) |
-| L1 | Course configuration; converter/scratch build/shell take a course | todo | | |
+| L0 | Plan, inventory, decisions, ledger | done | — | 41c965a |
+| L1 | Course configuration; converter/scratch build/shell take a course | done | first course: `course_unchanged.py` 150 files identical, `test_converter.py` ALL PASSED, `build.py --status` 81/81 | (this commit) |
 | L2 | Scratch LaTeX build of the Lyα notes | todo | | |
 | L3 | Converter: article structure, cut, appendices, author material, constructs | todo | | |
 | L4 | Math configuration | todo | | |

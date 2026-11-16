@@ -54,6 +54,13 @@ TCB_LAYOUT = {'enhanced', 'breakable', 'frame hidden', 'arc', 'boxrule', 'left',
               'before skip', 'after skip'}
 SKIPS = {'medskip': 'dg-medskip', 'smallskip': 'dg-smallskip', 'bigskip': 'dg-bigskip'}
 HEAD_LEVEL = {'subsection': 2, 'subsubsection': 3}
+TEXTWIDTH_CM = 16.0                   # A4 minus 2 x 25 mm (the course's, courses.py)
+
+
+def configure(c: dict) -> None:
+    """The course's values (courses.py, Lyα DECISIONS L9)."""
+    global HEAD_LEVEL, TEXTWIDTH_CM
+    HEAD_LEVEL, TEXTWIDTH_CM = dict(c['heads']), c['textwidth_cm']
 NUMBERED_MATH = {'equation', 'align', 'gather', 'multline', 'alignat', 'flalign'}
 
 _WS = re.compile(r'[^\S\u00a0]+')     # any whitespace but the no-break space of ~ (D9): it must survive
@@ -132,7 +139,7 @@ class Renderer:
         self.math_log: list[str] = []         # every math string emitted (for the math check)
         self.enum_depth = 0
         self.item_depth = 0
-        self.textwidth_cm = 16.0              # A4 minus 2 x 25 mm; changed inside custompage
+        self.textwidth_cm = TEXTWIDTH_CM      # the course's text width; changed inside custompage
         self.fn_counter = 0 if page.kind == 'chapter' else None
         self.macros: dict[str, str] = {}      # \edef'ed numbers (footnote marks used inside math)
         self.defs: list[str] = []             # in-body \def lines, needed by later TikZ pictures

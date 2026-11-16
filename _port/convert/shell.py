@@ -28,6 +28,9 @@ COURSE_TITLE = 'From Differential Geometry to General Relativity'
 SITE_NAME = 'Daniel López Cano'
 MATHJAX = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js'      # the one place that names it
 LATO = 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap'
+RUNIC = True                  # preload the notes' runic font (D8)
+STYLESHEETS: list = []        # the course's own stylesheets, after course.css (courses.py)
+MAP = True                    # the course has a course map (D39)
 THEME_SCRIPT = "try{var t=localStorage.getItem('dg-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}"
 
 # Interface words of the shell (web layer; every one is listed in _port/REVIEW.md).
@@ -37,6 +40,13 @@ INTERFACE = {
     'search_label': 'Search the notes', 'theme_label': 'Light or dark', 'tree': 'Course contents',
     'read_toggle': 'Mark as read', 'read_on': 'Read', 'read_mark': 'read',          # "read" marks (D40)
 }
+
+
+def configure(c: dict) -> None:
+    """The course's values (courses.py, Lyα DECISIONS L9)."""
+    global COURSE, COURSE_TITLE, RUNIC, STYLESHEETS, MAP
+    COURSE, COURSE_TITLE, RUNIC = c['dir'], c['title'], c['runic']
+    STYLESHEETS, MAP = list(c['stylesheets']), bool(c['master_map'])
 
 
 def readmark() -> str:
@@ -202,6 +212,9 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
     pre = ''.join(f'<link rel="preload" href="{assets}fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>\n'
                   for f in PRELOAD)
     inter = f'<link rel="stylesheet" href="{assets}interactive.css">\n' if interactive else ''
+    runic = (f'<link rel="preload" href="{assets}fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin>\n'
+             if RUNIC else '')
+    own = ''.join(f'<link rel="stylesheet" href="{assets}{css}">\n' for css in STYLESHEETS)
     return (f'<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f'<title>{html.escape(title, quote=False)}</title>\n'
             f'<meta name="description" content="{attr(desc)}">\n'
@@ -210,8 +223,8 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
             f'<link rel="preconnect" href="https://fonts.googleapis.com">'
             f'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
             f'<link rel="stylesheet" href="{LATO}">\n'
-            f'{pre}<link rel="preload" href="{assets}fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin>\n'
-            f'<link rel="stylesheet" href="{assets}course.css">\n{inter}'
+            f'{pre}{runic}'
+            f'<link rel="stylesheet" href="{assets}course.css">\n{own}{inter}'
             f'<script>{THEME_SCRIPT}</script>\n'
             f'<script src="{assets}mathjax-config.js"></script>\n'
             f'<script defer src="{MATHJAX}"></script>\n'
@@ -241,10 +254,12 @@ def bar(cfg: dict, crumbs: list[str], home: str, pos: float, tree: bool) -> str:
     menu = (f'<button class="dg-bar-btn dg-bar-menu" type="button" data-act="menu" aria-label="{INTERFACE["contents"]}" '
             f'aria-expanded="false" aria-controls="dg-tree">{icon("layout-sidebar")}<span>{INTERFACE["contents"]}</span></button>'
             if tree else '')
+    mapbtn = (f'<a class="dg-bar-btn" href="{home}#dg-roadmap" data-act="map" aria-label="{INTERFACE["map_label"]}">'
+              f'{icon("diagram-3")}<span>{INTERFACE["map"]}</span></a>' if MAP else '')
     return (f'<div class="dg-bar dg-web" id="dg-bar">{menu}'
             f'<nav class="dg-crumbs" aria-label="{INTERFACE["crumbs"]}">{sep.join(crumbs)}</nav>'
             f'<div class="dg-bar-tools">'
-            f'<a class="dg-bar-btn" href="{home}#dg-roadmap" data-act="map" aria-label="{INTERFACE["map_label"]}">{icon("diagram-3")}<span>{INTERFACE["map"]}</span></a>'
+            f'{mapbtn}'
             f'<button class="dg-bar-btn" type="button" data-act="search" data-scope="notes" aria-label="{INTERFACE["search_label"]}">{icon("search")}<span>{INTERFACE["search"]}</span></button>'
             f'<button class="dg-bar-btn" type="button" data-act="theme" aria-label="{INTERFACE["theme_label"]}">{icon("circle-half")}</button>'
             f'</div><div class="dg-bar-progress" aria-hidden="true"><i style="--pos:{pos:.4f}"></i><b></b></div></div>')
