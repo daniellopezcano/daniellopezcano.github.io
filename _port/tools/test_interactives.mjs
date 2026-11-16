@@ -9,7 +9,9 @@
 // coefficients in the chart Y; its place at the end of C.5, D57), those of the charts module against the charts and
 // transition maps of §3.2 (Figure 3.1: p on M, X(p) and Y(p) stay linked wherever p is dragged; membership in U, V), those of
 // the rotating and pointmass modules against the closed forms of C.8 (free worldlines in the inertial and co-rotating charts: ᛖ_𝒰𝒱,
-// the involute, Γ_𝒴 from the transformation law; radial fall, the falling chart and the tidal acceleration), checks touch on a phone (D56: a swipe
+// the involute, Γ_𝒴 from the transformation law; radial fall, the falling chart and the tidal acceleration), those of the lightcones
+// and schwarzschild modules against Chapter 10 and C.9 (proper time, the observer's frame, the causal character of 𝒳_p; the radial
+// length ∫ dr/√f and the circles of Figure C.19a), checks touch on a phone (D56: a swipe
 // over a drawing scrolls the page, one that starts on a handle drags it, horizontal swipes rotate the 3D view),
 // and checks that a module that fails to load leaves its frame hidden. --shots writes a screenshot of every frame.
 import fs from 'node:fs';
@@ -26,6 +28,8 @@ const LAWS = 'notes/diffgeo-gr/vector-spaces/basis-components-transformations.ht
 const TR = 'notes/diffgeo-gr/examples/example-connection-torsion-curvature.html';
 const CHARTS = 'notes/diffgeo-gr/topological-manifolds/charts-topological-manifolds.html';
 const NEWTON = 'notes/diffgeo-gr/examples/example-newtonian.html';       // two panels (B27): rotating, pointmass
+const GR = 'notes/diffgeo-gr/gr/index.html';                            // chapter opening page (D38)
+const SCH = 'notes/diffgeo-gr/examples/example-schwarzschild.html';
 // page errors that are not ours (MathJax config, being fixed elsewhere) and placeholder images
 const IGNORE = [/Cannot set property Package/, /Failed to load resource/];
 
@@ -1117,6 +1121,289 @@ async function pointmassCrossChecks(page) {
   check(wg < 1e-6, `(Γ_𝒳)^σ_00 = ∂σΦ and Riem^σ_0κ0 = ∂κ∂σΦ for Φ = −GM/|α| (finite differences), ∂κ(Γ_𝒴)^α_00(t, 0) = Riem^α_0κ0(ζ(t)) = GM/r³ diag(−2, 1, 1): max difference ${wg.toExponential(2)} (100 random points)`);
 }
 
+// ---- lightcones (Figure 10.1, B28): closed forms of Chapter 10, written here independently of the module. (η_ij) = diag(1, −1)
+// in the chart α = (α⁰, α¹); γ⁰_𝒰(λ) = λ and γ¹_𝒰 the cubic Hermite curve through the five points (Catmull–Rom tangents, the
+// module's construction); τ = ∫ √(1 − (γ̇¹_𝒰)²) dλ by Gauss–Legendre (20 nodes on 64 pieces per unit of λ); a straight
+// worldline of speed u has the closed form τ = (λ2 − λ1) √(1 − u²); the observer's frame e_0 = (1, u)/s, e_1 = (u, 1)/s
+// (s = √(1 − u²)), ε⁰(𝒳) = g(e_0, 𝒳), ε¹(𝒳) = −g(e_1, 𝒳).
+const GL20 = (() => {                                                   // nodes and weights of Gauss–Legendre, 20 points (Newton on P_20)
+  const n = 20, xs = [], ws = [];
+  for (let i = 1; i <= n; i++) {
+    let x = Math.cos(Math.PI * (i - 0.25) / (n + 0.5)), dp = 0;
+    for (let it = 0; it < 100; it++) { let p0 = 1, p1 = x; for (let k = 2; k <= n; k++) { const p2 = ((2 * k - 1) * x * p1 - (k - 1) * p0) / k; p0 = p1; p1 = p2; } dp = n * (x * p1 - p0) / (x * x - 1); const dx = p1 / dp; x -= dx; if (Math.abs(dx) < 1e-16) break; }
+    xs.push(x); ws.push(2 / ((1 - x * x) * dp * dp));
+  }
+  return { xs, ws };
+})();
+const gl = (f, a, b, pieces) => { let s = 0; for (let j = 0; j < pieces; j++) { const lo = a + (b - a) * j / pieces, hi = a + (b - a) * (j + 1) / pieces, m = (lo + hi) / 2, h = (hi - lo) / 2;
+  GL20.xs.forEach((x, i) => { s += GL20.ws[i] * h * f(m + h * x); }); } return s; };
+function lcCurve(c, l) {
+  const m = c.map((_, k) => k === 0 ? c[1] - c[0] : k === 4 ? c[4] - c[3] : (c[k + 1] - c[k - 1]) / 2), k = Math.min(3, Math.max(0, Math.floor(l))), s = l - k;
+  const H = [2 * s ** 3 - 3 * s * s + 1, s ** 3 - 2 * s * s + s, -2 * s ** 3 + 3 * s * s, s ** 3 - s * s], dH = [6 * s * s - 6 * s, 3 * s * s - 4 * s + 1, -6 * s * s + 6 * s, 3 * s * s - 2 * s];
+  const q = [c[k], m[k], c[k + 1], m[k + 1]];
+  return [H.reduce((a, h, i) => a + h * q[i], 0), dH.reduce((a, h, i) => a + h * q[i], 0)];
+}
+function lcTau(c, l1, l2) {                                              // split at the points, where the integrand is smooth
+  const cuts = [l1, ...[1, 2, 3].filter(k => k > l1 && k < l2), l2];
+  let t = 0; for (let i = 0; i + 1 < cuts.length; i++) t += gl(l => Math.sqrt(1 - lcCurve(c, l)[1] ** 2), cuts[i], cuts[i + 1], Math.max(1, Math.ceil(64 * (cuts[i + 1] - cuts[i]))));
+  return t;
+}
+const lcMaxSpeed = c => { let w = 0; for (let i = 0; i <= 8000; i++) w = Math.max(w, Math.abs(lcCurve(c, 4 * i / 8000)[1])); return w; };
+function lcExpect(st) {
+  const [, u] = lcCurve(st.c, st.l3), s = Math.sqrt(1 - u * u), e0 = [1 / s, u / s], e1 = [u / s, 1 / s], X = st.X, Q = X[0] ** 2 - X[1] ** 2;
+  const eps = [(X[0] - u * X[1]) / s, (X[1] - u * X[0]) / s];
+  const kind = (Q > 0 ? 'timelike' : Q === 0 ? 'lightlike' : 'spacelike') + (Q < 0 ? '' : X[0] > 0 ? ', future directed' : ', past directed');
+  return { vals: [lcTau(st.c, st.l1, st.l2), st.l2 - st.l1, u, s, Q, X[0], eps[0] ** 2 - eps[1] ** 2], ms: [e0, e1, [1, 0, 0, -1], X, eps], kind };
+}
+
+// lightcones: the drawing in pixels (equal scales): every cone edge and both lines of the cone at p are null (|Δx| = |Δy| within
+// 1 px), future halves blue above their apex, past halves grey below; e_0 and e_1 at p mirror each other across the null line
+// (swapped |Δx|, |Δy|) and are η-orthogonal (Δy0 Δy1 − Δx0 Δx1 ≈ 0); the tip of 𝒳_p lies inside / on / outside the cone at p
+// exactly when the status says timelike / lightlike / spacelike, above p when future directed
+async function lcGeometry(fr, what) {
+  const g = await fr.locator('.dg-lc svg.dg-plot-svg').evaluate(svg => {
+    const nums = d => d.match(/-?\d+(\.\d+)?/g).map(Number);
+    const cones = [...svg.querySelectorAll('path[fill="#bdc9ed"], path[fill="#d9d9d9"]')].map(e => ({ fut: e.getAttribute('fill') === '#bdc9ed', v: nums(e.getAttribute('d')) }));
+    const nulls = [...svg.querySelectorAll('path.dg-lc-null')].map(e => nums(e.getAttribute('d')));
+    const arrows = [...svg.querySelectorAll('g.dg-arrow')].map(a => { const [hit, shaft, head] = a.children; const h = nums(hit.getAttribute('d')), t = nums(head.getAttribute('d'));
+      return { color: shaft.getAttribute('stroke'), from: [h[0], h[1]], to: [t[0], t[1]] }; });
+    return { cones, nulls, arrows };
+  });
+  const X = g.arrows.find(a => a.color === '#d68b02'), p = X.from, at = c => g.arrows.find(a => a.color === c && Math.hypot(a.from[0] - p[0], a.from[1] - p[1]) < 0.5);
+  const e0 = at('#d60202'), e1 = at('#222222'), d = a => [a.to[0] - a.from[0], a.to[1] - a.from[1]];
+  let worst = 0, sides = true;
+  for (const { fut, v } of g.cones) for (const k of [2, 4]) { const dx = v[k] - v[0], dy = v[k + 1] - v[1]; worst = Math.max(worst, Math.abs(Math.abs(dx) - Math.abs(dy))); sides = sides && (fut ? dy < 0 : dy > 0); }
+  for (const v of g.nulls) worst = Math.max(worst, Math.abs(Math.abs(v[2] - v[0]) - Math.abs(v[3] - v[1])));
+  const [a0, b0] = d(e0), [a1, b1] = d(e1), [ax, bx] = d(X);
+  const mirror = Math.max(Math.abs(Math.abs(a0) - Math.abs(b1)), Math.abs(Math.abs(b0) - Math.abs(a1))), orth = Math.abs(b0 * b1 - a0 * a1) / (Math.hypot(a0, b0) * Math.hypot(a1, b1));
+  const kind = await fr.locator('.dg-gr-status').textContent(), gap = Math.abs(bx) - Math.abs(ax);
+  const seen = gap > 1 ? 'timelike' : gap < -1 ? 'spacelike' : 'lightlike', dir = kind.includes('future') ? bx < 0 : kind.includes('past') ? bx > 0 : true;
+  check(g.cones.length === 6 && g.nulls.length === 2 && worst <= 1 && sides && mirror <= 1 && orth < 0.01 && kind.startsWith(seen) && dir,
+    `${what}: ${g.cones.length} cone halves and 2 null lines at 45° in pixels (largest ||Δx| − |Δy|| ${worst.toFixed(2)} px), future up / past down; e_0 (${a0.toFixed(1)}, ${b0.toFixed(1)}) and e_1 (${a1.toFixed(1)}, ${b1.toFixed(1)}) px mirror each other (${mirror.toFixed(2)} px), η-orthogonal (${orth.toExponential(1)}); 𝒳_p (${ax.toFixed(1)}, ${bx.toFixed(1)}) px is drawn ${seen}, status "${kind}"`);
+}
+
+async function testLightcones(width) {
+  console.log(`lightcones @ ${width}px`);
+  const { page, errors } = await open(GR, width, { module: 'lightcones' });
+  await ready(page, 'lightcones');
+  const fr = page.locator('.dg-interactive[data-module="lightcones"]');
+  const pl = await placedAfter(fr, 'fig_light_cones');
+  check(pl.after, 'panel right after Figure 10.1 (fig_light_cones), on the chapter opening page');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const wd = await page.evaluate(() => [document.querySelector('.dg-interactive[data-module="lightcones"]').getBoundingClientRect().width, document.querySelector('#fig_light_cones').getBoundingClientRect().width]);
+  check(Math.abs(wd[0] - wd[1]) < 2, `as wide as the figure it follows (${Math.round(wd[0])} px, figure ${Math.round(wd[1])} px; D38)`);
+  const state = async () => JSON.parse(await fr.locator('.dg-lc').getAttribute('data-state'));
+  const svg = fr.locator('.dg-lc svg.dg-plot-svg');
+  async function numbers(what) {
+    const st = await state(), e = lcExpect(st);
+    const vals = (await fr.locator('.dg-gr-val').allTextContents()).map(num);
+    const ms = (await fr.locator('.dg-lc .dg-mat').evaluateAll(ms => ms.map(m => [...m.children].map(c => c.textContent)))).map(m => m.map(num));
+    const tol = [5.1e-4, 5.1e-4, 5.1e-4, 5.1e-4, 5.1e-4, 5.1e-4, 5.1e-4], mtol = [5.1e-4, 5.1e-4, 5.1e-3, 5.1e-3, 5.1e-4];
+    const err = Math.max(...vals.map((v, i) => Math.abs(v - e.vals[i]) / tol[i]), ...ms.flatMap((m, i) => m.map((v, j) => Math.abs(v - e.ms[i][j]) / mtol[i])));
+    const kind = await fr.locator('.dg-gr-status').textContent(), text = await fr.locator('.dg-interactive-body').textContent();
+    const ms0 = lcMaxSpeed(st.c);
+    check(err <= 1 && kind === e.kind && ms0 < 0.75 && st.c.every(x => Math.abs(x) <= 1.15 + 1e-12) && st.l1 < st.l2 && !/NaN|Infinity/.test(text),
+      `${what} (points ${st.c.map(x => +x.toFixed(3))}, λ = ${st.l1}, ${st.l2}, ${st.l3}, 𝒳_p = (${st.X})): τ = ${vals[0]} (λ2 − λ1 = ${vals[1]}), "${kind}", η(𝒳, 𝒳) = ${vals[4]} = ${vals[6]}; max |γ̇¹| ${ms0.toFixed(3)} < 0.75; largest deviation / tolerance ${err.toFixed(2)}`);
+    return st;
+  }
+  await shot(page, `lightcones-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-lc .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 150 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'numbers below the drawing' : 'drawing and numbers side by side');
+  const st0 = await numbers('start');
+  await lcGeometry(fr, 'start');
+  check(JSON.stringify(st0) === JSON.stringify({ c: [-0.2, -0.45, -0.25, 0.35, 0.55], l1: 0.4, l2: 1.9, l3: 2.5, X: [0.4, 0.8] }), 'starting state');
+  // 𝒳_p with the keyboard: onto the light cone (future), across spacelike, onto it again (past), then timelike
+  const tip = svg.locator('[data-key="X"]');
+  await tip.focus();
+  for (let i = 0; i < 8; i++) await page.keyboard.press('ArrowUp');
+  let s = await numbers('ArrowUp ×8 on the tip of 𝒳_p');
+  check(s.X[0] === 0.8 && s.X[1] === 0.8 && await fr.locator('.dg-gr-status').textContent() === 'lightlike, future directed', `𝒳_p = (${s.X}) is lightlike, future directed`);
+  await lcGeometry(fr, 'lightlike, future directed');
+  for (let i = 0; i < 32; i++) await page.keyboard.press('ArrowDown');
+  s = await numbers('ArrowDown ×32');
+  check(s.X[0] === -0.8 && await fr.locator('.dg-gr-status').textContent() === 'lightlike, past directed', `𝒳_p = (${s.X}) is lightlike, past directed`);
+  await lcGeometry(fr, 'lightlike, past directed');
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowLeft');
+  s = await numbers('ArrowLeft ×10');
+  check(await fr.locator('.dg-gr-status').textContent() === 'timelike, past directed', `𝒳_p = (${s.X}) is timelike, past directed`);
+  await lcGeometry(fr, 'timelike, past directed');
+  // mouse: the tip of 𝒳_p up and right, a point of γ far to the right (stopped where γ̇¹ would reach 0.75), λ sliders
+  let [x, y] = await center(tip);
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 40, y - 70, { steps: 6 }); await page.mouse.up();
+  s = await numbers('after dragging the tip of 𝒳_p');
+  [x, y] = await center(svg.locator('[data-key="k2"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 400, y, { steps: 8 }); await page.mouse.up();
+  s = await numbers('after dragging γ(2) far to the right');
+  await lcGeometry(fr, 'after the drags (spacelike, γ at its steepest)');
+  check(s.c[2] > -0.25 + 0.2 && lcMaxSpeed(s.c) > 0.74, `γ(2) moved to ${s.c[2].toFixed(3)} and stopped at the limit (max |γ̇¹| ${lcMaxSpeed(s.c).toFixed(4)})`);
+  await svg.locator('[data-key="k4"]').focus(); await page.keyboard.press('ArrowLeft');
+  s = await numbers('ArrowLeft on γ(4)');
+  const sls = fr.locator('.dg-slider input');
+  await sls.nth(0).focus(); await page.keyboard.press('End');
+  s = await numbers('End on λ1 (pushes λ2)');
+  check(s.l1 === 3.9 && s.l2 === 4, `λ1 = ${s.l1}, λ2 = ${s.l2}`);
+  await sls.nth(1).focus(); await page.keyboard.press('Home');
+  s = await numbers('Home on λ2 (pushes λ1)');
+  check(s.l2 === 0.1 && s.l1 === 0, `λ1 = ${s.l1}, λ2 = ${s.l2}`);
+  await page.keyboard.press('End'); await sls.nth(2).focus(); await page.keyboard.press('Home'); await numbers('End on λ2, Home on λ3');
+  await page.keyboard.press('End'); await numbers('End on λ3');
+  await shot(page, `lightcones-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_light_cones', 'Figure 10.1', null);
+  check(JSON.stringify(await state()) === JSON.stringify(st0), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await lightconesCrossChecks(page);
+  await page.close();
+}
+
+async function lightconesCrossChecks(page) {
+  console.log('lightcones: the module against Chapter 10 (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/lightcones.js');
+    let seed = 7; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const curves = [], straight = [], frames = [], moves = [];
+    while (curves.length < 120) { const c = Array.from({ length: 5 }, () => rnd(-1.1, 1.1)); if (m.maxSpeed(c) >= m.VMAX) continue; const l1 = rnd(0, 3.8), l2 = rnd(l1 + 0.05, 4); curves.push({ c, l1, l2, tau: m.tau(c, l1, l2), ms: m.maxSpeed(c), at: [0.3, 1.7, 3.2].map(l => m.curve(c, l)) }); }
+    for (let n = 0; n < 60; n++) { const u = rnd(-0.74, 0.74), a = rnd(-1, 1), c = [0, 1, 2, 3, 4].map(k => a + u * k), l1 = rnd(0, 3.5), l2 = rnd(l1 + 0.1, 4); straight.push({ u, l1, l2, tau: m.tau(c, l1, l2) }); }
+    for (let n = 0; n < 200; n++) { const st = { c: [0, 1, 2, 3, 4].map(() => rnd(-0.3, 0.3)), l1: 0.5, l2: 1.5, l3: rnd(0.6, 3.4), X: [Math.round(rnd(-0.8, 0.8) * 100) / 100, Math.round(rnd(-1.1, 1.1) * 100) / 100] };
+      if (n % 5 === 0) st.X[1] = (n % 10 ? -1 : 1) * Math.abs(st.X[0]);
+      if (m.maxSpeed(st.c) < m.VMAX) frames.push({ st, a: m.at(st), fr: m.frame(m.curve(st.c, st.l3)[1]) }); }
+    let c = m.START.c.slice();
+    for (let n = 0; n < 300; n++) { const k = Math.floor(rnd(0, 5)), v = rnd(-2, 2); c = m.moveKnot(c, k, v); moves.push(c.slice()); }
+    const snaps = [[0.4, 0.42], [0.4, -0.38], [-0.5, 0.52], [0.3, 0.6], [0.01, 0.02]].map(([a, b]) => m.setX([0.4, 0.8], a, b));
+    return { curves, straight, frames, moves, snaps, VMAX: m.VMAX };
+  });
+  let wt = 0, wc = 0, wm = 0;
+  for (const { c, l1, l2, tau, ms, at } of r.curves) {
+    wt = Math.max(wt, Math.abs(tau - lcTau(c, l1, l2)));
+    wc = Math.max(wc, ...[0.3, 1.7, 3.2].flatMap((l, i) => { const q = lcCurve(c, l); return [Math.abs(q[0] - at[i][0]), Math.abs(q[1] - at[i][1])]; }));
+    wm = Math.max(wm, Math.abs(ms - lcMaxSpeed(c)));
+  }
+  check(wt < 1e-6, `τ_[λ1, λ2][γ] = ∫ √(η_ij γ̇^i γ̇^j) dλ: the module (Simpson) against Gauss–Legendre, max difference ${wt.toExponential(2)} (120 random worldlines and λ1 < λ2)`);
+  check(wc < 1e-12 && wm < 1e-4, `the worldline is the cubic Hermite curve through the points (max difference ${wc.toExponential(2)}); its max |γ̇¹| (exact, from the quadratic) against dense sampling: ${wm.toExponential(2)}`);
+  const ws = Math.max(...r.straight.map(({ u, l1, l2, tau }) => Math.abs(tau - (l2 - l1) * Math.sqrt(1 - u * u))));
+  check(ws < 1e-9, `straight worldlines γ¹_𝒰 = a + uλ: τ = (λ2 − λ1) √(1 − u²), max difference ${ws.toExponential(2)} (60 random)`);
+  let wf = 0, wk = 0, nk = { timelike: 0, lightlike: 0, spacelike: 0 };
+  const g = (a, b) => a[0] * b[0] - a[1] * b[1];
+  for (const { st, a, fr } of r.frames) {
+    const e = lcExpect(st), [, u] = lcCurve(st.c, st.l3), s = Math.sqrt(1 - u * u), eta = [[1, 0], [0, -1]];
+    // Lorentz-orthonormality (cond. 1), e_0 = v/s_γ (cond. 2 after reparametrizing by τ), ε^a(e_b) = δ^a_b, ε⁰(𝒳) = g(v, 𝒳)/s, and g(𝒳, 𝒳) = (ε⁰)² − (ε¹)²
+    const epsOf = Y => [g(fr[0], Y), -g(fr[1], Y)];
+    wf = Math.max(wf, ...[0, 1].flatMap(i => [0, 1].map(j => Math.abs(g(fr[i], fr[j]) - eta[i][j]))), Math.abs(fr[0][0] - 1 / s), Math.abs(fr[0][1] - u / s),
+      ...[0, 1].flatMap(i => epsOf(fr[i]).map((v, j) => Math.abs(v - (i === j ? 1 : 0)))), Math.abs(a.eps[0] - g([1, u], st.X) / s), Math.abs(a.Qe - a.Q), Math.abs(a.tau - lcTau(st.c, st.l1, st.l2)));
+    if (a.kind !== e.kind) wk++;
+    nk[e.kind.split(',')[0]]++;
+  }
+  check(wf < 1e-6, `observer's frame: g(e_a, e_b) = η_ab, e_0 = v/s_γ, ε^a(e_b) = δ^a_b, ε⁰(𝒳) = g(v, 𝒳)/s_γ, (ε⁰(𝒳))² − (ε¹(𝒳))² = η_ij x^i x^j, max difference ${wf.toExponential(2)} (${r.frames.length} random states)`);
+  check(wk === 0 && nk.timelike > 10 && nk.lightlike > 10 && nk.spacelike > 10, `causal character of 𝒳_p as §10.1 defines it in ${r.frames.length} random states (${nk.timelike} timelike, ${nk.lightlike} lightlike, ${nk.spacelike} spacelike): ${wk} wrong`);
+  const mv = Math.max(...r.moves.map(lcMaxSpeed)), mc = Math.max(...r.moves.flat().map(Math.abs));
+  check(mv < r.VMAX && mc <= 1.15 + 1e-12, `300 random drags of the points: γ stays timelike, max |γ̇¹| ${mv.toFixed(4)} < ${r.VMAX}, |γ¹| <= 1.15`);
+  check(JSON.stringify(r.snaps) === JSON.stringify([[0.4, 0.4], [0.4, -0.4], [-0.5, 0.5], [0.3, 0.6], [0.4, 0.8]]), `a tip within 0.03 of the light cone snaps onto it, the zero vector is refused: ${JSON.stringify(r.snaps)}`);
+}
+
+// ---- schwarzschild (Figure C.19, B28): closed forms for C.9, written here independently of the module: the notes'
+// ∫ dr/√f, f = 1 − r_S/r, has the antiderivative F(r) = √(r(r − r_S)) + r_S ln(√r + √(r − r_S)) (ours; dF/dr = 1/√f).
+const schF = (r, rS) => Math.sqrt(r * (r - rS)) + rS * Math.log(Math.sqrt(r) + Math.sqrt(r - rS));
+const schL = (rS, r1, r2) => schF(r2, rS) - schF(r1, rS);
+const schR = (rS, D) => { let a = rS, b = rS + D; for (let i = 0; i < 200; i++) { const m = (a + b) / 2; if (schL(rS, rS, m) < D) a = m; else b = m; } return (a + b) / 2; };
+function schExpect({ rS, r1, r2 }) {
+  const f = r => 1 - rS / r, L = schL(rS, r1, r2);
+  return [r1, f(r1), -1 / f(r1), r2, f(r2), -1 / f(r2), r2 - r1, L, L / (r2 - r1), 1 / Math.sqrt(f(r1)), schL(rS, rS, r2)];
+}
+const FIG_C19 = [1.087, 1.325, 1.667, 2.074, 2.525, 3.004, 3.503];      // the radii (in units of r_S) of the circles of Figure C.19a
+
+async function testSchwarzschild(width) {
+  console.log(`schwarzschild @ ${width}px`);
+  const { page, errors } = await open(SCH, width, { module: 'schwarzschild' });
+  await ready(page, 'schwarzschild');
+  const fr = page.locator('.dg-interactive[data-module="schwarzschild"]');
+  const pl = await placedAfter(fr, 'fig_Example_Schwarzschild');
+  check(pl.after, 'panel right after Figure C.19 (fig_Example_Schwarzschild)');
+  if (width >= 1000) check(pl.h <= 850, `panel height ${Math.round(pl.h)} px <= 850 px`);
+  const state = async () => JSON.parse(await fr.locator('.dg-sch').getAttribute('data-state'));
+  const svgA = fr.locator('.dg-sch svg.dg-plot-svg').nth(0);
+  async function numbers(what) {
+    const st = await state(), e = schExpect(st);
+    const vals = (await fr.locator('.dg-gr-val').allTextContents()).map(num), text = await fr.locator('.dg-interactive-body').textContent();
+    const err = Math.max(...vals.map((v, i) => Math.abs(v - e[i]) / 5.1e-4));
+    // the drawing: as many blue circles as radii r_S < r <= 4 at radial distances 0.6 k from r_S, grey ones at r_S + 0.6 k
+    const nb = await svgA.locator('path[stroke="#3859bd"]').count(), ng = await svgA.locator('path[stroke="#9a9a9a"][fill="none"]').count();
+    let kb = 0; while (schR(st.rS, 0.6 * (kb + 1)) <= 4) kb++;
+    const kg = Math.floor((4 - st.rS) / 0.6 + 1e-9);
+    check(err <= 1 && nb === kb && ng === kg && st.rS < st.r1 && st.r1 < st.r2 && st.r2 <= 4 && vals[7] > vals[6] && vals[8] < vals[9] + 5.1e-4 && !/NaN|Infinity/.test(text),
+      `${what} (r_S = ${st.rS}, r1 = ${st.r1}, r2 = ${st.r2}): ∫ dr/√f = ${vals[7]} > r2 − r1 = ${vals[6]}, ratio ${vals[8]} <= 1/√f(r1) = ${vals[9]}, from r_S ${vals[10]}; ${nb} blue and ${ng} grey circles (expected ${kb}, ${kg}); largest deviation / tolerance ${err.toFixed(2)}`);
+    return st;
+  }
+  await shot(page, `schwarzschild-${width}.png`, fr);
+  check(await fr.locator('mjx-merror, [data-mjx-error]').count() === 0, 'no MathJax errors in the frame');
+  const tops = await fr.locator('.dg-sch .dg-panel').evaluateAll(ps => ps.map(p => p.getBoundingClientRect().top));
+  check(width < 700 ? tops[1] > tops[0] + 150 : Math.abs(tops[1] - tops[0]) < 2, width < 700 ? 'g plot below the slice' : 'the slice and the g plot side by side');
+  const st0 = await numbers('start (Figure C.19a: r_S = 1, circles 0.6 r_S apart)');
+  check(JSON.stringify(st0) === JSON.stringify({ rS: 1, r1: 1.2, r2: 2.2 }), 'starting state');
+  // mouse: r1 into r_S (stops at r_S + 0.01), r2 out (stops at 4)
+  let [x, y] = await center(svgA.locator('[data-key="r1"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 200, y + 120, { steps: 6 }); await page.mouse.up();
+  let s = await numbers('after dragging r1 into the disc r <= r_S');
+  check(s.r1 === 1.01, `r1 = ${s.r1} (r_S + 0.01)`);
+  [x, y] = await center(svgA.locator('[data-key="r2"]'));
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 400, y - 230, { steps: 6 }); await page.mouse.up();
+  s = await numbers('after dragging r2 out');
+  check(s.r2 === 4, `r2 = ${s.r2}`);
+  await svgA.locator('[data-key="r2"]').focus(); await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
+  s = await numbers('ArrowDown ×2 on r2'); check(Math.abs(s.r2 - 3.9) < 1e-9, `r2 = ${s.r2}`);
+  await svgA.locator('[data-key="r1"]').focus(); await page.keyboard.press('ArrowUp');
+  s = await numbers('ArrowUp on r1'); check(Math.abs(s.r1 - 1.06) < 1e-9, `r1 = ${s.r1}`);
+  const sl = fr.locator('.dg-slider input');
+  await sl.focus(); await page.keyboard.press('End');
+  s = await numbers('End on r_S (r1 pushed out)');
+  check(s.rS === 1.5 && s.r1 === 1.51, `r_S = ${s.rS}, r1 = ${s.r1}`);
+  await page.keyboard.press('Home'); s = await numbers('Home on r_S (nearly flat)');
+  check(s.rS === 0.2, `r_S = ${s.rS}`);
+  await shot(page, `schwarzschild-moved-${width}.png`, fr);
+  await panelFoot(page, fr, 'fig_Example_Schwarzschild', 'Figure C.19', null);
+  check(JSON.stringify(await state()) === JSON.stringify(st0), 'Reset -> the starting state again');
+  check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+  await noSideScroll(page, width);
+  if (width === 1280) await schwarzschildCrossChecks(page);
+  await page.close();
+}
+
+async function schwarzschildCrossChecks(page) {
+  console.log('schwarzschild: the module against C.9 (random states)');
+  const r = await page.evaluate(async () => {
+    const m = await import('/notes/diffgeo-gr/assets/interactive/schwarzschild.js');
+    let seed = 11; const rnd = (a, b) => a + (b - a) * ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const d = [], rings = [], clamp = [];
+    for (let n = 0; n < 300; n++) { const rS = rnd(0.2, 1.5), r1 = n % 3 ? rnd(rS, 4) : rS + rnd(0, 1e-3), r2 = rnd(r1, 4.5); d.push({ rS, r1, r2, L: m.dist(rS, r1, r2), a: m.at({ rS, r1: Math.max(r1, rS + 1e-3), r2: Math.max(r2, r1 + 2e-3) }) }); }
+    for (let n = 0; n < 40; n++) { const rS = n === 0 ? 1 : rnd(0.2, 1.5); rings.push({ rS, c: m.circles(rS) }); }
+    for (let n = 0; n < 200; n++) clamp.push(m.clampR({ rS: Math.round(rnd(0.2, 1.5) * 20) / 20, r1: rnd(-1, 5), r2: rnd(-1, 5) }));
+    const short = [1.05, 1.3, 2, 3.5].map(r1 => ({ r1, ratio: m.dist(1, r1, r1 + 1e-4) / 1e-4 }));
+    return { d, rings, clamp, short, f: [1.5, 2, 4].map(x => m.f(x, 1)) };
+  });
+  check(Math.max(...[1.5, 2, 4].map((x, i) => Math.abs(r.f[i] - (1 - 1 / x)))) < 1e-15, 'f(r) = 1 − r_S/r');
+  let wd = 0, wa = 0;
+  for (const { rS, r1, r2, L, a } of r.d) {
+    wd = Math.max(wd, Math.abs(L - schL(rS, r1, r2)));
+    const st = { rS, r1: Math.max(r1, rS + 1e-3), r2: Math.max(r2, Math.max(r1, rS + 1e-3) + 2e-3) }, e = schExpect(st);
+    wa = Math.max(wa, Math.abs(a.f1 - e[1]), Math.abs(a.f2 - e[4]), Math.abs(a.L - e[7]), Math.abs(a.ratio - e[8]), Math.abs(a.inv1 - e[9]), Math.abs(a.LS - e[10]));
+  }
+  check(wd < 1e-6, `∫_{r1}^{r2} dr/√f (the module: Simpson after r = r_S + w²) against F(r2) − F(r1), max difference ${wd.toExponential(2)} (300 random r_S, r1, r2, a third with r1 within 10⁻³ of r_S)`);
+  check(wa < 1e-6, `every number of the panel against the closed form, max difference ${wa.toExponential(2)}`);
+  const fig = r.rings[0].c.blue, wf = Math.max(...FIG_C19.map((x, i) => Math.abs(fig[i] - x)));
+  check(fig.length === 7 && wf < 6e-4, `r_S = 1: the seven blue circles are those of Figure C.19a (${fig.map(x => x.toFixed(4)).join(', ')}; the figure's 3 decimals, max difference ${wf.toExponential(2)})`);
+  let wr = 0;
+  for (const { rS, c } of r.rings) {
+    c.blue.forEach((x, k) => { wr = Math.max(wr, Math.abs(x - schR(rS, 0.6 * (k + 1)))); });
+    if (schR(rS, 0.6 * (c.blue.length + 1)) <= 4 || c.grey.some((x, k) => Math.abs(x - rS - 0.6 * (k + 1)) > 1e-12)) wr = Infinity;
+  }
+  check(wr < 1e-6, `circles at radial distances 0.6 k from r_S: radii against the inverse of F, max difference ${wr.toExponential(2)} (40 random r_S); grey ones at r_S + 0.6 k`);
+  const crowd = r.rings.every(({ c }) => c.blue.every((x, k) => !k || k < 2 || x - c.blue[k - 1] > c.blue[k - 1] - (c.blue[k - 2] ?? 0)));
+  check(crowd, 'the gaps in r between neighbouring blue circles grow outwards (they crowd towards r_S)');
+  check(r.clamp.every(s => s.r1 > s.rS && s.r2 > s.r1 && s.r2 <= 4 && Math.abs(s.r1 * 100 - Math.round(s.r1 * 100)) < 1e-9), 'r_S < r1 < r2 <= 4 on a grid of 0.01 whatever is dragged (200 random)');
+  const ws = Math.max(...r.short.map(({ r1, ratio }) => Math.abs(ratio * Math.sqrt(1 - 1 / r1) - 1)));
+  check(ws < 1e-3, `a short segment (r2 − r1 = 10⁻⁴): the ratio to r2 − r1 is 1/√f(r1) (the notes' estimate), relative difference ${ws.toExponential(2)}`);
+}
+
 // ---- touch (D56) on a phone (390 px, hasTouch, isMobile). Swipes are CDP Input.dispatchTouchEvent, which go
 // through the browser's own gesture handling, so touch-action decides between scrolling the page and the panel.
 async function swipe(page, cdp, [x0, y0], [x1, y1], steps = 10) {
@@ -1321,6 +1608,39 @@ async function testTouch() {
     check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
     await page.close();
   }
+  // lightcones, schwarzschild (B28): a finger 10 px off γ(2) moves it sideways, one 10 px off r2 moves it outwards; vertical
+  // swipes elsewhere (lightcones: an empty point of the drawing; schwarzschild: the g plot, which has no handles) scroll the page
+  for (const [mod, url, sel, key, other, dir, moved] of [['lightcones', GR, '.dg-lc', 'k2', 0, [30, -5], (a, b) => b.c[2] > a.c[2] + 0.1],
+    ['schwarzschild', SCH, '.dg-sch', 'r2', 1, [30, -20], (a, b) => b.r2 > a.r2 + 0.1]]) {
+    const { page, errors } = await open(url, 390, { touch: true, module: mod });
+    await ready(page, mod);
+    const cdp = await page.context().newCDPSession(page);
+    const fr = page.locator(`.dg-interactive[data-module="${mod}"]`);
+    const state = async () => JSON.parse(await fr.locator(sel).getAttribute('data-state'));
+    const svg = fr.locator(`${sel} svg.dg-plot-svg`).nth(0);
+    check(await svg.evaluate(e => getComputedStyle(e).touchAction) === 'pan-y pinch-zoom' && await svg.locator(`[data-key="${key}"]`).evaluate(e => getComputedStyle(e).touchAction) === 'none',
+      `${mod}: touch-action pan-y pinch-zoom on the drawing, none on the handles`);
+    await svg.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const hb = await svg.locator(`[data-key="${key}"]`).boundingBox(), hx = hb.x + hb.width / 2 - 10, hy = hb.y + hb.height / 2;
+    let s0 = await state(), y0 = await scrollY(page);
+    await swipe(page, cdp, [hx, hy], [hx + dir[0], hy + dir[1]]);
+    const s1 = await state(), y1 = await scrollY(page);
+    check(moved(s0, s1) && y1 === y0, `${mod}: a swipe starting 10 px from ${key === 'k2' ? 'γ(2)' : 'r₂'} drags it (${JSON.stringify(key === 'k2' ? s0.c[2] : s0.r2)} -> ${JSON.stringify(key === 'k2' ? +s1.c[2].toFixed(3) : s1.r2)}) and does not scroll (scrollY ${y0} -> ${y1})`);
+    const area = fr.locator(`${sel} svg.dg-plot-svg`).nth(other);
+    await area.evaluate(e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    const pt = await emptyPoint(area);
+    check(!!pt, `${mod}: found an empty point of the ${other ? 'g plot' : 'drawing'}`);
+    if (pt) {
+      s0 = await state(); y0 = await scrollY(page);
+      await swipe(page, cdp, pt, [pt[0], pt[1] - 150]);
+      const y2 = await scrollY(page);
+      check(y2 > y0 + 50 && JSON.stringify(await state()) === JSON.stringify(s0), `${mod}: a vertical swipe from an empty point scrolls the page (scrollY ${y0} -> ${y2}) and leaves the panel as it was`);
+    }
+    check(errors.length === 0, 'no console errors' + (errors.length ? ': ' + errors.join(' | ') : ''));
+    await page.close();
+  }
   // maps: drag from an element of M to an element of N with a finger (up and to the right), starting 10 px off the drawn dot (radius 9)
   {
     const { page, errors } = await open(MAPS, 390, { touch: true });
@@ -1354,7 +1674,7 @@ async function testBroken() {
 }
 
 try {
-  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); }
+  for (const w of [1280, 390]) { await testMaps(w); await testVariations(w); await testTpm(w); await testLaws(w); await testTransport(w); await testCharts(w); await testRotating(w); await testPointmass(w); await testLightcones(w); await testSchwarzschild(w); }
   await testTouch();
   await testBroken();
 } catch (e) {

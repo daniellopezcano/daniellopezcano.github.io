@@ -8,6 +8,8 @@
     {"label": "subsection_Example_Connections_curved", "at": "end", "module": "transport"},
     {"label": "fig_Example_Variations_length", "module": "variations"},
     {"label": "fig_Example_Newtonian_Rotating", "module": "rotating"},
-    {"label": "fig_Example_Newtonian_Tidal", "module": "pointmass"}
+    {"label": "fig_Example_Newtonian_Tidal", "module": "pointmass"},
+    {"label": "fig_light_cones", "module": "lightcones"},
+    {"label": "fig_Example_Schwarzschild", "module": "schwarzschild"}
   ]
 }
