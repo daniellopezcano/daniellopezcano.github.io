@@ -4,8 +4,17 @@
     python3 _port/tools/site_unchanged.py [REF]        (REF defaults to `main`; exit code 0 = unchanged)
 
 Compares docs/ in the working tree with docs/ of REF, ignoring docs/notes/ (the course section).
-Accepted differences, and nothing else (KICKOFF rule 6):
-  * the navbar entry "Lecture Notes" (one <li class="nav-item"> pointing into notes/diffgeo-gr/);
+Accepted differences, and nothing else (KICKOFF rule 6; Lyα brief "Site updates", Lyα DECISIONS L15, L19):
+  * the navbar entry "Lecture Notes": absent at REF, a plain link into notes/diffgeo-gr/, or the dropdown whose
+    menu has exactly the two course links ("From Differential Geometry to General Relativity",
+    "Lyman-α Forest"), and the script of includes/navbar-dropdown.html, once, where Quarto puts it;
+  * the Teaching page: its section "Lecture Notes" (heading and cards) removed, the graduate course card's
+    PDF button labelled "Download PDF" instead of "Lecture notes", and the MathJax scripts that only that
+    section's "Ly$\alpha$" needed; the same in its search.json entries;
+  * the Research page: the OJALÁ card's title as accepted and "Astronomy & Astrophysics, in press (accepted
+    12 November 2026)" instead of the arXiv preprint line; the same in its search.json entries;
+  * the files in ALLOWED_DELETED (the old Lyα PDF and its thumbnail, deleted as asked; the first course's
+    thumbnail, which no page shows any more, so Quarto no longer copies it);
   * links with class `dg-read-online` (the "Read online" buttons on the Teaching page), and their label in the
     Teaching page's entries of search.json;
   * the content hash in the name of Quarto's Bootstrap bundle, and in the bundle itself only
@@ -24,6 +33,74 @@ ALLOWED_CHANGED = {
     'docs/assets/files/docs/from_differential_geometry_to_general_relativity.pdf',
     'docs/assets/img/docs/from_differential_geometry_to_general_relativity.png',
 }
+
+# Files deleted on purpose (Lyα brief, site update 2; REVIEW.md): the old Lyα PDF and its thumbnail show the
+# co-authors and lost their last link; the first course's thumbnail was shown only in the removed section.
+ALLOWED_DELETED = {
+    'docs/assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf',
+    'docs/assets/img/docs/absorption_lines_in_cosmological_sightlines.png',
+    'docs/assets/img/docs/from_differential_geometry_to_general_relativity.png',
+}
+DROPDOWN = re.compile(r'<li class="nav-item dropdown ">\s*<a class="nav-link dropdown-toggle[^"]*" href="#" id="nav-menu-lecture-notes"'
+                      r'[^>]*>\s*<span class="menu-text">Lecture Notes</span>\s*</a>\s*<ul class="dropdown-menu"[^>]*>(.*?)</ul>\s*</li>', re.S)
+PLAIN = re.compile(r'<li class="nav-item">\s*<a class="nav-link[^"]*" href="[^"]*notes/diffgeo-gr/index\.html"[^>]*>\s*'
+                   r'<span class="menu-text">Lecture Notes</span></a>\s*</li>')
+MENU = [('notes/diffgeo-gr/index.html', 'From Differential Geometry to General Relativity'),
+        ('notes/lya-forest/index.html', 'Lyman-α Forest')]
+INCLUDE = (REPO / 'includes' / 'navbar-dropdown.html').read_text(encoding='utf-8').strip()
+OJALA_OLD = 'OJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis'
+OJALA_NEW = ('OJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis. A transformer-based model for source '
+             'classification and physical-parameter inference')
+OJALA_ID = 'ojalá-optimizing-j-pas-astronomy-for-large-scale-analysis'
+OJALA_ID_NEW = OJALA_ID + '.-a-transformer-based-model-for-source-classification-and-physical-parameter-inference'
+
+
+def nav_new(s: str, where: str, failures: list) -> str:
+    """The dropdown in a page of the working tree: exactly the two course links; then a placeholder."""
+    m = DROPDOWN.search(s)
+    if not m:
+        return s
+    items = re.findall(r'<a class="dropdown-item[^"]*" href="(?:\./|(?:\.\./)+)?([^"]+)"[^>]*>\s*<span class="dropdown-text">([^<]*)</span>', m.group(1))
+    if items != MENU:
+        failures.append(f'{where}: the Lecture Notes menu is {items}, expected {MENU}')
+    s = s[:m.start()] + '<li>LECTURE-NOTES</li>' + s[m.end():]
+    if s.count(INCLUDE) != 1:
+        failures.append(f'{where}: the script of includes/navbar-dropdown.html is there {s.count(INCLUDE)} times (expected once)')
+    return s.replace(INCLUDE + '\n', '', 1).replace(INCLUDE, '', 1)
+
+
+def nav_old(s: str) -> str:
+    return PLAIN.sub('<li>LECTURE-NOTES</li>', s)
+
+
+def teaching_old(s: str) -> str:
+    """The accepted changes of the Teaching page, applied to REF's rendering."""
+    s = re.sub(r'<section id="lecture-notes" class="level2">.*?</section>\s*(?=<section id="other-projects)', '', s, count=1, flags=re.S)
+    s = s.replace('btn-sm">Lecture notes</a>', 'btn-sm">Download PDF</a>', 1)
+    s = re.sub(r'[ \t]*<script[^>]*(?:polyfill|mathjax)[^>]*></script>\n', '', s)
+    # Quarto's helper that typesets math in the page (window.Quarto.typesetMath): written only on pages with math
+    return re.sub(r'\n<script type="text/javascript">\nconst typesetMath = .*?</script>\n', '\n', s, count=1, flags=re.S)
+
+
+def research_old(s: str) -> str:
+    s = s.replace(OJALA_ID, OJALA_ID_NEW).replace(f'>{OJALA_OLD}</h3>', f'>{OJALA_NEW}</h3>')
+    return s.replace('<em>arXiv preprint, arXiv:2604.00661</em>', '<em>Astronomy &amp; Astrophysics</em>, in press (accepted 12 November 2026)')
+
+
+def search_old(e: dict) -> dict | None:
+    """REF's search.json entry as the accepted changes make it (None: the entry is gone)."""
+    h, t = e.get('href', ''), e.get('text')
+    if h.startswith('teaching_and_projects.html'):
+        if '#lecture-notes' in h or '#from-differential-geometry-to-general-relativity-1' in h or '#notes-on-ly' in h:
+            return None
+        if isinstance(t, str):
+            e = dict(e, text=t.replace('Lecture notes GitHub', 'Download PDF GitHub'))
+    if h.startswith('research_and_publications.html'):
+        e = {k: (v.replace(OJALA_ID, OJALA_ID_NEW).replace(OJALA_OLD, OJALA_NEW)
+                 .replace('arXiv preprint, arXiv:2604.00661', 'Astronomy & Astrophysics, in press (accepted 12 November 2026)')
+                 if isinstance(v, str) else v) for k, v in e.items()}
+    return e
+
 
 def git(*args, text=True):
     return subprocess.run(['git', '-C', str(REPO), *args], capture_output=True, text=text, check=True).stdout
@@ -45,7 +122,8 @@ def norm_html(s):
     s = NAV.sub('', s)
     s = READ.sub('', s)
     s = HASH.sub('bootstrap-HASH.min.css', s)
-    return re.sub(r'[ \t]+\n', '\n', s)
+    s = re.sub(r'[ \t]+\n', '\n', s)
+    return re.sub(r'\n{3,}', '\n\n', s)          # blank lines left where a removed block stood
 
 def main():
     failures = []
@@ -55,7 +133,7 @@ def main():
 
     # 1. every file of REF is there; nothing new outside site_libs
     for f in ref_files:
-        if f not in work_files and not HASH.search(f):
+        if f not in work_files and not HASH.search(f) and f not in ALLOWED_DELETED:
             failures.append(f'missing: {f}')
     for f in sorted(work_files - set(ref_files)):
         if not f.startswith('docs/site_libs/'):
@@ -69,7 +147,12 @@ def main():
         old = git('show', f'{REF}:{f}', text=False)
         new = (REPO / f).read_bytes()
         if f.endswith('.html'):
-            o, n = norm_html(old.decode()), norm_html(new.decode())
+            o, n = nav_old(old.decode()), nav_new(new.decode(), f, failures)
+            if f == 'docs/teaching_and_projects.html':
+                o = teaching_old(o)
+            if f == 'docs/research_and_publications.html':
+                o = research_old(o)
+            o, n = norm_html(o), norm_html(n)
             if o != n:
                 ol, nl = o.splitlines(), n.splitlines()
                 diff = [(a, b) for a, b in zip(ol, nl) if a != b][:2]
@@ -78,10 +161,14 @@ def main():
                 for m in HASH.findall(text):
                     bundles.setdefault(f, {})[side] = m
         elif f == 'docs/search.json':
-            keep = lambda js: sorted((read_online(e) for e in json.loads(js) if not e.get('href', '').startswith('notes/')),
+            keep = lambda es: sorted((read_online(e) for e in es if e is not None and not e.get('href', '').startswith('notes/')),
                                      key=lambda e: e.get('objectID', ''))   # the order of pages in the index is not stable
-            if keep(old) != keep(new):
-                failures.append('docs/search.json: entries of existing pages changed')
+            ko, kn = keep(search_old(e) for e in json.loads(old)), keep(json.loads(new))
+            if ko != kn:
+                a = {e['objectID']: e for e in ko}
+                b = {e['objectID']: e for e in kn}
+                bad = sorted(k for k in a.keys() | b.keys() if a.get(k) != b.get(k))
+                failures.append(f'docs/search.json: entries of existing pages changed: {bad[:4]}')
         elif f == 'docs/sitemap.xml':
             locs = lambda x: sorted(u for u in re.findall(r'<loc>(.*?)</loc>', x.decode()) if '/notes/' not in u)
             if locs(old) != locs(new):

@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** L7 — site updates: Teaching page (remove the "Lecture Notes" section; graduate course card's "Lecture notes" button → "Read online" to `/notes/diffgeo-gr/`), delete the old Lyα PDF + thumbnail from `assets/` and `docs/` (log in REVIEW), OJALÁ in press on the Research page (and every other mention in the site source); then extend `site_unchanged.py` to accept exactly these and the navbar.
+**Next action:** L8 — tools and `check.sh` for both courses: `check.sh` (branch `course-lya`, notes fingerprint for the Lyα notes, converter both courses, `course_unchanged.py`, shared design files identical), then each tool with a course argument (links_check, page_check, a11y_check, navbar_check incl. the dropdown, render_intact, fidelity, main_text_diff, test_page_script, pilot addresses for the first course only). Delegate the mechanical tool changes to `port-worker`, review its diff.
 
 **State of the working tree:** clean after each commit except `docs/` (rendered output is committed at the end, D28; until then `docs/` carries uncommitted renders); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
 
@@ -15,7 +15,7 @@
 | L4 | Math configuration | done | `math_check`: diffgeo 3427 / lya 439 expressions, 0 failures; macros checked against the preamble (L16) | (this commit) |
 | L5 | Landing page, accent, cover | in progress | landing renders (title, subtitle, version, abstract, keywords, contents; no authors); teal accent; spectrum cover. Review in L17 | (this commit) |
 | L6 | Navbar dropdown | done | first course: 82 pages differ only in the navbar (`course_unchanged.py`); behaviour/look checks added to `navbar_check` in L8 | 34f7805 |
-| L7 | Site updates (Teaching, old PDF, OJALÁ) | todo | | |
+| L7 | Site updates (Teaching, old PDF, OJALÁ) | done | full `quarto render`; `site_unchanged.py` passes with exactly these changes (L19), fails on others | (this commit) |
 | L8 | Tools and `check.sh` for both courses | todo | | |
 | L9 | Panel 1: line profile | todo | | |
 | L10 | Panel 2: optical depth along a sightline | todo | | |
