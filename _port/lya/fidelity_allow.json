@@ -28,6 +28,69 @@
    "key": "text:\\noteemails\\par } \\begin{abstract} These notes present a com",
    "line": 175,
    "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's contact e-mail is not on the web; cover_lya.py leaves this piece out of the landing page"
+  },
+  {
+   "file": "fig_tikz/xi3D_pair.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:xi3D_pair",
+   "line": 3,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/xi3D_window.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:xi3D_window",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/xi3D_rperp_wedge.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:xi3D_rperp_wedge",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/xi3D_slice.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:xi3D_slice",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/Pk_window.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:Pk3D_window",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/Pk_duality.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:Pk3D_duality",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/DFT_modes.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:DFT_modes",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/DFT_circular.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:DFT_circular",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
+  },
+  {
+   "file": "fig_tikz/DFT_aliasing.tex",
+   "construct": "tikzpicture",
+   "key": "label:fig:DFT_aliasing",
+   "line": 2,
+   "reason": "D10, Lyα DECISIONS L30: a TikZ picture (\\input from fig_tikz/) compiled to the figure's SVG; its words are in the SVG, not in the page text"
   }
  ],
  "diff": [
@@ -481,50 +544,6 @@
    ]
   },
   {
-   "page": "flux/overflux",
-   "at": "sec_flux.tex:843",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.33}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "flux/overflux",
-   "at": "sec_flux.tex:917",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.34}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "flux/overflux",
-   "at": "sec_flux.tex:1049",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\tag{3.35}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "flux/overflux",
-   "at": "sec_flux.tex:1059",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\tag{3.36}\\end{align}$$"
-   ]
-  },
-  {
    "page": "flux/top-down-summary",
    "at": "sec_flux.tex:1269",
    "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
@@ -654,50 +673,6 @@
    ],
    "page_tokens": [
     "$$\\begin{align}\\sigma_{ij}(\\vec{x})&=\\frac{b_i(\\vec{x})}{\\sqrt{2}\\lambda_j},\\qquadb_i(\\vec{x})=\\sqrt{b_{i\\,\\mathrm{th}}^{2}(\\vec{x})+b_{i\\,\\mathrm{turb}}^{2}(\\vec{x})},\\qquadb_{i\\,\\mathrm{th}}(\\vec{x})=\\sqrt{\\frac{2k_BT_i(\\vec{x})}{m_i}},\\tag{3.48}\\\\[0.3em]\\gamma_j(\\vec{x})&=\\frac{A_j+A_{j\\,\\mathrm{coll}}(\\vec{x})}{4\\pi}.\\tag{3.49}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "xi-decomposition/index",
-   "at": "subsec_xi1D.tex:6",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\tag{4.1}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "xi-decomposition/index",
-   "at": "subsec_xi1D.tex:91",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{4.2}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "xi-decomposition/index",
-   "at": "subsec_xi1D.tex:125",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\tag{4.3}\\end{align}$$"
-   ]
-  },
-  {
-   "page": "xi-decomposition/index",
-   "at": "subsec_xi1D.tex:179",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\tag{4.4}\\end{align}$$"
    ]
   },
   {
@@ -1127,6 +1102,677 @@
    ],
    "page_tokens": [
     "$$\\begin{align}\\tau_{ij}(u)\\propto\\intdx\\;n_i(x)\\,\\phi_{ij}(x,u)=\\intdx\\;n_i(x)\\,\\phi_{ij}\\!\\left(u-u_{\\mathrm{abs}}^{\\mathrm{FS}}(x)\\right),\\tag{C.25}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/product-of-total-overfluxes",
+   "at": "sec_flux.tex:848",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.33}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/product-of-total-overfluxes",
+   "at": "sec_flux.tex:922",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.34}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/product-of-total-overfluxes",
+   "at": "sec_flux.tex:1060",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\tag{3.35}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/product-of-total-overfluxes",
+   "at": "sec_flux.tex:1070",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\tag{3.36}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/per-sample-realization-level-3d-two-point-correlation",
+   "at": "sec_xi.tex:11",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)\\equiv\\mathbf{1}_{\\mathcal{A}_\\perp}\\!\\left(\\vec{x}_\\perp+\\vec{r}_{\\perp}\\right)\\,\\mathbf{1}_{[\\Lambda_a,\\Lambda_b]}\\!\\left(\\Lambda+\\Delta\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)\\equiv\\mathbf{1}_{\\mathcal{A}_\\perp}\\!\\left(\\vec{x}_\\perp+\\vec{r}_{\\perp}\\right)\\,\\mathbf{1}_{[\\Lambda_a,\\Lambda_b]}\\!\\left(\\Lambda+\\Delta\\right),\\tag{4.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/per-sample-realization-level-3d-two-point-correlation",
+   "at": "sec_xi.tex:18",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\equiv\\frac{\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp}+\\vec{r}_{\\perp},\\Lambda+\\Delta\\right)}{\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)},\\qquad|\\Delta|<L_\\Lambda.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\equiv\\frac{\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp}+\\vec{r}_{\\perp},\\Lambda+\\Delta\\right)}{\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;W_{\\vec{r}_{\\perp},\\Delta}(\\vec{x}_\\perp,\\Lambda)},\\qquad|\\Delta|<L_\\Lambda.\\tag{4.2}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/per-sample-realization-level-3d-two-point-correlation",
+   "at": "sec_xi.tex:73",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ji}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)=\\widehat{\\xi}_{ij}^{(s)}\\!\\left(-\\vec{r}_{\\perp},-\\Delta\\right).\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ji}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)=\\widehat{\\xi}_{ij}^{(s)}\\!\\left(-\\vec{r}_{\\perp},-\\Delta\\right).\\tag{4.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-perpendicular-distance",
+   "at": "sec_xi.tex:106",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\vec{r}_{\\perp}(r_\\perp,\\varphi)\\equiv\\left(r_\\perp\\cos\\varphi,\\;r_\\perp\\sin\\varphi\\right),\\qquadr_\\perp\\equiv|\\vec{r}_{\\perp}|\\ge0,\\qquad\\varphi\\in[0,2\\pi),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\vec{r}_{\\perp}(r_\\perp,\\varphi)\\equiv\\left(r_\\perp\\cos\\varphi,\\;r_\\perp\\sin\\varphi\\right),\\qquadr_\\perp\\equiv|\\vec{r}_{\\perp}|\\ge0,\\qquad\\varphi\\in[0,2\\pi),\\tag{4.4}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-perpendicular-distance",
+   "at": "sec_xi.tex:116",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)\\;\\equiv\\;\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp\\cos\\varphi,r_\\perp\\sin\\varphi,\\Delta\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)\\;\\equiv\\;\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp\\cos\\varphi,r_\\perp\\sin\\varphi,\\Delta\\right),\\tag{4.5}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-perpendicular-distance",
+   "at": "sec_xi.tex:130",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ji}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)=\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,-\\Delta\\right),\\qquad\\widehat{\\xi}_{ii}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)=\\widehat{\\xi}_{ii}^{(s)}\\!\\left(r_\\perp,-\\Delta\\right):\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ji}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)=\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,-\\Delta\\right),\\qquad\\widehat{\\xi}_{ii}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)=\\widehat{\\xi}_{ii}^{(s)}\\!\\left(r_\\perp,-\\Delta\\right):\\tag{4.6}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-wedges",
+   "at": "sec_xi.tex:170",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}r\\equiv\\sqrt{r_\\perp^2+r_\\parallel^2},\\qquad\\mu\\equiv\\frac{r_\\parallel}{r}\\in[-1,1],\\qquad\\Longleftrightarrow\\qquadr_\\perp=r\\sqrt{1-\\mu^2},\\qquad\\Delta=\\mathcal{J}\\,r\\,\\mu,\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}r\\equiv\\sqrt{r_\\perp^2+r_\\parallel^2},\\qquad\\mu\\equiv\\frac{r_\\parallel}{r}\\in[-1,1],\\qquad\\Longleftrightarrow\\qquadr_\\perp=r\\sqrt{1-\\mu^2},\\qquad\\Delta=\\mathcal{J}\\,r\\,\\mu,\\tag{4.7}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-wedges",
+   "at": "sec_xi.tex:183",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}&\\equiv\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}\\!\\left(r\\sqrt{1-\\mu^2},\\varphi\\right),\\,\\mathcal{J}r\\mu\\right)\\notag\\\\&=\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r\\sqrt{1-\\mu^2},\\,\\mathcal{J}r\\mu\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}&\\equiv\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}\\!\\left(r\\sqrt{1-\\mu^2},\\varphi\\right),\\,\\mathcal{J}r\\mu\\right)\\notag\\\\&=\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r\\sqrt{1-\\mu^2},\\,\\mathcal{J}r\\mu\\right),\\tag{4.8}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-wedges",
+   "at": "sec_xi.tex:202",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(-1,1)}=\\frac{1}{4\\pi}\\int_{-1}^{1}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}\\!\\left(r\\sqrt{1-\\mu^2},\\varphi\\right),\\,\\mathcal{J}r\\mu\\right)=\\frac{1}{4\\pi}\\int\\!d\\Omega\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(-1,1)}=\\frac{1}{4\\pi}\\int_{-1}^{1}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}\\!\\left(r\\sqrt{1-\\mu^2},\\varphi\\right),\\,\\mathcal{J}r\\mu\\right)=\\frac{1}{4\\pi}\\int\\!d\\Omega\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}\\right),\\tag{4.9}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-the-1d-2pcf",
+   "at": "sec_xi.tex:237",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;\\Delta\\right)\\equiv\\frac{1}{L_\\Lambda-\\Delta}\\int_{\\Lambda_a}^{\\Lambda_b-\\Delta}\\!d\\Lambda\\;\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda+\\Delta\\right),\\qquad0\\le\\Delta<L_\\Lambda.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;\\Delta\\right)\\equiv\\frac{1}{L_\\Lambda-\\Delta}\\int_{\\Lambda_a}^{\\Lambda_b-\\Delta}\\!d\\Lambda\\;\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda+\\Delta\\right),\\qquad0\\le\\Delta<L_\\Lambda.\\tag{4.10}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/reduction-to-the-1d-2pcf",
+   "at": "sec_xi.tex:279",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)\\;\\equiv\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}=\\vec{0},\\,\\Delta\\right)&=\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\underbrace{\\frac{1}{L_\\Lambda-\\Delta}\\int_{\\Lambda_a}^{\\Lambda_b-\\Delta}\\!d\\Lambda\\;\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda+\\Delta\\right)}_{\\widehat{\\xi}_{ij}^{(s),\\rm1D}(\\vec{x}_\\perp;\\Delta)}\\notag\\\\&=\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\widehat{\\xi}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;\\Delta\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)\\;\\equiv\\;\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp}=\\vec{0},\\,\\Delta\\right)&=\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\underbrace{\\frac{1}{L_\\Lambda-\\Delta}\\int_{\\Lambda_a}^{\\Lambda_b-\\Delta}\\!d\\Lambda\\;\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda+\\Delta\\right)}_{\\widehat{\\xi}_{ij}^{(s),\\rm1D}(\\vec{x}_\\perp;\\Delta)}\\notag\\\\&=\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\widehat{\\xi}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;\\Delta\\right).\\tag{4.11}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/ensemble-3d-2pcf",
+   "at": "sec_xi.tex:311",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\;\\equiv\\;\\Big\\langle\\delta_i^{(s)}\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_j^{(s)}\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}\\;=\\;\\int_{\\Omega}\\!d\\mathbbP(\\omega)\\;\\delta_i\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha,\\omega\\right)\\,\\delta_j\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta,\\omega\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\;\\equiv\\;\\Big\\langle\\delta_i^{(s)}\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_j^{(s)}\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}\\;=\\;\\int_{\\Omega}\\!d\\mathbbP(\\omega)\\;\\delta_i\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha,\\omega\\right)\\,\\delta_j\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta,\\omega\\right),\\tag{4.12}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/ensemble-3d-2pcf",
+   "at": "sec_xi.tex:342",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right),\\qquad\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\;\\equiv\\;\\Big\\langle\\delta_i^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\left(\\vec{x}_{\\perp}+\\vec{r}_{\\perp},\\Lambda+\\Delta\\right)\\Big\\rangle_{\\rmens},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right),\\qquad\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\;\\equiv\\;\\Big\\langle\\delta_i^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\,\\delta_j^{(s)}\\left(\\vec{x}_{\\perp}+\\vec{r}_{\\perp},\\Lambda+\\Delta\\right)\\Big\\rangle_{\\rmens},\\tag{4.13}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/from-per-sample-to-ensemble-estimates",
+   "at": "sec_xi.tex:366",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\;\\equiv\\;\\frac{1}{N}\\sum_{s=1}^{N}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\;\\equiv\\;\\frac{1}{N}\\sum_{s=1}^{N}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right),\\tag{4.14}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition",
+   "at": "sec_xi.tex:397",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\tag{4.15}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition",
+   "at": "sec_xi.tex:482",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{4.16}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition",
+   "at": "sec_xi.tex:516",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\tag{4.17}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition",
+   "at": "sec_xi.tex:570",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\tag{4.18}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition",
+   "at": "sec_xi.tex:603",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)=\\frac{1}{(1+\\mathcal{C}(\\Lambda))^2}\\Bigg[-\\,\\mathcal{C}(\\Lambda)^2+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)+\\xi_{ji}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\Big]+\\dots\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)=\\frac{1}{(1+\\mathcal{C}(\\Lambda))^2}\\Bigg[-\\,\\mathcal{C}(\\Lambda)^2+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)+\\xi_{ji}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\Big]+\\dots\\Bigg].\\tag{4.19}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition-l2",
+   "at": "sec_xi.tex:632",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\xi\\!\\left(\\Lambda_\\alpha,\\Lambda_\\beta\\right)\\;\\equiv\\;\\Big\\langle\\delta^{(s)}\\left(\\Lambda_\\alpha\\right)\\,\\delta^{(s)}(\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\;=\\;\\int_{\\Omega}\\!d\\mathbbP(\\omega)\\;\\delta\\left(\\Lambda_\\alpha,\\omega\\right)\\,\\delta\\left(\\Lambda_\\beta,\\omega\\right)\\;=\\notag\\\\&=\\frac{1}{\\bigl[1+\\TextZero{C_{12}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{C_{12}(\\Lambda_\\beta)}\\bigr]}\\Bigg[-\\TextZero{C_{12}(\\Lambda_\\alpha)\\,C_{12}(\\Lambda_\\beta)}+\\TextTwo{\\xi_{11}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextTwo{\\xi_{22}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextTwo{\\xi_{12,\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\notag\\\\[0.6em]&\\qquad+\\TextThree{\\xi_{1(12),\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextThree{\\xi_{2(12),\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextFour{\\xi_{(12)(12)}(\\Lambda_\\alpha,\\Lambda_\\beta)}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\xi\\!\\left(\\Lambda_\\alpha,\\Lambda_\\beta\\right)\\;\\equiv\\;\\Big\\langle\\delta^{(s)}\\left(\\Lambda_\\alpha\\right)\\,\\delta^{(s)}(\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\;=\\;\\int_{\\Omega}\\!d\\mathbbP(\\omega)\\;\\delta\\left(\\Lambda_\\alpha,\\omega\\right)\\,\\delta\\left(\\Lambda_\\beta,\\omega\\right)\\;=\\notag\\\\&=\\frac{1}{\\bigl[1+\\TextZero{C_{12}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{C_{12}(\\Lambda_\\beta)}\\bigr]}\\Bigg[-\\TextZero{C_{12}(\\Lambda_\\alpha)\\,C_{12}(\\Lambda_\\beta)}+\\TextTwo{\\xi_{11}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextTwo{\\xi_{22}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextTwo{\\xi_{12,\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\notag\\\\[0.6em]&\\qquad+\\TextThree{\\xi_{1(12),\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextThree{\\xi_{2(12),\\mathrm{sym}}(\\Lambda_\\alpha,\\Lambda_\\beta)}+\\TextFour{\\xi_{(12)(12)}(\\Lambda_\\alpha,\\Lambda_\\beta)}\\Bigg].\\tag{4.20}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi3d/xi-decomposition-l2",
+   "at": "sec_xi.tex:865",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi_T(\\Delta\\theta,\\Delta)&=\\left<\\delta_T(\\hatn_1,\\Lambda_\\alpha)~\\delta_T(\\hatn_2,\\Lambda_\\beta)\\right>\\nonumber\\\\&=\\left(1+C_{12}\\right)^{-2}\\left[1+2C_{12}+\\xi_\\alpha(\\Delta\\theta,\\Delta)+\\xi_X(\\Delta\\theta,\\Delta)+\\xi_{\\alphaX}(\\Delta\\theta,\\Delta)\\right.\\nonumber\\\\&\\left.\\qquad+C^2_{\\alphaX}+\\xi_3(\\Delta\\theta,\\Delta)\\right]-1~,\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi_T(\\Delta\\theta,\\Delta)&=\\left<\\delta_T(\\hatn_1,\\Lambda_\\alpha)~\\delta_T(\\hatn_2,\\Lambda_\\beta)\\right>\\nonumber\\\\&=\\left(1+C_{12}\\right)^{-2}\\left[1+2C_{12}+\\xi_\\alpha(\\Delta\\theta,\\Delta)+\\xi_X(\\Delta\\theta,\\Delta)+\\xi_{\\alphaX}(\\Delta\\theta,\\Delta)\\right.\\nonumber\\\\&\\left.\\qquad+C^2_{\\alphaX}+\\xi_3(\\Delta\\theta,\\Delta)\\right]-1~,\\tag{4.21}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/per-sample-realization-level-3d-power-spectrum",
+   "at": "sec_Pk.tex:15",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{1}{(2\\pi)^{3/2}}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-i\\left(\\vec{k}_\\perp\\cdot\\vec{x}_\\perp+k_\\parallel\\Lambda\\right)}\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{1}{(2\\pi)^{3/2}}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-i\\left(\\vec{k}_\\perp\\cdot\\vec{x}_\\perp+k_\\parallel\\Lambda\\right)}\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\tag{5.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/per-sample-realization-level-3d-power-spectrum",
+   "at": "sec_Pk.tex:26",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{(2\\pi)^3}{|\\mathcal{A}_\\perp|\\,L_\\Lambda}\\;\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,\\widetilde{\\delta}_j^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)^{*}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{(2\\pi)^3}{|\\mathcal{A}_\\perp|\\,L_\\Lambda}\\;\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,\\widetilde{\\delta}_j^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)^{*}.\\tag{5.2}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/per-sample-realization-level-3d-power-spectrum",
+   "at": "sec_Pk.tex:40",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ji}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)=\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)^{*}=\\widehat{P}_{ij}^{(s)}\\!\\left(-\\vec{k}_{\\perp},-k_\\parallel\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ji}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)=\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)^{*}=\\widehat{P}_{ij}^{(s)}\\!\\left(-\\vec{k}_{\\perp},-k_\\parallel\\right),\\tag{5.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/relation-to-the-per-sample-3d-2pcf",
+   "at": "sec_Pk.tex:90",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)&=\\int\\!d^2r_\\perp\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\,e^{+i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\notag\\\\\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)&\\equiv\\frac{|\\mathcal{A}_\\perp(\\vec{r}_\\perp)|}{|\\mathcal{A}_\\perp|}\\left(1-\\frac{|\\Delta|}{L_\\Lambda}\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)&=\\int\\!d^2r_\\perp\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\,e^{+i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\notag\\\\\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)&\\equiv\\frac{|\\mathcal{A}_\\perp(\\vec{r}_\\perp)|}{|\\mathcal{A}_\\perp|}\\left(1-\\frac{|\\Delta|}{L_\\Lambda}\\right),\\tag{5.4}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-perpendicular-wavenumber",
+   "at": "sec_Pk.tex:129",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\vec{k}_{\\perp}(k_\\perp,\\varphi_k)\\equiv\\left(k_\\perp\\cos\\varphi_k,\\;k_\\perp\\sin\\varphi_k\\right),\\qquadk_\\perp\\equiv|\\vec{k}_{\\perp}|\\ge0,\\qquad\\varphi_k\\in[0,2\\pi),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\vec{k}_{\\perp}(k_\\perp,\\varphi_k)\\equiv\\left(k_\\perp\\cos\\varphi_k,\\;k_\\perp\\sin\\varphi_k\\right),\\qquadk_\\perp\\equiv|\\vec{k}_{\\perp}|\\ge0,\\qquad\\varphi_k\\in[0,2\\pi),\\tag{5.5}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-perpendicular-wavenumber",
+   "at": "sec_Pk.tex:139",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)\\;\\equiv\\;\\int_0^{2\\pi}\\!d\\varphi_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp\\cos\\varphi_k,k_\\perp\\sin\\varphi_k,k_\\parallel\\right).\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)\\;\\equiv\\;\\int_0^{2\\pi}\\!d\\varphi_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp\\cos\\varphi_k,k_\\perp\\sin\\varphi_k,k_\\parallel\\right).\\tag{5.6}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-perpendicular-wavenumber",
+   "at": "sec_Pk.tex:147",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ji}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)=\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)^*=\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,-k_\\parallel\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ji}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)=\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)^*=\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,-k_\\parallel\\right),\\tag{5.7}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-perpendicular-wavenumber",
+   "at": "sec_Pk.tex:165",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)=2\\pi\\int_0^{\\infty}\\!dr_\\perp\\,r_\\perp\\,J_0\\!\\left(k_\\perpr_\\perp\\right)\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\overline{W}\\!\\left(r_\\perp,\\Delta\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)\\,e^{+ik_\\parallel\\Delta}:\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right)=2\\pi\\int_0^{\\infty}\\!dr_\\perp\\,r_\\perp\\,J_0\\!\\left(k_\\perpr_\\perp\\right)\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\overline{W}\\!\\left(r_\\perp,\\Delta\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(r_\\perp,\\Delta\\right)\\,e^{+ik_\\parallel\\Delta}:\\tag{5.8}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-wedges",
+   "at": "sec_Pk.tex:184",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}k\\equiv\\sqrt{k_\\perp^2+\\mathcal{J}^2k_\\parallel^2},\\qquad\\mu\\equiv\\frac{\\mathcal{J}k_\\parallel}{k}\\in[-1,1],\\qquad\\Longleftrightarrow\\qquadk_\\perp=k\\sqrt{1-\\mu^2},\\qquadk_\\parallel=\\frac{k\\,\\mu}{\\mathcal{J}},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}k\\equiv\\sqrt{k_\\perp^2+\\mathcal{J}^2k_\\parallel^2},\\qquad\\mu\\equiv\\frac{\\mathcal{J}k_\\parallel}{k}\\in[-1,1],\\qquad\\Longleftrightarrow\\qquadk_\\perp=k\\sqrt{1-\\mu^2},\\qquadk_\\parallel=\\frac{k\\,\\mu}{\\mathcal{J}},\\tag{5.9}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-wedges",
+   "at": "sec_Pk.tex:194",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}&\\equiv\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp}\\!\\left(k\\sqrt{1-\\mu^2},\\varphi_k\\right),\\,\\frac{k\\mu}{\\mathcal{J}}\\right)\\notag\\\\&=\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k\\sqrt{1-\\mu^2},\\,\\frac{k\\mu}{\\mathcal{J}}\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}&\\equiv\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\int_0^{2\\pi}\\!d\\varphi_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp}\\!\\left(k\\sqrt{1-\\mu^2},\\varphi_k\\right),\\,\\frac{k\\mu}{\\mathcal{J}}\\right)\\notag\\\\&=\\frac{1}{2\\pi\\,(\\mu_2-\\mu_1)}\\int_{\\mu_1}^{\\mu_2}\\!d\\mu\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k\\sqrt{1-\\mu^2},\\,\\frac{k\\mu}{\\mathcal{J}}\\right),\\tag{5.10}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-wedges",
+   "at": "sec_Pk.tex:208",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(-1,1)}=\\frac{1}{4\\pi}\\int\\!d\\Omega_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}\\right)=\\frac{1}{4\\pi}\\int_{-1}^{1}\\!d\\mu\\;\\mathrm{Re}\\,\\widehat{P}_{ij}^{(s)}\\!\\left(k\\sqrt{1-\\mu^2},\\,\\frac{k\\mu}{\\mathcal{J}}\\right),\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(-1,1)}=\\frac{1}{4\\pi}\\int\\!d\\Omega_k\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}\\right)=\\frac{1}{4\\pi}\\int_{-1}^{1}\\!d\\mu\\;\\mathrm{Re}\\,\\widehat{P}_{ij}^{(s)}\\!\\left(k\\sqrt{1-\\mu^2},\\,\\frac{k\\mu}{\\mathcal{J}}\\right),\\tag{5.11}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-wedges",
+   "at": "sec_Pk.tex:225",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(-1,1)}=4\\pi\\mathcal{J}\\int_0^\\infty\\!dr\\,r^2\\,j_0(kr)\\;\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(-1,1)}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}(k)\\Big\\rvert_{\\mu\\in(-1,1)}=4\\pi\\mathcal{J}\\int_0^\\infty\\!dr\\,r^2\\,j_0(kr)\\;\\widehat{\\xi}_{ij}^{(s)}(r)\\Big\\rvert_{\\mu\\in(-1,1)}.\\tag{5.12}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk.tex:247",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widetilde{\\delta}_i^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&\\equiv\\frac{1}{\\sqrt{2\\pi}}\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-ik_\\parallel\\Lambda}\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\notag\\\\\\widehat{P}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&\\equiv\\frac{2\\pi}{L_\\Lambda}\\,\\widetilde{\\delta}_i^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)\\,\\widetilde{\\delta}_j^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)^*,\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widetilde{\\delta}_i^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&\\equiv\\frac{1}{\\sqrt{2\\pi}}\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-ik_\\parallel\\Lambda}\\,\\delta_i^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\notag\\\\\\widehat{P}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&\\equiv\\frac{2\\pi}{L_\\Lambda}\\,\\widetilde{\\delta}_i^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)\\,\\widetilde{\\delta}_j^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)^*,\\tag{5.13}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk.tex:277",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)\\equiv\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\widehat{P}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\notag\\\\&=\\frac{1}{(2\\pi)^2}\\int_0^\\infty\\!dk_\\perp\\,k_\\perp\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)\\equiv\\frac{1}{|\\mathcal{A}_\\perp|}\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\;\\widehat{P}_{ij}^{(s),\\rm1D}\\!\\left(\\vec{x}_\\perp;k_\\parallel\\right)&=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\notag\\\\&=\\frac{1}{(2\\pi)^2}\\int_0^\\infty\\!dk_\\perp\\,k_\\perp\\;\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\perp,k_\\parallel\\right),\\tag{5.14}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk.tex:300",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)=\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\left(1-\\frac{|\\Delta|}{L_\\Lambda}\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)\\,e^{+ik_\\parallel\\Delta},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)=\\int_{-L_\\Lambda}^{L_\\Lambda}\\!d\\Delta\\;\\left(1-\\frac{|\\Delta|}{L_\\Lambda}\\right)\\,\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)\\,e^{+ik_\\parallel\\Delta},\\tag{5.15}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk.tex:314",
+   "reason": "D7 rewrite (2): \\ref / \\eqref inside math -> the number, as \\href{<its URL>}{<number>} (a link, as in the PDF; B12-B17)",
+   "latex": [
+    "$$\\begin{equation}\\begin{array}{ccc}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)&\\xrightarrow{\\\\text{Eq.~\\eqref{eq:Pk3D_from_xi3D_sample}}\\}&\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_\\perp,k_\\parallel\\right)\\\\[4pt]\\Big\\downarrow\\;\\vec{r}_\\perp=\\vec{0}&&\\Big\\downarrow\\;\\intd^2k_\\perp/(2\\pi)^2\\\\[4pt]\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)&\\xrightarrow{\\\\text{Eq.~\\eqref{eq:Pk3D_P1D_from_xi1D}}\\}&\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)\\end{array}\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\begin{array}{ccc}\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)&\\xrightarrow{\\\\text{Eq.~(\\href{relation-to-the-per-sample-3d-2pcf.html#eq:Pk3D_from_xi3D_sample}{5.4})}\\}&\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_\\perp,k_\\parallel\\right)\\\\[4pt]\\Big\\downarrow\\;\\vec{r}_\\perp=\\vec{0}&&\\Big\\downarrow\\;\\intd^2k_\\perp/(2\\pi)^2\\\\[4pt]\\widehat{\\xi}_{ij}^{(s)}\\!\\left(\\Delta\\right)&\\xrightarrow{\\\\text{Eq.~(\\href{#eq:Pk3D_P1D_from_xi1D}{5.15})}\\}&\\widehat{P}_{ij}^{(s)}\\!\\left(k_\\parallel\\right)\\end{array}\\tag{5.16}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/ensemble-3d-power-spectrum",
+   "at": "sec_Pk.tex:356",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)&\\equiv\\int\\!d^2r_\\perp\\int\\!d\\Delta\\;\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\,e^{+i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\notag\\\\\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)&=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\int\\!\\frac{dk_\\parallel}{2\\pi}\\;P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,e^{-i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)&\\equiv\\int\\!d^2r_\\perp\\int\\!d\\Delta\\;\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)\\,e^{+i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\notag\\\\\\xi_{ij}\\!\\left(\\vec{r}_{\\perp},\\Delta\\right)&=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\int\\!\\frac{dk_\\parallel}{2\\pi}\\;P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,e^{-i\\left(\\vec{k}_\\perp\\cdot\\vec{r}_\\perp+k_\\parallel\\Delta\\right)},\\tag{5.17}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d/ensemble-3d-power-spectrum",
+   "at": "sec_Pk.tex:371",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\Big\\langle\\widetilde{\\delta}_i\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,\\widetilde{\\delta}_j\\!\\left(\\vec{k}'_{\\perp},k'_\\parallel\\right)^*\\Big\\rangle_{\\rmens}=\\delta_{\\rmD}^{(2)}\\!\\left(\\vec{k}_\\perp-\\vec{k}'_\\perp\\right)\\,\\delta_{\\rmD}\\!\\left(k_\\parallel-k'_\\parallel\\right)\\,P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right):\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\Big\\langle\\widetilde{\\delta}_i\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\,\\widetilde{\\delta}_j\\!\\left(\\vec{k}'_{\\perp},k'_\\parallel\\right)^*\\Big\\rangle_{\\rmens}=\\delta_{\\rmD}^{(2)}\\!\\left(\\vec{k}_\\perp-\\vec{k}'_\\perp\\right)\\,\\delta_{\\rmD}\\!\\left(k_\\parallel-k'_\\parallel\\right)\\,P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right):\\tag{5.18}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/ensemble-3d-power-spectrum",
+   "at": "sec_Pk.tex:386",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}P_{ij}\\!\\left(k_\\parallel\\right)=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\;P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)=\\int\\!d\\Delta\\;\\xi_{ij}\\!\\left(\\Delta\\right)\\,e^{+ik_\\parallel\\Delta},\\qquad\\xi_{ij}\\!\\left(\\Delta\\right)=\\xi_{ij}\\!\\left(\\vec{r}_\\perp=\\vec{0},\\Delta\\right).\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}P_{ij}\\!\\left(k_\\parallel\\right)=\\int\\!\\frac{d^2k_\\perp}{(2\\pi)^2}\\;P_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)=\\int\\!d\\Delta\\;\\xi_{ij}\\!\\left(\\Delta\\right)\\,e^{+ik_\\parallel\\Delta},\\qquad\\xi_{ij}\\!\\left(\\Delta\\right)=\\xi_{ij}\\!\\left(\\vec{r}_\\perp=\\vec{0},\\Delta\\right).\\tag{5.19}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/from-per-sample-to-ensemble-estimates",
+   "at": "sec_Pk.tex:404",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{1}{N}\\sum_{s=1}^{N}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right).\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right)\\equiv\\frac{1}{N}\\sum_{s=1}^{N}\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_{\\perp},k_\\parallel\\right).\\tag{5.20}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d/from-per-sample-to-ensemble-estimates",
+   "at": "sec_Pk.tex:417",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Big\\langle\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}\\right)\\Big\\rangle_{\\rmens}&=\\int\\!\\frac{d^2q_\\perp\\,dq_\\parallel}{(2\\pi)^3}\\;\\mathcal{W}\\!\\left(\\vec{k}-\\vec{q}\\right)\\,P_{ij}\\!\\left(\\vec{q}\\right),\\notag\\\\\\mathcal{W}\\!\\left(\\vec{k}\\right)&\\equiv\\int\\!d^2r_\\perp\\,d\\Delta\\;\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)\\,e^{+i\\vec{k}\\cdot\\vec{r}}=\\frac{1}{|\\mathcal{A}_\\perp|L_\\Lambda}\\left|\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\!\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-i\\vec{k}\\cdot\\vec{x}}\\right|^2,\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Big\\langle\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}\\right)\\Big\\rangle_{\\rmens}&=\\int\\!\\frac{d^2q_\\perp\\,dq_\\parallel}{(2\\pi)^3}\\;\\mathcal{W}\\!\\left(\\vec{k}-\\vec{q}\\right)\\,P_{ij}\\!\\left(\\vec{q}\\right),\\notag\\\\\\mathcal{W}\\!\\left(\\vec{k}\\right)&\\equiv\\int\\!d^2r_\\perp\\,d\\Delta\\;\\overline{W}\\!\\left(\\vec{r}_\\perp,\\Delta\\right)\\,e^{+i\\vec{k}\\cdot\\vec{r}}=\\frac{1}{|\\mathcal{A}_\\perp|L_\\Lambda}\\left|\\int_{\\mathcal{A}_\\perp}\\!d^2x_\\perp\\!\\int_{\\Lambda_a}^{\\Lambda_b}\\!d\\Lambda\\;e^{-i\\vec{k}\\cdot\\vec{x}}\\right|^2,\\tag{5.21}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/configuration-space-and-fourier-space-grids",
+   "at": "sec_Pk_DFT.tex:14",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\vec{x}_{\\perp}[\\vec{n}]=d_\\perp\\,\\vec{n},\\qquad\\Lambda[m]=\\Lambda_a+m\\,d\\Lambda,\\qquadd_\\perp\\equiv\\frac{L_\\perp}{N_\\perp},\\qquadd\\Lambda\\equiv\\frac{L_\\Lambda}{N_\\Lambda},\\notag\\\\&\\vec{n}\\in\\{0,\\dots,N_\\perp-1\\}^2,\\qquadm\\in\\{0,\\dots,N_\\Lambda-1\\},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\vec{x}_{\\perp}[\\vec{n}]=d_\\perp\\,\\vec{n},\\qquad\\Lambda[m]=\\Lambda_a+m\\,d\\Lambda,\\qquadd_\\perp\\equiv\\frac{L_\\perp}{N_\\perp},\\qquadd\\Lambda\\equiv\\frac{L_\\Lambda}{N_\\Lambda},\\notag\\\\&\\vec{n}\\in\\{0,\\dots,N_\\perp-1\\}^2,\\qquadm\\in\\{0,\\dots,N_\\Lambda-1\\},\\tag{6.1}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/configuration-space-and-fourier-space-grids",
+   "at": "sec_Pk_DFT.tex:31",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\vec{k}_\\perp[\\vec{p}]=\\frac{2\\pi}{L_\\perp}\\,\\vec{p},\\qquadk_\\parallel[q]=\\frac{2\\pi}{L_\\Lambda}\\,q,\\qquad\\vec{p}\\in\\left\\{-\\tfrac{N_\\perp}{2},\\dots,\\tfrac{N_\\perp}{2}-1\\right\\}^2,\\quadq\\in\\left\\{-\\tfrac{N_\\Lambda}{2},\\dots,\\tfrac{N_\\Lambda}{2}-1\\right\\},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\vec{k}_\\perp[\\vec{p}]=\\frac{2\\pi}{L_\\perp}\\,\\vec{p},\\qquadk_\\parallel[q]=\\frac{2\\pi}{L_\\Lambda}\\,q,\\qquad\\vec{p}\\in\\left\\{-\\tfrac{N_\\perp}{2},\\dots,\\tfrac{N_\\perp}{2}-1\\right\\}^2,\\quadq\\in\\left\\{-\\tfrac{N_\\Lambda}{2},\\dots,\\tfrac{N_\\Lambda}{2}-1\\right\\},\\tag{6.2}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/per-sample-dft-periodogram",
+   "at": "sec_Pk_DFT.tex:61",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\equiv\\sum_{\\vec{n}}\\sum_{m=0}^{N_\\Lambda-1}e^{-2\\pii\\left(\\vec{p}\\cdot\\vec{n}/N_\\perp+q\\,m/N_\\Lambda\\right)}\\,\\delta_i^{(s)}[\\vec{n},m],\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\equiv\\sum_{\\vec{n}}\\sum_{m=0}^{N_\\Lambda-1}e^{-2\\pii\\left(\\vec{p}\\cdot\\vec{n}/N_\\perp+q\\,m/N_\\Lambda\\right)}\\,\\delta_i^{(s)}[\\vec{n},m],\\tag{6.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/per-sample-dft-periodogram",
+   "at": "sec_Pk_DFT.tex:70",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_\\perp[\\vec{p}],k_\\parallel[q]\\right)\\simeq\\frac{v}{(2\\pi)^{3/2}}\\,e^{-ik_\\parallel[q]\\Lambda_a}\\,\\widetilde{\\delta}_i^{(s)}[\\vec{p},q].\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s)}\\!\\left(\\vec{k}_\\perp[\\vec{p}],k_\\parallel[q]\\right)\\simeq\\frac{v}{(2\\pi)^{3/2}}\\,e^{-ik_\\parallel[q]\\Lambda_a}\\,\\widetilde{\\delta}_i^{(s)}[\\vec{p},q].\\tag{6.4}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/per-sample-dft-periodogram",
+   "at": "sec_Pk_DFT.tex:76",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]\\equiv\\frac{V}{N^2}\\;\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p},q]^*\\;\\simeq\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_\\perp[\\vec{p}],k_\\parallel[q]\\right).\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]\\equiv\\frac{V}{N^2}\\;\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p},q]^*\\;\\simeq\\;\\widehat{P}_{ij}^{(s)}\\!\\left(\\vec{k}_\\perp[\\vec{p}],k_\\parallel[q]\\right).\\tag{6.5}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/relation-to-the-per-sample-2pcf-circular-correlation-and-wrap-around",
+   "at": "sec_Pk_DFT.tex:102",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]&=v\\sum_{\\vec{l}}\\sum_{m'=0}^{N_\\Lambda-1}\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[\\vec{l},m']\\;e^{+2\\pii\\left(\\vec{p}\\cdot\\vec{l}/N_\\perp+q\\,m'/N_\\Lambda\\right)},\\notag\\\\\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[\\vec{l},m']&\\equiv\\frac{1}{N}\\sum_{\\vec{n}}\\sum_{m}\\delta_i^{(s)}[\\vec{n},m]\\,\\delta_j^{(s)}[\\vec{n}+\\vec{l},m+m'],\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]&=v\\sum_{\\vec{l}}\\sum_{m'=0}^{N_\\Lambda-1}\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[\\vec{l},m']\\;e^{+2\\pii\\left(\\vec{p}\\cdot\\vec{l}/N_\\perp+q\\,m'/N_\\Lambda\\right)},\\notag\\\\\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[\\vec{l},m']&\\equiv\\frac{1}{N}\\sum_{\\vec{n}}\\sum_{m}\\delta_i^{(s)}[\\vec{n},m]\\,\\delta_j^{(s)}[\\vec{n}+\\vec{l},m+m'],\\tag{6.6}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/relation-to-the-per-sample-2pcf-circular-correlation-and-wrap-around",
+   "at": "sec_Pk_DFT.tex:140",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[m']=\\left(1-\\frac{m'}{N_\\Lambda}\\right)\\widehat{\\xi}_{ij}^{(s)}[m']+\\frac{m'}{N_\\Lambda}\\,\\widehat{\\xi}_{ij}^{(s)}[m'-N_\\Lambda],\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{\\xi}_{ij}^{(s),\\circlearrowleft}[m']=\\left(1-\\frac{m'}{N_\\Lambda}\\right)\\widehat{\\xi}_{ij}^{(s)}[m']+\\frac{m'}{N_\\Lambda}\\,\\widehat{\\xi}_{ij}^{(s)}[m'-N_\\Lambda],\\tag{6.7}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/relation-to-the-per-sample-2pcf-circular-correlation-and-wrap-around",
+   "at": "sec_Pk_DFT.tex:151",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]=v\\sum_{\\vec{l}}\\sum_{m'=-(N_\\Lambda-1)}^{N_\\Lambda-1}\\overline{W}[\\vec{l},m']\\;\\widehat{\\xi}_{ij}^{(s)}[\\vec{l},m']\\;e^{+i\\left(\\vec{k}_\\perp[\\vec{p}]\\cdot\\vec{r}_\\perp[\\vec{l}]+k_\\parallel[q]\\,\\Delta[m']\\right)},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]=v\\sum_{\\vec{l}}\\sum_{m'=-(N_\\Lambda-1)}^{N_\\Lambda-1}\\overline{W}[\\vec{l},m']\\;\\widehat{\\xi}_{ij}^{(s)}[\\vec{l},m']\\;e^{+i\\left(\\vec{k}_\\perp[\\vec{p}]\\cdot\\vec{r}_\\perp[\\vec{l}]+k_\\parallel[q]\\,\\Delta[m']\\right)},\\tag{6.8}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/reduction-to-perpendicular-wavenumber-bins",
+   "at": "sec_Pk_DFT.tex:174",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[b,q]\\equiv\\frac{1}{N_b}\\sum_{\\vec{p}\\,:\\,|\\vec{k}_\\perp[\\vec{p}]|\\inb}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]\\;\\simeq\\;\\frac{1}{2\\pi}\\,\\widehat{P}_{ij}^{(s)}\\!\\left(\\bar{k}_{\\perp,b},k_\\parallel[q]\\right),\\qquad\\bar{k}_{\\perp,b}\\equiv\\frac{1}{N_b}\\sum_{\\vec{p}\\,:\\,|\\vec{k}_\\perp[\\vec{p}]|\\inb}|\\vec{k}_\\perp[\\vec{p}]|,\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[b,q]\\equiv\\frac{1}{N_b}\\sum_{\\vec{p}\\,:\\,|\\vec{k}_\\perp[\\vec{p}]|\\inb}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]\\;\\simeq\\;\\frac{1}{2\\pi}\\,\\widehat{P}_{ij}^{(s)}\\!\\left(\\bar{k}_{\\perp,b},k_\\parallel[q]\\right),\\qquad\\bar{k}_{\\perp,b}\\equiv\\frac{1}{N_b}\\sum_{\\vec{p}\\,:\\,|\\vec{k}_\\perp[\\vec{p}]|\\inb}|\\vec{k}_\\perp[\\vec{p}]|,\\tag{6.9}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/reduction-to-wedges",
+   "at": "sec_Pk_DFT.tex:200",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[b]\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}\\equiv\\frac{1}{N_{b,\\mu}}\\sum_{\\substack{(\\vec{p},q)\\,:\\,k[\\vec{p},q]\\inb\\\\\\mu[\\vec{p},q]\\in(\\mu_1,\\mu_2)}}\\widehat{P}_{ij}^{(s)}[\\vec{p},q].\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[b]\\Big\\rvert_{\\mu\\in(\\mu_1,\\mu_2)}\\equiv\\frac{1}{N_{b,\\mu}}\\sum_{\\substack{(\\vec{p},q)\\,:\\,k[\\vec{p},q]\\inb\\\\\\mu[\\vec{p},q]\\in(\\mu_1,\\mu_2)}}\\widehat{P}_{ij}^{(s)}[\\vec{p},q].\\tag{6.10}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk_DFT.tex:220",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s),\\rm1D}[\\vec{n};q]\\equiv\\sum_{m=0}^{N_\\Lambda-1}e^{-2\\piiqm/N_\\Lambda}\\,\\delta_i^{(s)}[\\vec{n},m],\\qquad\\widehat{P}_{ij}^{(s),\\rm1D}[\\vec{n};q]\\equiv\\frac{L_\\Lambda}{N_\\Lambda^2}\\,\\widetilde{\\delta}_i^{(s),\\rm1D}[\\vec{n};q]\\,\\widetilde{\\delta}_j^{(s),\\rm1D}[\\vec{n};q]^*,\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widetilde{\\delta}_i^{(s),\\rm1D}[\\vec{n};q]\\equiv\\sum_{m=0}^{N_\\Lambda-1}e^{-2\\piiqm/N_\\Lambda}\\,\\delta_i^{(s)}[\\vec{n},m],\\qquad\\widehat{P}_{ij}^{(s),\\rm1D}[\\vec{n};q]\\equiv\\frac{L_\\Lambda}{N_\\Lambda^2}\\,\\widetilde{\\delta}_i^{(s),\\rm1D}[\\vec{n};q]\\,\\widetilde{\\delta}_j^{(s),\\rm1D}[\\vec{n};q]^*,\\tag{6.11}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk_DFT.tex:236",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}[q]\\equiv\\frac{1}{N_\\perp^2}\\sum_{\\vec{n}}\\widehat{P}_{ij}^{(s),\\rm1D}[\\vec{n};q]&=\\frac{L_\\Lambda}{N_\\Lambda^2N_\\perp^4}\\sum_{\\vec{p}}\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p},q]^*\\notag\\\\&=\\frac{1}{L_\\perp^2}\\sum_{\\vec{p}}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]=\\sum_{\\vec{p}}\\frac{k_{\\rmf,\\perp}^2}{(2\\pi)^2}\\,\\widehat{P}_{ij}^{(s)}[\\vec{p},q].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\widehat{P}_{ij}^{(s)}[q]\\equiv\\frac{1}{N_\\perp^2}\\sum_{\\vec{n}}\\widehat{P}_{ij}^{(s),\\rm1D}[\\vec{n};q]&=\\frac{L_\\Lambda}{N_\\Lambda^2N_\\perp^4}\\sum_{\\vec{p}}\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p},q]^*\\notag\\\\&=\\frac{1}{L_\\perp^2}\\sum_{\\vec{p}}\\widehat{P}_{ij}^{(s)}[\\vec{p},q]=\\sum_{\\vec{p}}\\frac{k_{\\rmf,\\perp}^2}{(2\\pi)^2}\\,\\widehat{P}_{ij}^{(s)}[\\vec{p},q].\\tag{6.12}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/reduction-to-the-1d-power-spectrum",
+   "at": "sec_Pk_DFT.tex:256",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[q]=d\\Lambda\\sum_{m'=-(N_\\Lambda-1)}^{N_\\Lambda-1}\\left(1-\\frac{|m'|}{N_\\Lambda}\\right)\\widehat{\\xi}_{ij}^{(s)}[m']\\;e^{+ik_\\parallel[q]\\,\\Delta[m']},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\widehat{P}_{ij}^{(s)}[q]=d\\Lambda\\sum_{m'=-(N_\\Lambda-1)}^{N_\\Lambda-1}\\left(1-\\frac{|m'|}{N_\\Lambda}\\right)\\widehat{\\xi}_{ij}^{(s)}[m']\\;e^{+ik_\\parallel[q]\\,\\Delta[m']},\\tag{6.13}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/dft-ensemble",
+   "at": "sec_Pk_DFT.tex:282",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Big\\langle\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p}',q']^*\\Big\\rangle_{\\rmens}&=\\frac{N^2}{V}\\,\\delta^{\\rmK}_{\\vec{p}\\vec{p}'}\\,\\delta^{\\rmK}_{qq'}\\;P_{ij}^{\\rmalias}[\\vec{p},q],\\notag\\\\P_{ij}^{\\rmalias}[\\vec{p},q]&\\equiv\\sum_{\\vec{a}\\in\\mathbb{Z}^2}\\sum_{c\\in\\mathbb{Z}}P_{ij}\\!\\left(\\vec{k}_\\perp[\\vec{p}]+2k_{\\rmNy,\\perp}\\vec{a},\\,k_\\parallel[q]+2k_{\\rmNy,\\parallel}c\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Big\\langle\\widetilde{\\delta}_i^{(s)}[\\vec{p},q]\\,\\widetilde{\\delta}_j^{(s)}[\\vec{p}',q']^*\\Big\\rangle_{\\rmens}&=\\frac{N^2}{V}\\,\\delta^{\\rmK}_{\\vec{p}\\vec{p}'}\\,\\delta^{\\rmK}_{qq'}\\;P_{ij}^{\\rmalias}[\\vec{p},q],\\notag\\\\P_{ij}^{\\rmalias}[\\vec{p},q]&\\equiv\\sum_{\\vec{a}\\in\\mathbb{Z}^2}\\sum_{c\\in\\mathbb{Z}}P_{ij}\\!\\left(\\vec{k}_\\perp[\\vec{p}]+2k_{\\rmNy,\\perp}\\vec{a},\\,k_\\parallel[q]+2k_{\\rmNy,\\parallel}c\\right),\\tag{6.14}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "pk3d-dft/dft-ensemble",
+   "at": "sec_Pk_DFT.tex:326",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\frac{\\mathrm{Var}\\big[\\widehat{P}_{ii}^{(s)}[b]\\big]}{P_{ii}[b]^2}\\simeq\\frac{2}{N_b},\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\frac{\\mathrm{Var}\\big[\\widehat{P}_{ii}^{(s)}[b]\\big]}{P_{ii}[b]^2}\\simeq\\frac{2}{N_b},\\tag{6.15}\\end{equation}$$"
    ]
   }
  ]

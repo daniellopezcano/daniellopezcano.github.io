@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U1: the new cut (just before the metal contamination models), scratch build, regenerate. See the U table below.
+**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U2: read the new and changed text, log slips in REVIEW.md. See the U table below.
 
 **State of the working tree:** branch `lya-update` (the author's, at `d089a14` of `main`) + the brief `ee4b89d` cherry-picked as `a88a7f8` (a fast-forward to `main` was refused as a merge). Earlier work: branch `course-lya`, merged into `main` by the author.
 
@@ -44,3 +44,12 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 | # | Unit | Status | Checks | Commit |
 |---|---|---|---|---|
 | U0 | New folder locations in every path of the repo | done | `grep 'Postdoc/USP'` outside `Academic/4.Postdoc1`: none left (CLAUDE.md, KICKOFF.md, go.sh, check.sh, courses.py, build.py, lya BRIEF.md, INVENTORY.md); both directories exist; generated pages and `docs/` carry no notes path | (this commit) |
+| U1 | New cut (L29), TikZ figures of a pdfLaTeX course (L30), addresses without formulas (L31), regenerated pages | done | scratch build: 60 pages, 330 records, labels identical to the author's `main.aux`; `build.py --course lya-forest`: 48 pages (+ landing), 9 pages and 38 labels left out (§ 7, D, E); first course rebuilt, `course_unchanged.py`: 150 files, navbar only; `math_check` lya 731 expressions, 0 failures; `fidelity` lya: 0 not allowed, 0 stale (61 new D7 entries, 8 stale removed, 9 TikZ pictures) | (this commit) |
+
+### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
+
+- **Text changed (4):** `index.html` (contents: § 3.7 "Product of Total Overfluxes" and § 3.8, §§ 4–6 replace the old § 4); `flux/overflux.html` (§ 3.6 now ends where the author's new heading § 3.7 starts: the product of total overfluxes and its subset-pair representation moved to the new page `flux/product-of-total-overfluxes.html`); `flux/top-down-summary.html` (§ 3.7 → § 3.8); `velocity-units-example/index.html` (Figure 6 → Figure 15).
+- **Web layer only (2):** `flux/index.html` (its list of subsections), `odes/index.html` ("previous" now § 6.7).
+- **Navigation only (17):** every other existing page (contents tree, progress bar); their notes' text is identical.
+- **Removed (1):** `xi-decomposition/index.html` (the old § 4, now § 4.7 `xi3d/xi-decomposition.html`; L29).
+- **New (26):** `flux/product-of-total-overfluxes.html`; `xi3d/` (index + 8), `pk3d/` (index + 7), `pk3d-dft/` (index + 7); nine TikZ figures `figures/fig-xi3d-*.svg`, `fig-pk3d-*.svg`, `fig-dft-*.svg`.

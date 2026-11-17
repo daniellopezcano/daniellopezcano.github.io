@@ -60,13 +60,14 @@ COURSES: dict[str, dict] = {
         'notes': '/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/SkewerJAX_Review_and_Equations',
         'work': '_port/.work/lya/tex',
         'engine': 'pdf',                                    # newtx: pdfLaTeX, as the author builds it
-        'copy': ['*.tex', '*.bib', '*.sty', 'figures/**'],
+        'copy': ['*.tex', '*.bib', '*.sty', 'figures/**', 'fig_tikz/**'],
         'package_blob': 'https://github.com/daniellopezcano/SkewerJAX/blob/main/',
         'interactives': '_port/lya/interactives.json',
         # an article (L10): \section plays the chapter's role, \subsection the section's
         'pages': {'chapter': 'section', 'section': 'subsection'},
         'heads': {'subsubsection': 2, 'paragraph': 3},
         'slug_camel': True,                                 # L17: subsec:LineProfile -> line-profile
+        'slug_math': 'drop',                                # L31: a heading's formulas are left out of its address
         'label_prefix': r'^(sec|subsec|subsubsec|app):',
         'words': {'main': 'Section', 'appendix': 'Appendix'},
         'textwidth_cm': 21.0 - 2 * 2.54,                    # A4, 1 in margins (geometry)
@@ -80,10 +81,11 @@ COURSES: dict[str, dict] = {
         'landing': 'lya',
         'runic': False,
         'stylesheets': ['lya.css'],
-        'last': 'sec:xi_decomposition',                     # L1, L28: up to the end of section 4, Decomposition of the 2PCF
-        # L28: the author's main.tex (2026-11-16 23:27) comments out this \input, which holds sections 4-8; the
-        # scratch copy restores it (with its \newpage) so that section 4 exists and keeps its number
-        'restore_inputs': ['sec_summary_statistics'],
+        # L1, L28, L29: up to the end of section 6, "P3D with the discrete Fourier transform", just before section 7
+        # "Metal contamination" (sec:metals)
+        'last': 'sec:Pk3D_DFT',
+        # L28 restored a commented-out \input here; since L29 the author's main.tex inputs every section again
+        'restore_inputs': [],
         'appendices': 'referenced',                         # L2
         'shared_from': 'diffgeo-gr',                        # L11
         'open_here': 'appendices',                          # L23: every page of an included appendix opens in place

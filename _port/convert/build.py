@@ -550,6 +550,10 @@ def assign_slugs(pages, P, src):
     seen = set()
     for p in pages:
         title_src = src.text[p.title_span[0]:p.title_span[1]]
+        if not p.label and COURSE_CFG.get('slug_math') == 'drop':
+            # Lyα L31: a title's formulas are left out of its address ("Reduction to $\mu$ wedges, $\widehat{P}…$"
+            # -> reduction-to-wedges), with the punctuation they leave behind
+            title_src = re.sub(r'\$[^$]*\$|\\\(.*?\\\)', ' ', title_src, flags=re.S)
         base = label_slug(p.label) if p.label else slugify(re.sub(r'\\[A-Za-z]+|[{}$]', ' ', title_src))
         p.slug = f'{base}/index' if p.kind == 'chapter' else f'{posixpath.dirname(p.parent.slug)}/{base}'
         if p.slug in seen:
@@ -1595,8 +1599,10 @@ def main():
         figures = Stub()
     else:
         from figures import Figures
+        first = COURSE_CFG['engine'] == 'xelatex'             # Lyα L30: the figures' engine is the course's
         figures = Figures(REPO, src.preamble, os.path.join(SRC, 'main.aux'), out_dir=os.path.join(OUT, 'figures'),
-                          src_dir=SRC)
+                          src_dir=SRC, engine=COURSE_CFG['engine'] if not first else 'xelatex',
+                          work_dir=None if first else os.path.join(REPO, os.path.dirname(COURSE_CFG['work']), 'figs'))
     ctx = Ctx(src, aux, bib, figures)
     for k, v in bib.items():                      # author names of the bibliography labels, as text
         r = Renderer(ctx, Page('front', 0, 0), Parser(v['author_tex']), {})
