@@ -39,6 +39,17 @@ No acknowledgement and no passage naming a co-author exists in the converted par
 | `sec_cosmology.tex:108, 116, 130`; `sec_flux.tex:49, 86, 183, 667, 785–787` | Equations referred to with `\ref` instead of `\eqref` print without parentheses ("Eq. 2.5", "Equation 2.5", "Eq. 3.5", …) while most references print "Eq. (2.3)". The web prints them as the PDF does. |
 | `sec_flux.tex:157, 195, 199, 286` | `see~\ref{subsec:app_…}` / `on~\ref{…}` print a bare number ("see B.1", "proof on B.1", "see 3.2") with no "Appendix"/"Sec." before it. |
 | `sec_cosmology.tex:108` (Figure 1 caption) | The caption mentions analytic (dashed) curves for the radiation-, matter- and Λ-dominated cases; § 2.3.1 gives the analytic solutions for matter and radiation only (the Λ one, a = 1/(1 − H0 x/c), is not written in the converted part). |
+| `sec_flux.tex:822, 836` (end of § 3.6; UPDATE-2) | "Where we have defined:" starts with a capital although it continues the sentence of Eq. (3.32), and the display of definitions ends with a comma ("1\le p\le L,") right before the new heading § 3.7 — probably "where", and a full stop. |
+| `sec_flux.tex:880–890` (§ 3.7) | The display for n = 1 writes "\sum_{p=0}^{1} -\mathcal S_p\,-\mathcal S_{n-p}" and gives "+\mathcal C\,\mathcal S_1+\mathcal S_1\,\mathcal C"; with \mathcal S_0 = −\mathcal C the sum is −\mathcal C\,\mathcal S_1 − \mathcal S_1\,\mathcal C (as order 1 is written in Eq. (3.34)), and its condition "1\le n\le L" belongs to the general case, not to n = 1. |
+| `sec_flux.tex:994–1000` (§ 3.7.1) | The example "23/123" writes both points at \vec x_\perp, while the product tabulated is at \vec x_{\perp\alpha} and \vec x_{\perp\beta} — probably \vec x_{\perp\alpha}, \vec x_{\perp\beta}. |
+| `sec_xi.tex:115` (§ 4.2) | "and average over the direction φ", but Eq. (4.5) is the integral over φ with no 1/(2π) (consistent with l. 301, ξ̂(r_⊥ = 0, Δ) = 2π ξ̂(Δ), and § 6.4, "the unnormalized angular integral") — probably "integrate over the direction". |
+| `sec_xi.tex:124, 354, 564` (§§ 4.2, 4.5, 4.7) | Eqs. (4.5), (4.13) and (4.17) end with a comma and the next sentence starts with a capital — probably a full stop. |
+| `sec_xi.tex:569, 596` (§ 4.7) | "the total 2PCF truncated up to order-2", yet Eq. (4.18) keeps \sum_{n=3}^{L}\Xi^{(n)}, with \Xi^{(n)} defined only for n = 2 (Eq. (4.17)) and the sum stopping at L although Eq. (4.16) has orders up to 2L — probably "+…", or the upper limit 2L. |
+| `sec_xi.tex:676` (§ 4.8) | "can be obtained by using Table 1" (the overflux table) introduces Table 3, which no sentence refers to — possibly meant to name Table 3 as well. |
+| `sec_xi.tex:699` (§ 4.8, Table 3) | One cell prints "−\mathcal C_{12}\,\mathcal C" with a calligraphic C₁₂; the mirror cell (l. 718), Eq. (4.20) and Table 4 use the italic C₁₂. |
+| `sec_xi.tex:731` (§ 4.8) | "we can also obtain the analogous expression for the L = 3 case using Table 2, …:" — no L = 3 expression follows (only Table 4, and then the passage left out of the web, L32). |
+| `sec_Pk.tex:155` (§ 5.3) | "the LOS flip": the abbreviation LOS is used only here and never defined; elsewhere "line-of-sight flip". |
+| `sec_Pk_DFT.tex:47, 92` (§§ 6.1, 6.2) | N is defined at l. 29 as the total number of cells (N ≡ N_⊥²N_Λ), but the caption of Figure 12 ("for N = 8") and l. 92 ("Nyquist index −N/2 … modulo N") use N per axis — probably N_⊥ / N_Λ. |
 
 ## Words written for the web layer
 
