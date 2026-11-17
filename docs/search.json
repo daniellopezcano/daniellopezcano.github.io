@@ -25,7 +25,105 @@
     "href": "cv.html",
     "title": "CV",
     "section": "",
-    "text": "Daniel López-Cano — CV\n\nDownload PDF"
+    "text": "Dr. Daniel López-Cano\nFAPESP Postdoctoral Fellow  ·  Institute of Physics, University of São Paulo\nCosmological simulations  ·  Machine learning  ·  Large-scale structure  ·  Lyman-α forest\n\n daniellopezcano13@gmail.com  /  dlopez@usp.br\n daniellopezcano.github.io\n github.com/daniellopezcano\n Google Scholar · ORCID\n\n\n Download PDF"
+  },
+  {
+    "objectID": "cv.html#academic-appointments",
+    "href": "cv.html#academic-appointments",
+    "title": "CV",
+    "section": " ACADEMIC APPOINTMENTS",
+    "text": "ACADEMIC APPOINTMENTS\n\n\n\n11/24 – Present\nFAPESP Postdoctoral Research Fellow\nInstitute of Physics, University of São Paulo (IFUSP) · São Paulo, Brazil \nSupervisor: Prof. Luis Raul Weber Abramo.Topics: cosmological simulations, semi-supervised machine learning techniques , research/teaching: Lyman-α processes, differential geometry.\n\n\n\n\n\n02/26 – 06/26\nFAPESP-BEPE Visiting Postdoctoral Research Fellow\nInstitut de Física d’Altes Energies (IFAE) · Cerdanyola del Vallès / Barcelona, Spain \nHost supervisor: Prof. Andreu Font-Ribera. Co-mentor: Dr. Jonás Chaves-Montero.Project: SkewerJAX: fast Ly-α skewers and a survey-ready metal-contamination model."
+  },
+  {
+    "objectID": "cv.html#education",
+    "href": "cv.html#education",
+    "title": "CV",
+    "section": " EDUCATION",
+    "text": "EDUCATION\n\n\n\n09/20 – 09/24\nPhD in Astrophysics\nDonostia International Physics Center (DIPC) / Universidad Autónoma de Madrid (UAM) · Donostia-San Sebastián / Madrid, Spain \nSupervisor: Prof. Raúl E. Angulo. PhD programme in Astrophysics at UAM.Thesis: “Improving cosmological simulations: semi-analytic models, the internal structure of haloes, and machine learning techniques”. Topics: N-body simulations, structure formation & machine learning , simulation based inference , emulators (BACCO ).\n\n\n\n\n\n09/19 – 07/20\nMSc in Theoretical Physics\nInstitute of Theoretical Physics IFT UAM-CSIC · Madrid, Spain \nSpecialisation in Astrophysics and Physics of the Cosmos. Supervisor: Prof. Alexander Knebe.Thesis: “UNITSIM-Galaxies: data release and clustering of emission-line galaxies”.\n\n\n\n\n\n09/15 – 07/19\nBSc in Physics\nUniversidad Autónoma de Madrid · Madrid, Spain \nTheoretical thesis: “UNIT-SAGE galaxies: studying galaxy statistics using cosmological simulations”. Supervisor: Prof. Alexander Knebe.Experimental thesis: “Tight-binding method and evolutionary algorithms”. Supervisor: Prof. Juan José Palacios Burgos."
+  },
+  {
+    "objectID": "cv.html#additional-r-d-industry-experience",
+    "href": "cv.html#additional-r-d-industry-experience",
+    "title": "CV",
+    "section": " ADDITIONAL R&D / INDUSTRY EXPERIENCE",
+    "text": "ADDITIONAL R&D / INDUSTRY EXPERIENCE\n\n\n\n04/19 – 07/19\nR&D Software Developer Intern, GNSS\nGMV · Tres Cantos, Madrid, Spain\nGlobal Navigation Satellite Systems department. Topics: Python development for precise point positioning data analysis and scientific software workflows."
+  },
+  {
+    "objectID": "cv.html#research-grants-and-fellowships",
+    "href": "cv.html#research-grants-and-fellowships",
+    "title": "CV",
+    "section": " RESEARCH GRANTS AND FELLOWSHIPS",
+    "text": "RESEARCH GRANTS AND FELLOWSHIPS\n\n\nFAPESP Postdoctoral Fellowship11/2024 – 03/2027\nSão Paulo Research Foundation (FAPESP), Brazil. Process: 2024/05768-9 (renewed in 2025).Project: Connecting galaxies and dark-matter haloes. Hosted at IFUSP.\n\n\nFAPESP-BEPE Fellowship for Research Internship Abroad02/2026 – 06/2026\nSão Paulo Research Foundation (FAPESP), Brazil. Process: 2025/24623-4.Project: SkewerJAX: fast Ly-α skewers and a survey-ready metal-contamination model. Hosted at IFAE, Barcelona."
+  },
+  {
+    "objectID": "cv.html#supervision",
+    "href": "cv.html#supervision",
+    "title": "CV",
+    "section": " Supervision",
+    "text": "Supervision\n\nSupervised MSc students\n\n2024–2026\n\nCo-advisor V. R. Soares da Silva · MSc, IFUSP, Brazil, with Prof. L. R. Abramo\nCompleted (10/2024–07/2026). High-column-density absorbers in the Ly-α forest. Resulting paper: arXiv:2609.19235 .\n\n\n\n\nSupervised PhD students\n\n2026–now\n\nCo-advisor V. R. Soares da Silva · PhD, IFUSP, Brazil, with Prof. L. R. Abramo\nOngoing (08/2026–present). High-column-density absorbers in the Ly-α forest."
+  },
+  {
+    "objectID": "cv.html#teaching",
+    "href": "cv.html#teaching",
+    "title": "CV",
+    "section": " Teaching",
+    "text": "Teaching\n\n2026\n\nInstructor From Differential Geometry to GR · 09–10/2026 · IFUSP\nGraduate course, 3 credits (18 h lectures + 9 h practical). Open lecture notes with Python figures, animations and exercises .\n\n\n\n2026\n\nInstructor Neural Networks: Applications in Physics   · 07/2026 · 1st IFUSP Winter School\n4 lectures of 1.5 h: ML foundations and hands-on sessions.\n\n\n\n2026\n\nNotes/code Notes on the Ly-α forest in cosmology · open teaching material\nSkewer generation, optical depth, transmitted flux, velocity-space mapping and metal lines, with JAX code ."
+  },
+  {
+    "objectID": "cv.html#talks-seminars-conferences",
+    "href": "cv.html#talks-seminars-conferences",
+    "title": "CV",
+    "section": " Talks, Seminars & Conferences",
+    "text": "Talks, Seminars & Conferences\n\n2026\n\nFlash-talk New Frontiers in Cosmology  · 08/2026 · A Coruña, Spain\n\n\n\n2026\n\nSeminar DFT & CIAFF / DeCAF Seminar · 02/2026 · UAM, Madrid\n\n\n\n2025\n\nSeminar J-PAS Collaboration Seminar · 12/2025 · online\n\n\n\n2025\n\nInvited AstroInfo Meeting · 11/2025 · online\n\n\n\n2025\n\nInvited WEAVE Collaboration Meeting · 09/2025 · Univ. Milano-Bicocca, Italy\n\n\n\n2025\n\nSeminar IFAE Seminar  · 04/2025 · IFAE, Barcelona\n\n\n\n2024\n\nAttended Fundamental Physics Meets Current and Future Facilities in Cosmology  · 12/2024 · ICTP-SAIFR, São Paulo\n\n\n\n2024\n\nInvited São Paulo Group Meetings in Astro & Cosmo  · 11/2024 · IFT-UNESP / Principia\n\n\n\n2024\n\nInvited Agorá Meeting DFMA  · 10/2024 · IFUSP, São Paulo\n\n\n\n2024\n\nAttended ML4ASTRO2: International Conference on Machine Learning for Astrophysics  · 07/2024 · Univ. of Catania, Italy\n\n\n\n2023\n\nSeminar University of Vienna Seminar · 12/2023 · Univ. of Vienna, Austria\n\n\n\n2023\n\nPoster Cosmic Connections: ML × Astrophysics Symposium · 05/2023 · Flatiron Institute, New York\n\n\n\n2023\n\nContributed Cosmology with the Large-Scale Structure of the Universe · 05/2023 · DIPC, Donostia\n\n\n\n2022\n\nContributed VIII Meeting on Fundamental Cosmology · 11/2022 · IAA, Granada\n\n\n\n2021\n\nContributed 18th MultiDark Consolider Workshop · 10/2021 · UNIA, Spain"
+  },
+  {
+    "objectID": "cv.html#observing-experience",
+    "href": "cv.html#observing-experience",
+    "title": "CV",
+    "section": " Observing Experience",
+    "text": "Observing Experience\n\n2020\n\nObserving Calar Alto Observatory, CAHA-CAFOS · 02/2020 · Almería, Spain\nOptical follow-up of GRB 200215A ; spectroscopy and photometry of Arp 269."
+  },
+  {
+    "objectID": "cv.html#research-visits",
+    "href": "cv.html#research-visits",
+    "title": "CV",
+    "section": " Research Visits",
+    "text": "Research Visits\n\n2023\n\nVisit Center for Computational Mathematics, Flatiron Institute · 07–08/2023 · Simons Foundation, New York\n\n\n\n\n2022\n\nProgram MIAPbP: Advances in Cosmology through Numerical Simulations · 05–06/2022 · Garching, Germany"
+  },
+  {
+    "objectID": "cv.html#computational-technical-skills",
+    "href": "cv.html#computational-technical-skills",
+    "title": "CV",
+    "section": " Computational & Technical Skills",
+    "text": "Computational & Technical Skills\n\nProgrammingPython, C, C++, Fortran, Unix shell / Bash, MATLAB.\nScientific Python & machine learningJAX, PyTorch, TensorFlow/Keras, NumPy, SciPy, Pandas, Matplotlib, scikit-learn, Weights & Biases.\nCosmological simulations & survey modellingN-body simulations, Gadget/L-Gadget, mock-catalogue construction, synthetic observables, Ly-α skewer generation, photometric and spectroscopic survey data.\nHPC & reproducibilityLinux, SLURM, HTCondor, MPI workflows, OpenMP parallelisation, Git/GitHub, Jupyter, LaTeX."
+  },
+  {
+    "objectID": "cv.html#professional-training",
+    "href": "cv.html#professional-training",
+    "title": "CV",
+    "section": " Professional Training",
+    "text": "Professional Training\n\n2025\n\nSchool 8th ICE Summer School  · 06/2025 · ICE-CSIC, Barcelona\n\n\n\n2023\n\nCourse TensorFlow Specialization: Custom Models, Layers, and Loss Functions · Coursera\n\n\n\n2021\n\nCourse Machine Learning · Coursera\n\n\n\n2021\n\nTraining Scientific Writing and Presentation · IAA, online\n\n\n\n2020\n\nSchool XV Spanish Virtual Observatory School · UAM, Madrid"
+  },
+  {
+    "objectID": "cv.html#outreach-public-engagement",
+    "href": "cv.html#outreach-public-engagement",
+    "title": "CV",
+    "section": " Outreach & Public Engagement",
+    "text": "Outreach & Public Engagement\n\n2021–2024\n\nOutreach Meet a Scientist: “Encuentro de vidas científicas”  · four editions · Eureka! Zientzia Museoa\n\n\n\n2023\n\nGuide STROM – Inclusive Astronomy exhibition  · 10/2023 · Tabakalera, Donostia\n\n\n\n2022\n\nOutreach Scientific monologues: Bestiario Estelar and Las galaxias que vemos y que nunca alcanzaremos  · 11/2022 · Zientzia Club & Zientzia Astea UPV/EHU\n\n\n\n2021\n\nOutreach Scale Up Your World: “Escala tu mundo” · 11/2021 · Tabakalera, Donostia"
+  },
+  {
+    "objectID": "cv.html#languages",
+    "href": "cv.html#languages",
+    "title": "CV",
+    "section": " Languages",
+    "text": "Languages\nSpanish: native · English: fluent (C2) · Portuguese: working proficiency, including lecturing."
+  },
+  {
+    "objectID": "cv.html#publications",
+    "href": "cv.html#publications",
+    "title": "CV",
+    "section": " PUBLICATIONS",
+    "text": "PUBLICATIONS\n\nPublication list · updated November 2026\nGoogle Scholar  ORCID  NASA ADS  arXiv  GitHub \n\n\n\nPUBLICATIONS\n\n7in total\n6refereed\n3first author\n2second author\n\n\n\nIMPACT  ·  GOOGLE SCHOLAR, OCT 2026\n\n61citations\n4h-index\n\n\n\n\n Refereed journal articles\n\n1\n\n2026 First author\nJ-PAS: Semisupervised Sim-to-Obs Transfer for Robust Star–Galaxy–Quasar Classification\nD. López-Cano, L. R. Abramo, L. Nakazono, I. Pérez-Ràfols, et al.\nApJ 1008, 189\nA classifier pre-trained on millions of simulated spectra and adapted to real J-PAS data with a small labelled subset, outperforming both simulation-only and data-only training.\n arXiv  journal  code\n\n\n\n2\n\n2026 Co-author\nOJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis. A transformer-based model for source classification and physical-parameter inference\nG. Martínez-Solaeche, R. M. González Delgado, R. García-Benito, …, D. López-Cano, et al.\nA&A, in press\nTransformer-based model for the spectral energy distributions of J-PAS galaxies, quasars and stars, used for classification and physical-parameter inference.\n arXiv\n\n\n\n3\n\n2024 First author\nCharacterizing structure formation through instance segmentation\nD. López-Cano, J. Stücker, M. Pellejero Ibáñez, R. E. Angulo, D. Franco-Barranco\nA&A 685, A37\nProtohalo formation recast as 3D instance segmentation of the initial conditions, recovering halo masses object by object above 1012 h−1 M⊙.\n arXiv  journal  code\n\n\n\n4\n\n2024 Co-author\nAn improved halo occupation distribution prescription from UNITsim Hα emission-line galaxies: conformity and modified radial profile\nG. Reyes-Peraza, S. Avila, V. Gonzalez-Perez, D. López-Cano, A. Knebe, S. Ramakrishnan, G. Yepes\nMNRAS 529, 3877–3893\nAn HOD for Hα emitters including conformity and a modified radial profile of satellites.\n arXiv  journal\n\n\n\n5\n\n2022 First author\nThe cosmology dependence of the concentration–mass–redshift relation\nD. López-Cano, R. E. Angulo, A. D. Ludlow, M. Zennaro, S. Contreras, J. Chaves-Montero, G. Aricò\nMNRAS 517, 2000–2011\nA model predicting halo concentrations as a function of mass, redshift and cosmology, now used in cosmology-rescaling algorithms.\n arXiv  journal\n\n\n\n6\n\n2022 Second author\nUNITSIM-Galaxies: data release and clustering of emission-line galaxies\nA. Knebe, D. López-Cano, S. Avila, G. Favole, A. R. H. Stevens, V. Gonzalez-Perez, G. Reyes-Peraza, G. Yepes, C.-H. Chuang, F.-S. Kitaura\nMNRAS 510, 5392–5407\nSemi-analytic galaxy catalogues on the UNITSIM simulations, with Hα emitters for Euclid-like samples and their clustering.\n arXiv  journal\n\n\n\n\n Submitted\n\n7\n\n2026 Second author\nWhere the Forest Goes Dark: Halo-centered Characterization of High Column Density Systems with IllustrisTNG\nV. R. Soares da Silva, D. López-Cano, L. R. Abramo, J. Chaves-Montero, F. Maion\narXiv:2609.19235 To be submitted to ApJ\nSpectral imprint of high-column-density absorbers on the Lyα forest, characterised around their host haloes. First paper of the MSc thesis of V. R. Soares da Silva, which I co-supervised.\n arXiv"
   },
   {
     "objectID": "outreach.html",
