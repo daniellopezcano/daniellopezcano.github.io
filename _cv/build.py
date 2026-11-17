@@ -960,7 +960,9 @@ def main():
             stale.unlink()
             print(f'removed {stale.relative_to(REPO)} (no longer used)')
     resources = '\n'.join(f'  - {r}' for r in res)
-    OUT_QMD.write_text(FRONT.format(css=CSS, resources=resources) + page, encoding='utf-8')
+    qmd = FRONT.format(css=CSS, resources=resources) + page
+    if not OUT_QMD.exists() or OUT_QMD.read_text(encoding='utf-8') != qmd:     # unchanged: keep its date (sitemap)
+        OUT_QMD.write_text(qmd, encoding='utf-8')
     print(f'wrote cv.qmd ({PAGE.pubno} publications, {len(PAGE.images)} images) from {tex}')
     for n in NOTES:
         print('note:', n)
