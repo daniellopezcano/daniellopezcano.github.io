@@ -1,8 +1,8 @@
 # Ledger of the Lyα forest course
 
-**Next action:** none — the follow-up L19 (cut at § 4, both PDFs) is done. Waiting for the author's preview and review of `_port/lya/REVIEW.md` (rows 9–10 are new); nothing is pushed or merged.
+**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U1: the new cut (just before the metal contamination models), scratch build, regenerate. See the U table below.
 
-**State of the working tree:** clean; `docs/` holds the committed render of the final check (D28); branch `course-lya` (from `main` at `f6bd3ae` + the brief `0bd14e0`).
+**State of the working tree:** branch `lya-update` (the author's, at `d089a14` of `main`) + the brief `ee4b89d` cherry-picked as `a88a7f8` (a fast-forward to `main` was refused as a merge). Earlier work: branch `course-lya`, merged into `main` by the author.
 
 **Notes directory:** `SkewerJAX_Review_and_Equations`, read-only; fingerprint at the start `3ed78561…cfd23` (L7). On 2026-11-16 23:27 the author changed `main.tex` (title page; `\input{sec_summary_statistics}` commented out) and rebuilt `main.pdf`; the scratch build restores that input (L28).
 
@@ -36,3 +36,11 @@
 | A Systems of ODEs | § 2.3 → `app:ODEs` |
 | B Velocity Units Examples | § 3.2.3 → `app:velocity_units_example`, `subsec:app_redshift_independent_line_separation`, `subsec:app_relative_line_centered_velocity_units` |
 | C Approximate Velocity Units in Single-Snapshot Calculations | § 3.2.4 → `app:velocity_units_snapshot_approx` |
+
+## UPDATE-2 (2026-11-17): the revised notes, cut before the metal contamination models
+
+Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/` (both courses); the Lyα notes are now committed and clean (`674da4f` "improved 2-point stats").
+
+| # | Unit | Status | Checks | Commit |
+|---|---|---|---|---|
+| U0 | New folder locations in every path of the repo | done | `grep 'Postdoc/USP'` outside `Academic/4.Postdoc1`: none left (CLAUDE.md, KICKOFF.md, go.sh, check.sh, courses.py, build.py, lya BRIEF.md, INVENTORY.md); both directories exist; generated pages and `docs/` carry no notes path | (this commit) |

@@ -9,7 +9,7 @@ I now want a second course, built the same way and looking like a sibling of the
 ## Where things are
 
 - **Website repo:** the current working directory. Work on the branch `course-lya`, created from `main`.
-- **Lyα notes, LaTeX source:** `/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/SkewerJAX_Review_and_Equations`, added with `--add-dir`. It is **read-only**, under the same rules as the first notes: compile a scratch copy elsewhere, never write in that directory.
+- **Lyα notes, LaTeX source:** `/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/SkewerJAX_Review_and_Equations`, added with `--add-dir`. It is **read-only**, under the same rules as the first notes: compile a scratch copy elsewhere, never write in that directory.
 - **What I know about the notes:** a May 2026 build of them is on the site as `assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf`, 42 pages. Its title is "Absorption Lines in Cosmological Sightlines", with an abstract, chapters on background cosmology and photon trajectories, transmitted flux, and summary statistics (ξ1D), then a literature review and appendices A–E. The local source is newer and is the source of truth.
 - **My package for these notes:** https://github.com/daniellopezcano/SkewerJAX. Use it offline, as with the first course, if an interactive figure needs data that matches the notes' figures.
 

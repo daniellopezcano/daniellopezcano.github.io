@@ -9,8 +9,8 @@
 set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
-NOTES="${NOTES:-/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR}"
-NOTES_LYA="${NOTES_LYA:-/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/SkewerJAX_Review_and_Equations}"
+NOTES="${NOTES:-/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR}"
+NOTES_LYA="${NOTES_LYA:-/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/SkewerJAX_Review_and_Equations}"
 BRANCH="${BRANCH:-course-lya}"
 BASE="${BASE:-main}"
 RENDER=1

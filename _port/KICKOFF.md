@@ -20,7 +20,7 @@ The notes are 176 pages: ten chapters and three appendices. This is a large job 
 - The repo is already heavy (about 95 MB of assets, including a 16 MB background GIF). Keep what you add small.
 
 **Lecture notes source (LaTeX): the directory added with `--add-dir`:**
-`/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR`
+`/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR`
 
 This is the source of truth. What I know about it:
 

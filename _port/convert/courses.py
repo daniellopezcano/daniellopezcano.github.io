@@ -21,7 +21,7 @@ COURSES: dict[str, dict] = {
         'title': 'From Differential Geometry to General Relativity',
         # the notes directory (read-only) and the variable that overrides it
         'notes_env': 'NOTES',
-        'notes': '/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/'
+        'notes': '/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/learning_cosmology/'
                  'lecture_notes_differential_geometry_GR/from_diff_geom_to_GR',
         'work': '_port/.work/tex',                          # scratch build (D5): <work>/stage, <work>/src
         'engine': 'xelatex',                                # latexmk -<engine>
@@ -57,7 +57,7 @@ COURSES: dict[str, dict] = {
         'dir': 'notes/lya-forest',
         'title': 'SkewerJAX: Absorption Lines in Cosmological Sightlines',
         'notes_env': 'NOTES_LYA',
-        'notes': '/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/SkewerJAX_Review_and_Equations',
+        'notes': '/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/SkewerJAX_Review_and_Equations',
         'work': '_port/.work/lya/tex',
         'engine': 'pdf',                                    # newtx: pdfLaTeX, as the author builds it
         'copy': ['*.tex', '*.bib', '*.sty', 'figures/**'],
