@@ -25,8 +25,9 @@ Everything here waits for you. Nothing in the notes has been changed: typos are 
 | `main.tex` `\noteaffiliationone`–`three` | the three affiliations | title page |
 | `main.tex` `\noteemails` | the contact e-mail | title page |
 | `main.tex` `\fancyhead[R]` | "López-Cano et al." running header | every page (the web has no running header) |
+| `sec_xi.tex:862–875` (end of § 4.8; UPDATE-2, L32) | a pasted passage headed "FROM ANDREU's notes" (a co-author's first name), its sentence ("From now on, for simplicity, we ignore the redshift evolution of the mean fluxes, …") and its equation, Eq. (4.21) in your PDF, in another notation (ξ_T, Δθ, ξ_α, ξ_X, C_αX) | § 4.8, after Table 4 (left out with its equation number; it is the last equation of § 4, so no gap shows) |
 
-No acknowledgement and no passage naming a co-author exists in the converted part (§§ 1–5, Appendices A–C), nor anywhere in the notes.
+No acknowledgement and no passage naming a co-author exists in the converted part (§§ 1–5, Appendices A–C), nor anywhere in the notes. *UPDATE-2 (2026-11-17):* the new § 4.8 ends with the passage above, the only one that names a co-author in the converted part (§§ 1–6, Appendices A–C; checked by searching for the co-authors' names, "acknowledg", "thank"); the literature review cites co-authors' papers but is not published. Is that passage meant to stay in your notes at all? It reads like a working note.
 
 ## Typos and slips found in the notes
 

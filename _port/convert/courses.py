@@ -86,6 +86,13 @@ COURSES: dict[str, dict] = {
         'last': 'sec:Pk3D_DFT',
         # L28 restored a commented-out \input here; since L29 the author's main.tex inputs every section again
         'restore_inputs': [],
+        # L32 (brief: "No authors"): passages left out of the web, each a run of whole lines of one file, from the
+        # line `from` to the first line `to` after it (exact text, without surrounding white space)
+        'omit': [
+            {'file': 'sec_xi.tex', 'from': "FROM ANDREU's notes", 'to': r'\end{align}',
+             'why': 'a pasted passage headed with the first name of a co-author (A. Font-Ribera), its sentence and its '
+                    'equation (4.21), at the end of section 4.8'},
+        ],
         'appendices': 'referenced',                         # L2
         'shared_from': 'diffgeo-gr',                        # L11
         'open_here': 'appendices',                          # L23: every page of an included appendix opens in place

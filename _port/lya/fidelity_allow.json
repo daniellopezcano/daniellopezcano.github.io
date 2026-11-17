@@ -1369,17 +1369,6 @@
    ]
   },
   {
-   "page": "xi3d/xi-decomposition-l2",
-   "at": "sec_xi.tex:865",
-   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
-   "latex": [
-    "$$\\begin{align}\\xi_T(\\Delta\\theta,\\Delta)&=\\left<\\delta_T(\\hatn_1,\\Lambda_\\alpha)~\\delta_T(\\hatn_2,\\Lambda_\\beta)\\right>\\nonumber\\\\&=\\left(1+C_{12}\\right)^{-2}\\left[1+2C_{12}+\\xi_\\alpha(\\Delta\\theta,\\Delta)+\\xi_X(\\Delta\\theta,\\Delta)+\\xi_{\\alphaX}(\\Delta\\theta,\\Delta)\\right.\\nonumber\\\\&\\left.\\qquad+C^2_{\\alphaX}+\\xi_3(\\Delta\\theta,\\Delta)\\right]-1~,\\end{align}$$"
-   ],
-   "page_tokens": [
-    "$$\\begin{align}\\xi_T(\\Delta\\theta,\\Delta)&=\\left<\\delta_T(\\hatn_1,\\Lambda_\\alpha)~\\delta_T(\\hatn_2,\\Lambda_\\beta)\\right>\\nonumber\\\\&=\\left(1+C_{12}\\right)^{-2}\\left[1+2C_{12}+\\xi_\\alpha(\\Delta\\theta,\\Delta)+\\xi_X(\\Delta\\theta,\\Delta)+\\xi_{\\alphaX}(\\Delta\\theta,\\Delta)\\right.\\nonumber\\\\&\\left.\\qquad+C^2_{\\alphaX}+\\xi_3(\\Delta\\theta,\\Delta)\\right]-1~,\\tag{4.21}\\end{align}$$"
-   ]
-  },
-  {
    "page": "pk3d/per-sample-realization-level-3d-power-spectrum",
    "at": "sec_Pk.tex:15",
    "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",

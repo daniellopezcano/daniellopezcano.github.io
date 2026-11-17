@@ -139,6 +139,8 @@ def read_records(path: str, src: source.Source) -> list[tuple[int, str, str]]:
         if len(parts) != 4:
             continue
         counter, num, file, lineno = parts
+        if (os.path.basename(file), int(lineno)) in src.omitted:
+            continue                       # Lyα L32: numbered inside a passage left out
         off = src.offset_of(file, int(lineno))
         if off is None:
             raise SystemExit(f'numbering record {line!r} points outside the included source')
@@ -1578,7 +1580,7 @@ def main():
         return rc
     configure(courses.get(args.course))
 
-    src = source.load(SRC)
+    src = source.load(SRC, COURSE_CFG.get('omit', ()))
     P = Parser(src.text)
     import tables
     tables.cell_macros(src.preamble)                 # the notes' cell-colour macros (L13)

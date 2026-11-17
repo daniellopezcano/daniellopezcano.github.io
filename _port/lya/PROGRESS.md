@@ -45,6 +45,7 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 |---|---|---|---|---|
 | U0 | New folder locations in every path of the repo | done | `grep 'Postdoc/USP'` outside `Academic/4.Postdoc1`: none left (CLAUDE.md, KICKOFF.md, go.sh, check.sh, courses.py, build.py, lya BRIEF.md, INVENTORY.md); both directories exist; generated pages and `docs/` carry no notes path | (this commit) |
 | U1 | New cut (L29), TikZ figures of a pdfLaTeX course (L30), addresses without formulas (L31), regenerated pages | done | scratch build: 60 pages, 330 records, labels identical to the author's `main.aux`; `build.py --course lya-forest`: 48 pages (+ landing), 9 pages and 38 labels left out (§ 7, D, E); first course rebuilt, `course_unchanged.py`: 150 files, navbar only; `math_check` lya 731 expressions, 0 failures; `fidelity` lya: 0 not allowed, 0 stale (61 new D7 entries, 8 stale removed, 9 TikZ pictures) | (this commit) |
+| U1b | A passage naming a co-author left out (L32): end of § 4.8, `courses.py` `omit` | done | no page or index carries it (`grep -i` of the course); `main_text_diff`: only `xi3d/xi-decomposition-l2.html` changes; `fidelity` lya: 0 not allowed, 0 stale | (this commit) |
 
 ### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
 
