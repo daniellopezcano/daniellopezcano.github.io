@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U8: second review pass (the views the first review did not read; the pages changed by U7), then the final report and the full `check.sh`. See the U table below.
+**Next action:** the final full `bash _port/check.sh`, then commit the rendered `docs/` (D28) and tell the author what changed and what to preview.
 
 **State of the working tree:** branch `lya-update` (the author's, at `d089a14` of `main`) + the brief `ee4b89d` cherry-picked as `a88a7f8` (a fast-forward to `main` was refused as a merge). Earlier work: branch `course-lya`, merged into `main` by the author.
 
