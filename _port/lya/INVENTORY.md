@@ -1,6 +1,6 @@
 # Inventory of the Lyα notes (source of 2026-11-16)
 
-Notes directory: `/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/SkewerJAX_Review_and_Equations` (read-only; L7). Last commit `981c2a6` (2026-11-12); uncommitted edit of `subsec_xi3D.tex` and the author's build products present (L7). Author's `main.pdf`: pdfTeX, 57 pages (L8).
+Notes directory: `/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/SkewerJAX_Review_and_Equations` (read-only; L7). Last commit `981c2a6` (2026-11-12); uncommitted edit of `subsec_xi3D.tex` and the author's build products present (L7). Author's `main.pdf`: pdfTeX, 57 pages (L8).
 
 ## Document
 

@@ -858,7 +858,7 @@ def fingerprints(text, where, omit=()):
 
 def tex_stream(allow_source):
     """The notes' source reduced to tokens and page boundaries. Returns (items, ctx, where)."""
-    S = source.load(TEXSRC)
+    S = source.load(TEXSRC, CFG.get('omit', ()))     # Lyα L32: the passages the course leaves out
     bbl_path = os.path.join(TEXSRC, 'main.bbl')
     # the bibliography only where the course has a Bibliography page (Lyα L4: the converted part cites nothing)
     bbl = open(bbl_path, encoding='utf-8').read() if 'bib' in LISTS else ''
@@ -1251,7 +1251,7 @@ def main(argv=None):
 
 def _where_safe(loc):
     try:
-        S = source.load(TEXSRC)
+        S = source.load(TEXSRC, CFG.get('omit', ()))
         return S.where(loc) if not isinstance(loc, tuple) else f'main.bbl offset {loc[1]}'
     except Exception:
         return str(loc)

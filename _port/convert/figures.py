@@ -83,10 +83,11 @@ class FigureError(RuntimeError):
     pass
 
 
-def _run(cmd: list[str], cwd: str | None = None, log: str | None = None, timeout: int = 600) -> str:
+def _run(cmd: list[str], cwd: str | None = None, log: str | None = None, timeout: int = 600,
+         env: dict | None = None) -> str:
     try:
         p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, errors='replace',
-                           timeout=timeout)
+                           timeout=timeout, env=env)
     except subprocess.TimeoutExpired:
         raise FigureError(f'timeout: {" ".join(cmd)}')
     if p.returncode != 0:
@@ -254,10 +255,17 @@ def _compare(pdf: str, svg: str, tmp: str) -> tuple[float, float]:
 
 class Figures:
     def __init__(self, repo_root: str, preamble: str, aux_path: str, out_dir: str | None = None,
-                 src_dir: str | None = None):
+                 src_dir: str | None = None, engine: str = 'xelatex', work_dir: str | None = None):
         self.repo = os.path.abspath(repo_root)
         self.src = os.path.abspath(src_dir) if src_dir else os.path.join(self.repo, '_port', '.work', 'tex', 'src')
-        self.work = os.path.join(self.repo, '_port', '.work', 'figs')
+        # Lyα DECISIONS L30: TikZ bodies are typeset with the course's engine. 'xelatex' (the first course, as
+        # before): XeLaTeX -> XDV, the fonts/ and plots/ of the first scratch build linked into the work dir.
+        # 'pdf' (pdfLaTeX notes: newtx, inputenc): latex in DVI mode -> DVI, in the course's own work dir, with
+        # the course's scratch sources on TEXINPUTS (its .sty files and \input'ed picture files).
+        if engine not in ('xelatex', 'pdf'):
+            raise FigureError(f'figures: unknown engine {engine!r}')
+        self.engine = engine
+        self.work = os.path.abspath(work_dir) if work_dir else os.path.join(self.repo, '_port', '.work', 'figs')
         self.cache = os.path.join(self.repo, '_port', '.work', 'figcache')
         self.out = os.path.abspath(out_dir) if out_dir else os.path.join(
             self.repo, 'notes', 'diffgeo-gr', 'figures')
@@ -269,7 +277,7 @@ class Figures:
         self.stats: dict[str, dict] = {}   # name -> details of the last build (for the test driver)
         for d in (self.work, self.cache, self.out):
             os.makedirs(d, exist_ok=True)
-        for sub in ('fonts', 'plots'):
+        for sub in (('fonts', 'plots') if engine == 'xelatex' else ()):
             link = os.path.join(self.work, sub)
             target = os.path.join('..', 'tex', 'src', sub)
             if os.path.islink(link) and os.readlink(link) == target:
@@ -483,15 +491,22 @@ class Figures:
         with open(os.path.join(self.work, job + '.aux'), 'wb') as fh:   # the bytes that are hashed
             fh.write(self.aux)
         log = os.path.join(self.work, job + '.log')
-        _run(['xelatex', '-no-pdf', '-interaction=nonstopmode', '-halt-on-error', job + '.tex'],
-             cwd=self.work, log=log)
+        if self.engine == 'xelatex':
+            _run(['xelatex', '-no-pdf', '-interaction=nonstopmode', '-halt-on-error', job + '.tex'],
+                 cwd=self.work, log=log)
+            dvi = job + '.xdv'
+        else:
+            env = dict(os.environ, TEXINPUTS=self.src + '//:' + os.environ.get('TEXINPUTS', ''))
+            _run(['latex', '-output-format=dvi', '-interaction=nonstopmode', '-halt-on-error', job + '.tex'],
+                 cwd=self.work, log=log, env=env)
+            dvi = job + '.dvi'
         with open(log, errors='replace') as fh:
             text = fh.read()
         if 'Missing character' in text:
             miss = sorted(set(re.findall(r'Missing character: There is no (.+?) in font', text)))
             raise FigureError(f'{name}: missing glyphs {miss} (see {log})')
         svg = os.path.join(self.work, job + '.svg')
-        out = _run(['dvisvgm', '--no-fonts', '--exact-bbox', '--optimize', '-o', svg, job + '.xdv'],
+        out = _run(['dvisvgm', '--no-fonts', '--exact-bbox', '--optimize', '-o', svg, dvi],
                    cwd=self.work)
         if 'warning' in out.lower() or 'error' in out.lower():
             raise FigureError(f'{name}: dvisvgm reported problems:\n{out}')
@@ -508,7 +523,8 @@ class Figures:
         if boxes and not names:
             raise FigureError(f'{name}: boxes requested, but the picture has no top-level local bounding box')
         doc = self.document(figboxes.insert(snippet, names) if boxes else snippet, textwidth_cm)
-        key = _sha(VERSION, 'tex', doc, self.aux, *([figboxes.VERSION] if boxes else []))
+        key = _sha(VERSION, 'tex', doc, self.aux, *([figboxes.VERSION] if boxes else []),
+                   *([self.engine] if self.engine != 'xelatex' else []))
         hit = self._cached(key, name)
         if hit:
             return self._text(key, hit)
@@ -537,7 +553,7 @@ class Figures:
             self.stats[name]['boxes'] = checks
         self.log.append(f'built {name}.svg from TikZ' + (f' (+ {len(names)} boxes)' if boxes else ''))
         res = self._text(key, self._store(key, svg, info, name))
-        for e in ('.tex', '.aux', '.log', '.xdv', '.svg', '.out', '.port'):
+        for e in ('.tex', '.aux', '.log', '.xdv', '.dvi', '.svg', '.out', '.port'):
             p = os.path.join(self.work, job + e)
             if os.path.exists(p):
                 os.remove(p)

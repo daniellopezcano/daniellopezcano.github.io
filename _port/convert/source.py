@@ -9,6 +9,11 @@ eats the rest of the line, the newline, and the indentation of the next line).
 `Source.where(offset)` maps any offset of `.text` back to "file:line".
 Files that main.tex does not include are never read, which is how "publish
 exactly what main.tex includes" is enforced.
+`load(notes_dir, omit)` also leaves out the passages a course names in `courses.py` `omit` (Lyα DECISIONS L32:
+a passage that names a co-author): each is a run of whole lines of one file, from the line whose text is `from`
+to the first line after it whose text is `to` (both compared without surrounding white space). Each must be
+found exactly once and may hold no \\label or \\input, or the load stops; the lines produce no text, and
+`Source.omitted` holds their (file basename, line) pairs so that the numbering records from them are dropped.
 """
 from __future__ import annotations
 import bisect
@@ -45,6 +50,9 @@ class Source:
         self.text = ''
         # (start, end, file) offset span that each top-level \input of main.tex expands to
         self.main_inputs: list[tuple[int, int, str]] = []
+        self.omit: list[dict] = []
+        self.omitted: set[tuple[str, int]] = set()      # (file basename, line) of the lines left out (L32)
+        self.omit_found: list[tuple[str, int, int]] = []  # (file, first line, last line) of each passage
 
     # -- building ---------------------------------------------------------
     def _emit(self, s: str, file: str, line: int):
@@ -55,11 +63,35 @@ class Source:
         self.parts.append(s)
         self.length += len(s)
 
+    def _omitted_lines(self, rel: str, lines: list[str], first_line: int) -> set[int]:
+        out = set()
+        for o in self.omit:
+            if os.path.basename(o['file']) != os.path.basename(rel):
+                continue
+            starts = [k for k, l in enumerate(lines) if l.strip() == o['from']]
+            if len(starts) != 1:
+                raise SystemExit(f'source: omitted passage {o["from"]!r} found {len(starts)} times in {rel} '
+                                 f'(courses.py omit; Lyα DECISIONS L32)')
+            a = starts[0]
+            b = next((k for k in range(a + 1, len(lines)) if lines[k].strip() == o['to']), None)
+            if b is None:
+                raise SystemExit(f'source: omitted passage {o["from"]!r} in {rel}: no line {o["to"]!r} after it')
+            body = '\n'.join(lines[a:b + 1])
+            if re.search(r'\\(label|input)\b', body):
+                raise SystemExit(f'source: omitted passage {o["from"]!r} in {rel} holds a \\label or \\input')
+            out.update(range(first_line + a, first_line + b + 1))
+            self.omit_found.append((rel, first_line + a, first_line + b))
+        return out
+
     def _expand(self, rel: str, lines: list[str], first_line: int, top: bool):
         self.files.append(rel) if rel not in self.files else None
+        skip = self._omitted_lines(rel, lines, first_line) if self.omit else set()
+        self.omitted.update((os.path.basename(rel), n) for n in skip)
         eat_indent = False
         for k, raw in enumerate(lines):
             lineno = first_line + k
+            if lineno in skip:
+                continue
             line = raw
             if eat_indent:
                 line = line.lstrip(' \t')
@@ -104,8 +136,9 @@ class Source:
         return None if best is None else best[1]
 
 
-def load(notes_dir: str) -> Source:
+def load(notes_dir: str, omit=()) -> Source:
     src = Source(notes_dir)
+    src.omit = list(omit)
     with open(os.path.join(notes_dir, 'main.tex'), encoding='utf-8') as f:
         lines = f.read().split('\n')
     # the scratch copy carries \input{port-hooks} on the \begin{document} line (numbering hooks)
@@ -115,6 +148,9 @@ def load(notes_dir: str) -> Source:
     src.files.append('main.tex')
     src._expand('main.tex', lines[b + 1:e], b + 2, True)
     src.text = ''.join(src.parts)
+    if len(src.omit_found) != len(src.omit):
+        raise SystemExit(f'source: {len(src.omit)} omitted passages named, {len(src.omit_found)} found '
+                         f'(courses.py omit: is the file included?)')
     names = [os.path.basename(f) for f in src.files]
     dup = {n for n in names if names.count(n) > 1}
     if dup:

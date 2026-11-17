@@ -8,7 +8,7 @@
 #   DRY_RUN=1 ./_port/go.sh show what would run, without starting Claude
 set -euo pipefail
 
-NOTES="${NOTES:-/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR}"
+NOTES="${NOTES:-/home/dlopez/Documentos/0.profesional/Academic/4.Postdoc1/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR}"
 BRANCH="course-diffgeo-gr"
 # Fable is included in Pro / Team-standard limits until 2026-11-16 23:59 PT
 # (= 2026-11-17 07:59 UTC). Stop choosing it two hours earlier, to be safe.

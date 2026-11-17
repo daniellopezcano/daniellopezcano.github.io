@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://daniellopezcano.github.io/research_and_publications.html</loc>
-    <lastmod>2026-11-16T16:57:14.559Z</lastmod>
+    <lastmod>2026-11-17T00:04:49.970Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/cv.html</loc>
-    <lastmod>2026-11-17T12:23:32.667Z</lastmod>
+    <lastmod>2026-11-17T13:20:01.126Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/outreach.html</loc>
@@ -18,7 +18,7 @@
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/teaching_and_projects.html</loc>
-    <lastmod>2026-11-16T16:57:14.559Z</lastmod>
+    <lastmod>2026-11-17T00:04:49.970Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/diffgeo-gr/about-the-author.html</loc>
@@ -350,98 +350,198 @@
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight.html</loc>
-    <lastmod>2026-11-16T19:24:04.719Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/minimal-background-cosmology.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/photon-propagation-as-a-null-geodesic.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/cosmo-background/why-this-matters-for-the-absorption-formalism.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/gas-properties.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/line-profile.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/observed-wavelength-velocity.html</loc>
-    <lastmod>2026-11-16T19:23:04.664Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/optical-depth.html</loc>
-    <lastmod>2026-11-16T19:18:40.218Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/overflux.html</loc>
-    <lastmod>2026-11-16T19:21:25.024Z</lastmod>
+    <lastmod>2026-11-17T22:22:51.892Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/product-of-total-overfluxes.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/top-down-summary.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/flux/transmission-and-flux.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/index.html</loc>
-    <lastmod>2026-11-16T22:39:43.008Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/introduction-and-scope/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/odes/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/ensemble-3d-power-spectrum.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/from-per-sample-to-ensemble-estimates.html</loc>
+    <lastmod>2026-11-17T20:00:02.955Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/index.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/per-sample-realization-level-3d-power-spectrum.html</loc>
+    <lastmod>2026-11-17T19:33:45.032Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/reduction-to-perpendicular-wavenumber.html</loc>
+    <lastmod>2026-11-17T19:33:45.040Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/reduction-to-the-1d-power-spectrum.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/reduction-to-wedges.html</loc>
+    <lastmod>2026-11-17T19:33:45.044Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d/relation-to-the-per-sample-3d-2pcf.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/configuration-space-and-fourier-space-grids.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/dft-ensemble.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/index.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/per-sample-dft-periodogram.html</loc>
+    <lastmod>2026-11-17T19:33:45.070Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/reduction-to-perpendicular-wavenumber-bins.html</loc>
+    <lastmod>2026-11-17T19:33:45.079Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/reduction-to-the-1d-power-spectrum.html</loc>
+    <lastmod>2026-11-17T19:33:45.087Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/reduction-to-wedges.html</loc>
+    <lastmod>2026-11-17T19:33:45.082Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/pk3d-dft/relation-to-the-per-sample-2pcf-circular-correlation-and-wrap-around.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/app-redshift-independent-line-separation.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/app-relative-line-centered-velocity-units.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-example/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
     <loc>https://daniellopezcano.github.io/notes/lya-forest/velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
   <url>
-    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi-decomposition/index.html</loc>
-    <lastmod>2026-11-16T17:58:19.390Z</lastmod>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/ensemble-3d-2pcf.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/from-per-sample-to-ensemble-estimates.html</loc>
+    <lastmod>2026-11-17T19:41:07.622Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/index.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/per-sample-realization-level-3d-two-point-correlation.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/reduction-to-perpendicular-distance.html</loc>
+    <lastmod>2026-11-17T19:33:44.985Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/reduction-to-the-1d-2pcf.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/reduction-to-wedges.html</loc>
+    <lastmod>2026-11-17T22:04:42.344Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/xi-decomposition-l2.html</loc>
+    <lastmod>2026-11-17T19:41:07.622Z</lastmod>
+  </url>
+  <url>
+    <loc>https://daniellopezcano.github.io/notes/lya-forest/xi3d/xi-decomposition.html</loc>
+    <lastmod>2026-11-17T19:33:45.161Z</lastmod>
   </url>
 </urlset>

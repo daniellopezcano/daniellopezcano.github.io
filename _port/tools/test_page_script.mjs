@@ -1168,7 +1168,7 @@ try {
       ok(await page.evaluate(() => { const m = document.querySelector('.dg-chapter-sections a[href$="line-profile.html"] .dg-readmark'); return !!m && m.classList.contains('dg-on'); }),
         'Lyα read marks: the chapter opening page shows the check');
       const secs = await page.$$eval('.dg-chapter-sections li a', as => as.length);
-      ok(secs === 7, `Lyα § 3 opening page lists its 7 subsections (${secs})`);
+      ok(secs === 8, `Lyα § 3 opening page lists its 8 subsections (3.1–3.8 since the notes of 2026-11-17) (${secs})`);
       await page.locator('.dg-bar [data-act="theme"]').click(); await page.waitForTimeout(150);
       const th = await page.evaluate(() => [document.documentElement.dataset.theme, localStorage.getItem('dg-theme')]);
       ok(th[0] && th[0] === th[1], `Lyα theme switch: stored under the site's key dg-theme (${th})`);

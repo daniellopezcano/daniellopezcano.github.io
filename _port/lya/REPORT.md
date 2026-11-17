@@ -1,4 +1,30 @@
-# Report: the Lyα forest notes on the web, and three site updates
+# Report: the Lyα forest notes on the web
+
+## UPDATE-2 (2026-11-17): the revised notes, up to the metal contamination models
+
+Brief `_port/lya/UPDATE-2.md`; branch `lya-update`, committed locally, **not pushed and not merged**. Ledger: `_port/lya/PROGRESS.md` (units U0–U8); decisions L29–L37 in `_port/lya/DECISIONS.md`.
+
+**What changed**
+- **Folders (U0).** Every absolute path to the notes now points to `…/0.profesional/Academic/4.Postdoc1/USP/Projects/…` (CLAUDE.md, KICKOFF.md, `go.sh`, `check.sh`, `courses.py`, `build.py`, the Lyα brief and inventory). `check.sh` now expects the branch `lya-update`.
+- **Cut (L29).** The web runs from § 1 to the end of § 6 "P3D with the discrete Fourier transform" and stops just before § 7 "Metal contamination" (`sec:metals`, `sec_models.tex`). New on the web: § 3.7 "Product of Total Overfluxes" (your new heading; its text was already online as the end of § 3.6), § 4 ξ3D (4.1–4.8, with the old § 4 decomposition as § 4.7 and the L = 2, 3 particularisation as § 4.8), § 5 P3D (5.1–5.7), § 6 P3D with the DFT (6.1–6.7): 26 new pages, 48 pages + the landing page in all. Appendices A–C as before (D, E are not referred to); nothing points into what is left out, so no "in preparation" marker shows; numbering is the full build's.
+- **Where your source and the cut disagree:** your `main.tex` (through `sec_summary_statistics.tex`) inputs § 7 "Metal contamination", so your PDF has it; the web stops before it. No `\endinput`; the only commented-out `\input` is the literature review (after § 7, not on the web either way).
+- **A passage left out (L32).** § 4.8 ends with a block headed "FROM ANDREU's notes", one sentence and Eq. (4.21) in another notation. It names a co-author, so (brief "No authors") the converter leaves it out (`courses.py` `omit`, which stops the build if that passage changes). It reads like a working note: see `REVIEW.md`. It was on the branch for one commit (U1, `a9c74e6`) before being removed in U1b; nothing was pushed.
+- **Existing pages that changed** (all regenerated from the current source): `index.html` (contents), `flux/overflux.html` (§ 3.6 now ends at your new § 3.7 heading), `flux/top-down-summary.html` (§ 3.7 → § 3.8), `velocity-units-example/index.html` (Figure 6 → Figure 15); web layer only: `flux/index.html`, `odes/index.html`; navigation only: the other 17. Removed: `xi-decomposition/index.html` (the old § 4, now `xi3d/xi-decomposition.html`; no redirect).
+- **Your restyle (L37).** You committed a new style (`7c1659b`, Latin Modern, new geometry and title page) while this update was running; everything was rebuilt from it. The web's text is unchanged by it; the TikZ figures now use the notes' new font; the landing page keeps the web's own cover.
+- **Converter.** TikZ figures of a pdfLaTeX course (L30: the nine figures of §§ 4–6 are compiled from your source to SVG); addresses of headings that end in a formula leave the formula out (L31: `pk3d/reduction-to-wedges.html`, not `…-p-ij-s-k-1-2`); a formula in a page's kicker keeps its glyphs (L36); the build stops if the text width it is configured with is not the LaTeX build's (L37). The first course is byte-identical (navbar only, as before).
+- **Panels (L33, L34).** The two parked panels are back where their ideas now live: *ergodicity* after Eq. (4.14) in § 4.6, with a new control for the number of sightlines per realization (the revised § 4.4 defines the per-sample 1D 2PCF as an average over sightlines, and § 4.6 ties ergodicity to the size of the domain); *decomposition* after Eq. (4.20) in § 4.8 (the same equation). Two new panels for the two-point-statistics chapters, ranked in `PLAN.md`: *periodogram* (§ 5.6, after Eq. (5.21): the Fejér window smooths a spectrum's features over 2π/L_Λ; one periodogram scatters by ~100 % whatever L_Λ; only averaging converges) and *aliasing* (§ 6.7, after Figure 14: the copies P(k + 2c k_Ny) and their sum as the pixel size changes, with and without the pixel window). The third candidate (circular vs zero-padded correlation, § 6.3) was not built: it would repeat the periodogram panel. Nine panels in all, each with a test that recomputes what it shows.
+- **PDF (L35, L37).** Your `main.pdf` of 21:18 (62 pages), compressed with the same Ghostscript settings (5.73 → 2.05 MB), at the same address `assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf`; pages, outline and links checked, contents not reviewed. **Its last main-text section is § 7 "Metal contamination", not § 6 where the web course ends.**
+
+**Waiting for you in `REVIEW.md`:** the passage of § 4.8 left out; 12 new slips found in the new and changed text (e.g. a `\label` in an unnumbered equation that makes "Eq. 3.29" point to it, "average over the direction φ" where Eq. (4.5) integrates, a sign in the n = 1 display of § 3.7, "truncated up to order-2" with Ξ^(n) for n ≥ 3, the L = 3 expression announced but not given, N used both as total and per-axis count in § 6); the earlier 6 still apply; the words of the four new or changed panels.
+
+**What to preview:** `quarto preview`, then `/notes/lya-forest/` — the contents; § 3.7 (`flux/product-of-total-overfluxes.html`); § 4 (`xi3d/`), especially 4.6 (ergodicity panel) and 4.8 (tables, decomposition panel, the end without the left-out passage); § 5.2 (Figure 10) and 5.6 (periodogram panel); § 6.3 (Figure 13) and 6.7 (Figure 14 and the aliasing panel); the "Download PDF" button on the landing page.
+
+**To publish** (after your preview): `git checkout main && git merge lya-update && git push` (GitHub Pages serves `docs/` from `main`). Nothing has been pushed or merged.
+
+---
+
+The rest of this report describes the first version (branch `course-lya`, 2026-11-16) and how to rebuild; it still applies, except where the section above says otherwise.
+
 
 Your notes "SkewerJAX: Absorption Lines in Cosmological Sightlines" are now a second course section of the site, at `/notes/lya-forest/`, built by the same converter and design system as *From Differential Geometry to General Relativity* and looking like its sibling, in teal instead of navy. Everything is on the branch `course-lya`, committed locally, **not pushed and not merged**.
 

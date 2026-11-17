@@ -31,3 +31,7 @@
 .dg-abstract p { margin: 0 0 0.8rem; }
 .dg-abstract p.dg-keywords { margin-top: 1.1rem; color: var(--dg-text-soft); }
 .dg-abstract p.dg-keywords strong { color: var(--dg-text); }
+
+/* UPDATE-2 (Lyα L36): a formula in the kicker ("Section 4 • ξ3D") keeps MathJax's own glyphs and spacing; the
+   kicker's small caps and letter-spacing would otherwise synthesise a small-cap ξ that collides with the "3" */
+.dg-main .dg-kicker mjx-container { font-variant: normal; letter-spacing: normal; }

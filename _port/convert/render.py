@@ -859,6 +859,9 @@ class Renderer:
             labels = _LABEL.findall(r)
             r = _LABEL.sub('', r)
             if '\\nonumber' in r or '\\notag' in r or '\\tag' in r:
+                # Lyα L38: a \label in an unnumbered row still names a place (amsmath steps the counter before
+                # \notag, and hyperref's link lands here): keep it as an anchor, with no number shown
+                ids += labels
                 out.append(r)
                 continue
             num = self.take('equation', nd.pos)
