@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** the final full `bash _port/check.sh`, then commit the rendered `docs/` (D28) and tell the author what changed and what to preview.
+**Next action:** none — UPDATE-2 is done (final full `bash _port/check.sh` on 2026-11-18: ALL CHECKS PASSED; `docs/` rendered and committed). Waiting for the author's preview and `REVIEW.md` (rows 11–15 of the decisions, the § 4.8 passage, 12 new slips); nothing is pushed or merged.
 
 **State of the working tree:** branch `lya-update` (the author's, at `d089a14` of `main`) + the brief `ee4b89d` cherry-picked as `a88a7f8` (a fast-forward to `main` was refused as a merge). Earlier work: branch `course-lya`, merged into `main` by the author.
 
@@ -53,6 +53,7 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 | U5 | The Lyα PDF: the author's `main.pdf` (60 pages) compressed (5.43 → 1.92 MB), same address (L35) | done | pages, outline (72), links (304), renders compared; its last section is § 7 Metal contamination, the web ends at § 6 | (this commit) |
 | U7 | The author's restyle `7c1659b` (L37): rebuilt from it; title page taught to `cover_lya.py`; text width 16.0 cm (+ guard); new PDF 5.73 → 2.05 MB | done | scratch: 62 pages, labels identical; 48/48 pages; `main_text_diff` 49/49 identical; nine TikZ SVGs recompiled; `math_check` 730, 0 failures; `fidelity` lya 0 not allowed, 0 stale; first course unchanged (150 files); PDF: text identical to scratch, outline 72, links 303 | (this commit) |
 | U8 | Second review against the PDF (port-checker: 196 views, all read; 49 pages × 1440/390 × light/dark): one defect, two unlinked references to Eq. 3.29 on § 3.6 (L38), fixed; figures 9–11, 13 small at 390 px have the Zoom control (D10 f) | done | first course unchanged (150 files); `main_text_diff` 49/49; no pending reference left in the course | (this commit) |
+| U9 | Final check and `docs/` | done | full `bash _port/check.sh` (2026-11-18): ALL CHECKS PASSED (26 checks, both courses and the rest of the site). Two earlier full runs failed only in `test_page_script`: the expected count of § 3's subsections (7 → 8, fixed `fff1d6e`) and once a 30 s timeout tapping the zoom viewer's close button at 390 px in a first-course step (passed in two separate reruns and in the final run: timing) | (this commit) |
 
 ### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
 
