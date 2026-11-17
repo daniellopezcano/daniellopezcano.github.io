@@ -1,5 +1,5 @@
-// Hand-written (not generated): interactive after Eq. (xi1D_ensemble_L2_decomposition), § 5.3. Notebook
-// notebooks/10_skewer_statistics.ipynb of SkewerJAX (Lyα DECISIONS L20, L25).
+// Hand-written (not generated): interactive after Eq. (xi1D_ensemble_L2_decomposition), § 4.8. Notebook
+// notebooks/10_skewer_statistics.ipynb of SkewerJAX (Lyα DECISIONS L20, L25, L33).
 // The total ξ(Δ) of two transitions absorbed by the same toy gas, Lyα (j = 1) and Si III 1206 (j = 2), and the terms
 // of Eq. (xi1D_ensemble_L2_decomposition), each divided by (1 + C_12)², in the colours the notes give them
 // (\TextZero gray, \TextTwo green, \TextThree yellow, \TextFour orange; the boxes' hues, darkened for lines):

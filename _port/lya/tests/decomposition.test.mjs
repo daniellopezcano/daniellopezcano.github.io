@@ -1,4 +1,4 @@
-// Test of the panel decomposition (§ 5.3, after Eq. (xi1D_ensemble_L2_decomposition)): from the module's τ per unit n̄
+// Test of the panel decomposition (§ 4.8, after Eq. (xi1D_ensemble_L2_decomposition)): from the module's τ per unit n̄
 // of the two lines (checked against Eq. (tau_straight_los), skewer_ref.mjs, at a few pixels; the Si III line shifted by
 // −c ln(λ_1/λ_2) on the axis of Lyα, Appendix B.2), this file recomputes T_j, T̄_j, δ_j (Eq. (delta_j)), C_12, the
 // per-lag averages and the terms of Eq. (xi1D_ensemble_L2_decomposition); checks the state; checks that the sum of the

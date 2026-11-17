@@ -1,12 +1,12 @@
-// Hand-written (not generated): the statistics of the panel decomposition (Lyα course, § 5.3, Lyα DECISIONS L25),
+// Hand-written (not generated): the statistics of the panel decomposition (Lyα course, § 4.8, Lyα DECISIONS L25, L33),
 // apart from its drawing so that they can be computed outside the page. Pure functions, no DOM.
 // Two transitions, j = 1 Lyα and j = 2 Si III 1206, absorbed by the same toy gas (skewer.js) along ENS sightlines,
 // on one spectral axis Λ: the velocity units of line 1 (Eq. (velocity_units_normalized) with λ_† = λ_1), on which
 // line 2 sits shifted by −c ln(λ_1/λ_2) (Appendix B.2). In the window of Λ where both lines absorb:
-//   T_j = exp(−τ_j), T̄_j the mean over the window and the sightlines (translation invariance, § 5.2),
+//   T_j = exp(−τ_j), T̄_j the mean over the window and the sightlines (translation invariance, Eq. (xi3D_ensemble_translation_invariant), § 4.5),
 //   δ_j = T_j/T̄_j − 1 (Eq. (delta_j)), C_12 = ⟨δ_1 δ_2⟩ (the one-point average of § 3.6, C for L = 2),
-//   ξ_AB(Δ) = ⟨A(Λ) B(Λ + Δ)⟩ over the window pairs and the sightlines (Eqs. (xi1D_sample_nonperiodic),
-//   (xi1D_ensemble_estimator_from_samples)), with A, B among δ_1, δ_2 and (12) = δ_1 δ_2,
+//   ξ_AB(Δ) = ⟨A(Λ) B(Λ + Δ)⟩ over the window pairs and the sightlines (Eqs. (xi3D_1D_per_sightline), (xi3D_sample_zero_lag),
+//   (xi3D_ensemble_estimator_from_samples)), with A, B among δ_1, δ_2 and (12) = δ_1 δ_2,
 // and the terms of Eq. (xi1D_ensemble_L2_decomposition), each divided by (1 + C_12)²; their sum is the total ξ of
 // δ = T/T̄ − 1, T = T_1 T_2 (Eq. (total_overflux_compact)), computed directly as well.
 import { C_KMS, LINES, gas, pixels, tauUnit, aStart, vHubble } from './skewer.js';

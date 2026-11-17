@@ -32,8 +32,8 @@ The test (KICKOFF): what does a student understand by manipulating this that the
 3. **Transmission and saturation** (§ 3.5): F = e^{-τ} from the same skewer with a scale on τ (or on n): saturation of strong lines, the mean flux F̄ and δ_F = F/F̄ − 1; why the mean flux is not e^{-⟨τ⟩}.
 4. **Mapping the observed wavelength to the gas frame** (§ 3.2, Eqs. 3.2–3.4 and the velocity units of 3.2.3–3.2.4): a gas element at x with peculiar velocity v; λ_obs → a(x) → λ' with the Doppler factor; the exact logarithmic velocity unit against the Hubble-flow approximation, and the error of the approximation as the interval grows.
 5. **Scale factor along the photon path** (§ 2.3, Figure 1 `fig:a_of_x`): a(x) for the background cosmologies of § 2.3.1 with their analytic solutions overlaid on the numerical integration of da/dx; Ω sliders for a general background.
-6. **1D 2PCF and ergodicity** (§ 5.3): per-sightline estimates ξ̂^(s)(Δ) of a toy Gaussian field and their average as sightlines are added, converging to the ensemble ξ(Δ).
-7. **Decomposition of the 2PCF for L = 2** (end of § 5.3, the L = 2 decomposition and Tables 3–4): two absorbers' fields; the total ξ and its colour-coded components (the notes' own colours of `\TextZero…\TextFour`), switching each on and off.
+6. **1D 2PCF and ergodicity** (§ 5.3; since UPDATE-2 § 4.6, L33): per-sightline estimates ξ̂^(s)(Δ) of a toy Gaussian field and their average as sightlines are added, converging to the ensemble ξ(Δ).
+7. **Decomposition of the 2PCF for L = 2** (end of § 5.3; since UPDATE-2 § 4.8, the L = 2 decomposition and Tables 3–4): two absorbers' fields; the total ξ and its colour-coded components (the notes' own colours of `\TextZero…\TextFour`), switching each on and off.
 8. **Velocity units examples** (Appendix B, Figure 6): two lines in velocity units at different redshifts; redshift-independent line separation.
 
 Build 1–6 at least; 7–8 if they pass the test once 1–6 exist. Exact placement (after which figure or at the end of which (sub)section, D57) is decided per panel when it is built and recorded in `DECISIONS.md`.

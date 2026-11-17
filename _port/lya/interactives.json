@@ -5,6 +5,8 @@
     {"label": "fig:optical_depth", "module": "opticaldepth", "notebook": "notebooks/07_deposition_and_optical_depth.ipynb"},
     {"label": "eq:delta_j", "module": "transmission", "notebook": "notebooks/10_skewer_statistics.ipynb"},
     {"label": "subsubsec:approx_velocity_units", "at": "end", "module": "velocityunits", "notebook": "notebooks/12_comparison_fake_spectra_results.ipynb"},
-    {"label": "fig:a_of_x", "module": "scalefactor", "notebook": "notebooks/02_cosmology.ipynb"}
+    {"label": "fig:a_of_x", "module": "scalefactor", "notebook": "notebooks/02_cosmology.ipynb"},
+    {"label": "eq:xi3D_ensemble_estimator_from_samples", "module": "ergodicity", "notebook": "notebooks/08_toy_field_statistics.ipynb"},
+    {"label": "eq:xi1D_ensemble_L2_decomposition", "module": "decomposition", "notebook": "notebooks/10_skewer_statistics.ipynb"}
   ]
 }

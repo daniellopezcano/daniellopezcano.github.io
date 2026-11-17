@@ -1,6 +1,6 @@
 # Ledger of the Lyα forest course
 
-**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U3: bring back the parked panels (ergodicity, decomposition). See the U table below.
+**Next action:** UPDATE-2 (`_port/lya/UPDATE-2.md`), unit U4: rank and build at most three new panels for §§ 4–6 (PLAN.md). See the U table below.
 
 **State of the working tree:** branch `lya-update` (the author's, at `d089a14` of `main`) + the brief `ee4b89d` cherry-picked as `a88a7f8` (a fast-forward to `main` was refused as a merge). Earlier work: branch `course-lya`, merged into `main` by the author.
 
@@ -47,6 +47,7 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 | U1 | New cut (L29), TikZ figures of a pdfLaTeX course (L30), addresses without formulas (L31), regenerated pages | done | scratch build: 60 pages, 330 records, labels identical to the author's `main.aux`; `build.py --course lya-forest`: 48 pages (+ landing), 9 pages and 38 labels left out (§ 7, D, E); first course rebuilt, `course_unchanged.py`: 150 files, navbar only; `math_check` lya 731 expressions, 0 failures; `fidelity` lya: 0 not allowed, 0 stale (61 new D7 entries, 8 stale removed, 9 TikZ pictures) | (this commit) |
 | U1b | A passage naming a co-author left out (L32): end of § 4.8, `courses.py` `omit` | done | no page or index carries it (`grep -i` of the course); `main_text_diff`: only `xi3d/xi-decomposition-l2.html` changes; `fidelity` lya: 0 not allowed, 0 stale | (this commit) |
 | U2 | New and changed text read for slips (§ 3.6 end, § 3.7, §§ 4–6, the nine TikZ pictures; port-worker, rows spot-checked) | done | 11 rows added to REVIEW.md; the earlier 6 rows still apply at the same lines | (this commit) |
+| U3 | Panels 6 and 7 back from `parked/` on §§ 4.6 and 4.8 (L33); ergodicity gains M sightlines per realization | done | `test_lya_interactives`: 7 panels passed (1440/390, Reset, the recomputing tests); screenshots of both panels reviewed | (this commit) |
 
 ### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
 
