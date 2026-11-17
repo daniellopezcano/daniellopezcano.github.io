@@ -48,6 +48,8 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 | U1b | A passage naming a co-author left out (L32): end of § 4.8, `courses.py` `omit` | done | no page or index carries it (`grep -i` of the course); `main_text_diff`: only `xi3d/xi-decomposition-l2.html` changes; `fidelity` lya: 0 not allowed, 0 stale | (this commit) |
 | U2 | New and changed text read for slips (§ 3.6 end, § 3.7, §§ 4–6, the nine TikZ pictures; port-worker, rows spot-checked) | done | 11 rows added to REVIEW.md; the earlier 6 rows still apply at the same lines | (this commit) |
 | U3 | Panels 6 and 7 back from `parked/` on §§ 4.6 and 4.8 (L33); ergodicity gains M sightlines per realization | done | `test_lya_interactives`: 7 panels passed (1440/390, Reset, the recomputing tests); screenshots of both panels reviewed | (this commit) |
+| U4 | New panels ranked in PLAN.md (three candidates; two built, delegated to port-worker) | in progress | — | 7a87c49 (plan) |
+| U5 | The Lyα PDF: the author's `main.pdf` (60 pages) compressed (5.43 → 1.92 MB), same address (L35) | done | pages, outline (72), links (304), renders compared; its last section is § 7 Metal contamination, the web ends at § 6 | (this commit) |
 
 ### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
 
