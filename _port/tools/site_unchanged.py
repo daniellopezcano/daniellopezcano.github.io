@@ -21,7 +21,9 @@ Accepted differences, and nothing else (KICKOFF rule 6; Lyα brief "Site updates
     rules whose selector mentions `sidebar` (a site with a sidebar gets them; DECISIONS D26d);
   * site_libs files that only the course pages use (extra files are allowed there, missing ones are not);
   * search.json and sitemap.xml: only entries outside notes/ are compared (sitemap: addresses, not dates);
-  * files in ALLOWED_CHANGED (decided by the author; each with its reason).
+  * files in ALLOWED_CHANGED (decided by the author; each with its reason);
+  * the CV page (author's brief of 2026-11-17, branch cv-page): docs/cv.html, its PDF and thumbnail (CV_CHANGED),
+    the files only it uses (CV_NEW: its stylesheet, its images) and its own entries of search.json; nothing else.
 """
 import json, re, subprocess, sys
 from pathlib import Path
@@ -35,6 +37,17 @@ ALLOWED_CHANGED = {
     # Lyα DECISIONS L28: the author's current build of the Lyα notes, at the old Lyα PDF's address
     'docs/assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf',
 }
+
+# The CV page, generated from the LaTeX CV by _cv/build.py (author's brief of 2026-11-17; _cv/NOTES.md): the page,
+# the PDF at its old address and its thumbnail change; its stylesheet and images are new and used by no other page.
+CV_CHANGED = {
+    'docs/cv.html',
+    'docs/assets/files/DLC_CV.pdf',
+    'docs/assets/img/docs/cv_preview.jpg',
+}
+# (+ the GMV logo: in assets/img/logos/ already, but no other page shows it, so Quarto copies it only now)
+CV_NEW = re.compile(r'docs/assets/(css/cv\.css|img/cv/[^/]+|img/logos/gmv_logo\.png)$')
+ALLOWED_CHANGED |= CV_CHANGED
 
 # Files deleted on purpose (Lyα brief, site update 2; REVIEW.md): the old Lyα PDF's thumbnail shows the
 # co-authors and lost its last link (the PDF's address holds the current build since L28); the first course's
@@ -72,7 +85,20 @@ def nav_new(s: str, where: str, failures: list) -> str:
 
 
 def nav_old(s: str) -> str:
-    return PLAIN.sub('<li>LECTURE-NOTES</li>', s)
+    """REF's navbar entry as a placeholder: the plain link (before the courses were merged) or, once REF has it, the
+    dropdown with its script (as nav_new does for the working tree; REF's menu is not checked)."""
+    s = PLAIN.sub('<li>LECTURE-NOTES</li>', s)
+    m = DROPDOWN.search(s)
+    if m:
+        s = s[:m.start()] + '<li>LECTURE-NOTES</li>' + s[m.end():]
+        s = s.replace(INCLUDE + '\n', '', 1).replace(INCLUDE, '', 1)
+    return s
+
+
+def ojala_new(v: str) -> str:
+    """The accepted OJALÁ changes; idempotent, so a REF that already has them is left as it is."""
+    v = re.sub(re.escape(OJALA_ID) + r'(?!\.-a-transformer)', OJALA_ID_NEW, v)
+    return re.sub(re.escape(OJALA_OLD) + r'(?!\. A transformer)', OJALA_NEW, v)
 
 
 def teaching_old(s: str) -> str:
@@ -85,7 +111,7 @@ def teaching_old(s: str) -> str:
 
 
 def research_old(s: str) -> str:
-    s = s.replace(OJALA_ID, OJALA_ID_NEW).replace(f'>{OJALA_OLD}</h3>', f'>{OJALA_NEW}</h3>')
+    s = ojala_new(s)
     return s.replace('<em>arXiv preprint, arXiv:2604.00661</em>', '<em>Astronomy &amp; Astrophysics</em>, in press (accepted 12 November 2026)')
 
 
@@ -98,7 +124,7 @@ def search_old(e: dict) -> dict | None:
         if isinstance(t, str):
             e = dict(e, text=t.replace('Lecture notes GitHub', 'Download PDF GitHub'))
     if h.startswith('research_and_publications.html'):
-        e = {k: (v.replace(OJALA_ID, OJALA_ID_NEW).replace(OJALA_OLD, OJALA_NEW)
+        e = {k: (ojala_new(v)
                  .replace('arXiv preprint, arXiv:2604.00661', 'Astronomy & Astrophysics, in press (accepted 12 November 2026)')
                  if isinstance(v, str) else v) for k, v in e.items()}
     return e
@@ -138,7 +164,7 @@ def main():
         if f not in work_files and not HASH.search(f) and f not in ALLOWED_DELETED:
             failures.append(f'missing: {f}')
     for f in sorted(work_files - set(ref_files)):
-        if not f.startswith('docs/site_libs/'):
+        if not f.startswith('docs/site_libs/') and not CV_NEW.fullmatch(f):
             failures.append(f'new file outside the course section: {f}')
 
     # 2. contents
@@ -163,7 +189,8 @@ def main():
                 for m in HASH.findall(text):
                     bundles.setdefault(f, {})[side] = m
         elif f == 'docs/search.json':
-            keep = lambda es: sorted((read_online(e) for e in es if e is not None and not e.get('href', '').startswith('notes/')),
+            keep = lambda es: sorted((read_online(e) for e in es if e is not None
+                                      and not e.get('href', '').startswith(('notes/', 'cv.html'))),
                                      key=lambda e: e.get('objectID', ''))   # the order of pages in the index is not stable
             ko, kn = keep(search_old(e) for e in json.loads(old)), keep(json.loads(new))
             if ko != kn:

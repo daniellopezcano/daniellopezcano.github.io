@@ -42,3 +42,12 @@ bash _port/check.sh                     # all definition-of-done checks; ends wi
 _port/design/preview.sh                 # the three design-direction prototypes at http://localhost:4321/design/ (record of the choice; not part of the build)
 ```
 Notes source: `/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR` (override with `NOTES=`).
+
+## CV page (branch `cv-page`)
+
+`cv.qmd` is generated from the LaTeX CV (`main.tex` + `main.pdf` in `/home/dlopez/Documentos/2.documentacion/CV_DanielLopezCano`, read-only; override `--src DIR` or `CV_SRC=`). After updating and compiling the CV there, run one command from the repo root:
+```bash
+python3 _cv/build.py                # cv.qmd, assets/files/DLC_CV.pdf (Ghostscript only if lossless), cv_preview.jpg, assets/img/cv/, then `quarto render cv.qmd`
+python3 _cv/build.py --check-links  # ... and report the HTTP status of every external link of the CV
+```
+Never edit `cv.qmd` by hand. A LaTeX construct the script does not know stops it with `main.tex:<line>`: teach `_cv/build.py`. Phone numbers and the postal address are left out of the page on purpose (the build fails if any reach it). Styles: `assets/css/cv.css` (CV page only). Decisions, typos noticed in main.tex and disagreements with other pages: `_cv/NOTES.md`.
