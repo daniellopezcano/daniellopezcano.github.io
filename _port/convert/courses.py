@@ -70,7 +70,7 @@ COURSES: dict[str, dict] = {
         'slug_math': 'drop',                                # L31: a heading's formulas are left out of its address
         'label_prefix': r'^(sec|subsec|subsubsec|app):',
         'words': {'main': 'Section', 'appendix': 'Appendix'},
-        'textwidth_cm': 21.0 - 2 * 2.54,                    # A4, 1 in margins (geometry)
+        'textwidth_cm': 16.0,                               # A4 minus 2 x 25 mm (style/notes_style.sty since 7c1659b; L37)
         'pt': 11,
         'front': {},
         'copyright_title': None,

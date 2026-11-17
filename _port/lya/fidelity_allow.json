@@ -3,30 +3,37 @@
  "source": [
   {
    "file": "main.tex",
+   "construct": "tikzpicture",
+   "key": "text:[remember picture, overlay] \\coordinate (blockSW) at ([yshif",
+   "line": 167,
+   "reason": "Lyα DECISIONS L37: the title page's overlay of the author's restyle (a coloured block and a ribbon, drawn; its one node holds \\notetitle and \\notesubtitle, which the landing page sets from the preamble, L14; cover_lya.py checks that the drawing holds no text)"
+  },
+  {
+   "file": "main.tex",
    "construct": "\\noteauthors",
-   "key": "text:\\noteauthors\\par} \\vspace{0.45cm} {\\scriptsize $^{1}$~\\notea",
-   "line": 160,
+   "key": "text:\\noteauthors\\par} \\vspace{0.3cm} {\\scriptsize\\color{black!75",
+   "line": 189,
    "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's author list (names, ORCID links, affiliation marks) is not on the web; cover_lya.py leaves this piece out of the landing page"
   },
   {
    "file": "main.tex",
    "construct": "\\noteaffiliationone",
-   "key": "text:\\noteaffiliationone\\par} \\vspace{0.5cm} {\\normalsize \\noteve",
-   "line": 164,
+   "key": "text:\\noteaffiliationone\\par} \\vspace{0.4cm} {\\normalsize\\color{t",
+   "line": 193,
    "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's first affiliation is not on the web; cover_lya.py leaves this piece out of the landing page (since 2026-11-16 the author's main.tex comments out the second and third affiliations; Lyα DECISIONS L28)"
   },
   {
    "file": "main.tex",
    "construct": "\\notedate",
-   "key": "text:\\notedate\\par} \\vspace{0.5cm} {\\footnotesize Contact email: ",
-   "line": 170,
+   "key": "text:\\notedate\\par} \\vspace{0.3cm} {\\footnotesize Contact email: ",
+   "line": 199,
    "reason": "Lyα DECISIONS L6: \\notedate (\\today, the date of the LaTeX run) becomes \"Last updated <date>\" on the landing page, in the web layer (.dg-web, not compared)"
   },
   {
    "file": "main.tex",
    "construct": "\\noteemails",
-   "key": "text:\\noteemails\\par } \\begin{abstract} These notes present a com",
-   "line": 175,
+   "key": "text:\\noteemails\\par } \\centering \\begin{abstract} These notes pr",
+   "line": 204,
    "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's contact e-mail is not on the web; cover_lya.py leaves this piece out of the landing page"
   },
   {
@@ -96,12 +103,39 @@
  "diff": [
   {
    "page": "index",
-   "at": "main.tex:164",
-   "reason": "Lyα DECISIONS L5, L28: the affiliation mark of the title page ($^{1}$~ before the affiliation, a 'source' entry; the author's main.tex of 2026-11-16 comments out the other two); the landing page carries no affiliation",
+   "at": "main.tex:193",
+   "reason": "Lyα DECISIONS L5, L28, L37: the affiliation mark of the title page ($^{1}$~ before the affiliation, a 'source' entry) is not on the landing page; and since the author's restyle (L37) the title and subtitle are inside the title page's overlay picture (a 'source' entry), so the landing page's title and subtitle (set from \\notetitle and \\notesubtitle, L14) have no counterpart in the LaTeX stream; the comparison pairs the two",
    "latex": [
     "$^{1}$"
    ],
-   "page_tokens": []
+   "page_tokens": [
+    "SkewerJAX",
+    ":",
+    "Absorption",
+    "Lines",
+    "in",
+    "Cosmological",
+    "Sightlines",
+    "A",
+    "pedagogical",
+    "review",
+    "of",
+    "photon",
+    "propagation",
+    ",",
+    "absorption",
+    "processes",
+    ",",
+    "summary",
+    "statistics",
+    ",",
+    "and",
+    "survey",
+    "analysis",
+    "of",
+    "cosmological",
+    "skewers"
+   ]
   },
   {
    "page": "index",

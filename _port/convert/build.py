@@ -1581,6 +1581,13 @@ def main():
     configure(courses.get(args.course))
 
     src = source.load(SRC, COURSE_CFG.get('omit', ()))
+    # Lyα L37: figure widths and table lengths are fractions of the configured text width; it must be the build's
+    # (geometry writes `* \textwidth=<pt>pt` to the log); a restyle of the notes that changes it stops here
+    _log = os.path.join(SRC, 'main.log')
+    _tw = re.search(r'^\* \\textwidth=([\d.]+)pt', open(_log, encoding='latin-1').read(), re.M) if os.path.exists(_log) else None
+    if _tw and abs(float(_tw.group(1)) / 72.27 * 2.54 - COURSE_CFG['textwidth_cm']) > 0.01:
+        raise SystemExit(f"courses.py textwidth_cm = {COURSE_CFG['textwidth_cm']} cm, but the scratch build's text width is "
+                         f"{float(_tw.group(1)) / 72.27 * 2.54:.3f} cm (main.log); update courses.py")
     P = Parser(src.text)
     import tables
     tables.cell_macros(src.preamble)                 # the notes' cell-colour macros (L13)
