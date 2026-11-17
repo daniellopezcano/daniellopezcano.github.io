@@ -16,6 +16,11 @@ Everything here waits for you. Nothing in the notes has been changed: typos are 
 | 8 | Your CV PDF (`assets/files/DLC_CV.pdf`) still lists OJALÁ as it was; not edited. | L19 |
 | 9 | (2026-11-16, superseding row 1) The web version ends with § 4 "Decomposition of the 2PCF"; § 5 and everything after it is not published, nor panels 6 and 7 (kept in `_port/lya/parked/`). Your `main.tex` now comments out `\input{sec_summary_statistics}`, so your PDF ends at § 3; the scratch build restores that one input so that § 4 exists with its number (you chose this). | L28 |
 | 10 | The Lyα PDF is your current build, compressed, at the old Lyα PDF's address (`assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf`); the landing page's button reads "Download PDF", as the first course's. The differential-geometry PDF is your `main.pdf` (created 2026-10-15), compressed, in place. | L28 |
+| 11 | (UPDATE-2, 2026-11-17) The web ends with § 6 "P3D with the discrete Fourier transform", just before § 7 "Metal contamination"; your `main.tex` inputs § 7, so your PDF has it and the web does not. Appendices A–C as before. | L29 |
+| 12 | The old § 4 page `xi-decomposition/index.html` is gone (its heading is now § 4.7, `xi3d/xi-decomposition.html`); no redirect page. | L29 |
+| 13 | The passage at the end of § 4.8 that names a co-author is left out of the web (see "Author material left out"). | L32 |
+| 14 | The ergodicity panel gained a third control (sightlines per realization), to follow the revised § 4.4/4.6; two new panels (§ 5.6 periodogram, § 6.7 aliasing); a third candidate (§ 6.3) not built. | L33, L34 |
+| 15 | The Lyα PDF is your restyled build of 2026-11-17 21:18 (62 pages), compressed, same address. Its last section is § 7. | L35, L37 |
 
 ## Author material left out (brief: "No authors")
 
