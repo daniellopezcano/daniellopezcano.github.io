@@ -51,8 +51,8 @@ Brief `_port/lya/UPDATE-2.md`. Notes moved to `/home/dlopez/Documentos/0.profesi
 | U4 | New panels ranked in PLAN.md; `periodogram` (§ 5.6) and `aliasing` (§ 6.7) built (port-worker, reviewed; L34) | done | `test_lya_interactives`: 9 panels passed; a11y 0 serious on both pages; page_check §§ 5–6 16/16; links 0 broken; screenshots 1280/390 light/dark reviewed | 7a87c49 (plan), (this commit) |
 | U6a | Review of every page against the PDF (port-checker: 196 screenshots, 49 pages × 1440/390 × light/dark, scripted checks on all) | done | one defect: ξ in the kicker of § 4 pages, fixed (L36); figures 8–10 small at 390 px have the Zoom control (D10 f) | 330e538 |
 | U5 | The Lyα PDF: the author's `main.pdf` (60 pages) compressed (5.43 → 1.92 MB), same address (L35) | done | pages, outline (72), links (304), renders compared; its last section is § 7 Metal contamination, the web ends at § 6 | (this commit) |
-
 | U7 | The author's restyle `7c1659b` (L37): rebuilt from it; title page taught to `cover_lya.py`; text width 16.0 cm (+ guard); new PDF 5.73 → 2.05 MB | done | scratch: 62 pages, labels identical; 48/48 pages; `main_text_diff` 49/49 identical; nine TikZ SVGs recompiled; `math_check` 730, 0 failures; `fidelity` lya 0 not allowed, 0 stale; first course unchanged (150 files); PDF: text identical to scratch, outline 72, links 303 | (this commit) |
+
 ### Existing pages after U1 (the notes' text of `<main>` without the web layer, `main_text_diff.py --course lya-forest`)
 
 - **Text changed (4):** `index.html` (contents: § 3.7 "Product of Total Overfluxes" and § 3.8, §§ 4–6 replace the old § 4); `flux/overflux.html` (§ 3.6 now ends where the author's new heading § 3.7 starts: the product of total overfluxes and its subset-pair representation moved to the new page `flux/product-of-total-overfluxes.html`); `flux/top-down-summary.html` (§ 3.7 → § 3.8); `velocity-units-example/index.html` (Figure 6 → Figure 15).
