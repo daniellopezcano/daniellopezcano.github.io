@@ -1,0 +1,19 @@
+<!-- Hand-written: content of <main> of the Lyα course landing page (Lyα DECISIONS L5, L6, L14); shell.py puts it
+     in the page shell and build.py (write_landing_lya) fills the {{...}} placeholders with fragments generated
+     from main.tex by cover_lya.py: the cover (title, subtitle, version line, "Last updated"), the abstract and
+     keywords, and the contents. No author information (L5). The only words written here are the three button
+     labels (the PDF button as the first course's, L28). The spectrum behind the cover is decorative (web layer, aria-hidden): the converter draws it from a
+     fixed toy model, build.py: forest_svg); URLs are relative to notes/lya-forest/index.html. -->
+<div class="dg-landing dg-landing-lya">
+<div class="dg-landing-cover">
+{{spectrum}}
+{{cover}}
+</div>
+<div class="dg-landing-actions dg-web">
+<a class="dg-btn dg-btn-primary" href="{{start}}"><i class="dg-i dg-i-book" aria-hidden="true"></i> Start reading</a>
+<a class="dg-btn" href="../../assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf"><i class="dg-i dg-i-file-earmark-pdf" aria-hidden="true"></i> Download PDF</a>
+<a class="dg-btn" href="https://github.com/daniellopezcano/SkewerJAX"><i class="dg-i dg-i-github" aria-hidden="true"></i> SkewerJAX</a>
+</div>
+{{abstract}}
+{{contents}}
+</div>

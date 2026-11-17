@@ -28,6 +28,11 @@ COURSE_TITLE = 'From Differential Geometry to General Relativity'
 SITE_NAME = 'Daniel López Cano'
 MATHJAX = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js'      # the one place that names it
 LATO = 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap'
+RUNIC = True                  # preload the notes' runic font (D8)
+STYLESHEETS: list = []        # the course's own stylesheets, after course.css (courses.py)
+MAP = True                    # the course has a course map (D39)
+READ_KEY = None               # L24: localStorage key of the read marks (<body data-dg-read-key>); None = 'dg-read'
+OPEN_DIRS: list = []          # L23: directories whose pages open in place (<body data-dg-open>); [] = course.js's rule
 THEME_SCRIPT = "try{var t=localStorage.getItem('dg-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}"
 
 # Interface words of the shell (web layer; every one is listed in _port/REVIEW.md).
@@ -37,6 +42,15 @@ INTERFACE = {
     'search_label': 'Search the notes', 'theme_label': 'Light or dark', 'tree': 'Course contents',
     'read_toggle': 'Mark as read', 'read_on': 'Read', 'read_mark': 'read',          # "read" marks (D40)
 }
+
+
+def configure(c: dict) -> None:
+    """The course's values (courses.py, Lyα DECISIONS L9)."""
+    global COURSE, COURSE_TITLE, RUNIC, STYLESHEETS, MAP, OPEN_DIRS, READ_KEY
+    COURSE, COURSE_TITLE, RUNIC = c['dir'], c['title'], c['runic']
+    STYLESHEETS, MAP = list(c['stylesheets']), bool(c['master_map'])
+    OPEN_DIRS = []                # set by build.py once the pages are known (L23)
+    READ_KEY = c.get('read_key')  # L24
 
 
 def readmark() -> str:
@@ -138,18 +152,34 @@ def site_config(path: str | None = None) -> dict:
     left = _find(lines, 'left', nb + 1) if nb >= 0 else -1
     if left < 0:
         raise SystemExit(f'{where}: block website: navbar: left: not found (the course pages copy the site navbar from it)')
-    nav, item = [], None
+    # entries: {'href', 'text'} or, for a dropdown (Lyα DECISIONS L15), {'text', 'menu': [{'href', 'text'}, ...]};
+    # an item is a "- " line, a menu's items are "- " lines indented deeper than the entry that holds them
+    nav, item, top = [], None, None
     for ln in _block(lines, left)[1]:
         s = ln.strip()
+        ind = len(ln) - len(ln.lstrip())
         if s.startswith('- '):
+            if top is None:
+                top = ind
             item = {}
-            nav.append(item)
+            if ind == top:
+                nav.append(item)
+            elif nav and 'menu' in nav[-1]:
+                nav[-1]['menu'].append(item)
+            else:
+                raise SystemExit(f'{where}: website: navbar: left: an indented item outside a menu: {s}')
             s = s[2:].strip()
+        if re.match(r'menu:\s*$', s) and item is not None and ind > (top or 0):
+            item['menu'] = []
+            continue
         k = re.match(r'(href|text):\s*(.+)$', s)
         if k and item is not None:
             item[k.group(1)] = _unquote(k.group(2))
-    nav = [(i['href'], i['text']) for i in nav if 'href' in i and 'text' in i]
-    if not nav or not any(h.startswith(COURSE + '/') for h, _ in nav):
+    nav = [i for i in nav if 'text' in i and ('href' in i or i.get('menu'))]
+    for i in nav:
+        if 'menu' in i:
+            i['menu'] = [m for m in i['menu'] if 'href' in m and 'text' in m]
+    if not nav or not any(_leads_here(i) for i in nav):
         raise SystemExit(f'{where}: website: navbar: left: has no entry pointing into {COURSE}/')
     pf = _find(lines, 'page-footer', w + 1)
     foot = {}
@@ -162,6 +192,11 @@ def site_config(path: str | None = None) -> dict:
     if 'left' not in foot or not link:
         raise SystemExit(f'{where}: website: page-footer: with left: "<text>" and right: "[<text>](<page>)" not found')
     return {'site_url': site_url, 'nav': nav, 'foot_left': foot['left'], 'foot_right': (link.group(1), link.group(2))}
+
+
+def _leads_here(i: dict) -> bool:
+    """The navbar entry (or a link of its menu) leads into this course."""
+    return any(x['href'].startswith(COURSE + '/') for x in i.get('menu', [i]))
 
 
 # ---------------------------------------------------------------------------------------
@@ -202,6 +237,9 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
     pre = ''.join(f'<link rel="preload" href="{assets}fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>\n'
                   for f in PRELOAD)
     inter = f'<link rel="stylesheet" href="{assets}interactive.css">\n' if interactive else ''
+    runic = (f'<link rel="preload" href="{assets}fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin>\n'
+             if RUNIC else '')
+    own = ''.join(f'<link rel="stylesheet" href="{assets}{css}">\n' for css in STYLESHEETS)
     return (f'<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             f'<title>{html.escape(title, quote=False)}</title>\n'
             f'<meta name="description" content="{attr(desc)}">\n'
@@ -210,8 +248,8 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
             f'<link rel="preconnect" href="https://fonts.googleapis.com">'
             f'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
             f'<link rel="stylesheet" href="{LATO}">\n'
-            f'{pre}<link rel="preload" href="{assets}fonts/NotoSansRunic-Regular.ttf" as="font" type="font/ttf" crossorigin>\n'
-            f'<link rel="stylesheet" href="{assets}course.css">\n{inter}'
+            f'{pre}{runic}'
+            f'<link rel="stylesheet" href="{assets}course.css">\n{own}{inter}'
             f'<script>{THEME_SCRIPT}</script>\n'
             f'<script src="{assets}mathjax-config.js"></script>\n'
             f'<script defer src="{MATHJAX}"></script>\n'
@@ -220,10 +258,24 @@ def head(*, title: str, desc: str, canonical: str, assets: str, site_root: str, 
 
 def sitenav(cfg: dict, page_dir: str, landing: bool) -> str:
     items = []
-    for href, text in cfg['nav']:
-        here = href.startswith(COURSE + '/')
-        cur = ' class="active"' + (' aria-current="page"' if landing else '') if here else ''
-        items.append(f'<li><a href="{attr(site_href(href, page_dir))}"{cur}>{html.escape(text)}</a></li>')
+
+    def link(i, cls=''):
+        here = i['href'].startswith(COURSE + '/')
+        c = ' '.join(x for x in (cls, 'active' if here else '') if x)
+        cur = (f' class="{c}"' if c else '') + (' aria-current="page"' if here and landing else '')
+        return f'<a href="{attr(site_href(i["href"], page_dir))}"{cur}>{html.escape(i["text"])}</a>'
+    for i in cfg['nav']:
+        if 'menu' not in i:
+            items.append(f'<li>{link(i)}</li>')
+            continue
+        # a dropdown (L15): opened by course.js (initSiteNav) on hover, click, tap and keyboard focus. The space after
+        # the text is Quarto's (its toggle ends with white space before the caret, ::after): the caret, and the
+        # entries after it, then sit where Quarto puts them (navbar_check.mjs)
+        mid = 'dg-nav-menu-' + re.sub(r'[^a-z0-9]+', '-', i['text'].lower()).strip('-')
+        act = ' active' if _leads_here(i) else ''
+        items.append(f'<li class="dg-dropdown"><button class="dg-dropdown-toggle{act}" type="button" aria-expanded="false" '
+                     f'aria-controls="{mid}">{html.escape(i["text"])} </button><ul class="dg-dropdown-menu" id="{mid}">'
+                     + ''.join(f'<li>{link(m, "dg-dropdown-item")}</li>' for m in i['menu']) + '</ul></li>')
     return (f'<header class="dg-sitenav" id="dg-sitenav"><nav class="dg-sitenav-in" aria-label="{INTERFACE["site_nav"]}">'
             f'<button class="dg-sitenav-toggle" type="button" aria-label="{INTERFACE["toggle"]}" aria-expanded="false" '
             f'aria-controls="dg-sitenav-links">{icon("list")}</button>'
@@ -233,7 +285,9 @@ def sitenav(cfg: dict, page_dir: str, landing: bool) -> str:
 
 
 def course_label(cfg: dict) -> str:
-    return next(t for h, t in cfg['nav'] if h.startswith(COURSE + '/'))
+    """The first breadcrumb: the text of the navbar entry that leads into the course (for a dropdown, its own
+    text, "Lecture Notes", the same for both courses; L15)."""
+    return next(i['text'] for i in cfg['nav'] if _leads_here(i))
 
 
 def bar(cfg: dict, crumbs: list[str], home: str, pos: float, tree: bool) -> str:
@@ -241,10 +295,12 @@ def bar(cfg: dict, crumbs: list[str], home: str, pos: float, tree: bool) -> str:
     menu = (f'<button class="dg-bar-btn dg-bar-menu" type="button" data-act="menu" aria-label="{INTERFACE["contents"]}" '
             f'aria-expanded="false" aria-controls="dg-tree">{icon("layout-sidebar")}<span>{INTERFACE["contents"]}</span></button>'
             if tree else '')
+    mapbtn = (f'<a class="dg-bar-btn" href="{home}#dg-roadmap" data-act="map" aria-label="{INTERFACE["map_label"]}">'
+              f'{icon("diagram-3")}<span>{INTERFACE["map"]}</span></a>' if MAP else '')
     return (f'<div class="dg-bar dg-web" id="dg-bar">{menu}'
             f'<nav class="dg-crumbs" aria-label="{INTERFACE["crumbs"]}">{sep.join(crumbs)}</nav>'
             f'<div class="dg-bar-tools">'
-            f'<a class="dg-bar-btn" href="{home}#dg-roadmap" data-act="map" aria-label="{INTERFACE["map_label"]}">{icon("diagram-3")}<span>{INTERFACE["map"]}</span></a>'
+            f'{mapbtn}'
             f'<button class="dg-bar-btn" type="button" data-act="search" data-scope="notes" aria-label="{INTERFACE["search_label"]}">{icon("search")}<span>{INTERFACE["search"]}</span></button>'
             f'<button class="dg-bar-btn" type="button" data-act="theme" aria-label="{INTERFACE["theme_label"]}">{icon("circle-half")}</button>'
             f'</div><div class="dg-bar-progress" aria-hidden="true"><i style="--pos:{pos:.4f}"></i><b></b></div></div>')
@@ -272,7 +328,9 @@ def document(*, cfg: dict, slug: str, source: str, title: str, desc: str, crumbs
             f'<!-- GENERATED by _port/convert/build.py from {source}.\n'
             f'     Do not edit this file: edit the LaTeX notes (or the converter) and re-run the converter. -->\n'
             f'<html lang="en">\n<head>\n{hd}</head>\n'
-            f'<body class="{kind}" data-dg-site="{site_root}" data-dg-slug="{attr(slug)}">\n'
+            f'<body class="{kind}" data-dg-site="{site_root}" data-dg-slug="{attr(slug)}"'
+            + (f' data-dg-open="{attr(" ".join(OPEN_DIRS))}"' if OPEN_DIRS else '')
+            + (f' data-dg-read-key="{attr(READ_KEY)}"' if READ_KEY else '') + '>\n'
             f'<a class="dg-skiplink dg-web" href="#dg-main">{INTERFACE["skip"]}</a>\n'
             f'{sitenav(cfg, page_dir, landing)}\n'
             f'{bar(cfg, crumbs, home, pos, bool(tree))}\n'
@@ -281,9 +339,9 @@ def document(*, cfg: dict, slug: str, source: str, title: str, desc: str, crumbs
             f'{sitefoot(cfg, page_dir)}\n</body>\n</html>\n')
 
 
-def landing_main(fragments: dict) -> str:
-    """templates/landing.html (hand-written) with the generated fragments put in."""
-    tpl = open(os.path.join(HERE, 'templates', 'landing.html'), encoding='utf-8').read()
+def landing_main(fragments: dict, template: str = 'landing.html') -> str:
+    """templates/<template> (hand-written) with the generated fragments put in."""
+    tpl = open(os.path.join(HERE, 'templates', template), encoding='utf-8').read()
     tpl = re.sub(r'\A\s*<!--.*?-->\s*', '', tpl, flags=re.S)          # its header comment is for the source only
     for k, v in fragments.items():
         if '{{' + k + '}}' not in tpl:

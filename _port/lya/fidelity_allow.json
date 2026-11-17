@@ -1,0 +1,1133 @@
+{
+ "_comment": "Allow list of _port/tools/fidelity.py for the Lyα course (same format as _port/fidelity_allow.json; see the tool's header). Every entry has its reason.",
+ "source": [
+  {
+   "file": "main.tex",
+   "construct": "\\noteauthors",
+   "key": "text:\\noteauthors\\par} \\vspace{0.45cm} {\\scriptsize $^{1}$~\\notea",
+   "line": 160,
+   "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's author list (names, ORCID links, affiliation marks) is not on the web; cover_lya.py leaves this piece out of the landing page"
+  },
+  {
+   "file": "main.tex",
+   "construct": "\\noteaffiliationone",
+   "key": "text:\\noteaffiliationone\\par} \\vspace{0.5cm} {\\normalsize \\noteve",
+   "line": 164,
+   "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's first affiliation is not on the web; cover_lya.py leaves this piece out of the landing page (since 2026-11-16 the author's main.tex comments out the second and third affiliations; Lyα DECISIONS L28)"
+  },
+  {
+   "file": "main.tex",
+   "construct": "\\notedate",
+   "key": "text:\\notedate\\par} \\vspace{0.5cm} {\\footnotesize Contact email: ",
+   "line": 170,
+   "reason": "Lyα DECISIONS L6: \\notedate (\\today, the date of the LaTeX run) becomes \"Last updated <date>\" on the landing page, in the web layer (.dg-web, not compared)"
+  },
+  {
+   "file": "main.tex",
+   "construct": "\\noteemails",
+   "key": "text:\\noteemails\\par } \\begin{abstract} These notes present a com",
+   "line": 175,
+   "reason": "Lyα DECISIONS L5 (brief: \"No authors\"): the title page's contact e-mail is not on the web; cover_lya.py leaves this piece out of the landing page"
+  }
+ ],
+ "diff": [
+  {
+   "page": "index",
+   "at": "main.tex:164",
+   "reason": "Lyα DECISIONS L5, L28: the affiliation mark of the title page ($^{1}$~ before the affiliation, a 'source' entry; the author's main.tex of 2026-11-16 comments out the other two); the landing page carries no affiliation",
+   "latex": [
+    "$^{1}$"
+   ],
+   "page_tokens": []
+  },
+  {
+   "page": "index",
+   "at": "main.tex:175",
+   "reason": "Lyα DECISIONS L5: the label of the contact e-mail line of the title page (the e-mail, \\noteemails, is a 'source' entry); the landing page carries no contact",
+   "latex": [
+    "Contact",
+    "email",
+    ":"
+   ],
+   "page_tokens": []
+  },
+  {
+   "page": "cosmo-background/minimal-background-cosmology",
+   "at": "sec_cosmology.tex:8",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}ds^2=-\\cc^2\\,dt^2+a^2(t)\\left[\\frac{dx^2}{1-\\kappax^2}+x^2\\,d\\Omega^2\\right],\\qquad\\kappa\\equiv-\\frac{\\Omega_kH_0^2}{\\cc^2}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}ds^2=-\\cc^2\\,dt^2+a^2(t)\\left[\\frac{dx^2}{1-\\kappax^2}+x^2\\,d\\Omega^2\\right],\\qquad\\kappa\\equiv-\\frac{\\Omega_kH_0^2}{\\cc^2}.\\tag{2.1}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/minimal-background-cosmology",
+   "at": "sec_cosmology.tex:24",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}H(a)=\\frac{\\dota}{a}=H_0\\sqrt{\\Omega_{r,0}a^{-4}+\\Omega_{m,0}a^{-3}+\\Omega_{k,0}a^{-2}+\\Omega_{\\Lambda,0}}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}H(a)=\\frac{\\dota}{a}=H_0\\sqrt{\\Omega_{r,0}a^{-4}+\\Omega_{m,0}a^{-3}+\\Omega_{k,0}a^{-2}+\\Omega_{\\Lambda,0}}.\\tag{2.2}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/photon-propagation-as-a-null-geodesic",
+   "at": "sec_cosmology.tex:46",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}0=-\\cc^2\\,dt^2+a^2(t)\\frac{dx^2}{1-\\kappax^2},\\longrightarrow\\frac{dx}{dt}=\\pm\\frac{\\cc}{a(t)}\\sqrt{1-\\kappax^2}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}0=-\\cc^2\\,dt^2+a^2(t)\\frac{dx^2}{1-\\kappax^2},\\longrightarrow\\frac{dx}{dt}=\\pm\\frac{\\cc}{a(t)}\\sqrt{1-\\kappax^2}.\\tag{2.3}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight",
+   "at": "sec_cosmology.tex:67",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\frac{da}{dx}=\\frac{da}{dt}\\frac{dt}{dx}=\\pm\\frac{a^2H(a)}{\\cc\\sqrt{1-\\kappax^2}}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\frac{da}{dx}=\\frac{da}{dt}\\frac{dt}{dx}=\\pm\\frac{a^2H(a)}{\\cc\\sqrt{1-\\kappax^2}}.\\tag{2.4}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight",
+   "at": "sec_cosmology.tex:80",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}\\frac{da}{dx}=\\pm\\frac{H_0}{\\cc}\\sqrt{\\frac{\\Omega_r+\\Omega_ma+\\Omega_ka^2+\\Omega_\\Lambdaa^4}{1-\\kappax^2}}.\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}\\frac{da}{dx}=\\pm\\frac{H_0}{\\cc}\\sqrt{\\frac{\\Omega_r+\\Omega_ma+\\Omega_ka^2+\\Omega_\\Lambdaa^4}{1-\\kappax^2}}.\\tag{2.5}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight",
+   "at": "sec_cosmology.tex:119",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\int_{a_0}^{a}\\frac{da}{\\sqrt{a}}=\\frac{H_0}{c}\\int_{x_0}^{x}dx\\longrightarrowa(x)=\\left(a_0^{1/2}+\\frac{H_0}{2c}\\left(x-x_0\\right)\\right)^2\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\int_{a_0}^{a}\\frac{da}{\\sqrt{a}}=\\frac{H_0}{c}\\int_{x_0}^{x}dx\\longrightarrowa(x)=\\left(a_0^{1/2}+\\frac{H_0}{2c}\\left(x-x_0\\right)\\right)^2\\tag{2.6}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "cosmo-background/evolution-of-the-scale-factor-along-the-line-of-sight",
+   "at": "sec_cosmology.tex:125",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\int_{a_0}^{a}da=\\frac{H_0}{c}\\int_{x_0}^{x}dx\\longrightarrowa(x)=a_0+\\frac{H_0}{c}\\left(x-x_0\\right)\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\int_{a_0}^{a}da=\\frac{H_0}{c}\\int_{x_0}^{x}dx\\longrightarrowa(x)=a_0+\\frac{H_0}{c}\\left(x-x_0\\right)\\tag{2.7}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/gas-properties",
+   "at": "sec_flux.tex:40",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}n_{i\\,{\\rmphys}}(\\vec{x})=\\frac{n_{i\\,{\\rmcom}}(\\vec{x})}{a(\\vec{x})^3}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}n_{i\\,{\\rmphys}}(\\vec{x})=\\frac{n_{i\\,{\\rmcom}}(\\vec{x})}{a(\\vec{x})^3}.\\tag{3.1}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/gas-properties",
+   "at": "sec_flux.tex:89",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\sigma_{ij}(\\vec{x})=\\frac{b_i(\\vec{x})}{\\sqrt{2}\\lambda_j},\\qquadb_i(\\vec{x})=\\sqrt{b_{i\\,{\\rmth}}^2(\\vec{x})+b_{i\\,{\\rmturb}}^2(\\vec{x})},\\qquadb_{i\\,{\\rmth}}(\\vec{x})=\\sqrt{\\frac{2k_BT_i(\\vec{x})}{m_i}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\sigma_{ij}(\\vec{x})=\\frac{b_i(\\vec{x})}{\\sqrt{2}\\lambda_j},\\qquadb_i(\\vec{x})=\\sqrt{b_{i\\,{\\rmth}}^2(\\vec{x})+b_{i\\,{\\rmturb}}^2(\\vec{x})},\\qquadb_{i\\,{\\rmth}}(\\vec{x})=\\sqrt{\\frac{2k_BT_i(\\vec{x})}{m_i}}.\\tag{3.2}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/gas-properties",
+   "at": "sec_flux.tex:101",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\gamma_j(\\vec{x})=\\frac{A_j+A_{j\\,{\\rmcoll}}(\\vec{x})}{4\\pi}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\gamma_j(\\vec{x})=\\frac{A_j+A_{j\\,{\\rmcoll}}(\\vec{x})}{4\\pi}.\\tag{3.3}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:124",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\mathrm{obs}\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\mathrm{obs}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\mathrm{obs}\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\mathrm{obs}}.\\tag{3.4}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:140",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\mathrm{obs}\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\mathrm{obs}}\\Dop^{-1}(\\vec{x}),\\qquad\\Dop(\\vec{x})\\coloneqq\\sqrt{\\frac{1-\\beta\\left(\\vec{x}\\right)}{1+\\beta\\left(\\vec{x}\\right)}},\\qquad\\beta\\left(\\vec{x}\\right)\\coloneqq\\frac{v_{i\\,\\parallel}\\left(\\vec{x}\\right)}{\\cc}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\mathrm{obs}\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\mathrm{obs}}\\Dop^{-1}(\\vec{x}),\\qquad\\Dop(\\vec{x})\\coloneqq\\sqrt{\\frac{1-\\beta\\left(\\vec{x}\\right)}{1+\\beta\\left(\\vec{x}\\right)}},\\qquad\\beta\\left(\\vec{x}\\right)\\coloneqq\\frac{v_{i\\,\\parallel}\\left(\\vec{x}\\right)}{\\cc}.\\tag{3.5}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:161",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v_\\dagger\\;=\\;c\\ln\\!\\left(\\frac{\\lambda'(\\vec{x})}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)=c\\ln\\!\\left(\\frac{\\lambda_{\\mathrm{obs}}}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right),\\qquad\\Longleftrightarrow\\qquad\\lambda_{\\mathrm{obs}}=\\lambda_\\dagger\\,\\frac{a_{\\mathrm{obs}}}{a_\\dagger}\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v_\\dagger\\;=\\;c\\ln\\!\\left(\\frac{\\lambda'(\\vec{x})}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)=c\\ln\\!\\left(\\frac{\\lambda_{\\mathrm{obs}}}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right),\\qquad\\Longleftrightarrow\\qquad\\lambda_{\\mathrm{obs}}=\\lambda_\\dagger\\,\\frac{a_{\\mathrm{obs}}}{a_\\dagger}\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right),\\tag{3.6}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:184",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\dagger\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right)\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\dagger}\\,\\Dop^{-1}\\left(\\vec{x}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x}\\right)=\\lambda_\\dagger\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right)\\,\\frac{a\\left(\\vec{x}\\right)}{a_\\dagger}\\,\\Dop^{-1}\\left(\\vec{x}\\right).\\tag{3.7}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:200",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'_j\\left(\\vec{x}\\right)=\\lambda_j\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right)\\,\\frac{a\\left(\\vec{x}\\right)}{a_f}\\,\\Dop^{-1}\\left(\\vec{x}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'_j\\left(\\vec{x}\\right)=\\lambda_j\\,\\exp\\!\\left(\\frac{v_\\dagger}{c}\\right)\\,\\frac{a\\left(\\vec{x}\\right)}{a_f}\\,\\Dop^{-1}\\left(\\vec{x}\\right).\\tag{3.8}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:210",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v_\\dagger\\in\\left[0,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v_\\dagger\\in\\left[0,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\tag{3.9}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:228",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_n=n\\,\\Deltau,\\qquad\\Deltau=\\frac{u_{\\max}}{N_{\\mathrm{bins}}},\\qquadu_{\\max}\\approxL_{\\mathrm{box}}\\,\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_n=n\\,\\Deltau,\\qquad\\Deltau=\\frac{u_{\\max}}{N_{\\mathrm{bins}}},\\qquadu_{\\max}\\approxL_{\\mathrm{box}}\\,\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}.\\tag{3.10}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:241",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_H(x_{\\parallel})\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\,(x_{\\parallel}-x_\\dagger),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_H(x_{\\parallel})\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\,(x_{\\parallel}-x_\\dagger),\\tag{3.11}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:248",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\mathrm{abs}}(x_{\\parallel})=u_H(x_{\\parallel})+s_v\\,v_{i\\,\\parallel}(x_{\\parallel}),\\qquads_v=\\pm1.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\mathrm{abs}}(x_{\\parallel})=u_H(x_{\\parallel})+s_v\\,v_{i\\,\\parallel}(x_{\\parallel}),\\qquads_v=\\pm1.\\tag{3.12}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:262",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Deltau(x_{\\parallel};u)=u-u_{\\mathrm{abs}}(x_{\\parallel}),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Deltau(x_{\\parallel};u)=u-u_{\\mathrm{abs}}(x_{\\parallel}),\\tag{3.13}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/observed-wavelength-velocity",
+   "at": "sec_flux.tex:268",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\nu_j(x_{\\parallel},u)\\approx-\\frac{\\Deltau(x_{\\parallel};u)}{\\lambda_j}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\nu_j(x_{\\parallel},u)\\approx-\\frac{\\Deltau(x_{\\parallel};u)}{\\lambda_j}.\\tag{3.14}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/line-profile",
+   "at": "sec_flux.tex:288",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\nu_j\\left(\\vec{x},\\Lambda\\right)&=c\\left(\\frac{1}{\\lambda'\\left(\\vec{x},\\Lambda\\right)}-\\frac{1}{\\lambda_j}\\right)\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\nu_j\\left(\\vec{x},\\Lambda\\right)&=c\\left(\\frac{1}{\\lambda'\\left(\\vec{x},\\Lambda\\right)}-\\frac{1}{\\lambda_j}\\right)\\tag{3.15}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/line-profile",
+   "at": "sec_flux.tex:294",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\phi_{ij}\\left(\\vec{x},\\Lambda\\right)=V\\left(\\nu_j\\left(\\vec{x},\\Lambda\\right);\\sigma_{ij}\\left(\\vec{x}\\right),\\gamma_j\\left(\\vec{x}\\right)\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\phi_{ij}\\left(\\vec{x},\\Lambda\\right)=V\\left(\\nu_j\\left(\\vec{x},\\Lambda\\right);\\sigma_{ij}\\left(\\vec{x}\\right),\\gamma_j\\left(\\vec{x}\\right)\\right).\\tag{3.16}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:349",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\tau_{ij}(\\vec{x}_{\\perp},\\Lambda)=\\mathcal{C}_j\\int_{\\gamma}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}\\right)}{a(\\vec{x})^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x},\\Lambda\\right)\\;dl_{\\mathrm{phys}},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\tau_{ij}(\\vec{x}_{\\perp},\\Lambda)=\\mathcal{C}_j\\int_{\\gamma}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}\\right)}{a(\\vec{x})^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x},\\Lambda\\right)\\;dl_{\\mathrm{phys}},\\tag{3.17}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:366",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\mathcal{C}_j\\equiv\\frac{e^{2}f_j}{4\\varepsilon_{0}m_ec}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\mathcal{C}_j\\equiv\\frac{e^{2}f_j}{4\\varepsilon_{0}m_ec}.\\tag{3.18}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:379",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\vec{x}=(\\vec{x}_{\\perp},x_{\\parallel}),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\vec{x}=(\\vec{x}_{\\perp},x_{\\parallel}),\\tag{3.19}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:383",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\mathcal{C}_j\\int_{x_{\\parallel,\\mathrm{em}}}^{x_{\\parallel,\\mathrm{f}}}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)}{a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel},\\Lambda\\right)\\;a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)\\,dx'_{\\parallel},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\mathcal{C}_j\\int_{x_{\\parallel,\\mathrm{em}}}^{x_{\\parallel,\\mathrm{f}}}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)}{a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel},\\Lambda\\right)\\;a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)\\,dx'_{\\parallel},\\tag{3.20}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:401",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}dl_{\\mathrm{phys}}=a\\,dx_{\\parallel}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}dl_{\\mathrm{phys}}=a\\,dx_{\\parallel}.\\tag{3.21}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/optical-depth",
+   "at": "sec_flux.tex:410",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\sum_{\\{i,j\\}}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\sum_{\\{i,j\\}}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right).\\tag{3.22}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/transmission-and-flux",
+   "at": "sec_flux.tex:453",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{equation}F_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\,T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\qquadT_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\coloneqq\\exp\\!\\left[-\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\end{equation}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{equation}F_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\,T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\qquadT_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\coloneqq\\exp\\!\\left[-\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\tag{3.23}\\end{equation}$$"
+   ]
+  },
+  {
+   "page": "flux/transmission-and-flux",
+   "at": "sec_flux.tex:466",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}T\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&=\\exp\\!\\left[-\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]=\\exp\\!\\left[-\\sum_{\\{i,j\\}}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]=\\prod_{\\{i,j\\}}T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}T\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&=\\exp\\!\\left[-\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]=\\exp\\!\\left[-\\sum_{\\{i,j\\}}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]=\\prod_{\\{i,j\\}}T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right).\\tag{3.24}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/transmission-and-flux",
+   "at": "sec_flux.tex:476",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}F\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\,T\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\exp\\!\\left[-\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}F\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\,T\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=F_0(\\Lambda)\\exp\\!\\left[-\\tau\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\tag{3.25}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:514",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&\\;=\\;\\frac{F_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{F_{0}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\bar{T}_{j}\\!(\\Lambda)}-1=\\frac{T_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{\\bar{T}_{j}\\!(\\Lambda)}-1,\\\\\\bar{T}_{j}\\!(\\Lambda)&\\coloneqq\\left\\langleT_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}\\quad\\Longrightarrow\\quadT_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\notag\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&\\;=\\;\\frac{F_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{F_{0}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\bar{T}_{j}\\!(\\Lambda)}-1=\\frac{T_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{\\bar{T}_{j}\\!(\\Lambda)}-1,\\tag{3.26}\\\\\\bar{T}_{j}\\!(\\Lambda)&\\coloneqq\\left\\langleT_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}\\quad\\Longrightarrow\\quadT_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\notag\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:565",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}T^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}T^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\tag{3.27}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:579",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\bar{T}\\!(\\Lambda)\\coloneqq&\\left\\langleT^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}=\\left\\langle\\prod_{j=1}^{L}T_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}=\\left\\langle\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]\\right\\rangle_\\mathrm{ens}=\\notag\\\\&=\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left\\langle\\prod_{j=1}^{L}1+\\delta_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\bar{T}\\!(\\Lambda)\\coloneqq&\\left\\langleT^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}=\\left\\langle\\prod_{j=1}^{L}T_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens}=\\left\\langle\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left[1+\\delta_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right]\\right\\rangle_\\mathrm{ens}=\\notag\\\\&=\\prod_{j=1}^{L}\\bar{T}_{j}\\!(\\Lambda)\\left\\langle\\prod_{j=1}^{L}1+\\delta_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_\\mathrm{ens},\\tag{3.28}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:661",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\bar{T}\\!(\\Lambda)\\neq\\prod_{j=1}^{L}\\bar{T}_{j}(\\Lambda).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\bar{T}\\!(\\Lambda)\\neq\\prod_{j=1}^{L}\\bar{T}_{j}(\\Lambda).\\tag{3.29}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:669",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\prod_{j=1}^{L}\\left(1+\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right)=\\underbrace{1}_{\\textrm{order0}}+\\underbrace{\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order1}}+\\underbrace{\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order2}}+\\notag\\\\&\\quad+\\underbrace{\\sum_{1\\lej_1<j_2<j_3\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_3}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order3}}+\\cdots+\\underbrace{\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order$L$}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\prod_{j=1}^{L}\\left(1+\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right)=\\underbrace{1}_{\\textrm{order0}}+\\underbrace{\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order1}}+\\underbrace{\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order2}}+\\notag\\\\&\\quad+\\underbrace{\\sum_{1\\lej_1<j_2<j_3\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_3}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order3}}+\\cdots+\\underbrace{\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\textrm{order$L$}}.\\tag{3.30}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:703",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\left\\langle\\prod_{j=1}^{L}\\left[1+\\delta_{j}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right]\\right\\rangle_\\mathrm{ens}=\\underbrace{1}_{\\textrm{order0}}+\\cancelto{0}{\\underbrace{\\left\\langle\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order1}}}+\\notag\\\\&\\quad+\\underbrace{\\left\\langle\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order2}}+\\underbrace{\\left\\langle\\sum_{1\\lej_1<j_2<j_3\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_3}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order3}}+\\notag\\\\&\\quad+\\cdots+\\underbrace{\\left\\langle\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order$L$}}=\\notag\\\\&\\quad=\\underbrace{1}_{\\textrm{order0}}+\\overbrace{\\underbrace{\\sum_{1\\lej_1<j_2\\leL}C_{j_1j_2}(\\Lambda)}_{\\textrm{order2}}+\\underbrace{\\sum_{1\\lej_1<j_2<j_3\\leL}C_{j_1j_2j_3}(\\Lambda)}_{\\textrm{order3}}+\\cdots+\\underbrace{C_{12\\cdotsL}(\\Lambda)}_{\\textrm{order$L$}}}^{\\coloneqq\\mathcal{C}(\\Lambda)}=1+\\mathcal{C}(\\Lambda),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\left\\langle\\prod_{j=1}^{L}\\left[1+\\delta_{j}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right]\\right\\rangle_\\mathrm{ens}=\\underbrace{1}_{\\textrm{order0}}+\\cancelto{0}{\\underbrace{\\left\\langle\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order1}}}+\\notag\\\\&\\quad+\\underbrace{\\left\\langle\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order2}}+\\underbrace{\\left\\langle\\sum_{1\\lej_1<j_2<j_3\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_3}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order3}}+\\notag\\\\&\\quad+\\cdots+\\underbrace{\\left\\langle\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)\\right\\rangle_\\mathrm{ens}}_{\\textrm{order$L$}}=\\notag\\\\&\\quad=\\underbrace{1}_{\\textrm{order0}}+\\overbrace{\\underbrace{\\sum_{1\\lej_1<j_2\\leL}C_{j_1j_2}(\\Lambda)}_{\\textrm{order2}}+\\underbrace{\\sum_{1\\lej_1<j_2<j_3\\leL}C_{j_1j_2j_3}(\\Lambda)}_{\\textrm{order3}}+\\cdots+\\underbrace{C_{12\\cdotsL}(\\Lambda)}_{\\textrm{order$L$}}}^{\\coloneqq\\mathcal{C}(\\Lambda)}=1+\\mathcal{C}(\\Lambda),\\tag{3.31}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:788",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_\\perp,\\Lambda)&=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\left[\\underbrace{-\\mathcal{C}(\\Lambda)}_{\\mathcal{S}_0^{(s)}(\\Lambda)}+\\underbrace{\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}+\\underbrace{\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_2^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}+\\cdots+\\underbrace{\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_L^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}\\right]\\notag=\\\\&=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\sum_{p=0}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_\\perp,\\Lambda)&=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\left[\\underbrace{-\\mathcal{C}(\\Lambda)}_{\\mathcal{S}_0^{(s)}(\\Lambda)}+\\underbrace{\\sum_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}+\\underbrace{\\sum_{1\\lej_1<j_2\\leL}\\delta_{j_1}^{(s)}(\\vec{x}_\\perp,\\Lambda)\\,\\delta_{j_2}^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_2^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}+\\cdots+\\underbrace{\\prod_{j=1}^{L}\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda)}_{\\mathcal{S}_L^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)}\\right]\\notag=\\\\&=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\sum_{p=0}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)\\tag{3.32}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:843",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\sum_{n=0}^{L}\\sum_{p=0}^{n}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}0\\,\\le\\,n\\,\\le\\,L}+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.33}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:917",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,&\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\notag\\\\&\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}\\underbrace{-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,1}+\\notag\\\\&\\underbrace{\\sum_{n=2}^{L}\\left(-\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)-\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\sum_{p=1}^{n-1}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\right)}_{\\mathrm{orders}\\,2\\leqn\\leqL}+\\notag\\\\&+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{3.34}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:1049",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_\\perp,\\Lambda_\\alpha\\right)&\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\alpha),\\qquad\\delta_{j,\\beta}^{(s)}\\coloneqq\\delta_j^{(s)}(\\vec{x}_\\perp,\\Lambda_\\beta).\\tag{3.35}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/overflux",
+   "at": "sec_flux.tex:1059",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\delta^{(s)}(\\Lambda_\\alpha)\\,\\delta^{(s)}(\\Lambda_\\beta)=\\frac{1}{\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)}\\bigr]\\bigl[1+\\TextZero{\\mathcal{C}(\\Lambda_\\beta)}\\bigr]}\\Bigg[\\notag\\\\[0.3em]&\\qquad\\quad\\underbrace{\\TextZero{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}}_{\\textcolor{black!70}{\\text{order}0}}-\\underbrace{\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{2,\\alpha}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}}-\\TextOne{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{cyan!22!black}{\\text{order}1}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextTwo{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}\\notag\\\\[0.6em]&\\qquad\\underbrace{-\\TextTwo{\\mathcal{C}(\\Lambda_\\beta)\\,\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}}-\\TextTwo{\\mathcal{C}(\\Lambda_\\alpha)\\,\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{green!22!black}{\\text{order}2}}+\\notag\\\\[0.6em]&\\qquad+\\underbrace{\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}}+\\TextThree{\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}+\\TextThree{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{yellow!22!black}{\\text{order}3}}+\\underbrace{\\TextFour{\\delta_{1,\\alpha}^{(s)}\\delta_{2,\\alpha}^{(s)}\\delta_{1,\\beta}^{(s)}\\delta_{2,\\beta}^{(s)}}}_{\\textcolor{orange!22!black}{\\text{order}4}}\\Bigg].\\tag{3.36}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1269",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)+1&\\;=\\;\\frac{F_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{F_{0}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\bar{T}_{j}\\!(\\Lambda)}=\\frac{T_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{\\bar{T}_{j}\\!(\\Lambda)},\\quad\\mathrm{with}\\quad\\bar{T}_{j}\\!(\\Lambda)\\coloneqq\\left\\langleT_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_{\\mathrm{ens}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)+1&\\;=\\;\\frac{F_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{F_{0}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\bar{T}_{j}\\!(\\Lambda)}=\\frac{T_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)}{\\bar{T}_{j}\\!(\\Lambda)},\\quad\\mathrm{with}\\quad\\bar{T}_{j}\\!(\\Lambda)\\coloneqq\\left\\langleT_{j}^{(s)}\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right\\rangle_{\\mathrm{ens}}.\\tag{3.37}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1293",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}&\\delta^{(s)}(\\vec{x}_\\perp,\\Lambda)=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\sum_{p=0}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}&\\delta^{(s)}(\\vec{x}_\\perp,\\Lambda)=\\frac{1}{1+\\mathcal{C}(\\Lambda)}\\sum_{p=0}^{L}\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp},\\,\\Lambda)\\tag{3.38}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1319",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\mathcal{C}(\\Lambda)&\\coloneqq\\sum_{1\\lej_1<j_2\\leL}C_{j_1j_2}(\\Lambda)+\\sum_{1\\lej_1<j_2<j_3\\leL}C_{j_1j_2j_3}(\\Lambda)+\\cdots+C_{12\\cdotsL}(\\Lambda),\\\\&\\quad\\mathrm{where}\\quadC_{j_1\\cdotsj_n}(\\Lambda)\\coloneqq\\left\\langle\\delta_{j_1}^{(s)}\\cdots\\delta_{j_n}^{(s)}\\right\\rangle_{\\mathrm{ens}}.\\notag\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\mathcal{C}(\\Lambda)&\\coloneqq\\sum_{1\\lej_1<j_2\\leL}C_{j_1j_2}(\\Lambda)+\\sum_{1\\lej_1<j_2<j_3\\leL}C_{j_1j_2j_3}(\\Lambda)+\\cdots+C_{12\\cdotsL}(\\Lambda),\\tag{3.39}\\\\&\\quad\\mathrm{where}\\quadC_{j_1\\cdotsj_n}(\\Lambda)\\coloneqq\\left\\langle\\delta_{j_1}^{(s)}\\cdots\\delta_{j_n}^{(s)}\\right\\rangle_{\\mathrm{ens}}.\\notag\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1342",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}F_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&=F_0(\\Lambda)\\,T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\quadT_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\exp\\!\\left[-\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}F_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)&=F_0(\\Lambda)\\,T_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right),\\quadT_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\exp\\!\\left[-\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)\\right].\\tag{3.40}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1354",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\mathcal{C}_j\\int_{x_{\\parallel,\\mathrm{em}}}^{x_{\\parallel,\\mathrm{f}}}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)}{a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel},\\Lambda\\right)\\;a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)\\,dx'_{\\parallel},\\qquad\\mathcal{C}_j\\equiv\\frac{e^{2}f_j}{4\\varepsilon_{0}m_ec}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\tau_{ij}\\!\\left(\\vec{x}_{\\perp},\\Lambda\\right)=\\mathcal{C}_j\\int_{x_{\\parallel,\\mathrm{em}}}^{x_{\\parallel,\\mathrm{f}}}\\frac{n_{i\\,\\mathrm{com}}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)}{a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)^{3}}\\;\\phi_{ij}\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel},\\Lambda\\right)\\;a\\!\\left(\\vec{x}_{\\perp},x'_{\\parallel}\\right)\\,dx'_{\\parallel},\\qquad\\mathcal{C}_j\\equiv\\frac{e^{2}f_j}{4\\varepsilon_{0}m_ec}.\\tag{3.41}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1374",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\phi_{ij}\\!\\left(\\vec{x},\\Lambda\\right)=V\\!\\left(\\nu_j\\!\\left(\\vec{x},\\Lambda\\right);\\sigma_{ij}\\!\\left(\\vec{x}\\right),\\gamma_j\\!\\left(\\vec{x}\\right)\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\phi_{ij}\\!\\left(\\vec{x},\\Lambda\\right)=V\\!\\left(\\nu_j\\!\\left(\\vec{x},\\Lambda\\right);\\sigma_{ij}\\!\\left(\\vec{x}\\right),\\gamma_j\\!\\left(\\vec{x}\\right)\\right),\\tag{3.42}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1384",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\nu_j\\!\\left(\\vec{x},\\Lambda\\right)=c\\left(\\frac{1}{\\lambda'\\!\\left(\\vec{x},\\Lambda\\right)}-\\frac{1}{\\lambda_j}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\nu_j\\!\\left(\\vec{x},\\Lambda\\right)=c\\left(\\frac{1}{\\lambda'\\!\\left(\\vec{x},\\Lambda\\right)}-\\frac{1}{\\lambda_j}\\right).\\tag{3.43}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1395",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Dop(\\vec{x})\\coloneqq\\sqrt{\\frac{1-\\beta(\\vec{x})}{1+\\beta(\\vec{x})}},\\qquad\\beta(\\vec{x})\\coloneqq\\frac{v_{i\\,\\parallel}(\\vec{x})}{c}.\\qquad\\textrm{If}\\quadv_{i\\,\\parallel}\\llc\\quad\\longrightarrow\\quad\\Dop^{-1}(\\vec{x})\\approx1+\\beta(\\vec{x})\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Dop(\\vec{x})\\coloneqq\\sqrt{\\frac{1-\\beta(\\vec{x})}{1+\\beta(\\vec{x})}},\\qquad\\beta(\\vec{x})\\coloneqq\\frac{v_{i\\,\\parallel}(\\vec{x})}{c}.\\qquad\\textrm{If}\\quadv_{i\\,\\parallel}\\llc\\quad\\longrightarrow\\quad\\Dop^{-1}(\\vec{x})\\approx1+\\beta(\\vec{x})\\tag{3.44}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1416",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'\\!\\left(\\vec{x},\\Lambda\\right)=\\lambda_{\\mathrm{obs}}\\,\\frac{a(\\vec{x})}{a_{\\mathrm{obs}}}\\,\\Dop^{-1}(\\vec{x}).\\qquad\\lambda_\\mathrm{obs}\\in\\left[\\lambda_{j,\\mathrm{min}}\\;,\\;\\lambda_{j,\\mathrm{max}}\\frac{a_f}{a_{\\mathrm{em}}}\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'\\!\\left(\\vec{x},\\Lambda\\right)=\\lambda_{\\mathrm{obs}}\\,\\frac{a(\\vec{x})}{a_{\\mathrm{obs}}}\\,\\Dop^{-1}(\\vec{x}).\\qquad\\lambda_\\mathrm{obs}\\in\\left[\\lambda_{j,\\mathrm{min}}\\;,\\;\\lambda_{j,\\mathrm{max}}\\frac{a_f}{a_{\\mathrm{em}}}\\right].\\tag{3.45}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1435",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'_j\\!\\left(\\vec{x},\\Lambda\\right)=\\lambda_j\\,\\exp\\!\\left(\\frac{v_{\\dagger}}{c}\\right)\\,\\frac{a(\\vec{x})}{a_f}\\,\\Dop^{-1}(\\vec{x}).\\qquadv_\\dagger\\in\\left[0\\;,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'_j\\!\\left(\\vec{x},\\Lambda\\right)=\\lambda_j\\,\\exp\\!\\left(\\frac{v_{\\dagger}}{c}\\right)\\,\\frac{a(\\vec{x})}{a_f}\\,\\Dop^{-1}(\\vec{x}).\\qquadv_\\dagger\\in\\left[0\\;,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\tag{3.46}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1454",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x},\\Lambda\\right)&\\approx\\lambda_j\\left[1+\\frac{1}{c}\\left(\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}(\\vec{x}-x_\\dagger)+v_{i\\,\\parallel}(\\vec{x})\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'\\left(\\vec{x},\\Lambda\\right)&\\approx\\lambda_j\\left[1+\\frac{1}{c}\\left(\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}(\\vec{x}-x_\\dagger)+v_{i\\,\\parallel}(\\vec{x})\\right)\\right].\\tag{3.47}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "flux/top-down-summary",
+   "at": "sec_flux.tex:1473",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\sigma_{ij}(\\vec{x})&=\\frac{b_i(\\vec{x})}{\\sqrt{2}\\lambda_j},\\qquadb_i(\\vec{x})=\\sqrt{b_{i\\,\\mathrm{th}}^{2}(\\vec{x})+b_{i\\,\\mathrm{turb}}^{2}(\\vec{x})},\\qquadb_{i\\,\\mathrm{th}}(\\vec{x})=\\sqrt{\\frac{2k_BT_i(\\vec{x})}{m_i}},\\\\[0.3em]\\gamma_j(\\vec{x})&=\\frac{A_j+A_{j\\,\\mathrm{coll}}(\\vec{x})}{4\\pi}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\sigma_{ij}(\\vec{x})&=\\frac{b_i(\\vec{x})}{\\sqrt{2}\\lambda_j},\\qquadb_i(\\vec{x})=\\sqrt{b_{i\\,\\mathrm{th}}^{2}(\\vec{x})+b_{i\\,\\mathrm{turb}}^{2}(\\vec{x})},\\qquadb_{i\\,\\mathrm{th}}(\\vec{x})=\\sqrt{\\frac{2k_BT_i(\\vec{x})}{m_i}},\\tag{3.48}\\\\[0.3em]\\gamma_j(\\vec{x})&=\\frac{A_j+A_{j\\,\\mathrm{coll}}(\\vec{x})}{4\\pi}.\\tag{3.49}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi-decomposition/index",
+   "at": "subsec_xi1D.tex:6",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&\\equiv\\Big\\langle\\delta^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\delta^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[\\underbrace{\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)}_{\\mathrm{order}\\,0}+\\dots\\notag\\\\&\\quad\\underbrace{-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_{1}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\cancelto{0}{\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}}}_{\\mathrm{order}\\,1}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=2}^{L}\\left(-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\Big\\langle\\mathcal{S}_{n}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}-\\,\\mathcal{C}(\\Lambda_\\beta)\\,\\Big\\langle\\mathcal{S}_n^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Extremal\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad\\underbrace{\\sum_{n=2}^{L}\\left(\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}\\right)}_{\\mathrm{``Mid\"\\,components\\,of\\,orders}\\,2\\leqn\\leqL}+\\dots\\notag\\\\&\\quad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg],\\tag{4.1}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi-decomposition/index",
+   "at": "subsec_xi1D.tex:91",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)&=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\underbrace{\\sum_{n=2}^{L}\\sum_{p=1}^{n-1}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\mathrm{orders}\\,2\\leqn\\leqL}\\notag\\\\&\\qquad+\\underbrace{\\sum_{n=L+1}^{2L}\\sum_{p=n-L}^{L}\\Big\\langle\\mathcal{S}_p^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_{n-p}^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}}_{\\textrm{orders}L+1\\,\\le\\,n\\,\\le\\,2L}\\Bigg].\\tag{4.2}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi-decomposition/index",
+   "at": "subsec_xi1D.tex:125",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Xi^{(2)}&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\coloneqq\\Big\\langle\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\alpha},\\,\\Lambda_\\alpha)\\,\\mathcal{S}_1^{(s)}(\\vec{x}_{\\perp\\beta},\\,\\Lambda_\\beta)\\Big\\rangle_{\\rmens}=\\Big\\langle\\left(\\sum_{i=1}^{L}\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\right)\\left(\\sum_{j=1}^{L}\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\right)\\Big\\rangle_{\\rmens}=\\notag\\\\&=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\Big\\langle\\delta_{i}^{(s)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha\\right)\\,\\delta_{j}^{(s)}\\!\\left(\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big\\rangle_{\\rmens}=\\sum_{i=1}^{L}\\sum_{j=1}^{L}\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\notag\\\\&=\\underbrace{\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)}_{\\textrm{autos}(i=j)}+\\underbrace{\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]}_{\\textrm{crosses}(i\\neqj)},\\tag{4.3}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "xi-decomposition/index",
+   "at": "subsec_xi1D.tex:179",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\xi&\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)=\\frac{1}{1+\\mathcal{C}(\\Lambda_\\alpha)}\\frac{1}{1+\\mathcal{C}(\\Lambda_\\beta)}\\Bigg[-\\,\\mathcal{C}(\\Lambda_\\alpha)\\,\\mathcal{C}(\\Lambda_\\beta)+\\dots\\notag\\\\&\\dots+\\sum_{i=1}^{L}\\xi_{ii}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\sum_{1\\lei<j\\leL}\\Big[\\xi_{ij}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)+\\xi_{ji}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Big]+\\dots\\notag\\\\&\\dots+\\sum_{n=3}^{L}\\Xi^{(n)}\\!\\left(\\vec{x}_{\\perp\\alpha},\\Lambda_\\alpha;\\vec{x}_{\\perp\\beta},\\Lambda_\\beta\\right)\\Bigg].\\tag{4.4}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/index",
+   "at": "app_velocity_units.tex:14",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^\\alpha\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_\\alpha\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}};\\qquad\\lambda_{\\mathrm{obs}}^\\alpha\\left(\\vec{x}_f\\right)=\\lambda_\\alpha\\frac{a_{\\mathrm{obs}}}{a_f},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^\\alpha\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_\\alpha\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}};\\qquad\\lambda_{\\mathrm{obs}}^\\alpha\\left(\\vec{x}_f\\right)=\\lambda_\\alpha\\frac{a_{\\mathrm{obs}}}{a_f},\\tag{B.1}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/index",
+   "at": "app_velocity_units.tex:24",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v_\\dagger^\\alpha\\left(\\vec{x}_{\\mathrm{em}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right);\\qquadv_\\dagger^\\alpha\\left(\\vec{x}_f\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_{\\mathrm{obs}}}{a_{f}}\\frac{a_\\dagger}{a_\\mathrm{obs}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{f}}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v_\\dagger^\\alpha\\left(\\vec{x}_{\\mathrm{em}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right);\\qquadv_\\dagger^\\alpha\\left(\\vec{x}_f\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_{\\mathrm{obs}}}{a_{f}}\\frac{a_\\dagger}{a_\\mathrm{obs}}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{f}}\\right).\\tag{B.2}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/index",
+   "at": "app_velocity_units.tex:54",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^X\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_X\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}};\\qquad\\lambda_{\\mathrm{obs}}^X\\left(\\vec{x}_f\\right)=\\lambda_X\\frac{a_{\\mathrm{obs}}}{a_f}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^X\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_X\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}};\\qquad\\lambda_{\\mathrm{obs}}^X\\left(\\vec{x}_f\\right)=\\lambda_X\\frac{a_{\\mathrm{obs}}}{a_f}.\\tag{B.3}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/index",
+   "at": "app_velocity_units.tex:64",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v_\\dagger^X\\left(\\vec{x}_{\\mathrm{em}}\\right)=c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right);\\qquadv_\\dagger^X\\left(\\vec{x}_f\\right)=c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{f}}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v_\\dagger^X\\left(\\vec{x}_{\\mathrm{em}}\\right)=c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right);\\qquadv_\\dagger^X\\left(\\vec{x}_f\\right)=c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a_{f}}\\right).\\tag{B.4}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-redshift-independent-line-separation",
+   "at": "app_velocity_units.tex:85",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Delta^{\\alphaX}_\\mathrm{rest}=\\lambda_\\alpha-\\lambda_X.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Delta^{\\alphaX}_\\mathrm{rest}=\\lambda_\\alpha-\\lambda_X.\\tag{B.5}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-redshift-independent-line-separation",
+   "at": "app_velocity_units.tex:89",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Delta^{\\alphaX}_\\mathrm{obs}=\\lambda^\\alpha_\\mathrm{obs}(\\vec{x})-\\lambda^X_\\mathrm{obs}(\\vec{x})=\\left(\\lambda_\\alpha-\\lambda_X\\right)\\frac{a_\\mathrm{obs}}{a(\\vec{x})}\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Delta^{\\alphaX}_\\mathrm{obs}=\\lambda^\\alpha_\\mathrm{obs}(\\vec{x})-\\lambda^X_\\mathrm{obs}(\\vec{x})=\\left(\\lambda_\\alpha-\\lambda_X\\right)\\frac{a_\\mathrm{obs}}{a(\\vec{x})}\\tag{B.6}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-redshift-independent-line-separation",
+   "at": "app_velocity_units.tex:96",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Deltav^{\\alphaX}_\\mathrm{obs}=v_\\dagger^\\alpha\\left(\\vec{x}\\right)-v_\\dagger^X\\left(\\vec{x}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)-c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_X}\\right)=\\Deltav^{\\alphaX}_\\mathrm{rest}\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Deltav^{\\alphaX}_\\mathrm{obs}=v_\\dagger^\\alpha\\left(\\vec{x}\\right)-v_\\dagger^X\\left(\\vec{x}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)-c\\ln\\left(\\frac{\\lambda_X}{\\lambda_\\dagger}\\frac{a_\\dagger}{a(\\vec{x})}\\right)=c\\ln\\left(\\frac{\\lambda_\\alpha}{\\lambda_X}\\right)=\\Deltav^{\\alphaX}_\\mathrm{rest}\\tag{B.7}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:125",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v^{(j)}\\;\\coloneqq\\;c\\ln\\left(\\frac{\\lambda_{\\mathrm{obs}}}{\\lambda_j}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v^{(j)}\\;\\coloneqq\\;c\\ln\\left(\\frac{\\lambda_{\\mathrm{obs}}}{\\lambda_j}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right).\\tag{B.8}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:138",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^{j}\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_j\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^{j}\\left(\\vec{x}_{\\mathrm{em}}\\right)=\\lambda_j\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}.\\tag{B.9}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:144",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v^{(j)}\\left(\\vec{x}_{\\mathrm{em}}\\right)&=c\\ln\\left(\\frac{\\lambda_j}{\\lambda_j}\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v^{(j)}\\left(\\vec{x}_{\\mathrm{em}}\\right)&=c\\ln\\left(\\frac{\\lambda_j}{\\lambda_j}\\frac{a_{\\mathrm{obs}}}{a_{\\mathrm{em}}}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right).\\tag{B.10}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:159",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^{j}\\left(\\vec{x}_f\\right)=\\lambda_j\\frac{a_{\\mathrm{obs}}}{a_f},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}^{j}\\left(\\vec{x}_f\\right)=\\lambda_j\\frac{a_{\\mathrm{obs}}}{a_f},\\tag{B.11}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:165",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v^{(j)}\\left(\\vec{x}_f\\right)&=c\\ln\\left(\\frac{\\lambda_j}{\\lambda_j}\\frac{a_{\\mathrm{obs}}}{a_f}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{a_\\dagger}{a_f}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v^{(j)}\\left(\\vec{x}_f\\right)&=c\\ln\\left(\\frac{\\lambda_j}{\\lambda_j}\\frac{a_{\\mathrm{obs}}}{a_f}\\frac{a_\\dagger}{a_{\\mathrm{obs}}}\\right)=c\\ln\\left(\\frac{a_\\dagger}{a_f}\\right).\\tag{B.12}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:181",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v^{(j)}\\in\\left[c\\ln\\left(\\frac{a_\\dagger}{a_f}\\right),\\;c\\ln\\left(\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v^{(j)}\\in\\left[c\\ln\\left(\\frac{a_\\dagger}{a_f}\\right),\\;c\\ln\\left(\\frac{a_\\dagger}{a_{\\mathrm{em}}}\\right)\\right].\\tag{B.13}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-example/app-relative-line-centered-velocity-units",
+   "at": "app_velocity_units.tex:193",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}v^{(j)}\\in\\left[0,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}v^{(j)}\\in\\left[0,\\;c\\ln\\left(\\frac{a_f}{a_{\\mathrm{em}}}\\right)\\right].\\tag{B.14}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:15",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\mathrm{exact}}^{(j)}(x)=c\\ln\\!\\left(\\frac{a_\\dagger}{a(x)}\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\mathrm{exact}}^{(j)}(x)=c\\ln\\!\\left(\\frac{a_\\dagger}{a(x)}\\right),\\tag{C.1}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:27",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\frac{du_{\\mathrm{exact}}^{(j)}}{dx}&=-c\\,\\frac{1}{a(x)}\\frac{da}{dx}=-c\\,\\frac{d\\lna}{dx}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\frac{du_{\\mathrm{exact}}^{(j)}}{dx}&=-c\\,\\frac{1}{a(x)}\\frac{da}{dx}=-c\\,\\frac{d\\lna}{dx}.\\tag{C.2}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:35",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}a=\\frac{1}{1+z},\\qquad\\frac{d\\lna}{dz}=-\\frac{1}{1+z},\\qquaddx=\\frac{c}{H(z)}\\,dz,\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}a=\\frac{1}{1+z},\\qquad\\frac{d\\lna}{dz}=-\\frac{1}{1+z},\\qquaddx=\\frac{c}{H(z)}\\,dz,\\tag{C.3}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:43",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\frac{d\\lna}{dx}=\\frac{d\\lna}{dz}\\frac{dz}{dx}=-\\frac{1}{1+z}\\frac{H(z)}{c},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\frac{d\\lna}{dx}=\\frac{d\\lna}{dz}\\frac{dz}{dx}=-\\frac{1}{1+z}\\frac{H(z)}{c},\\tag{C.4}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:51",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\frac{du_{\\mathrm{exact}}^{(j)}}{dx}=\\frac{H(z)}{1+z}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\frac{du_{\\mathrm{exact}}^{(j)}}{dx}=\\frac{H(z)}{1+z}.\\tag{C.5}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:58",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\mathrm{exact}}^{(j)}(x)=\\int_{x_\\dagger}^{x}\\frac{H[z(x')]}{1+z(x')}\\,dx'.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\mathrm{exact}}^{(j)}(x)=\\int_{x_\\dagger}^{x}\\frac{H[z(x')]}{1+z(x')}\\,dx'.\\tag{C.6}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-logarithmic-coordinate-to-the-hubble-flow-approximation",
+   "at": "app_velocity_units_approx.tex:69",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_H(x)\\coloneqqu_{\\mathrm{exact}}^{(j)}(x)\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\int_{x_\\dagger}^{x}dx'=\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}(x-x_\\dagger).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_H(x)\\coloneqqu_{\\mathrm{exact}}^{(j)}(x)\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\int_{x_\\dagger}^{x}dx'=\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}(x-x_\\dagger).\\tag{C.7}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:85",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}=\\lambda_j\\,\\frac{a_{\\mathrm{obs}}}{a_\\dagger}\\,\\exp\\!\\left(\\frac{u}{c}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda_{\\mathrm{obs}}=\\lambda_j\\,\\frac{a_{\\mathrm{obs}}}{a_\\dagger}\\,\\exp\\!\\left(\\frac{u}{c}\\right).\\tag{C.8}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:94",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'(x,u)=\\lambda_j\\,\\exp\\!\\left(\\frac{u}{c}\\right)\\,\\frac{a(x)}{a_\\dagger}\\,\\Dop^{-1}(x),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'(x,u)=\\lambda_j\\,\\exp\\!\\left(\\frac{u}{c}\\right)\\,\\frac{a(x)}{a_\\dagger}\\,\\Dop^{-1}(x),\\tag{C.9}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:104",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Dop(x)\\coloneqq\\sqrt{\\frac{1-\\beta(x)}{1+\\beta(x)}},\\qquad\\beta(x)\\coloneqq\\frac{v_\\parallel(x)}{c}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Dop(x)\\coloneqq\\sqrt{\\frac{1-\\beta(x)}{1+\\beta(x)}},\\qquad\\beta(x)\\coloneqq\\frac{v_\\parallel(x)}{c}.\\tag{C.10}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:114",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\exp\\!\\left(\\frac{u}{c}\\right)=1+\\frac{u}{c}+\\mathcalO\\!\\left(\\frac{u^2}{c^2}\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\exp\\!\\left(\\frac{u}{c}\\right)=1+\\frac{u}{c}+\\mathcalO\\!\\left(\\frac{u^2}{c^2}\\right).\\tag{C.11}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:122",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\frac{a(x)}{a_\\dagger}=1-\\frac{u_H(x)}{c}+\\mathcalO\\!\\left((x-x_\\dagger)^2\\right).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\frac{a(x)}{a_\\dagger}=1-\\frac{u_H(x)}{c}+\\mathcalO\\!\\left((x-x_\\dagger)^2\\right).\\tag{C.12}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:130",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Dop^{-1}(x)=1+s_v\\,\\frac{v_\\parallel(x)}{c}+\\mathcalO\\!\\left(\\frac{v_\\parallel^2}{c^2}\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Dop^{-1}(x)=1+s_v\\,\\frac{v_\\parallel(x)}{c}+\\mathcalO\\!\\left(\\frac{v_\\parallel^2}{c^2}\\right),\\tag{C.13}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:141",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'(x,u)\\approx\\lambda_j\\left[1+\\frac{u-u_H(x)+s_v\\,v_\\parallel(x)}{c}\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'(x,u)\\approx\\lambda_j\\left[1+\\frac{u-u_H(x)+s_v\\,v_\\parallel(x)}{c}\\right].\\tag{C.14}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:152",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\mathrm{abs}}(x)\\coloneqqu_H(x)-s_v\\,v_\\parallel(x),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\mathrm{abs}}(x)\\coloneqqu_H(x)-s_v\\,v_\\parallel(x),\\tag{C.15}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:159",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\lambda'(x,u)\\approx\\lambda_j\\left[1+\\frac{u-u_{\\mathrm{abs}}(x)}{c}\\right].\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\lambda'(x,u)\\approx\\lambda_j\\left[1+\\frac{u-u_{\\mathrm{abs}}(x)}{c}\\right].\\tag{C.16}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/from-the-exact-wavelength-mapping-to-the-local-detuning",
+   "at": "app_velocity_units_approx.tex:173",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\nu_j(x,u)&=c\\left(\\frac{1}{\\lambda'(x,u)}-\\frac{1}{\\lambda_j}\\right)\\approx-\\frac{u-u_{\\mathrm{abs}}(x)}{\\lambda_j}.\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\nu_j(x,u)&=c\\left(\\frac{1}{\\lambda'(x,u)}-\\frac{1}{\\lambda_j}\\right)\\approx-\\frac{u-u_{\\mathrm{abs}}(x)}{\\lambda_j}.\\tag{C.17}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:188",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_n=n\\,\\Deltau,\\qquad\\Deltau=\\frac{u_{\\max}}{N_{\\mathrm{bins}}},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_n=n\\,\\Deltau,\\qquad\\Deltau=\\frac{u_{\\max}}{N_{\\mathrm{bins}}},\\tag{C.18}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:194",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\max}=L_{\\mathrm{box}}\\,v_{\\mathrm{fac}},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\max}=L_{\\mathrm{box}}\\,v_{\\mathrm{fac}},\\tag{C.19}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:198",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_H^{\\mathrm{FS}}(x)\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\,x,\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_H^{\\mathrm{FS}}(x)\\approx\\frac{H(z_{\\mathrm{box}})}{1+z_{\\mathrm{box}}}\\,x,\\tag{C.20}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:208",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}u_{\\mathrm{abs}}^{\\mathrm{FS}}(x)=u_H^{\\mathrm{FS}}(x)+v_{i\\,\\parallel}^{\\mathrm{FS}}(x).\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}u_{\\mathrm{abs}}^{\\mathrm{FS}}(x)=u_H^{\\mathrm{FS}}(x)+v_{i\\,\\parallel}^{\\mathrm{FS}}(x).\\tag{C.21}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:220",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\Deltau^{\\mathrm{FS}}(x;u)=u-u_{\\mathrm{abs}}^{\\mathrm{FS}}(x),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\Deltau^{\\mathrm{FS}}(x;u)=u-u_{\\mathrm{abs}}^{\\mathrm{FS}}(x),\\tag{C.22}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:226",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}y_{ij}(x;u)=\\frac{\\Deltau^{\\mathrm{FS}}(x;u)}{b_i(x)},\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}y_{ij}(x;u)=\\frac{\\Deltau^{\\mathrm{FS}}(x;u)}{b_i(x)},\\tag{C.23}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:233",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\phi_{ij}(x,u)\\propto\\Re\\!\\left[\\mathcalW\\!\\left(y_{ij}(x;u)+i\\,a_{ij}(x)\\right)\\right],\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\phi_{ij}(x,u)\\propto\\Re\\!\\left[\\mathcalW\\!\\left(y_{ij}(x;u)+i\\,a_{ij}(x)\\right)\\right],\\tag{C.24}\\end{align}$$"
+   ]
+  },
+  {
+   "page": "velocity-units-snapshot-approx/relation-to-the-implementation-used-in-fake-spectra",
+   "at": "app_velocity_units_approx.tex:247",
+   "reason": "D7 rewrite (1): \\label in a numbered environment -> \\tag{LaTeX's number}",
+   "latex": [
+    "$$\\begin{align}\\tau_{ij}(u)\\propto\\intdx\\;n_i(x)\\,\\phi_{ij}(x,u)=\\intdx\\;n_i(x)\\,\\phi_{ij}\\!\\left(u-u_{\\mathrm{abs}}^{\\mathrm{FS}}(x)\\right),\\end{align}$$"
+   ],
+   "page_tokens": [
+    "$$\\begin{align}\\tau_{ij}(u)\\propto\\intdx\\;n_i(x)\\,\\phi_{ij}(x,u)=\\intdx\\;n_i(x)\\,\\phi_{ij}\\!\\left(u-u_{\\mathrm{abs}}^{\\mathrm{FS}}(x)\\right),\\tag{C.25}\\end{align}$$"
+   ]
+  }
+ ]
+}

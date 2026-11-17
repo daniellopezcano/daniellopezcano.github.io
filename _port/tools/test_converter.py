@@ -32,15 +32,30 @@ Reads the scratch LaTeX build (_port/.work/tex/src: sources, main.aux); writes n
     (before the next heading of its level, after its subsubsections and lists), or a section / subsection that runs
     to the end of the page (after its last block, footnotes kept apart; inner before outer); an entry without "at"
     stays right after its heading; "at" on a figure or subsubsection label, or a value other than "end", stops the build.
+  * the Lyα notes' constructs (Lyα DECISIONS L2, L4, L10, L13, L14, L16, L17), under that course's configuration
+    (courses.get + build.configure; the first course's is restored afterwards and checked): \\paragraph -> unnumbered
+    <h3>; the table float (caption below or above, "Table N" from the records, \\arraystretch / \\tabcolsep inside);
+    \\setlength{\\tabcolsep} before a tabular; \\multicolumn, \\multirow (a covered cell must be empty), \\cellcolor, the
+    preamble's cell macros (tables.cell_macros); the appendices marker environment; build.select_pages (the cut after
+    "last", appendices pulled in by references, transitively, a citation in the converted part of a course without a
+    Bibliography page); label_slug with slug_camel; cover_lya.extract and what it refuses; build.check_math_macros
+    against notes/lya-forest/assets/mathjax-config.js and what it refuses.
 """
 from __future__ import annotations
+import contextlib
+import copy
+import io
 import os
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(REPO, '_port', 'convert'))
 import build                                           # noqa: E402
+import courses                                         # noqa: E402
+import render                                          # noqa: E402
+import shell                                           # noqa: E402
 import source                                          # noqa: E402
+import tables                                          # noqa: E402
 from texparse import Parser, ConvertError              # noqa: E402
 from render import Renderer                            # noqa: E402
 
@@ -51,6 +66,190 @@ def check(name: str, ok: bool, got=''):
     print(('ok    ' if ok else 'FAIL  ') + name + ('' if ok else f'\n      got: {got!r}'))
     if not ok:
         FAIL.append(name)
+
+
+@contextlib.contextmanager
+def course(name: str, **over):
+    """Configure the converter for another course (courses.py + build.configure, which also sets render, shell and
+    tables), with entries of its configuration overridden; afterwards every upper-case module constant of build,
+    render, shell and tables (and build.COURSE_CFG) is what it was, mutable ones restored in place, so the first
+    course's tests run exactly as before."""
+    mods = (build, render, shell, tables)
+    saved = [(m, {k: (v, copy.copy(v)) for k, v in vars(m).items() if k.isupper() or k == 'COURSE_CFG'}) for m in mods]
+    try:
+        build.configure(courses.get(name))
+        build.COURSE_CFG.update(over)
+        yield
+    finally:
+        for m, d in saved:
+            for k, (obj, cp) in d.items():
+                if isinstance(obj, (dict, set)):
+                    obj.clear()
+                    obj.update(cp)
+                elif isinstance(obj, list):
+                    obj[:] = cp
+                setattr(m, k, obj)
+
+
+def expect_stop(name: str, fn, exc=ConvertError):
+    try:
+        fn()
+        check(f'{name} stops the build', False, 'no error')
+    except exc as e:
+        check(f'{name} stops the build ({str(getattr(e, "msg", e))[:90]})', True)
+
+
+def lya_tests(ctx, page, types) -> None:
+    """The constructs the Lyα notes taught the converter (L13), the page selection (L2, L4), addresses (L17), the
+    landing page's title-page reader (L14) and the math configuration check (L16); run under that course's
+    configuration (course('lya-forest'))."""
+    def run(tex, records=None):
+        Q = Parser(tex)
+        rr = Renderer(ctx, page, Q, dict(records or {}))
+        return rr, rr.flow(Q.parse(0, len(tex)))
+
+    # \paragraph (L10, L13): an unnumbered <h3>
+    rr, html = run('\\paragraph{Thermal broadening} Text.', {'subsubsection': ['9.9.9.9']})
+    check('\\paragraph: an unnumbered h3 (no number taken from the records), id from its title',
+          html.startswith('\x01H3|sec-thermal-broadening|Thermal broadening\x01') and 'dg-secnum' not in html
+          and rr.rec['subsubsection'] == ['9.9.9.9'], html)
+    rr, html = run('\\paragraph{Voigt}\\label{par:voigt} Text.')
+    check('\\paragraph with a \\label: the label is the heading\'s id', html.startswith('\x01H3|par:voigt|Voigt\x01')
+          and rr.anchors.get('par:voigt') == 'par:voigt', html)
+
+    # table float (L13): number from the records (counter table), caption where the source puts it
+    tab = '\\begin{tabular}{lc} A & B \\\\ \\hline x & y \\end{tabular}'
+    rr, html = run('\\begin{table}[h]\n\\centering\n\\renewcommand{\\arraystretch}{1.2}\n\\setlength{\\tabcolsep}{4pt}\n'
+                   + tab + '\n\\caption{Below the table.}\\label{tab:below}\n\\end{table}', {'table': ['3']})
+    check('table float, caption below: <figure class="dg-table-float" id=label>, the table, then "Table 3:" + caption; '
+          '\\arraystretch and \\tabcolsep (4pt at 11pt) apply to its tabular and end with the float',
+          html.startswith('<figure class="dg-figure dg-table-float" id="tab:below"><div class="dg-table-wrap"><table class="dg-table" style="--dg-arraystretch:1.2">')
+          and html.index('</table>') < html.index('<figcaption><span class="dg-fignum">Table 3:</span> Below the table.</figcaption>')
+          and 'padding-left:0.36em' in html and rr.anchors.get('tab:below') == 'tab:below' and not rr.rec['table']
+          and rr.arraystretch is None and rr.tabcolsep is None, html)
+    rr, html = run('\\begin{table}\\caption{Above.}\\label{tab:above}' + tab + '\\end{table}', {'table': ['5']})
+    check('table float, caption above: "Table 5:" + caption before the table',
+          html.index('<figcaption><span class="dg-fignum">Table 5:</span> Above.</figcaption>') < html.index('<table'), html)
+    expect_stop('table float: a second caption', lambda: run('\\begin{table}' + tab + '\\caption{a}\\caption{b}\\end{table}', {'table': ['1', '2']}))
+    expect_stop('table float without a caption', lambda: run('\\begin{table}' + tab + '\\end{table}', {'table': ['1']}))
+    expect_stop('table float: other content (text)', lambda: run('\\begin{table}Words.' + tab + '\\caption{c}\\end{table}', {'table': ['1']}))
+
+    # \setlength{\tabcolsep} before a tabular (L13)
+    rr, html = run('{\\setlength{\\tabcolsep}{2pt}\\begin{tabular}{ll} a & b \\end{tabular}} \\begin{tabular}{ll} c & d \\end{tabular}')
+    first, second = html.split('</table>')[:2]
+    check('\\setlength{\\tabcolsep}{2pt}: the next tabular\'s cells get 2pt (0.18em at 11pt) on each side; it ends with its group',
+          'padding-left:0.18em;padding-right:0.18em' in first and 'padding-left' not in second.replace('padding-left:0.55em', '')
+          and rr.tabcolsep is None, html)
+    expect_stop('\\setlength of another length', lambda: run('\\setlength{\\parindent}{0pt}'))
+
+    # \multicolumn, \multirow, \cellcolor, the preamble's cell macros (L13)
+    rr, html = run('\\begin{tabular}{|l|c|r|} \\multicolumn{2}{|c|}{AB} & C \\\\ x & y & z \\end{tabular}')
+    check('\\multicolumn{2}{|c|}{..}: colspan 2 with its own alignment and rules',
+          '<td colspan="2" class="dg-rule-l dg-rule-r" style="text-align:center;white-space:nowrap;padding-left:0.55em;padding-right:0.55em">AB</td>' in html, html)
+    rr, html = run('\\begin{tabular}{ll} \\multirow{2}{*}{M} & a \\\\ & b \\end{tabular}')
+    rows = html.split('<tr')[1:]
+    check('\\multirow{2}{*}{..}: rowspan 2; the covered (empty) cell below has no <td>',
+          '<td rowspan="2" style="text-align:left;white-space:nowrap;padding-left:0.55em;padding-right:0.55em">M</td>' in rows[0] and rows[1].count('<td') == 1, html)
+    expect_stop('a cell under a \\multirow that is not empty', lambda: run('\\begin{tabular}{ll} \\multirow{2}{*}{M} & a \\\\ X & b \\end{tabular}'))
+    expect_stop('\\multirow with a width other than *', lambda: run('\\begin{tabular}{ll} \\multirow{2}{3cm}{M} & a \\\\ & b \\end{tabular}'))
+    rr, html = run('\\begin{tabular}{l} \\cellcolor{cyan!22} v \\end{tabular}')
+    check('\\cellcolor{cyan!22}: the cell\'s background, xcolor\'s mix with the paper',
+          'background:color-mix(in srgb, var(--dg-tex-cyan) 22%, var(--dg-bg))">v</td>' in html, html)
+    tables.cell_macros('\\newcommand{\\TotOne}[1]{\\cellcolor{cyan!22}{#1}}\n\\newcommand{\\Foo}[1]{\\textbf{#1}}\n')
+    check('tables.cell_macros: only the macros of the shape \\newcommand{\\X}[1]{\\cellcolor{c}{#1}}',
+          tables.CELL_MACROS == {'TotOne': 'cyan!22'}, tables.CELL_MACROS)
+    rr, html = run('\\begin{tabular}{ll} \\TotOne{$x$} & y \\end{tabular}')
+    check('a preamble cell macro: its colour as the background, its argument as the cell\'s content',
+          'background:color-mix(in srgb, var(--dg-tex-cyan) 22%, var(--dg-bg))">\\(x\\)</td>' in html.replace('<span class="math inline">', '').replace('</span>', ''), html)
+    expect_stop('a cell macro followed by more text in the cell', lambda: run('\\begin{tabular}{l} \\TotOne{a} b \\end{tabular}'))
+    expect_stop('a preamble macro of another shape in a cell', lambda: run('\\begin{tabular}{l} \\Foo{a} \\end{tabular}'))
+
+    # the appendices environment: a marker (\appendix), its \begin and \end on different pages
+    nodes = Parser('A \\begin{appendices} B \\end{appendices} C').parse(0, 40)
+    rr, html = run('A \\begin{appendices} B \\end{appendices} C')
+    check('appendices environment: \\begin and \\end are markers (\\appendix) that print nothing; the text around stays',
+          [type(n).__name__ + ':' + getattr(n, 'name', '') for n in nodes].count('Cmd:appendix') == 2
+          and html == '<p>A B C</p>', (nodes, html))
+
+    # addresses from camel-case labels (L17)
+    got = [build.label_slug(x) for x in ('subsec:LineProfile', 'subsec:GasProperties', 'sec:xi1D',
+                                         'subsec:app_redshift_independent_line_separation')]
+    check('label_slug with slug_camel: a lower-to-upper change separates words; prefixes dropped',
+          got == ['line-profile', 'gas-properties', 'xi1d', 'app-redshift-independent-line-separation'], got)
+
+    # which pages the course publishes (L1, L2, L4): build.select_pages on a small source
+    T = ('\\section{One}\\label{sec:one}\nSee Appendix~\\ref{app:b}.\n'
+         '\\subsection{One a}\\label{subsec:OneA}\nText.\n'
+         '\\section{Two}\\label{sec:two}\n\\subsection{Two a}\\label{subsec:twoa}\nText.\n'
+         '\\section{Three}\\label{sec:three}\nCut: \\ref{app:a}, \\cite{k}.\n'
+         '\\section{Ap A}\\label{app:a}\nText.\n'
+         '\\section{Ap B}\\label{app:b}\nSee \\eqref{eq:c}.\n'
+         '\\section{Ap C}\\label{app:c}\n\\subsection{C one}\\label{subsec:Cone}\n\\begin{equation}x\\label{eq:c}\\end{equation}\n'
+         '\\section{Ap D}\\label{app:d}\nText.\n')
+    nums = {'sec:one': '1', 'subsec:OneA': '1.1', 'sec:two': '2', 'subsec:twoa': '2.1', 'sec:three': '3',
+            'app:a': 'A', 'app:b': 'B', 'app:c': 'C', 'subsec:Cone': 'C.1', 'app:d': 'D'}
+
+    def select(text, last):
+        build.COURSE_CFG['last'] = last
+        src = types.SimpleNamespace(text=text, where=lambda pos: f'test:{pos}')
+        P = Parser(text)
+        _, pages = build.make_pages(src, P)
+        per_page = [{build.COURSE_CFG['pages'][p.kind]: [nums[p.label]]} for p in pages]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            kept, recs, cut = build.select_pages(pages, per_page, src)
+        return [p.label for p in kept], recs, cut, out.getvalue()
+    kept, recs, cut, printed = select(T, 'sec:two')
+    check('select_pages: the main text up to the "last" section (with its subsections); an appendix referred to by a kept '
+          'page (B), and one referred to by that appendix (C, transitively, through a label in its subsection); not A, '
+          'referred to only from the cut, nor D',
+          kept == ['sec:one', 'subsec:OneA', 'sec:two', 'subsec:twoa', 'app:b', 'app:c', 'subsec:Cone']
+          and [list(r.values())[0][0] for r in recs] == ['1', '1.1', '2', '2.1', 'B', 'C', 'C.1']
+          and {'sec:three', 'app:a', 'app:d'} <= cut and 'eq:c' not in cut and 'appendix B included' in printed
+          and 'appendix C included' in printed, (kept, cut, printed))
+    expect_stop('select_pages: a "last" that is not a section of the main text', lambda: select(T, 'subsec:OneA'), SystemExit)
+    expect_stop('select_pages: a citation in the converted part of a course without a Bibliography page',
+                lambda: select(T.replace('See Appendix', '\\citep{k} See Appendix'), 'sec:two'), SystemExit)
+    build.COURSE_CFG['last'] = courses.get('lya-forest')['last']
+
+    # the landing page's title-page reader (L5, L14)
+    import cover_lya
+    pre = '\\newcommand{\\notetitle}{T}\n\\newcommand{\\notesubtitle}{S}\n\\newcommand{\\noteversion}{V}\n'
+    tp = ('\\begin{titlepage}\n\\centering\n\\vspace*{2cm}\n{\\Huge\\bfseries \\notetitle\\par}\n\\vspace{0.5cm}\n'
+          '{\\Large \\notesubtitle\\par}\n{\\large \\noteauthors\\par}\n{\\scriptsize $^{1}$~\\noteaffiliationone\\par}\n'
+          '{\\scriptsize $^{2}$~\\noteaffiliationtwo\\par}\n{\\scriptsize $^{3}$~\\noteaffiliationthree\\par}\n'
+          '{\\normalsize \\noteversion\\par}\n{\\normalsize \\notedate\\par}\n{\\footnotesize\nContact email: \\noteemails\\par\n}\n'
+          '\\begin{abstract}\nAbs.\n\\end{abstract}\n\\noindent\\textbf{Keywords:} a, b\n\\end{titlepage}\n'
+          '\\pagenumbering{roman}\n\\tableofcontents\n\\newpage\n')
+    t = cover_lya.extract(pre, tp, 100)
+    check('cover_lya.extract: title, subtitle, version from the preamble; the abstract and the keywords line ("Keywords:" '
+          'included) as offsets into the source; nothing of the authors',
+          (t['notetitle'], t['notesubtitle'], t['noteversion']) == ('T', 'S', 'V')
+          and tp[t['abstract'][0] - 100:t['abstract'][1] - 100].strip() == 'Abs.'
+          and tp[t['keywords'][0] - 100:t['keywords'][1] - 100] == '\\textbf{Keywords:} a, b'
+          and set(t) == {'notetitle', 'notesubtitle', 'noteversion', 'abstract', 'keywords'}, t)
+    for why, bad in (('an unknown element on the title page (an acknowledgement)',
+                      tp.replace('\\begin{abstract}', 'We thank the referee.\n\\begin{abstract}')),
+                     ('a title-page piece missing (the e-mail line)', tp.replace('{\\footnotesize\nContact email: \\noteemails\\par\n}\n', '')),
+                     ('a piece found twice (two author lines)', tp.replace('{\\large \\noteauthors\\par}', '{\\large \\noteauthors\\par}\n{\\large \\noteauthors\\par}')),
+                     ('text between the title page and the first section', tp + 'Preface.\n')):
+        expect_stop(f'cover_lya.extract: {why}', lambda bad=bad: cover_lya.extract(pre, bad, 0), SystemExit)
+
+    # the math configuration against the preamble (L16): notes/lya-forest/assets/mathjax-config.js
+    good = '\\newcommand{\\dd}{\\mathrm{d}}\n\\newcommand{\\TextOne}[1]{\\begingroup\\setlength{\\fboxsep}{1pt}\\colorbox{cyan!22}{$\\displaystyle #1$}\\endgroup}\n'
+    pg = [types.SimpleNamespace(math=['\\(\\dd x\\)', '\\(\\TextOne{y}\\)'])]
+    try:
+        build.check_math_macros(types.SimpleNamespace(preamble=good), pg)
+        check('check_math_macros: the preamble\'s \\dd and \\TextOne agree with mathjax-config.js', True)
+    except SystemExit as e:
+        check('check_math_macros: the preamble\'s \\dd and \\TextOne agree with mathjax-config.js', False, str(e))
+    expect_stop('check_math_macros: a preamble macro whose body differs from the configuration\'s (\\dd)',
+                lambda: build.check_math_macros(types.SimpleNamespace(preamble=good.replace('\\mathrm{d}', '\\mathrm{D}')), pg), SystemExit)
+    expect_stop('check_math_macros: a colour box of another colour (\\TextOne)',
+                lambda: build.check_math_macros(types.SimpleNamespace(preamble=good.replace('cyan!22', 'red!22')), pg), SystemExit)
+    expect_stop('check_math_macros: a preamble macro used in a formula and missing from the configuration',
+                lambda: build.check_math_macros(types.SimpleNamespace(preamble=good + '\\newcommand{\\Zz}{z}\n'),
+                                                [types.SimpleNamespace(math=['\\(\\Zz\\)'])]), SystemExit)
 
 
 def main() -> int:
@@ -578,10 +777,10 @@ def main() -> int:
     dp.role, dp.slug = 'defs', build.DEFS_SLUG
     build.render_defs(dp, tctx, [tch] + tpages)
     h = dp.html
-    tables = _re.findall(r'<div class="dg-defs-table">.*?</table></div></div>', h, _re.S)
+    dtabs = _re.findall(r'<div class="dg-defs-table">.*?</table></div></div>', h, _re.S)
     check('D53: Notation = the tables of a (sub)section titled "Notation", labelled with its number and title, ids removed',
-          len(tables) == 1 and '<a href="\x02U|ch/s1#nt_A\x02"><span class="dg-secnum">2.1.1</span> Notation</a>' in tables[0]
-          and '>y</th>' in tables[0] and ' z ' not in tables[0] and 'z</td>' not in tables[0] and ' id=' not in tables[0], tables)
+          len(dtabs) == 1 and '<a href="\x02U|ch/s1#nt_A\x02"><span class="dg-secnum">2.1.1</span> Notation</a>' in dtabs[0]
+          and '>y</th>' in dtabs[0] and ' z ' not in dtabs[0] and 'z</td>' not in dtabs[0] and ' id=' not in dtabs[0], dtabs)
     links = _re.search(r'<ul class="dg-web dg-defs-links">(.*?)</ul>', h)
     check('D53: then links to every section and subsection whose title contains "notation", in the notes\' order, '
           'except those whose table is shown above (2.1.1; B18-B22)',
@@ -674,6 +873,14 @@ def main() -> int:
             check(f'D57: "at" {why} stops the build', False, 'no error')
         except SystemExit as e:
             check(f'D57: "at" {why} stops the build ({str(e)[:90]}...)', 'D57' in str(e))
+
+    # -- the Lyα notes' constructs (Lyα DECISIONS L2, L4, L10, L13, L14, L16, L17), with that course's configuration --
+    with course('lya-forest'):
+        lya_tests(ctx, page, types)
+    check('after the Lyα tests the first course\'s configuration is back (build, render, tables, shell)',
+          build.COURSE == 'notes/diffgeo-gr' and set(build.LISTS) == {'lof', 'bib'} and render.HEAD_LEVEL == {'subsection': 2, 'subsubsection': 3}
+          and tables.PT_EM == 0.1 and not tables.CELL_MACROS and shell.COURSE == 'notes/diffgeo-gr' and build.COURSE_CFG == {},
+          (build.COURSE, list(build.LISTS), render.HEAD_LEVEL, tables.PT_EM, tables.CELL_MACROS, shell.COURSE))
 
     print('ALL PASSED' if not FAIL else f'{len(FAIL)} FAILED')
     return 1 if FAIL else 0

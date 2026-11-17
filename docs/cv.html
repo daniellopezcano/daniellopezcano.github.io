@@ -148,10 +148,21 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./teaching_and_projects.html"> 
 <span class="menu-text">Teaching &amp; Projects</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./notes/diffgeo-gr/index.html"> 
-<span class="menu-text">Lecture Notes</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lecture-notes" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lecture Notes</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lecture-notes">    
+        <li>
+    <a class="dropdown-item" href="./notes/diffgeo-gr/index.html">
+ <span class="dropdown-text">From Differential Geometry to General Relativity</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./notes/lya-forest/index.html">
+ <span class="dropdown-text">Lyman-α Forest</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./outreach.html"> 
 <span class="menu-text">Outreach</span></a>
@@ -214,6 +225,37 @@ ul.task-list li input[type="checkbox"] {
 
 
 </main> <!-- /main -->
+<!-- The "Lecture Notes" dropdown of the site navbar (_quarto.yml: website: navbar: left: menu). Bootstrap opens
+     it on click, tap and Enter/Space; this adds: open while the mouse is over it (devices that hover, wide
+     navbar), open when it receives keyboard focus, close when focus or the mouse leaves it, and keep it open on
+     a click once hovering has opened it. The course pages carry the same behaviour in their navbar replica
+     (notes/diffgeo-gr/assets/course.js, initSiteNav). Lyα course DECISIONS L15. -->
+<script>
+(function () {
+  var hover = window.matchMedia('(hover: hover) and (min-width: 992px)');
+  function setup() {
+    if (!window.bootstrap || !bootstrap.Dropdown) return;
+    document.querySelectorAll('#quarto-header .nav-item.dropdown').forEach(function (li) {
+      var t = li.querySelector('.dropdown-toggle');
+      if (!t) return;
+      var dd = bootstrap.Dropdown.getOrCreateInstance(t), timer = 0, escaped = false;
+      var open = function () { clearTimeout(timer); dd.show(); };
+      li.addEventListener('mouseenter', function () { if (hover.matches) open(); });
+      li.addEventListener('mouseleave', function () { if (hover.matches) timer = setTimeout(function () { dd.hide(); }, 200); });
+      t.addEventListener('click', function (e) {
+        if (hover.matches && t.getAttribute('aria-expanded') === 'true') { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      li.addEventListener('keydown', function (e) { if (e.key === 'Escape') escaped = true; });
+      t.addEventListener('focus', function () {
+        if (!escaped && t.matches(':focus-visible')) open();
+        escaped = false;
+      });
+      li.addEventListener('focusout', function (e) { if (!li.contains(e.relatedTarget)) dd.hide(); });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup); else setup();
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

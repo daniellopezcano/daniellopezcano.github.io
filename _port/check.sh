@@ -3,12 +3,15 @@
 #   _port/check.sh              run everything; ends with ALL CHECKS PASSED or the list of failures
 #   _port/check.sh --no-render  reuse the docs/ already rendered (faster; for repeated runs)
 #   BASE=<git ref> _port/check.sh   compare the rest of the site against another ref (default: main)
+# It covers both courses of _port/convert/courses.py (Lyα DECISIONS L22) and the rest of the site.
 # Each check is one line `name: command`; a check fails if its command exits non-zero.
 # Checks are added here as the tools are built (see _port/PROGRESS.md); never remove one.
 set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 NOTES="${NOTES:-/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/learning_cosmology/lecture_notes_differential_geometry_GR/from_diff_geom_to_GR}"
+NOTES_LYA="${NOTES_LYA:-/home/dlopez/Documentos/0.profesional/Postdoc/USP/Projects/SkewerJAX_Review_and_Equations}"
+BRANCH="${BRANCH:-course-lya}"
 BASE="${BASE:-main}"
 RENDER=1
 for a in "$@"; do case "$a" in --no-render) RENDER=0 ;; *) echo "usage: $0 [--no-render]"; exit 2 ;; esac; done
@@ -24,7 +27,30 @@ run() {  # run <name> <command...>
 }
 
 notes_clean()   { [ -z "$(git -C "$NOTES/.." status --short)" ]; }
-on_branch()     { [ "$(git rev-parse --abbrev-ref HEAD)" = course-diffgeo-gr ]; }
+on_branch()     { [ "$(git rev-parse --abbrev-ref HEAD)" = "$BRANCH" ]; }
+# The Lyα notes directory carries the author's own uncommitted work (Lyα DECISIONS L7): it must be the same
+# after the run as before it (SHA-256 of every file outside .git, plus `git status --porcelain`).
+lya_fingerprint() { ( cd "$NOTES_LYA" && { find . -path ./.git -prune -o -type f -print0 | sort -z | xargs -0 sha256sum; git status --porcelain; } | sha256sum | cut -c1-64 ); }
+LYA_FP_FILE="$LOG/lya_fingerprint"
+lya_before()    { lya_fingerprint > "$LYA_FP_FILE"; echo "fingerprint $(cut -c1-8 "$LYA_FP_FILE")…"; [ -s "$LYA_FP_FILE" ]; }
+lya_after()     { local now; now="$(lya_fingerprint)"; echo "before $(cut -c1-8 "$LYA_FP_FILE")…, after ${now:0:8}…"; [ "$now" = "$(cat "$LYA_FP_FILE")" ]; }
+# L11: the design files a course copies from its sibling are byte-identical to them
+shared_same()   { python3 - <<'PY'
+import filecmp, os, sys
+sys.path.insert(0, '_port/convert'); import courses
+bad = n = 0
+for name, c in courses.COURSES.items():
+    base = c.get('shared_from')
+    if not base:
+        continue
+    for f in courses.SHARED:
+        a, b = os.path.join(courses.COURSES[base]['dir'], 'assets', f), os.path.join(c['dir'], 'assets', f)
+        n += 1
+        if not (os.path.exists(b) and filecmp.cmp(a, b, shallow=False)):
+            print('differs:', b); bad += 1
+print(f'{n} shared files compared, {bad} differ'); sys.exit(1 if bad else 0)
+PY
+}
 # The converter must convert every page: _port/.strict holds 1 since unit B7 (all pages convert), so a page
 # that stops converting fails this check. STRICT_PAGES=0 overrides it while a new chapter is being ported.
 convert()       { if [ "${STRICT_PAGES:-$(cat _port/.strict 2>/dev/null || echo 0)}" = 1 ]; then python3 _port/convert/build.py --strict; else python3 _port/convert/build.py; fi; }
@@ -36,9 +62,12 @@ render_site()   { quarto render 2>&1 | tee "$LOG/render.out" | tail -n 3; [ "${P
 pilot_addresses() { local n=0 a; while read -r a; do [ -z "$a" ] && continue; [ -f "docs/$a" ] || { echo "missing: docs/$a"; n=$((n+1)); }; done < _port/pilot_addresses.txt; echo "$n missing"; [ "$n" = 0 ]; }
 no_conflicts()  { ! grep -rlE '^(<<<<<<<|>>>>>>>) ' docs --include='*.html' --include='*.json' --include='*.xml' --include='*.css' --include='*.js'; }
 
-run "on branch course-diffgeo-gr"                          on_branch
+run "on branch $BRANCH"                                     on_branch
 run "notes directory unchanged (before)"                   notes_clean
-run "converter regenerates the pages"                      convert
+run "Lyα notes directory: fingerprint (before)"            lya_before
+run "converter regenerates the pages (both courses)"       convert
+run "first course unchanged except the navbar"             python3 _port/tools/course_unchanged.py
+run "shared design files identical (L11)"                  shared_same
 run "every equation typesets (math_check)"                 math_ok
 [ "$RENDER" = 1 ] && run "quarto render (whole site)"      render_site
 run "no merge-conflict markers in docs/"                   no_conflicts
@@ -47,6 +76,7 @@ run "figure pipeline (test_figures)"                       python3 _port/tools/t
 run "converter constructs (test_converter)"               python3 _port/tools/test_converter.py
 run "page script in a headless browser"                    node _port/tools/test_page_script.mjs
 run "interactives in a headless browser"                   node _port/tools/test_interactives.mjs
+run "Lyα interactives in a headless browser"               node _port/tools/test_lya_interactives.mjs
 # >>> further checks are appended here by later units (fidelity, all-pages browser check, a11y, weight, addresses)
 # R9 (D37): published course = committed course and converter idempotent (only after a render); links;
 # all pages in a browser (errors, sideways scroll at 1280/390 px, img attributes, ids, weight budget);
@@ -60,6 +90,7 @@ run "fidelity: page text = LaTeX source (fidelity)"        python3 _port/tools/f
 [ -x _port/tools/checks_extra.sh ] && source _port/tools/checks_extra.sh
 run "rest of the site unchanged with respect to $BASE"     python3 _port/tools/site_unchanged.py "$BASE"
 run "notes directory unchanged (after)"                    notes_clean
+run "Lyα notes directory: fingerprint (after)"             lya_after
 
 echo
 if [ "${#FAILED[@]}" = 0 ]; then echo "ALL CHECKS PASSED"; else

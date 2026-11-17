@@ -24,10 +24,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import source                                        # noqa: E402
 import shell                                         # noqa: E402
+import courses                                       # noqa: E402
+import render                                        # noqa: E402
 from texparse import Parser, ConvertError, Cmd, Text, Par   # noqa: E402
 from render import Renderer, esc, slugify, text_attr  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
+# The values below are the first course's; configure() replaces them with the entry of the course being built
+# (courses.py, Lyα DECISIONS L9).
+COURSE_CFG: dict = {}
 # notebooks of the Python package, linked from the interactive panels (D55; _port/interactives.json "notebook")
 PACKAGE_BLOB = 'https://github.com/daniellopezcano/differential_geometry/blob/main/'
 SRC = os.path.join(REPO, '_port', '.work', 'tex', 'src')
@@ -174,7 +179,7 @@ class Ctx:
         self._used = {}
         self.assets = {}              # figure label -> asset dict (for the landing page)
         self.captions = {}            # figure label -> {'num', 'page', 'caption', 'frac'} (chapter opening pages)
-        path = os.path.join(REPO, '_port', 'interactives.json')
+        path = os.path.join(REPO, COURSE_CFG.get('interactives', '_port/interactives.json'))
         self.interactives = {}        # LaTeX label -> list of (module name, notebook file or None, 'end' or None, steps or None)
         self.interactives_used = set()
         if os.path.exists(path):
@@ -194,7 +199,12 @@ class Ctx:
                     raise SystemExit(f'_port/interactives.json: "at": {at!r} of {it["module"]} (label {it["label"]}): '
                                      f'the only placement is "end" (D57)')
                 kind = self.aux.get(it['label'], {}).get('kind')
-                if it['label'] in self.aux and kind not in ('section', 'subsection'):
+                # D57: a section or subsection; Lyα DECISIONS L26: in a course whose in-page headings go deeper
+                # (courses.py 'heads' beyond subsection, e.g. the article's subsubsection), those headings too
+                ends = ('section', 'subsection')
+                if COURSE_CFG.get('pages', {}).get('section') == 'subsection':       # an article (L10)
+                    ends += tuple(COURSE_CFG['heads'])
+                if it['label'] in self.aux and kind not in ends:
                     raise SystemExit(f'_port/interactives.json: "at": "end" of {it["module"]} names {it["label"]}, a {kind} label; '
                                      f'it closes a section or subsection only (D57)')
             steps = it.get('steps')
@@ -265,6 +275,26 @@ class Ctx:
             html = html[:cut] + frames + html[cut:]
         return html
 
+    def place_after_equations(self, html: str, anchors: dict) -> str:
+        """Lyα DECISIONS L21: a panel attached to the label of a numbered equation goes right after the paragraph
+        that holds the equation (the first </p> after its anchor, with no other paragraph opening before it); an
+        equation outside a paragraph stops the page ("teach the converter")."""
+        for label in self.interactives:
+            if self.aux.get(label, {}).get('kind') != 'equation' or label not in anchors:
+                continue
+            frames = self.interactive(label)
+            if not frames:
+                continue
+            m = re.search(r'\sid="' + re.escape(anchors[label]) + '"', html)
+            if not m:
+                raise ConvertError(f'interactives.json: equation {label} has no element on this page (L21)')
+            end = html.find('</p>', m.end())
+            if end == -1 or '<p' in html[m.end():end]:
+                raise ConvertError(f'interactives.json: equation {label} is not inside a paragraph: no placement rule (L21)')
+            end += len('</p>')
+            html = html[:end] + frames + html[end:]
+        return html
+
     def review(self, kind, pos, text):
         self.review_items.append({'kind': kind, 'where': self.src.where(pos), 'text': text})
 
@@ -273,12 +303,16 @@ class Ctx:
 
 
 HEAD_RE = re.compile(r'\\(chapter|section)(\*?)\s*(?=[\[{])')
+PAGE_KIND = {'chapter': 'chapter', 'section': 'section'}     # LaTeX command -> page kind (courses.py 'pages')
 LABEL_AFTER = re.compile(r'\s*\\label\{([^}]+)\}')
 PREFIX = re.compile(r'^(chapter|appendix|section|subsection)_', re.I)
 
 
 def label_slug(label: str) -> str:
-    return slugify(PREFIX.sub('', PREFIX.sub('', label)))
+    lab = PREFIX.sub('', PREFIX.sub('', label))
+    if COURSE_CFG.get('slug_camel'):           # L17: a camel-case label's words become words of the address
+        lab = re.sub(r'([a-z])([A-Z])', r'\1_\2', lab)
+    return slugify(lab)
 
 
 def make_pages(src: source.Source, P: Parser):
@@ -287,7 +321,7 @@ def make_pages(src: source.Source, P: Parser):
     pages, chapter = [], None
     for a, b in zip(cuts, cuts[1:] + [len(src.text)]):
         m = HEAD_RE.match(src.text, a)
-        page = Page(m.group(1), a, b)
+        page = Page(PAGE_KIND[m.group(1)], a, b)
         _, end = P.read_args('Om', m.end(), b, a)
         lab = LABEL_AFTER.match(src.text, end)
         page.label = lab.group(1) if lab else None
@@ -441,6 +475,77 @@ def render_front(p: Page, ctx: Ctx, P: Parser, records: dict):
     anchor_terms(p)
 
 
+# ---------------------------------------------------------------------------------------
+# which pages a course publishes (Lyα DECISIONS L1-L4): a cut after one main-text section, the appendices
+# that the converted part refers to, nothing cited without a Bibliography page
+# ---------------------------------------------------------------------------------------
+SRC_ANYREF = re.compile(r'\\(?:eq|page|c|C|auto)?ref\*?\s*\{([^}]+)\}')
+SRC_CITE = re.compile(r'\\cite[a-zA-Z]*\*?(?![A-Za-z])')
+
+
+def select_pages(pages: list, per_page: list, src: source.Source) -> tuple:
+    """The pages the course publishes, their numbering records, and the labels of everything left out.
+    Main text: every chapter-kind page up to the one labelled COURSE_CFG['last'] (with its sections); the main
+    text after it is left out (L1). Appendices: all, or (COURSE_CFG['appendices'] == 'referenced') those a kept
+    page refers to by \\ref/\\eqref/\\pageref/\\cref, repeated until nothing changes (L2). A reference to a
+    label left out then reads as one to a label the build does not have: the "in preparation" marker (L3)."""
+    num = {p: (per_page[k].get(COURSE_CFG['pages'][p.kind]) or [None])[0] for k, p in enumerate(pages)}
+    chapters = [p for p in pages if p.kind == 'chapter']
+    is_app = lambda c: bool(num[c]) and num[c][0].isalpha()
+    last = COURSE_CFG.get('last')
+    keep, stop = set(), False
+    for c in chapters:
+        if is_app(c):
+            continue
+        if not stop:
+            keep.add(c)
+            keep.update(c.children)
+        if last and c.label == last:
+            stop = True
+    if last and not stop:
+        raise SystemExit(f'courses.py: "last": {last!r} is not the label of a {COURSE_CFG["pages"]["chapter"]} of the main text')
+    owner = {}
+    for p in pages:
+        for m in SRC_LABEL.finditer(src.text, p.a, p.b):
+            owner.setdefault(m.group(1).strip(), p)
+    pulled = {}                                  # appendix -> (page that refers to it, label)
+    apps = [c for c in chapters if is_app(c)]
+    if COURSE_CFG.get('appendices', 'all') == 'all':
+        for c in apps:
+            keep.add(c)
+            keep.update(c.children)
+    else:
+        changed = True
+        while changed:
+            changed = False
+            for p in [q for q in pages if q in keep]:
+                for m in SRC_ANYREF.finditer(src.text, p.a, p.b):
+                    for lab in (x.strip() for x in m.group(1).split(',')):
+                        q = owner.get(lab)
+                        c = q and (q if q.kind == 'chapter' else q.parent)
+                        if c is not None and is_app(c) and c not in keep:
+                            keep.add(c)
+                            keep.update(c.children)
+                            pulled[c] = (p, lab)
+                            changed = True
+    if 'bib' not in COURSE_CFG['lists']:
+        for p in pages:
+            m = SRC_CITE.search(src.text, p.a, p.b) if p in keep else None
+            if m:
+                raise SystemExit(f'{src.where(m.start())}: a citation in the converted part, but this course has no '
+                                 f'Bibliography page (courses.py "lists"; Lyα DECISIONS L4): teach the converter')
+    gone = [p for p in pages if p not in keep]
+    cut = {lab for lab, q in owner.items() if q not in keep}
+    for c, (p, lab) in pulled.items():
+        print(f'  appendix {num[c]} included: {p.slug} refers to {lab}')
+    if gone:
+        left = [num[c] for c in chapters if c not in keep]
+        print(f'  left out: {len(gone)} pages ({COURSE_CFG["words"]["main"].lower()}s/appendices {", ".join(x or "?" for x in left)}),'
+              f' {len(cut)} labels')
+    kept = [(p, r) for p, r in zip(pages, per_page) if p in keep]
+    return [p for p, _ in kept], [r for _, r in kept], cut
+
+
 def assign_slugs(pages, P, src):
     seen = set()
     for p in pages:
@@ -456,7 +561,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
     r = Renderer(ctx, p, P, records)
     nodes = P.parse(p.a, p.b)
     head = nodes[0]
-    p.number = None if head.star else r.take(p.kind, p.a)
+    p.number = None if head.star else r.take(head.name, p.a)
     p.title_html = r.inline(head.args[1])
     i = 1
     while i < len(nodes) and (isinstance(nodes[i], Cmd) and nodes[i].name == 'label'
@@ -465,6 +570,7 @@ def render_page(p: Page, ctx: Ctx, P: Parser, records: dict):
             r.anchors[nodes[i].args[0].strip()] = ''          # the page itself
         i += 1
     body = ctx.place_at_end(r.flow(nodes[i:]), r.anchors)       # panels that close a (sub)section (D57)
+    body = ctx.place_after_equations(body, r.anchors)           # panels after an equation's paragraph (L21)
     left = {c: q for c, q in records.items() if q and c in CHECKED}
     if left:
         raise ConvertError(f'numbering records not consumed: {left} (LaTeX numbered something the converter did not see)', p.a)
@@ -644,9 +750,16 @@ def plain(html: str) -> str:
 PLAIN_NUM: dict = {}
 
 
+WORDS = {'main': 'Chapter', 'appendix': 'Appendix'}       # the word before a chapter-kind page's number
+
+
+def chapter_word(c) -> str:
+    return WORDS['appendix'] if c.number and c.number[0].isalpha() else WORDS['main']
+
+
 def kicker(p: Page) -> str:
     c = p if p.kind == 'chapter' else p.parent
-    word = 'Appendix' if c.number and c.number[0].isalpha() else 'Chapter'
+    word = chapter_word(c)
     if p.kind == 'chapter':
         return f'{word} {c.number}' if c.number else ''
     link = f'<a href="{rel(p.slug, c.slug + ".html")}">{nolinks(c.title_html)}</a>'
@@ -867,7 +980,7 @@ def chapter_web(p: Page, d: dict, ctx: Ctx, where: dict) -> str:
         return f'<span class="dg-secnum">{q.number or ""}</span> {nolinks(q.title_html or "…")}'
 
     def head(c, tag, link, extra=''):
-        word = 'Appendix' if c.number and c.number[0].isalpha() else 'Chapter'
+        word = chapter_word(c)
         t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
         if link:
             t = f'<a href="{rel(p.slug, c.slug + ".html")}">{t}</a>'
@@ -1192,6 +1305,7 @@ def write_page(p: Page, ctx: Ctx, where: dict, order: list, files: set, cfg: dic
 
 
 CHANGED: set = set()                                 # pages whose bytes this run changed (for lastmod.json)
+LANDINGS: dict = {}                                  # courses.py 'landing' -> the function that writes the landing page
 
 
 def write(path: str, text: str, files: set):
@@ -1263,7 +1377,7 @@ def write_landing(front, pages, matter, ctx, files, cfg: dict, search: list):
     for c in (p for p in pages if p.kind == 'chapter'):
         if c.part_html:                 # a part title of the notes' contents ("Appendices")
             lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
-        word = 'Appendix' if (c.number or '?')[0].isalpha() else 'Chapter'
+        word = chapter_word(c) if c.number else WORDS['main']
         t = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
         head = f'<a href="{c.slug}.html">{t}</a>' if c.html is not None else f'<span class="dg-pending">{t}</span>'
         subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}{shell.readmark()}</a></li>'
@@ -1293,18 +1407,180 @@ def write_landing(front, pages, matter, ctx, files, cfg: dict, search: list):
     write(os.path.join(OUT, 'index.html'), text, files)
 
 
+def configure(c: dict) -> None:
+    """Make the module constants (and those of shell.py and render.py) the course's (courses.py, L9). The
+    first course's entry holds exactly the values these constants had before the converter took a course."""
+    global COURSE_CFG, COURSE, OUT, SRC, NOTES, PACKAGE_BLOB, FRONT, COPYRIGHT_TITLE, RELATED, MASTER_MAP
+    global HEAD_RE, PAGE_KIND, PREFIX, WORDS
+    COURSE_CFG = c
+    COURSE, OUT, SRC, NOTES, PACKAGE_BLOB = c['dir'], c['out'], c['src'], c['notes'], c['package_blob']
+    FRONT, COPYRIGHT_TITLE, RELATED, MASTER_MAP = c['front'], c['copyright_title'], c['related'], c['master_map']
+    PAGE_KIND = {cmd: kind for kind, cmd in c['pages'].items()}
+    HEAD_RE = re.compile(r'\\(' + '|'.join(re.escape(k) for k in (c['pages']['chapter'], c['pages']['section']))
+                         + r')(\*?)\s*(?=[\[{])')
+    PREFIX = re.compile(c['label_prefix'], re.I)
+    WORDS = dict(c['words'])
+    for k in list(LISTS):
+        if k not in c['lists']:
+            del LISTS[k]
+    shell.configure(c)
+    render.configure(c)
+
+
+def check_math_macros(src: source.Source, pages: list) -> None:
+    """L16: every argument-less \\newcommand of the preamble that a converted formula uses is defined in the
+    course's mathjax-config.js with the preamble's body, and every \\colorbox macro of the preamble
+    (\\newcommand{\\X}[1]{...\\colorbox{<c>!22}{$\\displaystyle #1$}...}) is in its TEXTBOX table with that colour.
+    A course whose configuration defines no macros of its own (the first one) is not checked."""
+    path = os.path.join(OUT, 'assets', 'mathjax-config.js')
+    js = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
+    if 'TEXTBOX' not in js:
+        return
+    used = set()
+    for p in pages:
+        for t in p.math:
+            used.update(re.findall(r'\\([A-Za-z]+)', t))
+    bad = []
+    for m in re.finditer(r'\\newcommand\s*\{\\([A-Za-z]+)\}\s*\{([^\n]*)\}\s*$', src.preamble, re.M):
+        name, body = m.group(1), m.group(2)
+        if name not in used:
+            continue
+        j = re.search(r'^\s*' + name + r": '((?:[^'\\]|\\.)*)',?\s*$", js, re.M)
+        if not j or j.group(1).replace('\\\\', '\\') != body:
+            bad.append(f'\\{name} (preamble: {body!r}; config: {j.group(1) if j else "missing"!r})')
+    k = js.index('var TEXTBOX')
+    box = dict(re.findall(r"(Text\w+): '(\w+)'", js[k:k + 400]))
+    for m in re.finditer(r'\\newcommand\s*\{\\([A-Za-z]+)\}\[1\]\{[^\n]*\\colorbox\{(\w+)!22\}\{\$\\displaystyle #1\$\}', src.preamble):
+        if m.group(1) in used and box.get(m.group(1)) != m.group(2):
+            bad.append(f'\\{m.group(1)} (preamble colour {m.group(2)}; TEXTBOX: {box.get(m.group(1))})')
+    if bad:
+        raise SystemExit(f'{os.path.relpath(path, REPO)} disagrees with the preamble of main.tex (L16): ' + '; '.join(bad))
+
+
+def copy_shared() -> None:
+    """L11: the design files of the course named by 'shared_from', copied byte for byte into this course's
+    assets/ (generated copies; check.sh verifies they are identical)."""
+    base = COURSE_CFG.get('shared_from')
+    if not base:
+        return
+    import shutil
+    frm = os.path.join(courses.get(base)['out'], 'assets')
+    for f in courses.SHARED:
+        a, b = os.path.join(frm, f), os.path.join(OUT, 'assets', f)
+        os.makedirs(os.path.dirname(b), exist_ok=True)
+        if not os.path.exists(b) or open(a, 'rb').read() != open(b, 'rb').read():
+            shutil.copyfile(a, b)
+
+
+LANDINGS['diffgeo'] = write_landing
+
+
+def forest_svg(seed: int = 7, n: int = 150) -> str:
+    """The decorative spectrum behind the Lyα cover (web layer, aria-hidden; L14): a transmitted flux
+    F = exp(-tau) with tau a sum of Voigt-like lines at fixed pseudo-random positions (a fixed seed, so every
+    build writes the same bytes). Drawn as one polyline in a 600 x 120 box; the CSS colours it."""
+    import math
+    import random
+    rnd = random.Random(seed)
+    lines = [(rnd.uniform(0, 600), rnd.uniform(1.5, 7.0), 10 ** rnd.uniform(-0.8, 0.9)) for _ in range(46)]
+    pts = []
+    for k in range(n * 4 + 1):
+        x = 600 * k / (n * 4)
+        tau = sum(t0 * math.exp(-((x - x0) / w) ** 2) for x0, w, t0 in lines) * (0.35 + 0.65 * x / 600)
+        y = 10 + 100 * (1 - math.exp(-tau))
+        pts.append(f'{x:.1f},{y:.1f}')
+    return (f'<svg class="dg-forest" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+            f'<polyline points="{" ".join(pts)}"/></svg>')
+
+
+def write_landing_lya(front, pages, matter, ctx, files, cfg: dict, search: list):
+    """The landing page of the Lyα notes (L5, L6, L14): templates/landing-lya.html with the cover (title,
+    subtitle, version line from the preamble's macros, "Last updated"), the abstract and keywords (parsed in
+    place, so errors give file:line) and the contents; never the authors, affiliations or e-mail."""
+    import cover
+    import cover_lya
+    text = ctx.src.text
+    t = cover_lya.extract(ctx.src.preamble, text[front.a:front.b], front.a)
+    r = Renderer(ctx, front, Parser(text), {})
+    h = {k: r.inline(Parser(t[k]).parse(0, len(t[k]))) for k in cover_lya.META}
+    a, b = t['abstract']
+    abstract = r.flow(r.P.parse(a, b))
+    ka, kb = t['keywords']
+    keywords = r.inline(r.P.parse(ka, kb)).strip()
+    if r.footnotes or r.refs:
+        raise ConvertError('the title page has a footnote or a reference: no handler (cover_lya.py)', front.a)
+    cover_text = (f'<header class="dg-cover"><h1 class="dg-cover-title">{h["notetitle"]}</h1>'
+                  f'<p class="dg-cover-subtitle">{h["notesubtitle"]}</p><div class="dg-cover-rule"></div>'
+                  f'<p class="dg-cover-version">{h["noteversion"]}</p>')
+    # L6: "Last updated" = the last commit of the notes that touched a file the converted pages come from
+    used = {'main.tex'}
+    for p in pages:
+        used.update(ctx.src.loc(o)[0] for o in ctx.src.mark_off[bisect.bisect_left(ctx.src.mark_off, p.a):
+                                                                    bisect.bisect_left(ctx.src.mark_off, p.b)])
+        used.update(m.group(1).strip() for m in re.finditer(r'\\includegraphics\s*(?:\[[^\]]*\])?\s*\{([^}]+)\}', text[p.a:p.b]))
+    iso, day = cover.last_updated(SRC, NOTES, sorted(used))
+    cover_html = cover_text + f'<p class="dg-web dg-cover-date">Last updated <time datetime="{iso}">{day}</time></p></header>'
+    cover_text += '</header>'
+    abstract_html = (f'<section class="dg-abstract" aria-labelledby="dg-abstract-h"><h2 id="dg-abstract-h">Abstract</h2>'
+                     f'{abstract}<p class="dg-keywords">{keywords}</p></section>')
+    lis = []
+    for c in (p for p in pages if p.kind == 'chapter'):
+        if c.part_html:
+            lis.append(f'<li class="dg-contents-part">{c.part_html}</li>')
+        word = chapter_word(c) if c.number else WORDS['main']
+        tt = f'<span class="dg-contents-kicker">{word} {c.number}</span> <span class="dg-contents-title">{nolinks(c.title_html)}</span>'
+        head = f'<a href="{c.slug}.html">{tt}</a>' if c.html is not None else f'<span class="dg-pending">{tt}</span>'
+        subs = ''.join(f'<li><a href="{k.slug}.html"><span class="dg-secnum">{k.number}</span> {nolinks(k.title_html)}{shell.readmark()}</a></li>'
+                       if k.html is not None else
+                       f'<li class="dg-pending"><span class="dg-secnum">{k.number or ""}</span> {k.title_html}</li>' for k in c.children)
+        lis.append(f'<li class="dg-contents-chapter">{head}' + (f'<ul>{subs}</ul>' if subs else '') + '</li>')
+    contents = f'<nav class="dg-contents" aria-label="Contents"><ol>{"".join(lis)}</ol></nav>'
+    first = next(p for p in pages if p.html is not None)
+    index_page = Page('front', 0, 0)
+    index_page.slug = 'index'
+    frags = {name: resolve(x, index_page, ctx, {}) for name, x in
+             (('cover', cover_html), ('abstract', abstract_html), ('contents', contents), ('spectrum', forest_svg()),
+              ('start', f'{first.slug}.html'), ('cover_text', cover_text))}
+    cover_text = frags.pop('cover_text')
+    main = glue(shell.landing_main(frags, 'landing-lya.html'))
+    label = shell.course_label(cfg)
+    search.insert(0, {'objectID': f'{COURSE}/index.html', 'href': f'{COURSE}/index.html', 'title': shell.COURSE_TITLE,
+                      'section': '', 'text': text_of(cover_text + frags['abstract'])})
+    out = shell.document(cfg=cfg, slug='index', source='main.tex and _port/convert/templates/landing-lya.html',
+                         title=f'{shell.COURSE_TITLE} – {shell.SITE_NAME}', desc=shell.description(text_of(frags['abstract'])),
+                         crumbs=[f'<span aria-current="page">{esc(label)}</span>'], tree='', main=main, pos=0.0,
+                         landing=True)
+    write(os.path.join(OUT, 'index.html'), out, files)
+
+
+LANDINGS['lya'] = write_landing_lya
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--status', action='store_true')
     ap.add_argument('--strict', action='store_true')
     ap.add_argument('--chapters', action='store_true', help='print the data of the chapter opening pages (D38); writes nothing')
     ap.add_argument('--no-figures', action='store_true', help='do not build figure assets (placeholders)')
+    ap.add_argument('--course', help='the course to build (courses.py); default: every course, one after the other')
     args = ap.parse_args()
+    if args.course is None:                     # every course, each in a process of its own (module state)
+        import subprocess
+        rc = 0
+        for name in courses.COURSES:
+            print(f'== {name}', flush=True)
+            r = subprocess.run([sys.executable, os.path.abspath(__file__), '--course', name] + sys.argv[1:])
+            rc = rc or r.returncode
+        return rc
+    configure(courses.get(args.course))
 
     src = source.load(SRC)
     P = Parser(src.text)
+    import tables
+    tables.cell_macros(src.preamble)                 # the notes' cell-colour macros (L13)
     aux = read_aux(os.path.join(SRC, 'main.aux'))
-    bib = read_bbl(os.path.join(SRC, 'main.bbl'))
+    # the bibliography only where the course has a Bibliography page (Lyα DECISIONS L4: none for these notes)
+    bib = read_bbl(os.path.join(SRC, 'main.bbl')) if 'bib' in COURSE_CFG['lists'] else {}
     records = read_records(os.path.join(SRC, 'main.port'), src)
     for k, v in aux.items():
         PLAIN_NUM[k] = v['num']
@@ -1319,7 +1595,8 @@ def main():
         figures = Stub()
     else:
         from figures import Figures
-        figures = Figures(REPO, src.preamble, os.path.join(SRC, 'main.aux'))
+        figures = Figures(REPO, src.preamble, os.path.join(SRC, 'main.aux'), out_dir=os.path.join(OUT, 'figures'),
+                          src_dir=SRC)
     ctx = Ctx(src, aux, bib, figures)
     for k, v in bib.items():                      # author names of the bibliography labels, as text
         r = Renderer(ctx, Page('front', 0, 0), Parser(v['author_tex']), {})
@@ -1344,13 +1621,19 @@ def main():
         if k >= 0:
             per_page[k].setdefault(counter, []).append(num)
 
+    if COURSE_CFG.get('last') or COURSE_CFG.get('appendices', 'all') != 'all':
+        pages, per_page, cut = select_pages(pages, per_page, src)
+        for lab in cut:                          # L3: what was cut reads as what is not written yet (D17)
+            ctx.aux.pop(lab, None)
+            PLAIN_NUM.pop(lab, None)
+            PLAIN_NUM.pop((lab, 'page'), None)
     for p, rec in zip(pages, per_page):
         try:
             render_page(p, ctx, P, rec)
         except ConvertError as e:
             p.error = f'{src.where(e.pos if e.pos is not None else p.a)}: {e.msg}'
             # the heading is still needed for the sidebar
-            p.number = next((n for o, c, n in records if c == p.kind and o >= p.a), None)
+            p.number = next((n for o, c, n in records if c == COURSE_CFG['pages'][p.kind] and o >= p.a), None)
             try:
                 title = P.read_args('Om', p.title_span[0], p.b, p.a)[0][1]
                 p.title_html = Renderer(ctx, p, P, {}).inline(title)
@@ -1371,14 +1654,15 @@ def main():
     order = sorted(fronts + lists + pages, key=lambda q: q.a)
     # Definitions and notation (D53): web layer, after every page of the notes (course tree: after the Bibliography;
     # not in the previous/next chain, not in the search index)
-    defs = Page('back', len(src.text), len(src.text))
-    defs.role, defs.slug, defs.title_html, defs.web_title = 'defs', DEFS_SLUG, esc(DEFS_TITLE), True
-    defs.source = 'the term macros and the Notation tables of the notes (DECISIONS D53)'
-    try:
-        render_defs(defs, ctx, order)
-    except ConvertError as e:
-        defs.error = f'{src.where(e.pos) if e.pos is not None else "(definitions page)"}: {e.msg}'
-    order.append(defs)
+    if COURSE_CFG.get('defs', True):
+        defs = Page('back', len(src.text), len(src.text))
+        defs.role, defs.slug, defs.title_html, defs.web_title = 'defs', DEFS_SLUG, esc(DEFS_TITLE), True
+        defs.source = 'the term macros and the Notation tables of the notes (DECISIONS D53)'
+        try:
+            render_defs(defs, ctx, order)
+        except ConvertError as e:
+            defs.error = f'{src.where(e.pos) if e.pos is not None else "(definitions page)"}: {e.msg}'
+        order.append(defs)
     done = [p for p in order if p.html is not None]
     print(f'{len(done)} of {len(order)} pages convert')
     for p in order:
@@ -1387,7 +1671,7 @@ def main():
     report = {'pages': [{'slug': p.slug, 'number': p.number, 'kind': p.kind, 'title': plain(p.title_html or ''),
                          'converted': p.html is not None, 'error': p.error} for p in order],
               'review': ctx.review_items}
-    os.makedirs(os.path.join(REPO, '_port', '.work'), exist_ok=True)
+    os.makedirs(os.path.dirname(COURSE_CFG['report']), exist_ok=True)
     chapters = chapter_data(pages, ctx)
     if args.chapters:
         print_chapters(chapters, ctx)
@@ -1399,12 +1683,18 @@ def main():
         for lab, frag in p.anchors.items():
             where[lab] = (p.slug, frag)
     cfg = shell.site_config()
-    shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
+    if not COURSE_CFG.get('shared_from'):       # L11: a course that shares the design copies the fonts (copy_shared)
+        shell.subset_fonts(os.path.join(OUT, 'assets', 'fonts'))
     files: set = set()
     search: list = []
+    if COURSE_CFG.get('open_here') == 'appendices':     # L23: the directories of the included appendices
+        shell.OPEN_DIRS = sorted({p.slug.rsplit('/', 1)[0] + '/' for p in pages
+                                  if p.kind == 'chapter' and p.number and p.number[0].isalpha() and '/' in p.slug})
     for p in done:
         write_page(p, ctx, where, order, files, cfg, search, chapters)
-    write_landing(front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
+    check_math_macros(src, done)
+    LANDINGS[COURSE_CFG.get('landing', 'diffgeo')](front, pages, [q for q in order if q.kind in MATTER], ctx, files, cfg, search)
+    copy_shared()
     for label, mods in ctx.interactives.items():
         mods = [m for m, _, _, _ in mods]
         for mod in mods:
@@ -1426,7 +1716,7 @@ def main():
                 os.remove(path)
     report['math'] = [{'page': p.slug, 'tex': resolve(t, p, ctx, where)} for p in done for t in p.math]
     report['review'] = ctx.review_items
-    json.dump(report, open(os.path.join(REPO, '_port', '.work', 'report.json'), 'w', encoding='utf-8'),
+    json.dump(report, open(COURSE_CFG['report'], 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
     return 1 if args.strict and len(done) < len(order) else 0
 

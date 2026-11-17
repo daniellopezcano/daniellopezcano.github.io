@@ -14,17 +14,32 @@
     \let\protect\@unexpandable@protect
     \immediate\write\port@out{#1|#2|\port@file|\the\inputlineno}%
   \endgroup}
+% Every hooked macro logs through \port@wrap, which logs a step only at the outermost hooked call: hyperref's
+% \refstepcounter calls \H@refstepcounter, titlesec's \ttl@Hy@refstepcounter may too, so a step that passes
+% through several hooks is still one line (Lyα DECISIONS L12).
+\newif\ifport@in
+\def\port@wrap#1#2{%
+  \ifport@in #1{#2}\else
+    \port@intrue #1{#2}\port@infalse
+    \@ifundefined{ifmeasuring@}{\port@log{#2}{\csname the#2\endcsname}}%
+      {\ifmeasuring@\else\port@log{#2}{\csname the#2\endcsname}\fi}%
+  \fi}
 \AtBeginDocument{%
   % every \refstepcounter: chapter, section, ..., figure, table, equation, enumi...
   \let\port@refstepcounter\refstepcounter
-  \def\refstepcounter#1{%
-    \port@refstepcounter{#1}%
-    \@ifundefined{ifmeasuring@}{\port@log{#1}{\csname the#1\endcsname}}%
-      {\ifmeasuring@\else\port@log{#1}{\csname the#1\endcsname}\fi}}%
+  \def\refstepcounter#1{\port@wrap\port@refstepcounter{#1}}%
+  % the copies that packages keep and call directly: hyperref's (\caption without the caption package,
+  % longtable, theorems) and titlesec's (sections set with \titleformat)
+  \@ifundefined{H@refstepcounter}{}{%
+    \let\port@Hrefstepcounter\H@refstepcounter
+    \def\H@refstepcounter#1{\port@wrap\port@Hrefstepcounter{#1}}}%
+  \@ifundefined{ttl@Hy@refstepcounter}{}{%
+    \let\port@ttlrefstepcounter\ttl@Hy@refstepcounter
+    \def\ttl@Hy@refstepcounter#1{\port@wrap\port@ttlrefstepcounter{#1}}}%
   % figure and table captions (the caption package steps the counter itself)
   \@ifundefined{caption@@refstepcounter}{}{%
     \let\port@caprefstep\caption@@refstepcounter
-    \def\caption@@refstepcounter#1{\port@caprefstep{#1}\port@log{#1}{\csname the#1\endcsname}}}%
+    \def\caption@@refstepcounter#1{\port@wrap\port@caprefstep{#1}}}%
   % footnotes (also \footnotetext, also the letters used inside boxes)
   % hyperref keeps the kernel's \@footnotetext as \H@@footnotetext and routes both
   % \footnote and \footnotetext[n]{..} through it; without hyperref hook the kernel one

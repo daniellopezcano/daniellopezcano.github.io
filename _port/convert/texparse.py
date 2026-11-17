@@ -126,12 +126,14 @@ CMDS: dict[str, str] = {
     'rule': 'orr', 'phantomsection': '', 'markboth': 'rr', 'cpheading': 'm', 'grantbadge': 'm',
     # bibliography entries of main.bbl (unit B5): plainnat's block separator and a TeX penalty (n: a TeX integer)
     'newblock': '', 'penalty': 'n',
+    # Lyα notes (L13): an article's run-in heading, the Angstrom sign, \setlength (only \tabcolsep before a tabular)
+    'paragraph': 'Om', 'AA': '', 'setlength': 'rr',
 }
 for _c in ('blue', 'green', 'purple', 'orange', 'red', 'yellow', 'brown', 'teal', 'rose', 'olive', 'indigo'):
     CMDS[_c + 'one'] = 'm'
     CMDS[_c + 'two'] = 'm'
 
-STARRED = {'chapter', 'section', 'subsection', 'subsubsection', 'vspace', 'hspace', 'ref', 'caption'}
+STARRED = {'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'vspace', 'hspace', 'ref', 'caption'}
 
 # control symbols: \\ takes an optional [len]; accents take one argument
 SYMBOLS = {'\\': 'o', ',': '', ';': '', ':': '', '!': '', ' ': '', '\n': '', '&': '', '%': '', '#': '',
@@ -147,7 +149,10 @@ ENVS: dict[str, str] = {
 }
 # Environments captured as raw source and given to a dedicated handler
 RAW_ENVS = {'figure', 'tikzpicture', 'tabular', 'titlepage', 'lstlisting', 'verbatim',
-            'thebibliography'}
+            'thebibliography', 'table'}
+# Environments whose \begin and \end are markers that may stand on different pages (the appendix package's
+# `appendices` wraps every appendix, i.e. several pages): each one is read as the print-only \appendix
+MARKER_ENVS = {'appendices'}
 MATH_ENVS = {'equation', 'equation*', 'align', 'align*', 'gather', 'gather*', 'multline', 'multline*',
              'alignat', 'alignat*', 'flalign', 'flalign*', 'displaymath', 'math'}
 
@@ -348,6 +353,10 @@ class Parser:
         if name == 'begin':
             return self.begin(i, j, end, out)
         if name == 'end':
+            mk = re.match(r'\{(\w+)\}', s[j:end])
+            if mk and mk.group(1) in MARKER_ENVS:
+                out.append(Cmd('appendix', False, [], i))
+                return self.skip_ws(j + mk.end(), end)
             raise ConvertError('unexpected \\end', i)
         if name in ('def', 'edef', 'newcommand', 'renewcommand', 'begingroup', 'endgroup'):
             return self.definition(name, i, j, end, out)
@@ -369,6 +378,9 @@ class Parser:
         k = self.group_end(j, end)
         name = s[j + 1:k]
         body_start = k + 1
+        if name in MARKER_ENVS:
+            out.append(Cmd('appendix', False, [], i))
+            return self.skip_ws(body_start, end)
         if name in MATH_ENVS:
             be, ae = self.env_end(name, body_start, end)
             out.append(Math(s[i:ae], 'env', name, i))

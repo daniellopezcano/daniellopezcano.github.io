@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Hand-written tool (DECISIONS D24): the text of the course pages is the text of the notes.
 
-    python3 _port/tools/fidelity.py               exit 0 = the only differences are allow-listed ones
-    python3 _port/tools/fidelity.py --page <slug>  report only this page (repeatable; 'index' = landing page)
+    python3 _port/tools/fidelity.py               exit 0 = the only differences are allow-listed ones (every course)
+    python3 _port/tools/fidelity.py --course NAME  one course of _port/convert/courses.py (default: each in turn)
+    python3 _port/tools/fidelity.py --page <slug>  report only this page (repeatable; 'index' = landing page;
+                                                   without --course: the first course)
     python3 _port/tools/fidelity.py --json <file>  also write every difference found (allowed or not)
     python3 _port/tools/fidelity.py --self-test    test the two reducers on small inputs
 
-Reads the scratch build (`_port/.work/tex/src`: main.tex and what it \\inputs, main.aux, main.bbl) and the
-generated pages (notes/diffgeo-gr/**/*.html); writes nothing but --json. Standard library only, ~2 s. Written
+Reads the course's scratch build (courses.py `src`, e.g. `_port/.work/tex/src`: main.tex and what it \\inputs,
+main.aux, main.bbl) and its generated pages (notes/<course>/**/*.html); writes nothing but --json. Standard library only, ~2 s. Written
 independently of the converter: render.py / texparse.py are not imported; `_port/convert/source.py` is,
 only for TeX's comment stripping and the \\input expansion with file:line.
 
@@ -37,8 +39,23 @@ spacing and line breaks never matter. `$..$` is an inline formula, `$$..$$` a di
 Pages: their order is the notes' order as the pages give it: the landing page, then the previous/next
 chain from the page without a "previous" link. The source is cut where the page map puts page boundaries
 (D3, D51, D52): the start of the document (landing page), each top-level \\input of main.tex that lies
-wholly before the first \\chapter (front matter), \\listoffigures, \\chapter, \\section, \\bibliography.
-Segment i is diffed with page i (difflib); a different number of segments and pages is a failure.
+wholly before the first chapter-kind heading (front matter), \\listoffigures and \\bibliography (when the
+course has those pages: courses.py `lists`), and the two page-making headings of the course (courses.py
+`pages`: \\chapter and \\section for the first notes; \\section and \\subsection for the Lyα notes, an
+article, Lyα DECISIONS L10). A course that publishes part of its notes (courses.py `last`, `appendices`: L1,
+L2) keeps the segments of the pages the converter keeps, decided by the converter's own `select_pages`
+(build.py, imported for this alone), whose addresses must then be the pages' in order; constructs this tool
+does not know are reported only in the segments kept. Segment i is diffed with page i (difflib); a different
+number of segments and pages is a failure.
+
+Lyα notes (L5, L6, L13, L14). The landing page is the title page: its text is compared like any other page; the
+uses of the title-page macros the web leaves out (\\noteauthors, \\noteaffiliationone..three, \\noteemails,
+\\notedate) are "source" entries of the allow list (a macro named by a "source" entry prints nothing where the
+entry names its use; the keys quote the use, never the macro's text, so the allow list holds no author
+material), and an author name or the e-mail that reached the page would be a difference. The `abstract`
+environment prints article's \\abstractname ("Abstract") before its text; `appendices` is a marker.
+In tables, \\multicolumn and \\multirow print their last argument, \\cellcolor prints nothing (the preamble's
+\\TotZero..\\TotSix expand to it and their argument); \\setlength{\\tabcolsep} and \\arraystretch print nothing.
 
 List of Figures and Bibliography (D52). The Bibliography page is checked against main.bbl: its \\bibitem
 entries reduced like the text, after the class's \\bibname ("Bibliography"), the page's title. The List of
@@ -51,14 +68,17 @@ table and the terms, are copies of text that is checked where it stands (EXCLUDE
 Cases that need no allow entry because both streams agree: \\pageref prints the PDF's page number (D47),
 the caption of Figure 10.3 (\\captionof, D50), the tables (D48), the copyright page (D51).
 
-Accepted differences: `_port/fidelity_allow.json`, one entry per difference, each with its reason:
+Accepted differences: one file per course (ALLOWS: `_port/fidelity_allow.json` for the first notes,
+`_port/lya/fidelity_allow.json` for the Lyα notes), one entry per difference, each with its reason:
   "source": a construct whose text the page does not carry as text, named by file + construct + key
             (a fingerprint that survives line shifts: the \\label of its figure, else the first 60
             characters of its source, + ' #n' if two share one in a file; "line" is informative).
             Constructs: "tikzpicture" (its words are in the SVG, D10; the cover and dedication D19 and
             About the Author D51 overlays), "figure" (a figure whose whole body is the picture, with the
             macros and saved boxes it draws: only its \\caption is compared), "\\DLC" (a hidden author
-            note, D18). Left out of the LaTeX stream. A tikzpicture that no entry names is reported.
+            note, D18), "\\<macro>" (a use of a macro whose text the page leaves out, e.g. \\noteauthors:
+            key = the first 60 characters of the source from the macro's name on). Left out of the LaTeX
+            stream. A tikzpicture that no entry names is reported.
   "diff":   one difference on one page, matched exactly: page slug + the LaTeX tokens + the page tokens
             ("at", the LaTeX file:line, is informative). Each entry matches one difference.
 An entry that matches nothing is stale and fails the check. A construct the LaTeX reducer does not know
@@ -81,11 +101,27 @@ import unicodedata
 from html.parser import HTMLParser
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-COURSE = os.path.join(REPO, 'notes', 'diffgeo-gr')
-TEXSRC = os.path.join(REPO, '_port', '.work', 'tex', 'src')
-ALLOW = os.path.join(REPO, '_port', 'fidelity_allow.json')
 sys.path.insert(0, os.path.join(REPO, '_port', 'convert'))
 import source  # noqa: E402  (comment stripping and \input expansion only)
+import courses  # noqa: E402  (where each course's build and pages are)
+# the allow list of each course (relative to the repo root)
+ALLOWS = {'diffgeo-gr': '_port/fidelity_allow.json', 'lya-forest': '_port/lya/fidelity_allow.json'}
+# set by configure(): the course, its pages, its scratch build, its allow list, the headings that make pages
+# (LaTeX command -> page kind) and the generated pages it has (courses.py 'lists')
+CFG: dict = {}
+COURSE = TEXSRC = ALLOW = None
+PAGE_CMDS = {'chapter': 'chapter', 'section': 'section'}
+LISTS = ('lof', 'bib')
+
+
+def configure(name: str) -> None:
+    global CFG, COURSE, TEXSRC, ALLOW, PAGE_CMDS, LISTS
+    CFG = courses.get(name)
+    if name not in ALLOWS:
+        raise SystemExit(f'fidelity: no allow list for course {name} (ALLOWS)')
+    COURSE, TEXSRC, ALLOW = CFG['out'], CFG['src'], os.path.join(REPO, ALLOWS[name])
+    PAGE_CMDS = {cmd: kind for kind, cmd in CFG['pages'].items()}
+    LISTS = tuple(CFG['lists'])
 
 
 class Unknown(Exception):
@@ -130,7 +166,7 @@ SILENT = {
     'leavevmode': 0, 'ignorespaces': 0, 'unskip': 0, 'nobreak': 0, 'allowbreak': 0, 'tcblower': 0,
     'leaders': 0, 'hyphenpenalty': 0, 'exhyphenpenalty': 0, 'spaceskip': 0, 'newblock': 0, 'frenchspacing': 0,
     'label': 1, 'vspace': 1, 'vspace*': 1, 'hspace': 1, 'hspace*': 1, 'thispagestyle': 1, 'pagestyle': 1,
-    'color': 1, 'stepcounter': 1, 'refstepcounter': 1, 'linespread': 1, 'pgfsetlayers': 1,
+    'color': 1, 'stepcounter': 1, 'refstepcounter': 1, 'linespread': 1, 'pgfsetlayers': 1, 'pagenumbering': 1,
     'pgfdeclarelayer': 1, 'addvspace': 1, 'hypersetup': 1, 'cmidrule': 1, 'cline': 1,
     'setlength': 2, 'addtolength': 2, 'setcounter': 2, 'addtocounter': 2, 'colorlet': 2, 'markboth': 2,
     'fontsize': 2, 'pgfmathsetmacro': 2, 'pgfmathsetlengthmacro': 2, 'pgfmathtruncatemacro': 2,
@@ -189,7 +225,8 @@ class Ctx:
         self.skip_at = set()             # (file, construct, key) named by the allow list
         self.skipped = {}                # (file, construct, key) -> times it was left out
         self.unknown = []                # [(loc, message)] constructs this tool does not know
-        self.unlisted = []               # [(file, construct, key, line)] left out but not allow-listed
+        self.unlisted = []               # [(file, construct, key, line, loc)] left out but not allow-listed
+        self.omit = set()                # macros whose uses the allow list may name (printing nothing there)
         self.motivation = 'Motivation: #1'
 
 
@@ -394,6 +431,11 @@ class TexReducer:
         if name == 'DLC' and self.allowed(loc, '\\DLC'):
             # a hidden author note (D18), allow-listed
             return self.arg(s, j, pos)[2]
+        if name in self.ctx.omit and self.ctx.macros.get(name) and self.allowed(loc, '\\' + name):
+            # a use of a macro whose text the page leaves out (Lyα L5, L6: the title page's authors), allow-listed
+            for _ in range(self.ctx.macros[name][0]):
+                j = self.arg(s, j, pos)[2]
+            return j
         if name in self.ctx.macros:
             return self.expand(name, s, j, pos, loc)
         if name in SYMBOL:
@@ -435,6 +477,26 @@ class TexReducer:
             sub.flush()
             for t in sub.out:
                 self.emit(t.val.upper() if not t.val.startswith('$') else t.val, t.loc)
+            return j
+        if name == 'cellcolor':
+            # a cell's background (L13): prints nothing ([model]{colour})
+            o = self.opt(s, j)
+            j = o[2] if o else j
+            return self.arg(s, j, pos)[2]
+        if name in ('multicolumn', 'multirow'):
+            # a cell spanning columns / rows (L13): its text is the last argument (\multirow's optional
+            # arguments: [vpos]{rows}[bigstruts]{width}[fixup]{text})
+            n = 2
+            if name == 'multirow':
+                o = self.opt(s, j)
+                j = o[2] if o else j
+            for k in range(n):
+                j = self.arg(s, j, pos)[2]
+                if name == 'multirow':
+                    o = self.opt(s, j)
+                    j = o[2] if o else j
+            x, y, j = self.arg(s, j, pos)
+            self.run(s, pos, x, y, tabular=True)
             return j
         if name in ('textcolor', 'href', 'hyperlink', 'hypertarget'):
             j = self.arg(s, j, pos)[2]
@@ -485,9 +547,9 @@ class TexReducer:
             o = self.opt(s, j)
             j = o[2] if o else j
             x, y, j = self.arg(s, j, pos)
-            if bare in ('chapter', 'section'):
+            if bare in PAGE_CMDS:
                 self.flush()
-                self.out.append(Boundary(bare, loc))
+                self.out.append(Boundary(PAGE_CMDS[bare], loc))
             self.flush()
             self.run(s, pos, x, y)
             self.text(' ', loc)
@@ -508,15 +570,16 @@ class TexReducer:
                 self.text(' ', loc)
                 j = o[2]
             return j
-        if name == 'listoffigures':
+        if name == 'listoffigures' and 'lof' in LISTS:
             self.flush()
             self.out.append(Boundary('listoffigures', loc))
             self.text('List of Figures ', loc)
             return j
         if name == 'bibliography':
             j = self.arg(s, j, pos)[2]
-            self.flush()
-            self.out.append(Boundary('bibliography', loc))
+            if 'bib' in LISTS:          # else: a course without a Bibliography page (Lyα L4) prints nothing here
+                self.flush()
+                self.out.append(Boundary('bibliography', loc))
             return j
         if bare in ('newcommand', 'renewcommand', 'providecommand'):
             return self.define(s, j, pos, loc)
@@ -642,12 +705,16 @@ class TexReducer:
         if env == 'tikzpicture':
             if not self.allowed(loc, 'tikzpicture'):     # reported; its words live in the SVG
                 fp = self.ctx.fp.get(loc)
-                self.ctx.unlisted.append(fp or (self.ctx.where(loc), 'tikzpicture', '?', '?'))
+                self.ctx.unlisted.append((fp or (self.ctx.where(loc), 'tikzpicture', '?', '?'))[:4] + (loc,))
             return after
         a = j
         if env in ('itemize', 'enumerate', 'description', 'center', 'flushleft', 'flushright', 'quote',
-                   'quotation', 'titlepage', 'document', 'verse'):
+                   'quotation', 'titlepage', 'document', 'verse', 'appendices'):
             pass
+        elif env == 'abstract':
+            # article's abstract: its heading \abstractname, then the text (Lyα L14)
+            self.flush()
+            self.text('Abstract ', loc)
         elif env in ('figure', 'figure*') and self.allowed(loc, 'figure'):
             # a TikZ figure: its whole body is compiled to the SVG (D10), with the macros and saved boxes
             # the picture uses; only the caption is text of the page
@@ -746,7 +813,7 @@ def _detok(t):
     return ''.join(x.val for x in r.out)
 
 
-def fingerprints(text, where):
+def fingerprints(text, where, omit=()):
     """The constructs a 'source' entry can name: offset -> (file, construct, key, line). The key survives
     line shifts: 'label:<x>' (the \\label of the figure or custompage the construct is in, or is), else
     'text:<first 60 characters of its source, spaces collapsed>'; ' #n' is appended only when two
@@ -760,10 +827,15 @@ def fingerprints(text, where):
     def head(t):
         return 'text:' + re.sub(r'\s+', ' ', t).strip()[:60]
     found = []
-    for m in re.finditer(r'\\begin\{(tikzpicture|figure)\}|\\DLC\s*\{', text):
+    macros = '|'.join(sorted(re.escape(x) for x in omit))
+    rx = r'\\begin\{(tikzpicture|figure)\}|\\DLC\s*\{' + (r'|\\(?P<macro>' + macros + r')(?![A-Za-z@])' if macros else '')
+    for m in re.finditer(rx, text):
         off = m.start()
         f, line = where(off).rsplit(':', 1)
-        if m.group(1):
+        if macros and m.group('macro'):
+            # a use of a macro the page leaves out: its key quotes the use, from the macro's name on
+            kind, key = '\\' + m.group('macro'), head(text[off:off + 400])
+        elif m.group(1):
             lab = next((lb for a, b, lb in spans if a <= off < b and lb), None)
             key = 'label:' + lab if lab else head(text[m.end():m.end() + 400])
             kind = m.group(1)
@@ -788,7 +860,8 @@ def tex_stream(allow_source):
     """The notes' source reduced to tokens and page boundaries. Returns (items, ctx, where)."""
     S = source.load(TEXSRC)
     bbl_path = os.path.join(TEXSRC, 'main.bbl')
-    bbl = open(bbl_path, encoding='utf-8').read()
+    # the bibliography only where the course has a Bibliography page (Lyα L4: the converted part cites nothing)
+    bbl = open(bbl_path, encoding='utf-8').read() if 'bib' in LISTS else ''
     if any(source._comment_start(line) != -1 for line in bbl.split('\n')):
         raise SystemExit('fidelity: main.bbl has a % comment (a broken URL?); teach this tool to strip it')
     bbl_lines = [0] + [m.end() for m in re.finditer('\n', bbl)]
@@ -798,9 +871,10 @@ def tex_stream(allow_source):
             return f'main.bbl:{bisect.bisect_right(bbl_lines, loc[1])}'
         return S.where(loc)
 
-    ctx = Ctx(read_aux(os.path.join(TEXSRC, 'main.aux')), read_bib(bbl_path), where)
+    ctx = Ctx(read_aux(os.path.join(TEXSRC, 'main.aux')), read_bib(bbl_path) if bbl else {}, where)
     ctx.skip_at = {(e['file'], e['construct'], e['key']) for e in allow_source}
-    ctx.fp = fingerprints(S.text, S.where)
+    ctx.omit = {e['construct'][1:] for e in allow_source if e['construct'].startswith('\\') and e['construct'] != '\\DLC'}
+    ctx.fp = fingerprints(S.text, S.where, ctx.omit)
     # preamble macros (\newcommand only) and the motivation box's title
     pre = '\n'.join(line if source._comment_start(line) == -1 else line[:source._comment_start(line)]
                     for line in S.preamble.split('\n'))
@@ -810,16 +884,19 @@ def tex_stream(allow_source):
         except (ValueError, AttributeError, IndexError):
             pass        # a definition this reader cannot parse: using it in the text is then reported
     mt = re.search(r'\\newtcolorbox\{motivationbox\}\[1\]\{.*?title=\{([^{}]*#1[^{}]*)\}', pre, re.S)
-    if not mt:
+    if not mt and 'motivationbox' in pre:
         raise SystemExit('fidelity: the motivationbox definition in the preamble changed; teach this tool')
-    ctx.motivation = mt.group(1)
+    if mt:
+        ctx.motivation = mt.group(1)
+    if re.search(r'\\abstractname(?![A-Za-z])', pre):
+        raise SystemExit('fidelity: the preamble renames \\abstractname; teach this tool')
     for k in ('runic', 'cunei'):
         ctx.macros.pop(k, None)
     r = TexReducer(ctx)
     r.run(S.text, lambda i: i)
     r.flush()
     items = r.out
-    # front matter: each top-level \input before the first \chapter is a page of its own (D51)
+    # front matter: each top-level \input before the first chapter-kind heading is a page of its own (D51)
     first_ch = next((i for i, t in enumerate(items) if isinstance(t, Boundary) and t.kind == 'chapter'), None)
     ch_off = items[first_ch].loc
     fronts = [st for st, en, f in S.main_inputs if en <= ch_off]
@@ -839,7 +916,32 @@ def tex_stream(allow_source):
             rb.run(bbl, lambda i: ('bbl', i))
             rb.flush()
             out.extend(rb.out)
-    return out, ctx, where
+    return out, ctx, where, S
+
+
+def kept_pages(S):
+    """None when the course publishes every page of its notes; else (the source offsets of the headings of the
+    pages it keeps, their addresses in order), decided by the converter's select_pages (build.py, L1, L2)."""
+    if not CFG.get('last') and CFG.get('appendices', 'all') == 'all':
+        return None
+    import contextlib
+    import io
+    import build
+    from texparse import Parser
+    build.configure(CFG)
+    P = Parser(S.text)
+    _, pages = build.make_pages(S, P)
+    build.assign_slugs(pages, P, S)
+    records = build.read_records(os.path.join(TEXSRC, 'main.port'), S)
+    starts = [p.a for p in pages]
+    per_page = [dict() for _ in pages]
+    for off, counter, num in records:
+        k = bisect.bisect_right(starts, off) - 1
+        if k >= 0:
+            per_page[k].setdefault(counter, []).append(num)
+    with contextlib.redirect_stdout(io.StringIO()):
+        kept, _, _ = build.select_pages(pages, per_page, S)
+    return {p.a for p in kept}, [p.slug for p in kept]
 
 
 # ---------------------------------------------------------------------------------------------------------
@@ -1041,33 +1143,61 @@ def show(toks):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
+    ap.add_argument('--course', help='one course of _port/convert/courses.py (default: every course, in turn)')
     ap.add_argument('--page', action='append', default=[])
     ap.add_argument('--self-test', action='store_true')
     ap.add_argument('--json', help='write every difference found (allowed or not) to this file')
     args = ap.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.course is None and not args.page:
+        # every course, each in a process of its own (the converter's page selection keeps module state)
+        import subprocess
+        rc = 0
+        for name in courses.COURSES:
+            print(f'== {name}', flush=True)
+            r = subprocess.run([sys.executable, os.path.abspath(__file__), '--course', name]
+                               + (sys.argv[1:] if argv is None else list(argv)))
+            rc = rc or r.returncode
+        return rc
+    configure(args.course or 'diffgeo-gr')
     t0 = time.time()
     allow = json.load(open(ALLOW, encoding='utf-8'))
     try:
-        items, ctx, where = tex_stream(allow.get('source', []))
+        items, ctx, where, S = tex_stream(allow.get('source', []))
     except Unknown as e:
         # the location: offsets of the expanded source
         print(f'fidelity: the LaTeX reducer stops: {e} at {_where_safe(e.loc)} (teach this tool; a figure whose '
               f'body is a picture needs a "source" entry)')
         return 1
+    segs = segments(items)
+    keep = kept_pages(S)
+    if keep is not None:
+        # a course that publishes part of its notes: the segments of the pages it keeps (and the landing page)
+        starts = [st for st, _ in segs]
+        on = [k == 0 or st in keep[0] for k, (st, _) in enumerate(segs)]
+
+        def kept(loc):
+            return isinstance(loc, tuple) or on[bisect.bisect_right(starts, loc) - 1]
+        ctx.unknown = [(loc, msg) for loc, msg in ctx.unknown if kept(loc)]
+        ctx.unlisted = [x for x in ctx.unlisted if kept(x[4])]
+        segs = [sg for sg, k in zip(segs, on) if k]
     if ctx.unknown or ctx.unlisted:
         for loc, msg in ctx.unknown:
             print(f'TEACH {where(loc)}: {msg} (teach this tool)')
-        for f, what, key, line in ctx.unlisted:
+        for f, what, key, line, _ in ctx.unlisted:
             print(f'SOURCE {f}:{line}: {what} not on the page as text and not allow-listed '
                   f'("source" entry: file {f!r}, construct {what!r}, key {key!r})')
         print(f'fidelity: {len(ctx.unknown) + len(ctx.unlisted)} constructs of the source stop the check')
         return 1
-    segs = segments(items)
     order, pages = page_order()
     if len(segs) != len(order):
         print(f'fidelity: {len(segs)} source segments but {len(order)} pages')
+        return 1
+    if keep is not None and order[1:] != keep[1]:
+        bad_at = next((i for i, (x, y) in enumerate(zip(order[1:], keep[1])) if x != y), min(len(order) - 1, len(keep[1])))
+        print(f'fidelity: the pages\' previous/next chain and the converter\'s page selection differ at page {bad_at + 1}: '
+              f'{order[1:][bad_at:bad_at + 1]} | {keep[1][bad_at:bad_at + 1]}')
         return 1
     diffs_allow = [dict(d, _used=False) for d in allow.get('diff', [])]
     bad, allowed, all_diffs = [], 0, []
@@ -1112,7 +1242,7 @@ def main(argv=None):
     for s in stale:
         print('STALE', s)
     nsrc = sum(ctx.skipped.values())
-    print(f'fidelity: {len(order) if not args.page else len(args.page)} pages, {nwords} words '
+    print(f'fidelity {CFG["name"]}: {len(order) if not args.page else len(args.page)} pages, {nwords} words '
           f'({ntext} text tokens with punctuation), {nmath} math strings compared; '
           f'{allowed} allowed differences + {nsrc} allow-listed source constructs; '
           f'{len(bad)} not allowed, {len(stale)} stale allow entries ({time.time() - t0:.1f} s)')

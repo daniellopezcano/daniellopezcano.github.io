@@ -66,7 +66,7 @@ Graduate course at IFUSP, University of São Paulo (3 credits; 18 h of lectures 
 
 ::: {.media-actions}
 [Read online](notes/diffgeo-gr/index.html){.btn .btn-outline-info .btn-sm .dg-read-online}
-[Lecture notes](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
+[Download PDF](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
 [GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
 :::
 :::
@@ -90,44 +90,6 @@ Four-day minicourse (taught in Portuguese) at the I Escola de Inverno do IFUSP. 
 :::
 
 :::
-
-## Lecture Notes
-
-::: {.doc-grid .doc-grid-compact}
-
-::: {.doc-card}
-[![](assets/img/docs/from_differential_geometry_to_general_relativity.png){.doc-thumb .doc-thumb-compact fig-alt="Preview of From Differential Geometry to General Relativity"}](assets/files/docs/from_differential_geometry_to_general_relativity.pdf)
-
-::: {.doc-body}
-### From Differential Geometry to General Relativity
-
-Graduate-level notes with formal derivations, worked examples, visual intuition, and Python-based supporting material.
-
-::: {.media-actions}
-[Read online](notes/diffgeo-gr/index.html){.btn .btn-outline-info .btn-sm .dg-read-online}
-[Download PDF](assets/files/docs/from_differential_geometry_to_general_relativity.pdf){.btn .btn-outline-info .btn-sm}
-[GitHub](https://github.com/daniellopezcano/differential_geometry){.btn .btn-outline-info .btn-sm}
-:::
-:::
-:::
-
-::: {.doc-card}
-[![](assets/img/docs/absorption_lines_in_cosmological_sightlines.png){.doc-thumb .doc-thumb-compact fig-alt="Preview of Absorption Lines in Cosmological Sightlines"}](assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf)
-
-::: {.doc-body}
-### Notes on Ly$\alpha$ Forest and Absorption Processes in Cosmology
-
-Pedagogical notes on Ly$\alpha$ skewer generation, optical depth, transmitted flux, velocity-space mappings, and metal-line modelling.
-
-::: {.media-actions}
-[Download PDF](assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf){.btn .btn-outline-info .btn-sm}
-[GitHub](https://github.com/daniellopezcano/SkewerJAX){.btn .btn-outline-info .btn-sm}
-:::
-:::
-:::
-
-:::
-
 
 ## Other Projects & Open Source Software
 

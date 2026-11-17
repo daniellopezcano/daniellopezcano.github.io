@@ -81,10 +81,10 @@ Semi-supervised domain adaptation for robust star–galaxy–quasar classificati
 2026 · Collaboration
 :::
 
-### OJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis
+### OJALÁ: Optimizing J-PAS Astronomy for Large-scale Analysis. A transformer-based model for source classification and physical-parameter inference
 
 G. Martínez-Solaeche, R. M. González Delgado, R. García-Benito, …, **D. López-Cano**, et al.  
-*arXiv preprint, arXiv:2604.00661*
+*Astronomy & Astrophysics*, in press (accepted 12 November 2026)
 
 Foundation-model approach to the SEDs of galaxies, QSOs, and stars in the J-PAS context.
 

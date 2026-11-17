@@ -253,9 +253,10 @@ def _compare(pdf: str, svg: str, tmp: str) -> tuple[float, float]:
 
 
 class Figures:
-    def __init__(self, repo_root: str, preamble: str, aux_path: str, out_dir: str | None = None):
+    def __init__(self, repo_root: str, preamble: str, aux_path: str, out_dir: str | None = None,
+                 src_dir: str | None = None):
         self.repo = os.path.abspath(repo_root)
-        self.src = os.path.join(self.repo, '_port', '.work', 'tex', 'src')
+        self.src = os.path.abspath(src_dir) if src_dir else os.path.join(self.repo, '_port', '.work', 'tex', 'src')
         self.work = os.path.join(self.repo, '_port', '.work', 'figs')
         self.cache = os.path.join(self.repo, '_port', '.work', 'figcache')
         self.out = os.path.abspath(out_dir) if out_dir else os.path.join(

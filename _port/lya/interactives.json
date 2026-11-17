@@ -1,0 +1,10 @@
+{
+  "_comment": "Hand-written. Where each interactive panel of the Lyα course goes (Lyα DECISIONS L20; same rules as _port/interactives.json of the first course, D15, D55, D57): 'label' is a LaTeX \\label of a figure or of a (sub)section of the notes; the panel is placed right after that figure or heading, or with 'at': 'end' at the end of that (sub)section's content. 'module' is notes/lya-forest/assets/interactive/<module>.js; 'notebook' is the path of the notebook in SkewerJAX (github.com/daniellopezcano/SkewerJAX, branch main) that the panel's footer links to. The tests of each panel are _port/lya/tests/<module>.test.mjs (run by _port/tools/test_lya_interactives.mjs).",
+  "interactives": [
+    {"label": "fig:line_profile", "module": "lineprofile", "notebook": "notebooks/06_voigt_and_line_profiles.ipynb"},
+    {"label": "fig:optical_depth", "module": "opticaldepth", "notebook": "notebooks/07_deposition_and_optical_depth.ipynb"},
+    {"label": "eq:delta_j", "module": "transmission", "notebook": "notebooks/10_skewer_statistics.ipynb"},
+    {"label": "subsubsec:approx_velocity_units", "at": "end", "module": "velocityunits", "notebook": "notebooks/12_comparison_fake_spectra_results.ipynb"},
+    {"label": "fig:a_of_x", "module": "scalefactor", "notebook": "notebooks/02_cosmology.ipynb"}
+  ]
+}

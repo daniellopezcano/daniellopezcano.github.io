@@ -7,6 +7,10 @@ project:
     # course section "From Differential Geometry to General Relativity": complete HTML pages written by
     # _port/convert/build.py, copied as they are (DECISIONS D29)
     - notes/diffgeo-gr/**
+    # course section "SkewerJAX: Absorption Lines in Cosmological Sightlines" (Lyman-α Forest), built the same way
+    - notes/lya-forest/**
+    # its PDF, linked only from the course's landing page (Lyα DECISIONS L28)
+    - assets/files/docs/absorption_lines_in_cosmological_sightlines.pdf
   # adds the course pages to search.json and sitemap.xml (Quarto does not index .html files)
   post-render: python3 _port/tools/post_render.py
 
@@ -28,8 +32,12 @@ website:
         text: Research & Publications
       - href: teaching_and_projects.qmd
         text: Teaching & Projects
-      - href: notes/diffgeo-gr/index.html
-        text: Lecture Notes
+      - text: Lecture Notes
+        menu:
+          - href: notes/diffgeo-gr/index.html
+            text: From Differential Geometry to General Relativity
+          - href: notes/lya-forest/index.html
+            text: Lyman-α Forest
       - href: outreach.qmd
         text: Outreach
       - href: cv.qmd
@@ -46,6 +54,9 @@ format:
     css: styles.css
     include-in-header:
       - includes/person-schema.html
+    # the "Lecture Notes" dropdown also opens on hover and keyboard focus (Lyα course DECISIONS L15)
+    include-after-body:
+      - includes/navbar-dropdown.html
     toc: false
     smooth-scroll: true
     code-copy: true

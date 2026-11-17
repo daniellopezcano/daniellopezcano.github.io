@@ -76,9 +76,11 @@ def included_files(src_dir: str) -> list[str]:
     return sorted(out)
 
 
-def last_updated(src_dir: str, notes_dir: str) -> tuple[str, str]:
+def last_updated(src_dir: str, notes_dir: str, files: list | None = None) -> tuple[str, str]:
     """(ISO date, the date as LaTeX's \\today prints it in English) of the last commit of the notes
-    repository that touched a file of included_files(). Stops if git or the repository is unavailable."""
+    repository that touched a file of included_files() (or of `files`, paths relative to the notes directory:
+    a course that publishes only part of its notes passes the files of that part, Lyα DECISIONS L6).
+    Stops if git or the repository is unavailable."""
     def git(*args):
         try:
             p = subprocess.run(['git', '-C', notes_dir, *args], capture_output=True, text=True, timeout=60)
@@ -91,7 +93,7 @@ def last_updated(src_dir: str, notes_dir: str) -> tuple[str, str]:
     if not os.path.isdir(notes_dir):
         raise SystemExit(f'cover.py: notes directory {notes_dir} not found (set NOTES); '
                          f'it is needed for the "Last updated" date of the landing page')
-    files = included_files(src_dir)
+    files = list(files) if files is not None else included_files(src_dir)
     tracked = git('ls-files', '-z', '--', *files).split('\0')
     tracked = [f for f in tracked if f]
     if not tracked:
